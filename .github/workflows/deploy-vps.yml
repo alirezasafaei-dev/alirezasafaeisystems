@@ -1,6 +1,9 @@
 name: Deploy VPS
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -23,7 +26,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-vps-${{ inputs.environment }}
+  group: deploy-vps-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
   cancel-in-progress: false
 
 jobs:
@@ -31,17 +34,17 @@ jobs:
     name: Quality gate
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: ${{ inputs.confirmation == 'DEPLOY' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.confirmation == 'DEPLOY' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: '.nvmrc'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - name: Install
@@ -54,25 +57,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     needs: quality-gate
-    if: ${{ inputs.confirmation == 'DEPLOY' }}
-    environment: ${{ inputs.environment }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.confirmation == 'DEPLOY' }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
     env:
-      TARGET_ENV: ${{ inputs.environment }}
-      TARGET_REF: ${{ inputs.ref }}
+      TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+      TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER }}
       VPS_PORT: ${{ secrets.VPS_PORT }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
 
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: '.nvmrc'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
