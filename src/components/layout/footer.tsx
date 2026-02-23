@@ -22,6 +22,22 @@ function withLocale(path: string, language: 'fa' | 'en'): string {
 export function Footer() {
   const { t, language } = useI18n()
   const currentYear = new Date().getFullYear()
+  const utmSource = 'asdev-portfolio'
+  const networkLinks = [
+    {
+      label: 'پورتفولیو و راه‌های ارتباطی',
+      href: `https://alirezasafaeisystems.ir/?utm_source=${utmSource}&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`,
+    },
+    {
+      label: 'PersianToolbox — ابزارهای فارسی (لوکال و امن)',
+      href: `https://persiantoolbox.ir/?utm_source=${utmSource}&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`,
+    },
+    {
+      label: 'Audit IR — بررسی فنی و امنیتی',
+      href: `https://audit.alirezasafaeisystems.ir/?utm_source=${utmSource}&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`,
+    },
+  ]
+  const telegramLink = 'https://t.me/asdevsystems'
   const socialLinks = [
     {
       name: 'LinkedIn',
@@ -127,14 +143,50 @@ export function Footer() {
           <p className="text-sm text-muted-foreground text-center md:text-left">
             © {currentYear} {brand.ownerName}. {t('footer.allRights')}
           </p>
-          <p className="text-sm text-muted-foreground flex items-center gap-1 text-center md:text-right flex-wrap justify-center md:justify-end">
-            {t('ui.builtBy')}
-            <Link href={withLocale('/about-brand', language)} className="font-semibold hover:text-primary transition-colors">
-              {brand.ownerName} ({brand.brandName})
-            </Link>
-            {t('footer.madeWith')}
-            <Heart className="h-4 w-4 fill-primary text-primary" />
-          </p>
+          <div className="text-sm text-muted-foreground flex flex-col md:items-end gap-2 text-center md:text-right">
+            <p className="flex items-center gap-1 justify-center md:justify-end flex-wrap">
+              {t('ui.builtBy')}
+              <Link href={withLocale('/about-brand', language)} className="font-semibold hover:text-primary transition-colors">
+                {brand.ownerName} ({brand.brandName})
+              </Link>
+              {t('footer.madeWith')}
+              <Heart className="h-4 w-4 fill-primary text-primary" />
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center md:justify-end text-xs">
+              <span className="font-semibold">ASDEV | Alireza Safaei — علیرضا صفایی</span>
+              <span aria-hidden>•</span>
+              <Link
+                href="https://alirezasafaeisystems.ir/"
+                className="underline underline-offset-4 hover:text-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Portfolio & contact: alirezasafaeisystems.ir
+              </Link>
+              <span aria-hidden>•</span>
+              <Link
+                href={telegramLink}
+                className="underline underline-offset-4 hover:text-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Telegram: @asdevsystems
+              </Link>
+            </div>
+            <div className="flex flex-wrap gap-3 justify-center md:justify-end">
+              {networkLinks.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="underline underline-offset-4 hover:text-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </footer>

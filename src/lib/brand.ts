@@ -3,7 +3,7 @@ import { env } from '@/lib/env'
 const DEFAULT_HANDLE = 'alirezasafaeisystems'
 const DEFAULT_GITHUB_URL = `https://github.com/${DEFAULT_HANDLE}`
 const DEFAULT_LINKEDIN_URL = `https://linkedin.com/in/${DEFAULT_HANDLE}`
-const DEFAULT_TELEGRAM_URL = `https://telegram.me/${DEFAULT_HANDLE}`
+const DEFAULT_TELEGRAM_URL = `https://t.me/asdevsystems`
 const DEFAULT_INSTAGRAM_URL = `https://www.instagram.com/${DEFAULT_HANDLE}`
 const DEFAULT_WHATSAPP_URL = 'https://wa.me/message/ANXJHRC3RKRSL1'
 const DEFAULT_CONTACT_EMAIL = 'alirezasafaeisystems@gmail.com'

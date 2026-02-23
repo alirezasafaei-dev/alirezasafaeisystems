@@ -199,6 +199,16 @@ export default async function RootLayout({
             }}
             nonce={nonce}
           />
+          <JsonLd
+            data={{
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'ASDEV',
+              url: siteUrl,
+              sameAs: [brand.githubUrl, brand.linkedinUrl, brand.telegramUrl].filter(Boolean),
+            }}
+            nonce={nonce}
+          />
           <JsonLd data={generateBreadcrumbSchema([
             { name: 'Home', url: siteUrl },
           ])} nonce={nonce} />
