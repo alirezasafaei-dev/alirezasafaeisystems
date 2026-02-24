@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     title: 'ASDEV — صفحه برند',
     description: 'لینک‌های رسمی شبکه ASDEV و راه‌های ارتباطی علیرضا صفایی.',
   },
+  other: {
+    'x-robots-tag': 'index, follow',
+  },
 }
 
 export default function AsdevPage() {
@@ -71,6 +74,29 @@ export default function AsdevPage() {
     ],
   }
 
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'چطور بین محصولات ASDEV جابه‌جا شوم؟',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'از لینک‌های همین صفحه یا فوتر استفاده کنید؛ همه لینک‌ها دارای UTM برای رهگیری شفاف هستند.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'تلگرام رسمی ASDEV چیست؟',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'کانال رسمی: https://t.me/asdevsystems',
+        },
+      },
+    ],
+  }
+
   const contactLinks = [
     { label: 'GitHub', href: 'https://github.com/alirezasafaeisystems' },
     { label: 'Telegram', href: 'https://t.me/asdevsystems' },
@@ -82,6 +108,10 @@ export default function AsdevPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
       <header className="space-y-3 rounded-2xl border bg-card p-6 md:p-8 card-hover aurora-shell">
