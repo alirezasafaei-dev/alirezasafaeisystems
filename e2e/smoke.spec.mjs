@@ -38,6 +38,16 @@ test.describe('smoke', () => {
     await expect(page.locator('header button[aria-label="Toggle theme"]')).toBeVisible()
   })
 
+  test('asdev page loads in mobile viewport with brand links', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/asdev')
+    await expect(page.locator('h1')).toContainText('ASDEV')
+    await expect(page.getByRole('heading', { name: /پورتفولیو و راه‌های ارتباطی/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /PersianToolbox — ابزارهای فارسی/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Audit IR — بررسی فنی و امنیتی/ })).toBeVisible()
+    expect(await page.locator('a[href*="utm_campaign=asdev_network"]').count()).toBeGreaterThanOrEqual(3)
+  })
+
   test('admin route redirects unauthenticated users to login', async ({ page }) => {
     await page.goto('/admin')
     await expect(page).toHaveURL(/\/admin\/login/)
