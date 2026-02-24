@@ -5,6 +5,14 @@ import { Linkedin, Mail, Heart, Instagram, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
+import {
+  ASDEV_PORTFOLIO_LABEL,
+  ASDEV_PORTFOLIO_URL,
+  ASDEV_SIGNATURE_TEXT,
+  ASDEV_TELEGRAM_LABEL,
+  ASDEV_TELEGRAM_URL,
+  buildAsdevNetworkLinks,
+} from '@/lib/asdev-network'
 
 const quickLinks = [
   { key: 'quickHome', href: '/' },
@@ -22,22 +30,7 @@ function withLocale(path: string, language: 'fa' | 'en'): string {
 export function Footer() {
   const { t, language } = useI18n()
   const currentYear = new Date().getFullYear()
-  const utmSource = 'asdev-portfolio'
-  const networkLinks = [
-    {
-      label: 'پورتفولیو و راه‌های ارتباطی',
-      href: `https://alirezasafaeisystems.ir/?utm_source=${utmSource}&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`,
-    },
-    {
-      label: 'PersianToolbox — ابزارهای فارسی (لوکال و امن)',
-      href: `https://persiantoolbox.ir/?utm_source=${utmSource}&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`,
-    },
-    {
-      label: 'Audit IR — بررسی فنی و امنیتی',
-      href: `https://audit.alirezasafaeisystems.ir/?utm_source=${utmSource}&utm_medium=cross_site&utm_campaign=asdev_network&utm_content=footer`,
-    },
-  ]
-  const telegramLink = 'https://t.me/asdevsystems'
+  const networkLinks = buildAsdevNetworkLinks('asdev-portfolio', 'footer')
   const socialLinks = [
     {
       name: 'LinkedIn',
@@ -153,24 +146,24 @@ export function Footer() {
               <Heart className="h-4 w-4 fill-primary text-primary" />
             </p>
             <div className="flex flex-wrap gap-2 justify-center md:justify-end text-xs">
-              <span className="font-semibold">ASDEV | Alireza Safaei — علیرضا صفایی</span>
+              <span className="font-semibold">{ASDEV_SIGNATURE_TEXT}</span>
               <span aria-hidden>•</span>
               <Link
-                href="https://alirezasafaeisystems.ir/"
+                href={ASDEV_PORTFOLIO_URL}
                 className="underline underline-offset-4 hover:text-primary"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Portfolio & contact: alirezasafaeisystems.ir
+                {ASDEV_PORTFOLIO_LABEL}
               </Link>
               <span aria-hidden>•</span>
               <Link
-                href={telegramLink}
+                href={ASDEV_TELEGRAM_URL}
                 className="underline underline-offset-4 hover:text-primary"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Telegram: @asdevsystems
+                {ASDEV_TELEGRAM_LABEL}
               </Link>
             </div>
             <div className="flex flex-wrap gap-3 justify-center md:justify-end">

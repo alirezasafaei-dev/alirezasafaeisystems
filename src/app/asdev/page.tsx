@@ -1,19 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { brand } from '@/lib/brand'
 import { getSiteUrl } from '@/lib/site-config'
+import {
+  ASDEV_PORTFOLIO_LABEL,
+  ASDEV_PORTFOLIO_URL,
+  ASDEV_SIGNATURE_TEXT,
+  ASDEV_TELEGRAM_URL,
+  buildAsdevNetworkLinks,
+} from '@/lib/asdev-network'
 
 const siteUrl = getSiteUrl()
-const utmSource = 'asdev-portfolio'
-
-function withUtm(baseUrl: string, content: 'footer' | 'asdev_page') {
-  const url = new URL(baseUrl)
-  url.searchParams.set('utm_source', utmSource)
-  url.searchParams.set('utm_medium', 'cross_site')
-  url.searchParams.set('utm_campaign', 'asdev_network')
-  url.searchParams.set('utm_content', content)
-  return url.toString()
-}
 
 export const metadata: Metadata = {
   title: 'ASDEV — صفحه برند و شبکه',
@@ -37,24 +35,26 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AsdevPage() {
-  const networkLinks = [
-    {
-      label: 'پورتفولیو و راه‌های ارتباطی',
-      href: withUtm('https://alirezasafaeisystems.ir/', 'asdev_page'),
-      description: 'رزومه، خدمات و راه‌های تماس مستقیم با علیرضا صفایی.',
-    },
-    {
-      label: 'PersianToolbox — ابزارهای فارسی (لوکال و امن)',
-      href: withUtm('https://persiantoolbox.ir/', 'asdev_page'),
-      description: 'مجموعه ابزارهای فارسی با پردازش لوکال و حریم خصوصی کاربر.',
-    },
-    {
-      label: 'Audit IR — بررسی فنی و امنیتی',
-      href: withUtm('https://audit.alirezasafaeisystems.ir/', 'asdev_page'),
+export default async function AsdevPage() {
+  const nonce = (await headers()).get('x-csp-nonce') || undefined
+  const networkLinks = buildAsdevNetworkLinks('asdev-portfolio', 'asdev_page').map((item) => {
+    if (item.key === 'portfolio') {
+      return {
+        ...item,
+        description: 'رزومه، خدمات و راه‌های تماس مستقیم با علیرضا صفایی.',
+      }
+    }
+    if (item.key === 'toolbox') {
+      return {
+        ...item,
+        description: 'مجموعه ابزارهای فارسی با پردازش لوکال و حریم خصوصی کاربر.',
+      }
+    }
+    return {
+      ...item,
       description: 'پلتفرم تحلیل Performance/SEO/Security با گزارش عملیاتی.',
-    },
-  ]
+    }
+  })
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -99,18 +99,20 @@ export default function AsdevPage() {
 
   const contactLinks = [
     { label: 'GitHub', href: 'https://github.com/alirezasafaeisystems' },
-    { label: 'Telegram', href: 'https://t.me/asdevsystems' },
-    { label: 'Portfolio & contact', href: 'https://alirezasafaeisystems.ir/' },
+    { label: 'Telegram', href: ASDEV_TELEGRAM_URL },
+    { label: 'Portfolio & contact', href: ASDEV_PORTFOLIO_URL },
   ]
 
   return (
     <main className="container mx-auto px-4 py-16 max-w-5xl space-y-10 subtle-grid" id="main-content">
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
@@ -142,11 +144,10 @@ export default function AsdevPage() {
 
       <section className="rounded-xl border bg-muted/30 p-5 md:p-6 space-y-3">
         <h2 className="text-base font-semibold">امضای برند</h2>
-        <p className="text-sm text-muted-foreground">ASDEV | Alireza Safaei — علیرضا صفایی</p>
+        <p className="text-sm text-muted-foreground">{ASDEV_SIGNATURE_TEXT}</p>
         <p className="text-sm text-muted-foreground">
-          Portfolio &amp; contact:{' '}
-          <Link href="https://alirezasafaeisystems.ir/" className="underline underline-offset-4" target="_blank" rel="noopener noreferrer">
-            alirezasafaeisystems.ir
+          <Link href={ASDEV_PORTFOLIO_URL} className="underline underline-offset-4" target="_blank" rel="noopener noreferrer">
+            {ASDEV_PORTFOLIO_LABEL}
           </Link>
         </p>
         <div className="flex flex-wrap gap-3 text-sm">
@@ -162,6 +163,9 @@ export default function AsdevPage() {
             </Link>
           ))}
         </div>
+        <Link href="/standards" className="text-sm underline underline-offset-4">
+          استانداردهای تحویل و intent map فارسی
+        </Link>
       </section>
     </main>
   )

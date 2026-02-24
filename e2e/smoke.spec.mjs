@@ -48,6 +48,12 @@ test.describe('smoke', () => {
     expect(await page.locator('a[href*="utm_campaign=asdev_network"]').count()).toBeGreaterThanOrEqual(3)
   })
 
+  test('standards page is available and keeps ASDEV network links', async ({ page }) => {
+    await page.goto('/fa/standards')
+    await expect(page.locator('h1')).toContainText('استانداردهای تحویل')
+    expect(await page.locator('a[href*="utm_campaign=asdev_network"]').count()).toBeGreaterThanOrEqual(3)
+  })
+
   test('admin route redirects unauthenticated users to login', async ({ page }) => {
     await page.goto('/admin')
     await expect(page).toHaveURL(/\/admin\/login/)

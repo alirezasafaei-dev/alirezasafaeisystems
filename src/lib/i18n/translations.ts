@@ -25,7 +25,7 @@ export const translations = {
     hero: {
       title: 'Build resilient local-first infrastructure for mission-critical operations',
       subtitle: 'Production-Grade Web Systems Consultant',
-      description: 'Infrastructure risk audit, CI/CD hardening, and domestic deployment architecture for organizations that require stable operations.',
+      description: 'For CTOs and platform teams: infrastructure risk audit, CI/CD hardening, and a concrete delivery plan with measurable operational outcomes.',
       available: 'NDA-ready discovery, response within one business day',
       viewWork: 'View Case Studies',
       getInTouch: 'Request Infrastructure Assessment',
@@ -142,7 +142,7 @@ export const translations = {
     hero: {
       title: 'ساخت زیرساخت آنلاین پایدار و مستقل برای سازمان‌های نیازمند عملیات قابل اعتماد',
       subtitle: 'مشاور سیستم‌های وب Production-Grade',
-      description: 'ممیزی ریسک وابستگی‌ها، طراحی معماری local-first، سخت‌سازی CI/CD و برنامه بازیابی با خروجی مدیریتی قابل ارائه.',
+      description: 'برای مدیر فنی و تیم پلتفرم: ممیزی ریسک وابستگی‌ها، معماری local-first، سخت‌سازی CI/CD و خروجی اجرایی قابل‌ارائه به مدیریت.',
       available: 'آماده Discovery با امکان NDA و پاسخ تا یک روز کاری',
       viewWork: 'مشاهده مطالعات موردی',
       getInTouch: 'درخواست ارزیابی ریسک زیرساخت',

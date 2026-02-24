@@ -128,10 +128,15 @@ jobs:
           # Run smoke checks from inside the VPS to avoid public-route CI network variance.
           ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "\
             set -euo pipefail; \
-            curl --connect-timeout 10 --max-time 30 -fIsS http://127.0.0.1:${PORT}/api/ready >/dev/null; \
-            curl --connect-timeout 10 --max-time 30 -fIsS '${BASE_URL}/api/ready' >/dev/null; \
-            curl --connect-timeout 10 --max-time 30 -fIsS '${BASE_URL}/' >/dev/null; \
-            curl --connect-timeout 10 --max-time 30 -fIsS '${BASE_URL}/services' >/dev/null; \
+            GET_CODE=\$(curl --connect-timeout 10 --max-time 30 -fsS -o /tmp/portfolio-ready-get.json -w '%{http_code}' http://127.0.0.1:${PORT}/api/ready); \
+            HEAD_CODE=\$(curl --connect-timeout 10 --max-time 30 -sSI -o /tmp/portfolio-ready-head.txt -w '%{http_code}' -X HEAD http://127.0.0.1:${PORT}/api/ready); \
+            test \"\${GET_CODE}\" = \"200\"; \
+            test \"\${HEAD_CODE}\" = \"\${GET_CODE}\"; \
+            grep -q '\"status\":\"ready\"' /tmp/portfolio-ready-get.json; \
+            curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/api/ready' >/dev/null; \
+            curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/' | grep -Eq 'lang=\"fa\"|dir=\"rtl\"'; \
+            curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/services' >/dev/null; \
+            curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/asdev' | grep -q 'asdev_network'; \
           "
 
       - name: Output deployment summary
