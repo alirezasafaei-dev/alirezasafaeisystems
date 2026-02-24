@@ -30,6 +30,8 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "verify": "bash scripts/verify.sh",
+    "codex:bootstrap": "bash scripts/codex/bootstrap-codex-cli.sh",
+    "codex:report": "bash scripts/codex/report-codex-cli-state.sh",
     "ops:rollback-drill": "bash scripts/deploy/run-rollback-drill.sh",
     "release:evidence": "bash scripts/release/generate-go-no-go-evidence.sh",
     "release:configure-ownership": "bash scripts/release/configure-ownership.sh",
