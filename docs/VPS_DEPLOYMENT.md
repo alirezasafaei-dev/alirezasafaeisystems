@@ -23,16 +23,23 @@
   - `bash scripts/deploy/check-hosting-sync.sh --strict`
 
 ## مراحل استقرار
-1. فایل محیطی را بسازید:
+1. آماده‌سازی release روی لوکال (گیت‌های کیفیت + smoke + ساخت artifact):
+   - `pnpm run release:prepare:vps`
+   - خروجی:
+     - `artifacts/releases/production/<release-id>/*.tar.gz`
+     - `docs/runtime/VPS_DEPLOY_PREP_<timestamp>.md`
+2. فایل محیطی را بسازید:
    - `cp .env.example /var/www/my-portfolio/shared/env/production.env`
-2. سورس کد را روی VPS قرار دهید (extract در یک مسیر موقت).
-3. اجرای deploy:
+3. سورس کد را روی VPS قرار دهید (extract در یک مسیر موقت).
+4. اجرای preflight روی VPS:
+   - `bash scripts/vps-preflight.sh --env production --strict`
+5. اجرای deploy:
    - `bash ops/deploy/deploy.sh --env production --source-dir /tmp/release`
-4. راه‌اندازی سرویس systemd:
+6. راه‌اندازی سرویس systemd:
    - `sudo cp ops/systemd/my-portfolio-production.service /etc/systemd/system/`
    - `sudo systemctl daemon-reload`
    - `sudo systemctl enable --now my-portfolio-production`
-5. پیکربندی nginx:
+7. پیکربندی nginx:
    - حالت پیشنهادی (Production): co-hosting یکپارچه با TLS/HSTS:
      - `sudo cp ops/nginx/asdev-cohosting.conf /etc/nginx/sites-available/asdev-cohosting.conf`
      - `sudo ln -sfn /etc/nginx/sites-available/asdev-cohosting.conf /etc/nginx/sites-enabled/asdev-cohosting.conf`

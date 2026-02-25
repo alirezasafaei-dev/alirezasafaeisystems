@@ -15,6 +15,7 @@ Canonical location for operational runtime evidence.
 - `docs/runtime/OWNER_INPUT_QUEUE.md`: required owner decisions for remaining non-local tasks.
 - `docs/runtime/ENTERPRISE_10_10_EXECUTION_PLAN_2026-02-19.md`: real status analysis, hard release gates, and 10/10 execution protocol.
 - `docs/runtime/GITHUB_ORG_2FA_STATUS.md`: governance evidence for org 2FA enforcement state.
+- `docs/runtime/VPS_DEPLOY_PREP_*.md`: deployment readiness evidence from local release preparation runs.
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_RUNBOOK.md`: bootstrap flow for Codex CLI auto compact, MCP, and skills prerequisites.
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`: latest evidence snapshot captured after automation run.
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt`: latest successful maintenance heartbeat metadata.

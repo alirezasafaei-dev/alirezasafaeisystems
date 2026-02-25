@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(_request: Request) {
-  // در آینده می‌توان وابستگی DB/Redis را هم چک کرد
-  return NextResponse.json({ status: 'ready' })
+  try {
+    await db.$queryRaw`SELECT 1`
+    return NextResponse.json({ status: 'ready' })
+  } catch (error) {
+    logger.error('Ready endpoint database check failed', {
+      error: error instanceof Error ? error.message : 'unknown',
+    })
+    return NextResponse.json({ status: 'not_ready' }, { status: 503 })
+  }
 }
 
 export async function HEAD(request: Request) {

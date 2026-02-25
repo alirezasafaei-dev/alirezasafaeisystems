@@ -42,6 +42,8 @@
     "release:evidence": "bash scripts/release/generate-go-no-go-evidence.sh",
     "release:configure-ownership": "bash scripts/release/configure-ownership.sh",
     "release:validate-ownership": "bash scripts/release/validate-ownership.sh",
+    "release:prepare:vps": "bash scripts/deploy/prepare-vps-release.sh --env production",
+    "vps:preflight": "bash scripts/vps-preflight.sh --env production --strict",
     "scan:external": "bash scripts/offline-external-scan.sh",
     "audit:high": "bash scripts/audit-high-critical.sh",
     "scan:secrets": "bash scripts/scan-secrets.sh"

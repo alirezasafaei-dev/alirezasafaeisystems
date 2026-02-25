@@ -25,6 +25,7 @@
 ## مستندات مرتبط
 - `docs/VPS_DEPLOYMENT.md`
 - `docs/DEPLOYMENT_PRECHECKLIST.md`
+- `scripts/deploy/prepare-vps-release.sh` (run local deploy gates and create VPS-ready artifact bundle)
 - `scripts/deploy/check-hosting-sync.sh`
 - `scripts/deploy/validate-cohosting-config.sh`
 - `scripts/deploy/backup-onsite.sh` (onsite backup with retention)

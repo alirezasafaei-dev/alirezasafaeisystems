@@ -18,6 +18,7 @@ This file is the entry point for project documentation.
 ## Runtime Evidence
 - `docs/runtime/README.md`: runtime evidence policy and folder map
 - `docs/ENTERPRISE_RUNTIME_STATUS.md`: latest enterprise baseline status with real command evidence
+- `docs/runtime/VPS_DEPLOY_PREP_*.md`: latest local VPS deploy-preparation reports (gates + artifact metadata)
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_RUNBOOK.md`: Codex CLI bootstrap automation and operational notes
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`: latest Codex CLI auto-compact runtime snapshot
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt`: latest successful codex maintenance heartbeat

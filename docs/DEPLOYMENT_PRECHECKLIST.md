@@ -16,6 +16,7 @@ Evidence:
 - "Unchecked" items below are not currently broken; they are required re-validation gates for the next release.
 
 ## Before Deploy
+- [ ] `pnpm run release:prepare:vps` passed and new runtime prep report exists in `docs/runtime/`.
 - [ ] Co-hosting dependency order confirmed for this release window.
 - [ ] `pnpm run verify` passed on the release commit.
 - [ ] `pnpm run test:e2e:smoke` passed on the release commit.
@@ -56,6 +57,6 @@ Evidence:
   - `bash scripts/release/validate-ownership.sh`
 
 ## بررسی‌های VPS
-- اجرای `bash scripts/vps-preflight.sh`
+- اجرای `bash scripts/vps-preflight.sh --env production --strict`
 - وجود فایل محیطی: `/var/www/my-portfolio/shared/env/production.env`
 - دسترسی سرویس systemd و nginx
