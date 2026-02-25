@@ -18,7 +18,7 @@ if [[ ! "$KEEP_DAYS" =~ ^[0-9]+$ ]]; then
 fi
 
 CRON_JOB_MAIN="${CRON_SCHEDULE} /usr/bin/env bash -lc 'cd \"${REPO_ROOT}\" && bash scripts/codex/maintain-codex-cli.sh --push --keep-days ${KEEP_DAYS} >> artifacts/codex-cli-maintain.log 2>&1' ${CRON_TAG_MAIN}"
-CRON_JOB_HEALTH="${HEALTH_SCHEDULE} /usr/bin/env bash -lc 'cd \"${REPO_ROOT}\" && bash scripts/codex/check-maintenance-health.sh --max-age-hours 48 >> artifacts/codex-cli-health.log 2>&1' ${CRON_TAG_HEALTH}"
+CRON_JOB_HEALTH="${HEALTH_SCHEDULE} /usr/bin/env bash -lc 'cd \"${REPO_ROOT}\" && bash scripts/codex/check-maintenance-health.sh --max-age-hours 48 --repair-cron --auto-heal --keep-days ${KEEP_DAYS} >> artifacts/codex-cli-health.log 2>&1' ${CRON_TAG_HEALTH}"
 CURRENT_CRONTAB="$(crontab -l 2>/dev/null || true)"
 FILTERED_CRONTAB="$(printf '%s\n' "$CURRENT_CRONTAB" | rg -v --fixed-strings "$CRON_TAG_MAIN" | rg -v --fixed-strings "$CRON_TAG_HEALTH" || true)"
 
