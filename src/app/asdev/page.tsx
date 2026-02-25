@@ -98,7 +98,7 @@ export default async function AsdevPage() {
   }
 
   const contactLinks = [
-    { label: 'GitHub', href: 'https://github.com/alirezasafaeisystems' },
+    { label: 'GitHub', href: 'https://github.com/parsairaniiidev' },
     { label: 'Telegram', href: ASDEV_TELEGRAM_URL },
     { label: 'Portfolio & contact', href: ASDEV_PORTFOLIO_URL },
   ]
