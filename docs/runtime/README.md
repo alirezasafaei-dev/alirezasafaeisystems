@@ -16,4 +16,4 @@ Canonical location for operational runtime evidence.
 - `docs/runtime/ENTERPRISE_10_10_EXECUTION_PLAN_2026-02-19.md`: real status analysis, hard release gates, and 10/10 execution protocol.
 - `docs/runtime/GITHUB_ORG_2FA_STATUS.md`: governance evidence for org 2FA enforcement state.
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_RUNBOOK.md`: bootstrap flow for Codex CLI auto compact, MCP, and skills prerequisites.
-- `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_2026-02-24.md`: dated evidence snapshot captured after automation run.
+- `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`: latest evidence snapshot captured after automation run.

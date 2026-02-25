@@ -5,7 +5,9 @@ set -euo pipefail
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CONFIG_FILE="${CODEX_HOME}/config.toml"
 MODELS_CACHE="${CODEX_HOME}/models_cache.json"
-OUTPUT_PATH="${1:-docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_$(date +%F).md}"
+REPORT_DATE_UTC="$(date -u +%F)"
+OUTPUT_PATH="${1:-docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_${REPORT_DATE_UTC}.md}"
+LATEST_PATH="$(dirname "$OUTPUT_PATH")/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md"
 
 [[ -f "$CONFIG_FILE" ]] || {
   echo "Codex config not found at ${CONFIG_FILE}" >&2
@@ -32,6 +34,7 @@ CODEX_VERSION="$(codex --version 2>/dev/null || true)"
 MCP_LIST="$(codex mcp list 2>/dev/null || true)"
 MCP_OPENAI_DOCS="$(codex mcp get openaiDeveloperDocs 2>/dev/null || true)"
 FEATURES_ACTIVE="$(codex features list 2>/dev/null | rg '^((multi_agent|apps|skill_mcp_dependency_install|use_linux_sandbox_bwrap))[[:space:]]' || true)"
+CRON_MAINTAIN_ENTRY="$(crontab -l 2>/dev/null | rg --fixed-strings 'codex-cli-maintain' || true)"
 
 REQUIRED_SKILLS=(
   doc
@@ -43,7 +46,7 @@ REQUIRED_SKILLS=(
 )
 
 {
-  echo "# Codex CLI Auto Compact Status ($(date +%F))"
+  echo "# Codex CLI Auto Compact Status (${REPORT_DATE_UTC})"
   echo
   echo "Generated on $(date -u +'%Y-%m-%d %H:%M:%S UTC')."
   echo
@@ -77,14 +80,30 @@ REQUIRED_SKILLS=(
     fi
   done
   echo
+  echo "## Scheduled Maintenance (cron)"
+  if [[ -n "$CRON_MAINTAIN_ENTRY" ]]; then
+    echo '```text'
+    printf '%s\n' "$CRON_MAINTAIN_ENTRY"
+    echo '```'
+  else
+    echo "- no codex maintenance cron entry found"
+  fi
+  echo
   echo "## Verification Commands"
   echo '```bash'
   echo "codex --version"
   echo "codex mcp list"
   echo "codex mcp get openaiDeveloperDocs"
   echo "codex features list | rg '^((multi_agent|apps|skill_mcp_dependency_install|use_linux_sandbox_bwrap))[[:space:]]'"
+  echo "crontab -l | rg --fixed-strings 'codex-cli-maintain'"
   echo "awk -F' = ' '/^model_auto_compact_token_limit = / { print \$2; exit }' ~/.codex/config.toml"
   echo '```'
 } > "$OUTPUT_PATH"
 
-echo "Wrote ${OUTPUT_PATH}"
+if [[ "$OUTPUT_PATH" != "$LATEST_PATH" ]]; then
+  cp "$OUTPUT_PATH" "$LATEST_PATH"
+  echo "Wrote ${OUTPUT_PATH}"
+  echo "Wrote ${LATEST_PATH}"
+else
+  echo "Wrote ${OUTPUT_PATH}"
+fi

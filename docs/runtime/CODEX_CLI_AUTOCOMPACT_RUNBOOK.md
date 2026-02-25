@@ -27,6 +27,9 @@ Automation targets local Codex state under `~/.codex`:
 ```bash
 pnpm run codex:bootstrap
 pnpm run codex:report
+pnpm run codex:maintain
+pnpm run codex:maintain:push
+pnpm run codex:cron:install
 ```
 
 Equivalent direct calls:
@@ -34,6 +37,8 @@ Equivalent direct calls:
 ```bash
 bash scripts/codex/bootstrap-codex-cli.sh
 bash scripts/codex/report-codex-cli-state.sh
+bash scripts/codex/maintain-codex-cli.sh --push
+bash scripts/codex/install-maintenance-cron.sh
 ```
 
 ## Auto Compact Policy
@@ -70,8 +75,20 @@ The bootstrap enforces these curated skills (installing missing ones):
 
 ## Evidence
 
-After each bootstrap, generate and commit a dated runtime snapshot in:
+`codex:report` now writes both:
 
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_YYYY-MM-DD.md`
+- `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`
 
 This captures actual local values for version, model, compact limit, MCP state, features, and skill installation state.
+
+## Automated Daily Maintenance
+
+- `scripts/codex/maintain-codex-cli.sh`: runs bootstrap + report, then commits changed runtime evidence files.
+- `scripts/codex/install-maintenance-cron.sh`: installs a daily cron job (default `03:17 UTC`) that runs maintenance with `--push`.
+
+To set a custom schedule:
+
+```bash
+bash scripts/codex/install-maintenance-cron.sh '45 1 * * *'
+```
