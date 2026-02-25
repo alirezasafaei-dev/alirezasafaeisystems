@@ -29,6 +29,8 @@ pnpm run codex:bootstrap
 pnpm run codex:report
 pnpm run codex:maintain
 pnpm run codex:maintain:push
+pnpm run codex:prune
+pnpm run codex:health
 pnpm run codex:cron:install
 ```
 
@@ -38,6 +40,8 @@ Equivalent direct calls:
 bash scripts/codex/bootstrap-codex-cli.sh
 bash scripts/codex/report-codex-cli-state.sh
 bash scripts/codex/maintain-codex-cli.sh --push
+bash scripts/codex/prune-status-reports.sh --keep-days 30
+bash scripts/codex/check-maintenance-health.sh --max-age-hours 48
 bash scripts/codex/install-maintenance-cron.sh
 ```
 
@@ -79,16 +83,21 @@ The bootstrap enforces these curated skills (installing missing ones):
 
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_YYYY-MM-DD.md`
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`
+- `docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt` (from `codex:maintain`)
 
 This captures actual local values for version, model, compact limit, MCP state, features, and skill installation state.
 
 ## Automated Daily Maintenance
 
-- `scripts/codex/maintain-codex-cli.sh`: runs bootstrap + report, then commits changed runtime evidence files.
-- `scripts/codex/install-maintenance-cron.sh`: installs a daily cron job (default `03:17 UTC`) that runs maintenance with `--push`.
+- `scripts/codex/maintain-codex-cli.sh`: runs bootstrap + report, prunes old dated snapshots, writes heartbeat, then commits changed runtime evidence files.
+- `scripts/codex/prune-status-reports.sh`: removes dated snapshots older than retention (`--keep-days`, default 30).
+- `scripts/codex/check-maintenance-health.sh`: validates cron, latest snapshot freshness, and heartbeat freshness.
+- `scripts/codex/install-maintenance-cron.sh`: installs two daily cron jobs:
+  - maintenance job (default `03:17 UTC`)
+  - health-check job (default `03:47 UTC`)
 
-To set a custom schedule:
+To set custom schedules and retention:
 
 ```bash
-bash scripts/codex/install-maintenance-cron.sh '45 1 * * *'
+bash scripts/codex/install-maintenance-cron.sh '45 1 * * *' 14 '15 2 * * *'
 ```

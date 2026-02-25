@@ -17,3 +17,4 @@ Canonical location for operational runtime evidence.
 - `docs/runtime/GITHUB_ORG_2FA_STATUS.md`: governance evidence for org 2FA enforcement state.
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_RUNBOOK.md`: bootstrap flow for Codex CLI auto compact, MCP, and skills prerequisites.
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`: latest evidence snapshot captured after automation run.
+- `docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt`: latest successful maintenance heartbeat metadata.

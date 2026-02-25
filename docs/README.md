@@ -20,6 +20,7 @@ This file is the entry point for project documentation.
 - `docs/ENTERPRISE_RUNTIME_STATUS.md`: latest enterprise baseline status with real command evidence
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_RUNBOOK.md`: Codex CLI bootstrap automation and operational notes
 - `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`: latest Codex CLI auto-compact runtime snapshot
+- `docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt`: latest successful codex maintenance heartbeat
 - `docs/runtime/ENTERPRISE_10_10_EXECUTION_PLAN_2026-02-19.md`: current-state analysis and enterprise 10/10 execution plan
 - `docs/runtime/GITHUB_ORG_2FA_STATUS.md`: governance record for org 2FA enforcement and recovery-code process
 - `docs/runtime/GoNoGo_Evidence/`: release go/no-go evidence snapshots

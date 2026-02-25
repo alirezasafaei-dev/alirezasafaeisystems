@@ -8,6 +8,7 @@ MODELS_CACHE="${CODEX_HOME}/models_cache.json"
 REPORT_DATE_UTC="$(date -u +%F)"
 OUTPUT_PATH="${1:-docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_${REPORT_DATE_UTC}.md}"
 LATEST_PATH="$(dirname "$OUTPUT_PATH")/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md"
+HEARTBEAT_FILE="docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt"
 
 [[ -f "$CONFIG_FILE" ]] || {
   echo "Codex config not found at ${CONFIG_FILE}" >&2
@@ -35,6 +36,7 @@ MCP_LIST="$(codex mcp list 2>/dev/null || true)"
 MCP_OPENAI_DOCS="$(codex mcp get openaiDeveloperDocs 2>/dev/null || true)"
 FEATURES_ACTIVE="$(codex features list 2>/dev/null | rg '^((multi_agent|apps|skill_mcp_dependency_install|use_linux_sandbox_bwrap))[[:space:]]' || true)"
 CRON_MAINTAIN_ENTRY="$(crontab -l 2>/dev/null | rg --fixed-strings 'codex-cli-maintain' || true)"
+CRON_HEALTH_ENTRY="$(crontab -l 2>/dev/null | rg --fixed-strings 'codex-cli-health' || true)"
 
 REQUIRED_SKILLS=(
   doc
@@ -81,12 +83,26 @@ REQUIRED_SKILLS=(
   done
   echo
   echo "## Scheduled Maintenance (cron)"
-  if [[ -n "$CRON_MAINTAIN_ENTRY" ]]; then
+  if [[ -n "$CRON_MAINTAIN_ENTRY" || -n "$CRON_HEALTH_ENTRY" ]]; then
     echo '```text'
-    printf '%s\n' "$CRON_MAINTAIN_ENTRY"
+    if [[ -n "$CRON_MAINTAIN_ENTRY" ]]; then
+      printf '%s\n' "$CRON_MAINTAIN_ENTRY"
+    fi
+    if [[ -n "$CRON_HEALTH_ENTRY" ]]; then
+      printf '%s\n' "$CRON_HEALTH_ENTRY"
+    fi
     echo '```'
   else
-    echo "- no codex maintenance cron entry found"
+    echo "- no codex maintenance cron entries found"
+  fi
+  echo
+  echo "## Maintenance Heartbeat"
+  if [[ -f "$HEARTBEAT_FILE" ]]; then
+    echo '```text'
+    cat "$HEARTBEAT_FILE"
+    echo '```'
+  else
+    echo "- heartbeat file not found: $HEARTBEAT_FILE"
   fi
   echo
   echo "## Verification Commands"
@@ -95,7 +111,8 @@ REQUIRED_SKILLS=(
   echo "codex mcp list"
   echo "codex mcp get openaiDeveloperDocs"
   echo "codex features list | rg '^((multi_agent|apps|skill_mcp_dependency_install|use_linux_sandbox_bwrap))[[:space:]]'"
-  echo "crontab -l | rg --fixed-strings 'codex-cli-maintain'"
+  echo "crontab -l | rg --fixed-strings 'codex-cli-'"
+  echo "cat docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt"
   echo "awk -F' = ' '/^model_auto_compact_token_limit = / { print \$2; exit }' ~/.codex/config.toml"
   echo '```'
 } > "$OUTPUT_PATH"

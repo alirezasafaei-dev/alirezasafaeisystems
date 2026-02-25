@@ -34,6 +34,8 @@
     "codex:report": "bash scripts/codex/report-codex-cli-state.sh",
     "codex:maintain": "bash scripts/codex/maintain-codex-cli.sh",
     "codex:maintain:push": "bash scripts/codex/maintain-codex-cli.sh --push",
+    "codex:prune": "bash scripts/codex/prune-status-reports.sh --keep-days 30",
+    "codex:health": "bash scripts/codex/check-maintenance-health.sh --max-age-hours 48",
     "codex:cron:install": "bash scripts/codex/install-maintenance-cron.sh",
     "ops:rollback-drill": "bash scripts/deploy/run-rollback-drill.sh",
     "release:evidence": "bash scripts/release/generate-go-no-go-evidence.sh",
