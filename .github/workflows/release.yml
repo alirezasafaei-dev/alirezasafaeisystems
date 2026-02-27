@@ -29,8 +29,8 @@ jobs:
         run: pnpm run release:validate-ownership
       - name: Generate go/no-go evidence snapshot
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
-          STAGING_URL: ${{ vars.STAGING_URL }}
+          SITE_URL: ${{ vars.SITE_URL != '' && vars.SITE_URL || 'https://alirezasafaeisystems.ir' }}
+          STAGING_URL: ${{ vars.STAGING_URL != '' && vars.STAGING_URL || 'https://staging.alirezasafaeisystems.ir' }}
           RUN_VERIFY: '0'
           RUN_SMOKE: '0'
           RUN_LIGHTHOUSE: '0'

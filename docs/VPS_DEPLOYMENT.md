@@ -48,7 +48,7 @@
      - از این فایل فقط در صورتی استفاده کنید که TLS termination در Edge خارجی انجام شود و redirect/headerها در همان لایه enforce شوند.
 
 ## سلامت
-- بررسی سلامت: `curl -fsS http://127.0.0.1:3002/api`
+- بررسی سلامت: `curl -fsS http://127.0.0.1:3002/api/health`
 - متریک‌ها: `http://127.0.0.1:3002/api/metrics`
 - readiness: `http://127.0.0.1:3002/api/ready`
 

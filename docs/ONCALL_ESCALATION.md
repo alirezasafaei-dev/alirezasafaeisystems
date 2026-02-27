@@ -21,7 +21,7 @@ Define who responds to production incidents and how escalation works for `alirez
 3. P0 issue (full outage/security risk): immediate escalation to incident commander and release approver.
 
 ## Communication Channels
-- Primary channel: `telegram:@asdev_ops_alerts`
+- Primary channel: `telegram:@asdevsystems`
 - Backup channel: `email:ops-backup@alirezasafaeisystems.ir`
 - Incident log location: `docs/runtime/Incidents/`
 

@@ -17,7 +17,7 @@ jobs:
       - name: Validate SLO from deployed metrics
         id: slo
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ vars.SITE_URL != '' && vars.SITE_URL || 'https://alirezasafaeisystems.ir' }}
           SLO_MAX_ERROR_RATE: ${{ vars.SLO_MAX_ERROR_RATE }}
           SLO_MIN_SAMPLE_SIZE: ${{ vars.SLO_MIN_SAMPLE_SIZE }}
         run: bash scripts/check-slo.sh

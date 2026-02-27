@@ -4,6 +4,14 @@
 
 set -euo pipefail
 
+if command -v flock >/dev/null 2>&1; then
+    exec 9>/tmp/alirezasafaeisystems-verify.lock
+    if ! flock -w 600 9; then
+        echo "Failed to acquire verify lock after waiting 600s"
+        exit 1
+    fi
+fi
+
 echo "=========================================="
 echo "🔍 Verification Script"
 echo "=========================================="
