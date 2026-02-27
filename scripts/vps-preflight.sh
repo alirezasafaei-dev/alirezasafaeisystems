@@ -5,6 +5,8 @@ ENVIRONMENT="production"
 BASE_DIR="/var/www/my-portfolio"
 APP_SLUG="my-portfolio"
 STRICT=false
+ROOT_DIR=""
+SKIP_RUNTIME_CHECKS=false
 
 usage() {
   cat <<USAGE
@@ -13,7 +15,9 @@ Usage: $(basename "$0") [options]
 Options:
   --env <staging|production>  Target environment (default: production)
   --base-dir <path>           Base deployment directory (default: /var/www/my-portfolio)
+  --root-dir <path>           Root directory for co-hosting sync checks (default: dirname(base-dir))
   --app-slug <name>           App slug prefix for PM2 process names (default: my-portfolio)
+  --skip-runtime-checks       Skip pm2/readiness runtime checks (safe for pre-deploy windows)
   --strict                    Treat warnings as errors
   -h, --help                  Show help
 USAGE
@@ -29,9 +33,17 @@ while [[ $# -gt 0 ]]; do
       BASE_DIR="${2:-}"
       shift 2
       ;;
+    --root-dir)
+      ROOT_DIR="${2:-}"
+      shift 2
+      ;;
     --app-slug)
       APP_SLUG="${2:-}"
       shift 2
+      ;;
+    --skip-runtime-checks)
+      SKIP_RUNTIME_CHECKS=true
+      shift
       ;;
     --strict)
       STRICT=true
@@ -54,6 +66,10 @@ if [[ "$ENVIRONMENT" != "staging" && "$ENVIRONMENT" != "production" ]]; then
   exit 1
 fi
 
+if [[ -z "$ROOT_DIR" ]]; then
+  ROOT_DIR="$(dirname "$BASE_DIR")"
+fi
+
 REQUIRED=(node pnpm pm2 rsync nginx curl)
 WARN_COUNT=0
 FAIL_COUNT=0
@@ -68,7 +84,7 @@ fail() {
   FAIL_COUNT=$((FAIL_COUNT + 1))
 }
 
-echo "[vps-preflight] environment=${ENVIRONMENT} base_dir=${BASE_DIR} strict=${STRICT}"
+echo "[vps-preflight] environment=${ENVIRONMENT} base_dir=${BASE_DIR} root_dir=${ROOT_DIR} strict=${STRICT} skip_runtime_checks=${SKIP_RUNTIME_CHECKS}"
 
 for c in "${REQUIRED[@]}"; do
   if command -v "$c" >/dev/null 2>&1; then
@@ -119,29 +135,33 @@ else
 fi
 
 if [[ "$STRICT" == "true" ]]; then
-  if bash scripts/deploy/check-hosting-sync.sh --strict >/dev/null 2>&1; then
+  if bash scripts/deploy/check-hosting-sync.sh --strict --root-dir "$ROOT_DIR" >/dev/null 2>&1; then
     echo "[vps-preflight] hosting sync check: pass (strict)"
   else
     fail "hosting sync check failed (strict)"
   fi
 else
-  if bash scripts/deploy/check-hosting-sync.sh >/dev/null 2>&1; then
+  if bash scripts/deploy/check-hosting-sync.sh --root-dir "$ROOT_DIR" >/dev/null 2>&1; then
     echo "[vps-preflight] hosting sync check: pass"
   else
     warn "hosting sync check reported issues"
   fi
 fi
 
-if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
-  echo "[vps-preflight] pm2 process exists: $APP_NAME"
+if [[ "$SKIP_RUNTIME_CHECKS" == "true" ]]; then
+  echo "[vps-preflight] runtime checks skipped (--skip-runtime-checks)"
 else
-  warn "pm2 process not found yet: $APP_NAME"
-fi
+  if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
+    echo "[vps-preflight] pm2 process exists: $APP_NAME"
+  else
+    warn "pm2 process not found yet: $APP_NAME"
+  fi
 
-if curl -fsS "http://127.0.0.1:${PORT}/api/ready" >/dev/null 2>&1; then
-  echo "[vps-preflight] local readiness endpoint is reachable on :${PORT}"
-else
-  warn "local readiness endpoint is not reachable on :${PORT}"
+  if curl -fsS "http://127.0.0.1:${PORT}/api/ready" >/dev/null 2>&1; then
+    echo "[vps-preflight] local readiness endpoint is reachable on :${PORT}"
+  else
+    warn "local readiness endpoint is not reachable on :${PORT}"
+  fi
 fi
 
 echo "[vps-preflight] summary fails=${FAIL_COUNT} warns=${WARN_COUNT}"
