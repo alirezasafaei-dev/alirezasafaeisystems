@@ -1,21 +1,20 @@
 import { env } from '@/lib/env'
+import { PROFILE_SUMMARY_EN, PROFILE_SUMMARY_FA } from '@/lib/profile-copy'
 
 const DEFAULT_HANDLE = 'alirezasafaeisystems'
-const DEFAULT_GITHUB_URL = 'https://github.com/parsairaniiidev/asdev-portfolio'
+const DEFAULT_GITHUB_URL = 'https://github.com/parsairaniiidev/alirezasafaeisystems'
 const DEFAULT_LINKEDIN_URL = `https://linkedin.com/in/${DEFAULT_HANDLE}`
 const DEFAULT_TELEGRAM_URL = `https://t.me/asdevsystems`
 const DEFAULT_INSTAGRAM_URL = `https://www.instagram.com/${DEFAULT_HANDLE}`
 const DEFAULT_WHATSAPP_URL = 'https://wa.me/message/ANXJHRC3RKRSL1'
 const DEFAULT_CONTACT_EMAIL = 'alirezasafaeisystems@gmail.com'
 const DEFAULT_CONTACT_PHONE = '+9890001602030'
-const DEFAULT_POSITIONING_EN =
-  'ASDEV | Alireza Safaei — Production-Grade Web Systems Engineer | Architecture • Scalability • Reliability'
-const DEFAULT_POSITIONING_FA =
-  'ASDEV | علیرضا صفایی — مهندس سیستم‌های وب Production-Grade | معماری • مقیاس‌پذیری • پایداری'
+const DEFAULT_POSITIONING_EN = `AliReza Safaei — Web Systems Engineer | ${PROFILE_SUMMARY_EN}`
+const DEFAULT_POSITIONING_FA = `علیرضا صفایی — مهندس سیستم‌های وب | ${PROFILE_SUMMARY_FA}`
 
 export const brand = {
   ownerName: env.NEXT_PUBLIC_OWNER_NAME || 'Alireza Safaei',
-  brandName: env.NEXT_PUBLIC_BRAND_NAME || 'ASDEV',
+  brandName: env.NEXT_PUBLIC_BRAND_NAME || 'AliReza Safaei',
   twitterHandle: env.NEXT_PUBLIC_TWITTER_HANDLE || undefined,
   githubUrl: env.NEXT_PUBLIC_GITHUB_URL || DEFAULT_GITHUB_URL,
   linkedinUrl: env.NEXT_PUBLIC_LINKEDIN_URL || DEFAULT_LINKEDIN_URL,

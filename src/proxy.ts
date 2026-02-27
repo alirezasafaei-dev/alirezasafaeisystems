@@ -92,8 +92,53 @@ function withSecurityHeaders(response: NextResponse, pathname: string, nonce: st
   return response
 }
 
+function resolveLocale(request: NextRequest, pathnameLocale?: string): 'fa' | 'en' {
+  if (pathnameLocale === 'fa' || pathnameLocale === 'en') {
+    return pathnameLocale
+  }
+
+  const cookieLocale = request.cookies.get('lang')?.value
+  if (cookieLocale === 'en' || cookieLocale === 'fa') {
+    return cookieLocale
+  }
+
+  const acceptLanguage = request.headers.get('accept-language')?.toLowerCase() || ''
+  if (acceptLanguage.includes('en')) {
+    return 'en'
+  }
+
+  return 'fa'
+}
+
+function withRequestContextHeaders(
+  response: NextResponse,
+  {
+    correlationId,
+    nonce,
+    locale,
+    pathname,
+  }: {
+    correlationId: string
+    nonce: string
+    locale: 'fa' | 'en'
+    pathname: string
+  },
+): NextResponse {
+  response.headers.set('X-Request-ID', correlationId)
+  response.headers.set('X-Correlation-ID', correlationId)
+  response.headers.set('x-csp-nonce', nonce)
+  response.headers.set('x-site-locale', locale)
+  response.headers.set('x-site-pathname', pathname)
+  // Backward-compatibility with old internal header names.
+  response.headers.set('x-asdev-locale', locale)
+  response.headers.set('x-asdev-pathname', pathname)
+  return response
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+  const [, maybeLocale] = pathname.split('/')
+  const locale = resolveLocale(request, maybeLocale)
   const correlationId =
     request.headers.get('x-request-id') ||
     request.headers.get('x-correlation-id') ||
@@ -103,6 +148,10 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set('x-request-id', correlationId)
   requestHeaders.set('x-correlation-id', correlationId)
   requestHeaders.set('x-csp-nonce', nonce)
+  requestHeaders.set('x-site-locale', locale)
+  requestHeaders.set('x-site-pathname', pathname)
+  requestHeaders.set('x-asdev-locale', locale)
+  requestHeaders.set('x-asdev-pathname', pathname)
 
   const isLocalizedCandidate =
     !pathname.startsWith('/api') &&
@@ -114,11 +163,9 @@ export async function proxy(request: NextRequest) {
     pathname !== '/favicon.svg' &&
     !PUBLIC_FILE.test(pathname)
 
-  const [, maybeLocale] = pathname.split('/')
   const hasLocalePrefix = SUPPORTED_LOCALES.has(maybeLocale ?? '')
 
   if (isLocalizedCandidate && hasLocalePrefix) {
-    const locale = maybeLocale as 'fa' | 'en'
     const internalPath = pathname.replace(/^\/(fa|en)(?=\/|$)/, '') || '/'
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = internalPath
@@ -128,9 +175,7 @@ export async function proxy(request: NextRequest) {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365,
     })
-    response.headers.set('X-Request-ID', correlationId)
-    response.headers.set('X-Correlation-ID', correlationId)
-    response.headers.set('x-csp-nonce', nonce)
+    withRequestContextHeaders(response, { correlationId, nonce, locale, pathname })
     return withSecurityHeaders(response, pathname, nonce)
   }
 
@@ -140,9 +185,7 @@ export async function proxy(request: NextRequest) {
       loginUrl.pathname = ADMIN_LOGIN_PATH
       loginUrl.searchParams.set('error', 'auth_not_configured')
       const response = NextResponse.redirect(loginUrl)
-      response.headers.set('X-Request-ID', correlationId)
-      response.headers.set('X-Correlation-ID', correlationId)
-      response.headers.set('x-csp-nonce', nonce)
+      withRequestContextHeaders(response, { correlationId, nonce, locale, pathname })
       return withSecurityHeaders(response, pathname, nonce)
     }
 
@@ -153,17 +196,13 @@ export async function proxy(request: NextRequest) {
       loginUrl.pathname = ADMIN_LOGIN_PATH
       loginUrl.searchParams.set('redirect', pathname)
       const response = NextResponse.redirect(loginUrl)
-      response.headers.set('X-Request-ID', correlationId)
-      response.headers.set('X-Correlation-ID', correlationId)
-      response.headers.set('x-csp-nonce', nonce)
+      withRequestContextHeaders(response, { correlationId, nonce, locale, pathname })
       return withSecurityHeaders(response, pathname, nonce)
     }
   }
 
   const response = NextResponse.next({ request: { headers: requestHeaders } })
-  response.headers.set('X-Request-ID', correlationId)
-  response.headers.set('X-Correlation-ID', correlationId)
-  response.headers.set('x-csp-nonce', nonce)
+  withRequestContextHeaders(response, { correlationId, nonce, locale, pathname })
   return withSecurityHeaders(response, pathname, nonce)
 }
 

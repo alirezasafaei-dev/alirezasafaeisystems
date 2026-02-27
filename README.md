@@ -1,6 +1,6 @@
-# asdev-portfolio
+# alirezasafaeisystems
 
-Portfolio and lead-generation platform for ASDEV, built with Next.js App Router and a production-focused ops/governance workflow.
+Portfolio and lead-generation platform for AliReza Safaei (Web Systems Engineer), built with Next.js App Router and a production-focused ops/governance workflow.
 
 ## Tech Stack
 - Next.js 16 (App Router, TypeScript)
@@ -31,6 +31,7 @@ pnpm run lighthouse:ci
 
 ## Key Scripts
 - `pnpm run verify`: lint + type-check + tests + build + external scan
+- `pnpm run enterprise:gate`: verify + dependency audit + secret scan + ownership gate (+ optional SLO check with `SITE_URL`)
 - `pnpm run test:e2e:smoke`: release smoke tests
 - `pnpm run lighthouse:ci`: performance/SEO/a11y budgets
 - `pnpm run audit:high`: dependency high/critical audit gate

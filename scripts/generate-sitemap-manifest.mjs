@@ -11,6 +11,8 @@ const routeMap = [
     changeFrequency: 'weekly',
   },
   { route: '/fa/qualification', file: 'src/app/qualification/page.tsx', priority: 0.9, changeFrequency: 'weekly' },
+  { route: '/fa/profile', file: 'src/app/profile/page.tsx', priority: 0.88, changeFrequency: 'monthly' },
+  { route: '/fa/standards', file: 'src/app/standards/page.tsx', priority: 0.84, changeFrequency: 'monthly' },
   { route: '/fa/case-studies', file: 'src/app/case-studies/page.tsx', priority: 0.85, changeFrequency: 'monthly' },
   {
     route: '/fa/case-studies/alirezasafaeidev-portfolio',

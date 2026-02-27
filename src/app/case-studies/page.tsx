@@ -23,7 +23,7 @@ function getCases(lang: 'fa' | 'en') {
         href: '/case-studies/alirezasafaeidev-portfolio',
       },
       {
-        title: 'ASDEV PersianToolbox Platform',
+        title: 'PersianToolbox Platform',
         sector: 'Consumer Utilities',
         outcome: 'Local-first product delivery with disciplined UX, SEO, and release operations',
         href: '/case-studies/asdev-persiantoolbox-platform',

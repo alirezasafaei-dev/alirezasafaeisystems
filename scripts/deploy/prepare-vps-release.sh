@@ -188,7 +188,7 @@ if [[ "$RUN_VERIFY" == "1" ]]; then
 fi
 
 if [[ "$RUN_SMOKE" == "1" ]]; then
-  SMOKE_CMD='PORT=3100 pnpm run start >/tmp/asdev-vps-prepare-smoke-server.log 2>&1 & srv=$!; for i in {1..60}; do code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3100/ || true); if [[ "$code" != "000" ]]; then break; fi; sleep 1; done; PLAYWRIGHT_DISABLE_WEBSERVER=true PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100 pnpm -s run test:e2e:smoke; ec=$?; kill $srv >/dev/null 2>&1 || true; wait $srv 2>/dev/null || true; exit $ec'
+  SMOKE_CMD='PORT=3100 pnpm run start >/tmp/alirezasafaeisystems-vps-prepare-smoke-server.log 2>&1 & srv=$!; for i in {1..60}; do code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3100/ || true); if [[ "$code" != "000" ]]; then break; fi; sleep 1; done; PLAYWRIGHT_DISABLE_WEBSERVER=true PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100 pnpm -s run test:e2e:smoke; ec=$?; kill $srv >/dev/null 2>&1 || true; wait $srv 2>/dev/null || true; exit $ec'
   if run_gate "smoke" "$SMOKE_CMD" "${LOG_DIR}/smoke.log" 1; then
     SMOKE_STATUS="pass"
   else

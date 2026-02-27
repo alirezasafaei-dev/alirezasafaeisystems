@@ -2,38 +2,38 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { getSiteUrl } from '@/lib/site-config'
-import { buildAsdevNetworkLinks } from '@/lib/asdev-network'
+import { buildNetworkLinks } from '@/lib/network'
 
 const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
-  title: 'استانداردهای تحویل ASDEV',
+  title: 'استانداردهای تحویل AliReza Safaei',
   description:
-    'راهنمای کوتاه استانداردهای تحویل ASDEV: این سایت چیست، برای چه تیمی مناسب است، و خروجی اجرایی چه خواهد بود.',
+    'راهنمای کوتاه استانداردهای تحویل علیرضا صفایی: این سایت چیست، برای چه تیمی مناسب است، و خروجی اجرایی چه خواهد بود.',
   alternates: {
     canonical: `${siteUrl}/standards`,
   },
   openGraph: {
-    title: 'ASDEV Standards — استانداردهای تحویل',
+    title: 'AliReza Safaei Standards — استانداردهای تحویل',
     description: 'استانداردهای تحویل، intent map فارسی، و برنامه لینک داخلی بین Portfolio، PersianToolbox و Audit IR.',
     url: `${siteUrl}/standards`,
     type: 'article',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'استانداردهای تحویل ASDEV',
-    description: 'تعریف خروجی، مخاطب و نقشه لینک داخلی شبکه ASDEV.',
+    title: 'استانداردهای تحویل AliReza Safaei',
+    description: 'تعریف خروجی، مخاطب و نقشه لینک داخلی شبکه کاری.',
   },
 }
 
 export default async function StandardsPage() {
   const nonce = (await headers()).get('x-csp-nonce') || undefined
-  const links = buildAsdevNetworkLinks('asdev-portfolio', 'standards_page')
+  const links = buildNetworkLinks('alireza-portfolio', 'standards_page')
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'ASDEV Network Internal Links',
+    name: 'AliReza Safaei Network Internal Links',
     itemListElement: links.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
@@ -47,7 +47,7 @@ export default async function StandardsPage() {
       <script type="application/ld+json" nonce={nonce} dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section className="rounded-2xl border bg-card p-6 md:p-8 space-y-3">
-        <p className="text-sm font-semibold text-primary">ASDEV Standards</p>
+        <p className="text-sm font-semibold text-primary">AliReza Safaei Standards</p>
         <h1 className="text-3xl font-bold">استانداردهای تحویل و رشد پایدار</h1>
         <p className="text-muted-foreground leading-8">
           این صفحه تعریف می‌کند این سایت چیست، برای چه تیمی طراحی شده، و چه خروجی قابل‌اندازه‌گیری باید تولید شود.
@@ -64,7 +64,7 @@ export default async function StandardsPage() {
         <article className="rounded-xl border bg-card p-5 space-y-2">
           <h2 className="font-semibold">برای چه کسی است؟</h2>
           <p className="text-sm text-muted-foreground leading-7">
-            مدیر فنی، تیم پلتفرم، و تیم محصول که می‌خواهند ریسک زیرساخت و شکست انتشار را قابل‌کنترل کنند.
+            مدیر فنی، تیم پلتفرم، و تیم محصول که می‌خواهند ریسک زیرساخت، شکست انتشار، و اثر تحریم‌های خارجی علیه ایران را قابل‌کنترل کنند.
           </p>
         </article>
         <article className="rounded-xl border bg-card p-5 space-y-2">
@@ -94,8 +94,8 @@ export default async function StandardsPage() {
               {item.label}
             </Link>
           ))}
-          <Link href="/asdev" className="underline underline-offset-4 text-sm">
-            صفحه شبکه ASDEV
+          <Link href="/profile" className="underline underline-offset-4 text-sm">
+            صفحه معرفی شبکه
           </Link>
         </div>
       </section>

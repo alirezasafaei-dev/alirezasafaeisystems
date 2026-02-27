@@ -1,6 +1,6 @@
 # Design Token Registry
 
-Last updated: 2026-02-20
+Last updated: 2026-02-27
 Owner: `platform-owner`
 
 ## Source of Truth
@@ -21,11 +21,26 @@ Owner: `platform-owner`
 - Base radius token: `--radius`
 - Derived radii: `--radius-sm|md|lg|xl`
 - Spacing scale follows 8px rhythm in component classes.
+- Section spacing tokens:
+  - `--section-space-y`
+  - `--section-space-y-tight`
+  - `--flow-space`
 
 ## Typography Tokens
 - Primary stack bound to `--font-sans`.
 - Local font first policy: `IRANSansX` first in stack.
 - CDN font path is optional and must remain disabled in production by default.
+- Persian/RTL readability tokens:
+  - `--copy-line-height`
+  - `--copy-letter-spacing`
+  - `--heading-line-height`
+  - `--heading-letter-spacing`
+  - `--ui-line-height`
+- Utility classes:
+  - `.text-copy`
+  - `.text-ui`
+  - `.section-block`
+  - `.section-block-soft`
 
 ## Governance Rules
 1. New visual values must be introduced as tokens before component usage.
@@ -35,3 +50,18 @@ Owner: `platform-owner`
 - Lighthouse regression check
 - Screenshot evidence before/after under `docs/runtime/`
 4. Runtime must function without external font/CDN dependency.
+
+## Visual Regression Baseline
+- Storybook config: `.storybook/main.ts`, `.storybook/preview.tsx`
+- Core stories:
+  - `src/components/sections/hero.stories.tsx`
+  - `src/components/sections/contact.stories.tsx`
+  - `src/components/layout/footer.stories.tsx`
+- Visual regression tests:
+  - `playwright.storybook.config.mjs`
+  - `e2e/visual/storybook.visual.spec.ts`
+- Commands:
+  - `pnpm storybook`
+  - `pnpm storybook:build`
+  - `pnpm test:visual`
+  - `pnpm test:visual:update`

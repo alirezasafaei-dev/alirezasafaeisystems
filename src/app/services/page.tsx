@@ -9,7 +9,7 @@ const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
   title: 'Services',
-  description: 'Productized consulting offers for infrastructure resilience, project rescue, and operational hardening.',
+  description: 'Practical engineering services for software architecture, production readiness, project rescue, and stable local-first operations.',
   alternates: { canonical: `${siteUrl}/services` },
 }
 
@@ -90,12 +90,12 @@ export default async function ServicesPage() {
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbServices: lang === 'en' ? 'Services' : 'خدمات',
-    eyebrow: lang === 'en' ? 'ASDEV Productized Services' : 'خدمات محصول‌سازی‌شده ASDEV',
+    eyebrow: lang === 'en' ? 'AliReza Safaei | Web Systems Engineering' : 'علیرضا صفایی | مهندسی سیستم‌های وب',
     title: lang === 'en' ? 'Services' : 'خدمات',
     desc:
       lang === 'en'
-        ? 'Practical offers designed for operational stability, measurable delivery, and faster executive decisions.'
-        : 'خدمات عملی برای پایداری عملیاتی، تحویل قابل اندازه‌گیری، و تصمیم‌گیری سریع‌تر مدیریتی.',
+        ? 'Execution-focused services for software architecture, system design, delivery quality, and production stability.'
+        : 'خدمات اجرایی برای معماری نرم‌افزار، طراحی سیستم، بهبود کیفیت تحویل، پایداری واقعی در تولید، و مقابله عملی با تحریم‌های خارجی علیه ایران.',
     deliverableLabel: lang === 'en' ? 'Deliverable:' : 'خروجی قابل تحویل:',
     cta: lang === 'en' ? 'Start Qualification' : 'شروع ارزیابی و Qualification',
     proofLinePrefix: lang === 'en' ? 'Need proof first? Review ' : 'اگر اول شواهد می‌خواهید: ',

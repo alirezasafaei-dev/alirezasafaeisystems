@@ -67,7 +67,7 @@ describe('lead-notifier', () => {
       submittedAt: new Date().toISOString(),
       requestId: 'req_3',
       email: 'a@b.com',
-      organizationName: 'ASDEV',
+      organizationName: 'AliReza Safaei',
       summary: 'x',
     })
 

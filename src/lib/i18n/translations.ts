@@ -1,3 +1,5 @@
+import { PROFILE_SUMMARY_FA } from '@/lib/profile-copy'
+
 export const translations = {
   en: {
     nav: {
@@ -23,9 +25,9 @@ export const translations = {
       builtBy: 'Built by',
     },
     hero: {
-      title: 'Build resilient local-first infrastructure for mission-critical operations',
-      subtitle: 'Production-Grade Web Systems Consultant',
-      description: 'For CTOs and platform teams: infrastructure risk audit, CI/CD hardening, and a concrete delivery plan with measurable operational outcomes.',
+      title: 'Build stable web systems from idea to production',
+      subtitle: 'Web Systems Engineer',
+      description: 'Software architecture, system design, and end-to-end delivery focused on production readiness and reliable operations.',
       available: 'NDA-ready discovery, response within one business day',
       viewWork: 'View Case Studies',
       getInTouch: 'Request Infrastructure Assessment',
@@ -112,7 +114,7 @@ export const translations = {
       quickHome: 'Home',
       quickServices: 'Services',
       quickCaseStudies: 'Case Studies',
-      quickBrand: 'About Brand',
+      quickBrand: 'About Me',
       quickContact: 'Contact',
     },
   },
@@ -140,9 +142,9 @@ export const translations = {
       builtBy: 'ساخته شده توسط',
     },
     hero: {
-      title: 'ساخت زیرساخت آنلاین پایدار و مستقل برای سازمان‌های نیازمند عملیات قابل اعتماد',
-      subtitle: 'مشاور سیستم‌های وب Production-Grade',
-      description: 'برای مدیر فنی و تیم پلتفرم: ممیزی ریسک وابستگی‌ها، معماری local-first، سخت‌سازی CI/CD و خروجی اجرایی قابل‌ارائه به مدیریت.',
+      title: 'ساخت سیستم وب پایدار از ایده تا تولید',
+      subtitle: 'مهندس سیستم‌های وب',
+      description: PROFILE_SUMMARY_FA,
       available: 'آماده Discovery با امکان NDA و پاسخ تا یک روز کاری',
       viewWork: 'مشاهده مطالعات موردی',
       getInTouch: 'درخواست ارزیابی ریسک زیرساخت',
@@ -229,7 +231,7 @@ export const translations = {
       quickHome: 'خانه',
       quickServices: 'خدمات',
       quickCaseStudies: 'مطالعات موردی',
-      quickBrand: 'درباره برند',
+      quickBrand: 'درباره من',
       quickContact: 'تماس',
     },
   },

@@ -1,15 +1,15 @@
 # Enterprise Runtime Status
 
-Last updated (UTC): 2026-02-27T06:35:04Z
+Last updated (UTC): 2026-02-27T09:47:54Z
 Base commit at capture: `ad5feec`
 
 ## Implemented baseline
-- ASDEV cross-site contract: `/asdev` page + footer signature + UTM links + Telegram (`@asdevsystems`).
+- Cross-site contract: canonical `/profile` page + legacy redirect from `/asdev` + footer signature + UTM links + Telegram (`@asdevsystems`).
 - Security headers baseline in Next config (CSP, HSTS, Referrer-Policy, XFO, XCTO, Permissions-Policy).
 - `X-Robots-Tag: noindex, nofollow` for `/api/*` and admin surfaces.
 - Request/correlation IDs handled in `src/proxy.ts`.
 - Health endpoints: `/api/health`, `/api/ready`.
-- CI smoke job for mobile `/asdev` added in `.github/workflows/ci.yml`.
+- CI smoke job for mobile `/profile` added in `.github/workflows/ci.yml`.
 
 ## Latest real verification
 - Environment snapshot:

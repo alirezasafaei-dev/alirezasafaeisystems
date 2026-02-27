@@ -168,16 +168,45 @@
 [dir="rtl"] {
   direction: rtl;
   text-align: right;
+  --copy-line-height: 1.98;
+  --heading-line-height: 1.5;
+  --heading-letter-spacing: 0;
+  --ui-line-height: 1.78;
+}
+
+[dir="rtl"] p,
+[dir="rtl"] li {
+  text-wrap: pretty;
+  line-height: 1.95;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4 {
+  line-height: 1.45;
 }
 
 [dir="ltr"] {
   direction: ltr;
   text-align: left;
+  --copy-line-height: 1.75;
+  --heading-line-height: 1.25;
+  --heading-letter-spacing: -0.02em;
+  --ui-line-height: 1.5;
 }
 
 :root {
   --radius: 0.75rem;
   --font-heading: 'Vazirmatn', 'Estedad', 'IRANSansX', 'Shabnam', 'Noto Sans Arabic', Tahoma, sans-serif;
+  --section-space-y: clamp(4.5rem, 8vw, 6.5rem);
+  --section-space-y-tight: clamp(3.5rem, 6vw, 5rem);
+  --flow-space: clamp(0.85rem, 1.4vw, 1.25rem);
+  --copy-line-height: 1.82;
+  --copy-letter-spacing: 0;
+  --heading-line-height: 1.32;
+  --heading-letter-spacing: -0.015em;
+  --ui-line-height: 1.55;
   
   /* ASDEV PersianToolbox-aligned palette (light) */
   --primary: oklch(0.56 0.18 258);
@@ -547,6 +576,29 @@ html {
 .headline-tight {
   letter-spacing: -0.03em;
   text-wrap: balance;
+  line-height: var(--heading-line-height);
+}
+
+[dir="rtl"] .headline-tight {
+  letter-spacing: 0;
+}
+
+.section-block {
+  padding-block: var(--section-space-y);
+}
+
+.section-block-soft {
+  padding-block: var(--section-space-y-tight);
+}
+
+.text-copy {
+  line-height: var(--copy-line-height);
+  letter-spacing: var(--copy-letter-spacing);
+  text-wrap: pretty;
+}
+
+.text-ui {
+  line-height: var(--ui-line-height);
 }
 
 .subtle-grid {

@@ -1,6 +1,6 @@
 # 10/10 Master Checklist
 
-Target: make `asdev-portfolio` score 10/10 across engineering quality, operations reliability, documentation clarity, and conversion readiness.
+Target: make `alirezasafaeisystems` score 10/10 across engineering quality, operations reliability, documentation clarity, and conversion readiness.
 
 Last updated: 2026-02-19
 Owner: `platform-owner`

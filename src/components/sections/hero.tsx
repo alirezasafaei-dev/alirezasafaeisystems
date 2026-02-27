@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
-import { ArrowRight, Github, Linkedin, Twitter, Instagram, Send } from 'lucide-react'
+import { ArrowRight, Github, Linkedin, Twitter, Instagram, Send, ShieldCheck, Wrench, Rocket, Handshake, CircleUserRound, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics/client'
 import { pickHeroVariant, type HeroVariant } from '@/lib/analytics/experiments'
@@ -19,8 +19,9 @@ export function Hero() {
   const router = useRouter()
   const [variant] = useState<HeroVariant>(() => {
     if (typeof window === 'undefined') return 'authority'
-    const storageKey = 'asdev_hero_variant'
-    const savedVariant = window.localStorage.getItem(storageKey)
+    const storageKey = 'alireza_hero_variant'
+    const legacyStorageKey = 'asdev_hero_variant'
+    const savedVariant = window.localStorage.getItem(storageKey) || window.localStorage.getItem(legacyStorageKey)
     const selected =
       savedVariant === 'authority' || savedVariant === 'risk'
         ? savedVariant
@@ -50,130 +51,206 @@ export function Hero() {
     if (language === 'en') {
       if (variant === 'risk') {
         return {
-          title: 'Reduce operational risk before the next incident',
+          title: 'Stabilize your web system before the next incident',
           description:
-            'Risk map, release governance, and local-first architecture to keep critical services stable under pressure.',
-          primaryCta: 'Request 30-min Discovery',
+            'I review architecture, release flow, and production dependencies to reduce operational risk and improve delivery confidence.',
+          primaryCta: 'Start Discovery',
         }
       }
       return {
-        title: t('hero.title'),
-        description: t('hero.description'),
-        primaryCta: t('hero.getInTouch'),
+        title: 'Alireza Safaei | Web Systems Engineer',
+        description:
+          'From system design to production delivery. I help teams build stable, independent, and measurable web systems.',
+        primaryCta: 'Request Project Assessment',
       }
     }
 
     if (variant === 'risk') {
       return {
-        title: 'کاهش ریسک عملیاتی قبل از بحران بعدی',
-        description: 'نقشه ریسک، حاکمیت انتشار و معماری local-first برای پایداری سرویس‌های حیاتی.',
-        primaryCta: 'درخواست جلسه Discovery',
+        title: 'قبل از بحران بعدی، سیستم وب را پایدار کنید',
+        description:
+          'معماری، جریان انتشار و وابستگی های تولید را بازبینی می کنم تا ریسک عملیاتی کاهش پیدا کند و تحویل قابل اتکا بماند.',
+        primaryCta: 'شروع جلسه Discovery',
       }
     }
 
     return {
-      title: t('hero.title'),
-      description: t('hero.description'),
-      primaryCta: t('hero.getInTouch'),
+      title: 'علیرضا صفایی | مهندس سیستم های وب',
+      description:
+        'از طراحی سیستم تا تحویل تولید. تمرکز من تبدیل ایده به محصول پایدار، مستقل و قابل توسعه است.',
+      primaryCta: 'درخواست ارزیابی پروژه',
     }
-  }, [language, t, variant])
+  }, [language, variant])
 
-  const chips =
+  const capabilities =
     language === 'en'
       ? [
-          'Domestic data-center migration',
-          'Foreign dependency risk reduction',
-          'Release governance and rollback drills',
-          'Executive-ready technical reporting',
+          { icon: ShieldCheck, label: 'Software architecture and delivery quality' },
+          { icon: Rocket, label: 'From idea to production-ready product' },
+          { icon: Wrench, label: 'Rescue and completion of incomplete projects' },
+          { icon: Handshake, label: 'Collaboration with startups, private and public orgs' },
         ]
       : [
-          'انتقال به دیتاسنتر داخلی',
-          'کاهش وابستگی به سرویس خارجی',
-          'حاکمیت انتشار و تمرین Rollback',
-          'گزارش مدیریتی قابل ارائه',
+          { icon: ShieldCheck, label: 'معماری نرم افزار، طراحی سیستم و بهبود کیفیت تحویل' },
+          { icon: Rocket, label: 'تبدیل ایده به محصول و آماده سازی کامل برای تولید' },
+          { icon: Wrench, label: 'تکمیل پروژه های نیمه کاره و پایدارسازی وب سایت ها' },
+          { icon: Handshake, label: 'همکاری با استارتاپ ها و سازمان های خصوصی و دولتی' },
         ]
 
+  const collaborationFlow =
+    language === 'en'
+      ? ['Project context review', 'Architecture and roadmap', 'Execution and delivery hardening', 'Production handover and support']
+      : ['شناخت دقیق مسئله و محدودیت ها', 'طراحی معماری و نقشه اجرای شفاف', 'پیاده سازی و کنترل کیفیت تحویل', 'آماده سازی تولید و پشتیبانی پس از تحویل']
+
+  const pageRoadmap =
+    language === 'en'
+      ? ['Who I am', 'How I can help', 'Real case studies', 'Operational stabilization scope', 'Start your request']
+      : ['معرفی من', 'مهارت ها و نحوه کمک', 'نمونه کارهای واقعی', 'دامنه پایدارسازی عملیاتی', 'ثبت درخواست همکاری']
+
+  const trustPoints =
+    language === 'en'
+      ? ['Production-ready delivery path', 'Risk-aware architecture decisions', 'Localization and sanctions resilience']
+      : ['مسیر تحویل آماده تولید', 'تصمیم های معماری مبتنی بر ریسک', 'بومی سازی زیرساخت و تاب آوری در محدودیت ها']
+
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center pt-24 pb-12 relative overflow-hidden subtle-grid">
+    <section id="home" className="relative overflow-hidden section-block subtle-grid">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background/95 pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="mx-auto max-w-5xl section-surface aurora-shell p-8 md:p-12 text-center space-y-6">
-          <div className="reveal-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium mx-auto">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <span>{t('hero.available')}</span>
+        <div className="mx-auto max-w-6xl section-surface aurora-shell p-7 md:p-10 space-y-8">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-4 py-2 text-sm font-semibold">
+              <CircleUserRound className="h-4 w-4 text-primary" />
+              {language === 'en' ? 'Alireza Safaei | Web Systems Engineer' : 'علیرضا صفایی | مهندس سیستم های وب'}
+            </p>
+            <p className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-sm font-medium">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <span>{language === 'en' ? `Step 1 | ${t('hero.available')}` : `مرحله ۱ | ${t('hero.available')}`}</span>
+            </p>
+            <p className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-card/70 px-4 py-2 text-sm text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              {language === 'en' ? 'Tehran / Remote (Iran)' : 'تهران / همکاری ریموت در سراسر ایران'}
+            </p>
           </div>
 
-          <h1 className="headline-tight text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-            {variantCopy.title}
-          </h1>
-
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-8">
-            {variantCopy.description}
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              size="lg"
-              className="gap-2 shine-effect"
-              onClick={() => {
-                void trackEvent({
-                  name: 'hero_primary_click',
-                  category: 'conversion',
-                  locale: language,
-                  variant,
-                })
-                router.push(withLocale('/services/infrastructure-localization#assessment', language))
-              }}
-            >
-              {variantCopy.primaryCta}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-
-            <Button
-              size="lg"
-              variant="outline"
-              className="gap-2 card-hover"
-              onClick={() => {
-                void trackEvent({
-                  name: 'hero_secondary_click',
-                  category: 'engagement',
-                  locale: language,
-                  variant,
-                })
-                router.push(withLocale('/case-studies', language))
-              }}
-            >
-              {t('hero.viewWork')}
-            </Button>
+          <div className="space-y-4">
+            <h1 className="headline-tight max-w-4xl text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+              {variantCopy.title}
+            </h1>
+            <p className="max-w-3xl text-base md:text-lg text-muted-foreground text-copy">
+              {variantCopy.description}
+            </p>
           </div>
 
-          <div className="mt-2 flex flex-wrap gap-2 justify-center">
-            {chips.map((label, index) => (
-              <span
-                key={label}
-                className="rounded-full border border-border/60 bg-card/70 px-3 py-1 text-sm text-foreground/90 card-hover"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {label}
-              </span>
+          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 md:p-5">
+            <p className="text-sm font-semibold mb-3">
+              {language === 'en' ? 'Page Roadmap' : 'مسیر این صفحه'}
+            </p>
+            <div className="grid gap-2 md:grid-cols-5">
+              {pageRoadmap.map((item, index) => (
+                <p key={item} className="rounded-lg border border-border/60 bg-background/70 px-3 py-2 text-xs md:text-sm text-muted-foreground inline-flex items-center gap-2">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/12 text-[11px] font-semibold text-primary">
+                    {index + 1}
+                  </span>
+                  <span>{item}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {capabilities.map((item) => (
+              <div key={item.label} className="rounded-xl border border-border/70 bg-card/70 px-4 py-3 text-sm text-ui card-hover">
+                <p className="inline-flex items-start gap-2">
+                  <item.icon className="mt-0.5 h-4 w-4 text-primary" />
+                  <span>{item.label}</span>
+                </p>
+              </div>
             ))}
           </div>
 
-          <div className="flex gap-3 justify-center items-center">
-            {socialLinks.map((social) => (
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground text-copy">
+            {language === 'en'
+              ? 'Focused on infrastructure localization, production reliability, and practical resilience against external sanctions constraints.'
+              : 'تمرکز اصلی: بومی سازی زیرساخت، پایداری عملیاتی تولید، و مقابله عملی با محدودیت های ناشی از تحریم های خارجی علیه ایران.'}
+          </div>
+
+          <div className="grid gap-2 md:grid-cols-3">
+            {trustPoints.map((point) => (
+              <p key={point} className="rounded-lg border border-border/70 bg-card/70 px-3 py-2 text-xs md:text-sm text-muted-foreground text-ui">
+                {point}
+              </p>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-semibold">
+              {language === 'en' ? 'Collaboration Roadmap' : 'مسیر همکاری از شروع تا تحویل'}
+            </p>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {collaborationFlow.map((step, index) => (
+                <div key={step} className="flex items-start gap-3 rounded-lg border border-border/70 bg-card/70 p-3">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/12 text-xs font-semibold text-primary">
+                    {index + 1}
+                  </span>
+                  <p className="text-sm text-muted-foreground text-ui">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button
-                key={social.label}
-                asChild
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 h-10 w-10 card-hover"
+                size="lg"
+                className="gap-2 shine-effect"
+                onClick={() => {
+                  void trackEvent({
+                    name: 'hero_primary_click',
+                    category: 'conversion',
+                    locale: language,
+                    variant,
+                  })
+                  router.push(withLocale('/qualification', language))
+                }}
               >
-                <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                  <social.icon className="h-4 w-4" />
-                </a>
+                {variantCopy.primaryCta}
+                <ArrowRight className="h-4 w-4" />
               </Button>
-            ))}
+
+              <Button
+                size="lg"
+                variant="outline"
+                className="gap-2 card-hover"
+                onClick={() => {
+                  void trackEvent({
+                    name: 'hero_secondary_click',
+                    category: 'engagement',
+                    locale: language,
+                    variant,
+                  })
+                  router.push(withLocale('/case-studies', language))
+                }}
+              >
+                {t('hero.viewWork')}
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {socialLinks.map((social) => (
+                <Button
+                  key={social.label}
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full hover:bg-primary/10 h-10 w-10 card-hover"
+                >
+                  <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+                    <social.icon className="h-4 w-4" />
+                  </a>
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

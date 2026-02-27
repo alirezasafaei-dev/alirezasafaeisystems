@@ -1,45 +1,26 @@
+import {
+  buildNetworkLinks,
+  PORTFOLIO_LABEL,
+  PORTFOLIO_URL,
+  SIGNATURE_TEXT,
+  TELEGRAM_LABEL,
+  TELEGRAM_URL,
+  type NetworkLink,
+  type NetworkUtmContent,
+} from '@/lib/network'
+
+// Backward-compatible aliases for existing imports.
 export type AsdevUtmContent = 'footer' | 'asdev_page' | 'standards_page'
+export type AsdevNetworkLink = NetworkLink
 
-export type AsdevNetworkLink = {
-  key: 'portfolio' | 'toolbox' | 'audit'
-  label: string
-  baseUrl: string
-}
-
-export const ASDEV_SIGNATURE_TEXT = 'ASDEV | Alireza Safaei — علیرضا صفایی'
-export const ASDEV_PORTFOLIO_LABEL = 'Portfolio & contact: alirezasafaeisystems.ir'
-export const ASDEV_PORTFOLIO_URL = 'https://alirezasafaeisystems.ir/'
-export const ASDEV_TELEGRAM_LABEL = 'Telegram: @asdevsystems'
-export const ASDEV_TELEGRAM_URL = 'https://t.me/asdevsystems'
-
-const NETWORK_LINKS: AsdevNetworkLink[] = [
-  {
-    key: 'portfolio',
-    label: 'پورتفولیو و راه‌های ارتباطی',
-    baseUrl: ASDEV_PORTFOLIO_URL,
-  },
-  {
-    key: 'toolbox',
-    label: 'PersianToolbox — ابزارهای فارسی (لوکال و امن)',
-    baseUrl: 'https://persiantoolbox.ir/',
-  },
-  {
-    key: 'audit',
-    label: 'Audit IR — بررسی فنی و امنیتی',
-    baseUrl: 'https://audit.alirezasafaeisystems.ir/',
-  },
-]
+export const ASDEV_SIGNATURE_TEXT = SIGNATURE_TEXT
+export const ASDEV_PORTFOLIO_LABEL = PORTFOLIO_LABEL
+export const ASDEV_PORTFOLIO_URL = PORTFOLIO_URL
+export const ASDEV_TELEGRAM_LABEL = TELEGRAM_LABEL
+export const ASDEV_TELEGRAM_URL = TELEGRAM_URL
 
 export function buildAsdevNetworkLinks(utmSource: string, utmContent: AsdevUtmContent) {
-  return NETWORK_LINKS.map((item) => {
-    const url = new URL(item.baseUrl)
-    url.searchParams.set('utm_source', utmSource)
-    url.searchParams.set('utm_medium', 'cross_site')
-    url.searchParams.set('utm_campaign', 'asdev_network')
-    url.searchParams.set('utm_content', utmContent)
-    return {
-      ...item,
-      href: url.toString(),
-    }
-  })
+  const normalizedContent: NetworkUtmContent = utmContent === 'asdev_page' ? 'profile_page' : utmContent
+  return buildNetworkLinks(utmSource, normalizedContent)
 }
+

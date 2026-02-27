@@ -27,7 +27,20 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ["examples/**","node_modules/**", ".next/**", "out/**", "build/**", "_ops/**", "coverage/**", "next-env.d.ts", "examples/**", "skills"]
+    ignores: [
+      "examples/**",
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "storybook-static/**",
+      "playwright-report/**",
+      "_ops/**",
+      "coverage/**",
+      "next-env.d.ts",
+      "examples/**",
+      "skills"
+    ]
   }
 ];
 

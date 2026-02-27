@@ -1,18 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { Linkedin, Mail, Heart, Instagram, Send } from 'lucide-react'
+import { Linkedin, Mail, Instagram, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
-import {
-  ASDEV_PORTFOLIO_LABEL,
-  ASDEV_PORTFOLIO_URL,
-  ASDEV_SIGNATURE_TEXT,
-  ASDEV_TELEGRAM_LABEL,
-  ASDEV_TELEGRAM_URL,
-  buildAsdevNetworkLinks,
-} from '@/lib/asdev-network'
+import { PROFILE_SUMMARY_EN, PROFILE_SUMMARY_FA } from '@/lib/profile-copy'
 
 const quickLinks = [
   { key: 'quickHome', href: '/' },
@@ -30,7 +23,6 @@ function withLocale(path: string, language: 'fa' | 'en'): string {
 export function Footer() {
   const { t, language } = useI18n()
   const currentYear = new Date().getFullYear()
-  const networkLinks = buildAsdevNetworkLinks('asdev-portfolio', 'footer')
   const socialLinks = [
     {
       name: 'LinkedIn',
@@ -48,6 +40,8 @@ export function Footer() {
       icon: Instagram,
     },
   ].filter((social) => social.href)
+  const summaryText =
+    language === 'fa' ? PROFILE_SUMMARY_FA : PROFILE_SUMMARY_EN
 
   return (
     <footer className="border-t bg-muted/30 mt-auto">
@@ -58,9 +52,7 @@ export function Footer() {
             <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               {brand.brandName}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {language === 'fa' ? brand.positioningFa : brand.positioningEn}
-            </p>
+            <p className="text-sm text-muted-foreground text-copy">{summaryText}</p>
             <p className="text-xs text-muted-foreground">
               {language === 'fa' ? 'تهران — همکاری حضوری/ریموت در سراسر ایران' : 'Tehran — on-site/remote collaboration across Iran'}
             </p>
@@ -132,54 +124,19 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {currentYear} {brand.ownerName}. {t('footer.allRights')}
-          </p>
-          <div className="text-sm text-muted-foreground flex flex-col md:items-end gap-2 text-center md:text-right">
-            <p className="flex items-center gap-1 justify-center md:justify-end flex-wrap">
-              {t('ui.builtBy')}
-              <Link href={withLocale('/about-brand', language)} className="font-semibold hover:text-primary transition-colors">
-                {brand.ownerName} ({brand.brandName})
-              </Link>
-              {t('footer.madeWith')}
-              <Heart className="h-4 w-4 fill-primary text-primary" />
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center md:justify-end text-xs">
-              <span className="font-semibold">{ASDEV_SIGNATURE_TEXT}</span>
-              <span aria-hidden>•</span>
-              <Link
-                href={ASDEV_PORTFOLIO_URL}
-                className="underline underline-offset-4 hover:text-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {ASDEV_PORTFOLIO_LABEL}
-              </Link>
-              <span aria-hidden>•</span>
-              <Link
-                href={ASDEV_TELEGRAM_URL}
-                className="underline underline-offset-4 hover:text-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {ASDEV_TELEGRAM_LABEL}
-              </Link>
-            </div>
-            <div className="flex flex-wrap gap-3 justify-center md:justify-end">
-              {networkLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="underline underline-offset-4 hover:text-primary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+        <div className="mt-8 pt-5 border-t text-xs text-muted-foreground flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <span>{language === 'fa' ? `© ${currentYear} علیرضا صفایی. همه حقوق محفوظ است.` : `© ${currentYear} Alireza Safaei. All rights reserved.`}</span>
+          <span>
+            {language === 'fa' ? 'طراحی و توسعه توسط ' : 'Designed and developed by '}
+            <Link
+              href="https://alirezasafaeisystems.ir/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              {language === 'fa' ? 'علیرضا صفایی مهندس سیستم های وب' : 'Alireza Safaei, Web Systems Engineer'}
+            </Link>
+          </span>
         </div>
       </div>
     </footer>

@@ -44,10 +44,10 @@ function swapLocalePath(pathname: string, targetLocale: 'fa' | 'en'): string {
 export async function generateMetadata(): Promise<Metadata> {
   const reqHeaders = await headers()
   const reqCookies = await cookies()
-  const headerLocale = reqHeaders.get('x-asdev-locale')
+  const headerLocale = reqHeaders.get('x-site-locale') || reqHeaders.get('x-asdev-locale')
   const cookieLocale = reqCookies.get('lang')?.value
   const locale = headerLocale === 'en' || cookieLocale === 'en' ? 'en' : 'fa'
-  const pathname = normalizePathname(reqHeaders.get('x-asdev-pathname') || '/fa/')
+  const pathname = normalizePathname(reqHeaders.get('x-site-pathname') || reqHeaders.get('x-asdev-pathname') || '/')
   const canonicalPath = pathname.startsWith('/fa/') || pathname.startsWith('/en/') ? pathname : `/${locale}${pathname}`
   const canonicalUrl = new URL(canonicalPath, siteUrl).toString()
 
@@ -103,7 +103,7 @@ export async function generateMetadata(): Promise<Metadata> {
         {
           url: '/api/og-image',
           height: 630,
-          alt: `${ownerName} - Production-Grade Web Systems Engineer`,
+          alt: `${ownerName} - Web Systems Engineer`,
         },
       ],
     },
@@ -138,7 +138,7 @@ export default async function RootLayout({
 }>) {
   const nonce = (await headers()).get('x-csp-nonce') || undefined;
   const requestHeaders = await headers()
-  const langHeader = requestHeaders.get('x-asdev-locale')
+  const langHeader = requestHeaders.get('x-site-locale') || requestHeaders.get('x-asdev-locale')
   const langCookie = (await cookies()).get('lang')?.value;
   const lang = langHeader === 'en' || langCookie === 'en' ? 'en' : 'fa';
   const dir = lang === 'fa' ? 'rtl' : 'ltr';
@@ -196,16 +196,6 @@ export default async function RootLayout({
                   priceCurrency: 'IRR',
                 },
               },
-            }}
-            nonce={nonce}
-          />
-          <JsonLd
-            data={{
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'ASDEV',
-              url: siteUrl,
-              sameAs: [brand.githubUrl, brand.linkedinUrl, brand.telegramUrl].filter(Boolean),
             }}
             nonce={nonce}
           />

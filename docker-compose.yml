@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: asdev-portfolio:local
+    image: alirezasafaeisystems:local
     ports:
       - "3000:3000"
     env_file:

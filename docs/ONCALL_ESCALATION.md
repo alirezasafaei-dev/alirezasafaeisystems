@@ -1,10 +1,10 @@
 # On-Call and Escalation Ownership
 
 ## Purpose
-Define who responds to production incidents and how escalation works for `asdev-portfolio`.
+Define who responds to production incidents and how escalation works for `alirezasafaeisystems`.
 
 ## Roles
-- Service: `asdev-portfolio`
+- Service: `alirezasafaeisystems`
 - Primary on-call: `platform-owner`
 - Backup on-call: `devops-backup`
 - Release approver: `platform-owner`

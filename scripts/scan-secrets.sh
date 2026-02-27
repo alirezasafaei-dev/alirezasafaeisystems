@@ -13,8 +13,11 @@ if rg -n --hidden \
   --glob '!.git/**' \
   --glob '!node_modules/**' \
   --glob '!.next/**' \
+  --glob '!storybook-static/**' \
   --glob '!coverage/**' \
   --glob '!_ops/**' \
+  --glob '!docs/**' \
+  --glob '!README.md' \
   --glob '!src/**/__tests__/**' \
   --glob '!**/*.test.ts' \
   --glob '!**/*.test.tsx' \

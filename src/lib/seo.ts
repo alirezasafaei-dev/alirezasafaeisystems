@@ -78,7 +78,7 @@ export function generatePersonSchema() {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: brand.ownerName,
-    jobTitle: 'Production-Grade Web Systems Engineer',
+    jobTitle: 'Web Systems Engineer',
     url: siteUrl,
     sameAs: [
       brand.githubUrl,
@@ -255,7 +255,7 @@ export function generateOrganizationSchema() {
     name: brand.brandName,
     url: siteUrl,
     logo: `${siteUrl}/favicon.svg`,
-    description: 'Consulting and architecture advisory for production-grade web systems',
+    description: 'End-to-end web systems engineering from architecture and implementation to production readiness',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',

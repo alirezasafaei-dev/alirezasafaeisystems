@@ -21,7 +21,7 @@ describe('analytics experiments', () => {
   })
 
   it('picks deterministic bucket and variant from seed', () => {
-    const seed = 'asdev-fixed-seed'
+    const seed = 'alireza-fixed-seed'
     expect(pickDeterministicBucket(seed)).toBe(pickDeterministicBucket(seed))
     expect(pickHeroVariant(seed)).toMatch(/authority|risk/)
   })

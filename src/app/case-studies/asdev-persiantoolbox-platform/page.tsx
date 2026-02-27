@@ -9,9 +9,9 @@ const siteUrl = getSiteUrl()
 const persianToolboxUrl = 'https://persiantoolbox.ir'
 
 export const metadata: Metadata = {
-  title: 'Case Study: ASDEV PersianToolbox Platform',
+  title: 'Case Study: PersianToolbox Platform',
   description:
-    'How ASDEV PersianToolbox was built as a local-first production platform with clean UX, strict quality gates, and operational discipline.',
+    'How PersianToolbox was built as a local-first production platform with clean UX, strict quality gates, and operational discipline.',
   alternates: { canonical: `${siteUrl}/case-studies/asdev-persiantoolbox-platform` },
 }
 
@@ -22,7 +22,7 @@ export default async function AsdevPersianToolboxPlatformPage() {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
     eyebrow: lang === 'en' ? 'Case Study' : 'مطالعه موردی',
-    title: 'ASDEV PersianToolbox Platform',
+    title: 'PersianToolbox Platform',
     intro:
       lang === 'en'
         ? 'A local-first Persian utility platform engineered to be fast, reliable, and intentionally simple for everyday users.'
@@ -76,14 +76,14 @@ export default async function AsdevPersianToolboxPlatformPage() {
   const pageUrl = `${siteUrl}/case-studies/asdev-persiantoolbox-platform`
 
   const projectSchema = generateProjectSchema({
-    name: 'ASDEV PersianToolbox Platform',
+    name: 'PersianToolbox Platform',
     description: 'A local-first Persian utility platform engineered for speed, clarity, and reliable operations.',
     url: '/case-studies/asdev-persiantoolbox-platform',
     technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Playwright', 'Lighthouse CI'],
   })
 
   const articleSchema = generateArticleSchema({
-    title: 'Case Study: ASDEV PersianToolbox Platform',
+    title: 'Case Study: PersianToolbox Platform',
     description:
       'Design and delivery of a high-utility Persian platform with consistent UX language and production-grade release governance.',
     publishDate: '2026-02-16',
@@ -97,7 +97,7 @@ export default async function AsdevPersianToolboxPlatformPage() {
         data={generateBreadcrumbSchema([
           { name: copy.breadcrumbHome, url: siteUrl },
           { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
-          { name: 'ASDEV PersianToolbox Platform', url: pageUrl },
+          { name: 'PersianToolbox Platform', url: pageUrl },
         ])}
       />
       <JsonLd data={projectSchema} />

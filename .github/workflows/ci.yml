@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   smoke-playwright:
-    name: Smoke /asdev (mobile RTL)
+    name: Smoke /profile (mobile RTL)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -133,8 +133,8 @@ jobs:
       - name: pnpm run build
         run: pnpm run build
 
-  verification-scripts:
-    name: Verification scripts
+  enterprise-gate:
+    name: Enterprise gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -147,7 +147,5 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - name: scripts/verify.sh
-        run: bash scripts/verify.sh
-      - name: scripts/offline-external-scan.sh
-        run: bash scripts/offline-external-scan.sh
+      - name: Run enterprise gate
+        run: pnpm run enterprise:gate

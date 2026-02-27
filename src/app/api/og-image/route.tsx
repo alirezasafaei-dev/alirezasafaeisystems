@@ -36,7 +36,7 @@ export async function GET() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            ASDEV
+            AliReza Safaei
           </div>
           <div
             style={{
@@ -45,7 +45,7 @@ export async function GET() {
               textAlign: 'center',
             }}
           >
-            Production-Grade Web Systems Consultant
+            Web Systems Engineer
           </div>
           <div
             style={{
@@ -54,7 +54,7 @@ export async function GET() {
               marginTop: '16px',
             }}
           >
-            Infrastructure Localization | CI/CD Hardening | Operational Resilience
+            Architecture | End-to-End Delivery | Production Readiness
           </div>
         </div>
       </div>

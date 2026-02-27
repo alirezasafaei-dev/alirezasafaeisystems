@@ -8,8 +8,8 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
-  title: `About ${brand.brandName}`,
-  description: `${brand.brandName} brand profile, principles, and consulting execution model.`,
+  title: `About ${brand.ownerName}`,
+  description: `${brand.ownerName} profile, engineering principles, and execution model.`,
   alternates: {
     canonical: `${siteUrl}/about-brand`,
   },
@@ -19,33 +19,33 @@ export default async function AboutBrandPage() {
   const lang = await getRequestLanguage()
   const withLocale = (path: string) => `/${lang}${path}`
   const copy = {
-    eyebrow: lang === 'en' ? 'Brand Profile' : 'پروفایل برند',
-    title: `${brand.ownerName} (${brand.brandName})`,
+    eyebrow: lang === 'en' ? 'Engineering Profile' : 'پروفایل مهندسی',
+    title: `${brand.ownerName}`,
     positioning: lang === 'en' ? brand.positioningEn : brand.positioningFa,
     missionTitle: lang === 'en' ? 'Mission' : 'ماموریت',
     missionBody:
       lang === 'en'
-        ? 'Deliver production-grade web systems with measurable stability, explicit release governance, and CI/CD hardening that survives real operational pressure.'
-        : 'تحویل سیستم‌های وب production-grade با پایداری قابل اندازه‌گیری، حاکمیت انتشار شفاف، و سخت‌سازی CI/CD که فشار واقعی عملیات را تاب بیاورد.',
+        ? 'Build web systems end-to-end, from architecture to production readiness, with measurable stability and clear release ownership.'
+        : 'ساخت سیستم‌های وب از صفر تا آمادگی تولید، با پایداری قابل اندازه‌گیری و مالکیت شفاف انتشار.',
     principlesTitle: lang === 'en' ? 'Operating Principles' : 'اصول اجرایی',
     principles: lang === 'en'
       ? [
-          'Critical risks are closed before expansion work starts.',
-          'Release status must come from one auditable source of truth.',
-          'SEO, security, and operations are treated as production contracts.',
-          'Every delivery ends with evidence-backed documentation.',
+          'Architecture decisions are documented before scale work starts.',
+          'Delivery quality is tracked with clear acceptance criteria.',
+          'Persian UX quality is treated as a product requirement, not decoration.',
+          'Production readiness means observability, rollback, and recovery are defined.',
         ]
       : [
-          'ریسک‌های بحرانی قبل از توسعه قابلیت‌های جدید بسته می‌شوند.',
-          'وضعیت انتشار باید از یک منبع قابل ممیزی (single source of truth) بیاید.',
-          'SEO، امنیت، و عملیات به عنوان قراردادهای production دیده می‌شوند.',
-          'هر تحویل با مستندات مبتنی بر شواهد پایان می‌گیرد.',
+          'تصمیم‌های معماری قبل از توسعه مقیاس ثبت و شفاف می‌شوند.',
+          'کیفیت تحویل با معیار پذیرش روشن سنجیده می‌شود.',
+          'کیفیت تجربه کاربری فارسی یک الزام محصول است، نه تزئین.',
+          'آمادگی تولید یعنی مشاهده‌پذیری، Rollback و بازیابی از قبل تعریف شده باشد.',
         ],
     workTitle: lang === 'en' ? 'Work With Me' : 'همکاری',
     workBody:
       lang === 'en'
-        ? 'For infrastructure localization, operational resilience, or architecture governance, start with the risk assessment flow.'
-        : 'برای بومی‌سازی زیرساخت، تاب‌آوری عملیاتی، یا حاکمیت معماری، از مسیر ارزیابی ریسک شروع کنید.',
+        ? 'If you need software architecture, idea-to-product execution, or project rescue to production, start with the assessment flow.'
+        : 'اگر برای معماری نرم‌افزار، تبدیل ایده به محصول، یا نجات پروژه تا رسیدن به تولید نیاز به همکاری دارید، از مسیر ارزیابی شروع کنید.',
     cta: lang === 'en' ? 'Request Infrastructure Risk Assessment' : 'درخواست ارزیابی ریسک زیرساخت',
   }
 

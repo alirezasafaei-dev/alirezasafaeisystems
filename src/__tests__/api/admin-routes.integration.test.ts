@@ -162,7 +162,7 @@ describe('admin API integration', () => {
         tags: ['Next.js'],
         featured: true,
         order: 1,
-        githubUrl: 'https://github.com/parsairaniiidev/asdev-portfolio',
+        githubUrl: 'https://github.com/parsairaniiidev/alirezasafaeisystems',
       }),
     })
 

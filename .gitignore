@@ -14,6 +14,7 @@ node_modules
 /coverage
 /test-results
 /playwright-report
+storybook-static
 /.lighthouseci
 /artifacts
 
@@ -58,6 +59,7 @@ server.log
 .env
 .env.*
 !.env.example
+.deploy.env
 _ops/
 backups/
 --hostname
