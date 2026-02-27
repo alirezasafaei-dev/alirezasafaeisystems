@@ -1,7 +1,7 @@
 import { env } from '@/lib/env'
 
 const DEFAULT_HANDLE = 'alirezasafaeisystems'
-const DEFAULT_GITHUB_URL = 'https://github.com/parsairaniiidev'
+const DEFAULT_GITHUB_URL = 'https://github.com/parsairaniiidev/asdev-portfolio'
 const DEFAULT_LINKEDIN_URL = `https://linkedin.com/in/${DEFAULT_HANDLE}`
 const DEFAULT_TELEGRAM_URL = `https://t.me/asdevsystems`
 const DEFAULT_INSTAGRAM_URL = `https://www.instagram.com/${DEFAULT_HANDLE}`

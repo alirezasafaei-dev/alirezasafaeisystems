@@ -1,10 +1,14 @@
 # Immediate Execution List
 
-Updated: 2026-02-19
+Updated: 2026-02-27
 
 ## Phase P0 (Done)
 - [x] Local cleanup/refactor and dependency alignment completed.
-- [x] Local quality gate (`pnpm run verify`) green.
+- [x] Local quality gates refreshed with real evidence:
+  - `pnpm type-check`
+  - `pnpm test` (`164` tests)
+  - `pnpm run build`
+  - `pnpm run test:e2e:smoke` (`8` smoke checks)
 
 ## Phase P1 (Done)
 - [x] VPS access and runtime health checks completed.
@@ -20,8 +24,13 @@ Updated: 2026-02-19
 
 ## Current Command Set
 ```bash
-pnpm run verify
+pnpm type-check
+pnpm test
+pnpm run build
+pnpm run test:e2e:smoke
+pnpm run codex:report
 ```
 
 ## Status
 - all previously open local and non-local blockers are closed.
+- runtime evidence updated to 2026-02-27 (`ENTERPRISE_RUNTIME_STATUS`, `CODEX_CLI_AUTOCOMPACT_STATUS_LATEST`, heartbeat).

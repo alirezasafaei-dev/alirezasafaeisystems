@@ -11,10 +11,10 @@ This file is an internal reference to keep brand configuration consistent across
 
 ## Public Profile Handle
 - Handle: alirezasafaeisystems
-- Profile README repo: https://github.com/parsairaniiidev/parsairaniiidev
+- Repository: https://github.com/parsairaniiidev/asdev-portfolio
 
 ## Social Links (defaults)
-- GitHub: https://github.com/parsairaniiidev
+- GitHub: https://github.com/parsairaniiidev/asdev-portfolio
 - LinkedIn: https://linkedin.com/in/alirezasafaeisystems
 - Telegram: https://telegram.me/alirezasafaeisystems
 - Instagram: https://www.instagram.com/alirezasafaeisystems

@@ -1,7 +1,7 @@
 # Enterprise Runtime Status
 
-Last updated (UTC): 2026-02-24T00:39:28Z
-Base commit at capture: `303b67d`
+Last updated (UTC): 2026-02-27T06:35:04Z
+Base commit at capture: `ad5feec`
 
 ## Implemented baseline
 - ASDEV cross-site contract: `/asdev` page + footer signature + UTM links + Telegram (`@asdevsystems`).
@@ -12,13 +12,19 @@ Base commit at capture: `303b67d`
 - CI smoke job for mobile `/asdev` added in `.github/workflows/ci.yml`.
 
 ## Latest real verification
-- `pnpm type-check` -> PASS
-- `pnpm run build` -> PASS
-- Local production smoke:
-  - server: `PORT=3111 pnpm run start`
-  - test: `PLAYWRIGHT_DISABLE_WEBSERVER=true PLAYWRIGHT_BASE_URL=http://127.0.0.1:3111 pnpm exec playwright test e2e/smoke.spec.mjs --grep "asdev" --reporter=list`
-  - result: PASS (1 passed)
+- Environment snapshot:
+  - Node.js: `v22.22.0`
+  - pnpm: `9.15.0`
+- Quality gates:
+  - `pnpm type-check` -> PASS
+  - `pnpm test` -> PASS (`23` files, `164` tests)
+  - `pnpm run build` -> PASS (Next.js `16.1.6`)
+  - `pnpm run test:e2e:smoke` -> PASS (`8/8`)
+- Runtime evidence refresh:
+  - `pnpm run codex:report` -> PASS
+  - `bash scripts/codex/maintain-codex-cli.sh --no-commit --keep-days 30` -> PASS
 
 ## Notes
 - Dynamic route signatures for readiness/health handlers are compatible with integration tests (`GET(_request: Request)`).
 - Middleware duplicate removed; routing/security remains in `src/proxy.ts`.
+- `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md` and heartbeat are now aligned to the latest local runtime capture.
