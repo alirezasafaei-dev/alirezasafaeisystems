@@ -30,7 +30,7 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
       - name: Run smoke
-        run: pnpm exec playwright test e2e/smoke.spec.mjs --config=playwright.config.mjs --project=chromium --reporter=list --workers=1 --retries=1
+        run: pnpm exec playwright test e2e/smoke.spec.mjs --config=playwright.config.mjs --reporter=list --workers=1 --retries=1
 
   install:
     name: Install dependencies
