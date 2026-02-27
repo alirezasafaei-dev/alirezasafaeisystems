@@ -4,6 +4,19 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "src/**"
+      - "ops/**"
+      - "prisma/**"
+      - "public/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "next.config.*"
+      - "postcss.config.*"
+      - "eslint.config.*"
+      - "scripts/deploy/**"
+      - "scripts/vps-preflight.sh"
+      - "scripts/verify.sh"
   workflow_dispatch:
     inputs:
       environment:
