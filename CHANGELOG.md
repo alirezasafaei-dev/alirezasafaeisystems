@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/parsairaniiidev/alirezasafaeisystems/compare/v1.3.0...v1.3.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* **ci:** reduce smoke flakiness in core pipeline ([500147f](https://github.com/parsairaniiidev/alirezasafaeisystems/commit/500147fa2253e68925e89030005e0691b75c9254))
+
 # [1.3.0](https://github.com/parsairaniiidev/alirezasafaeisystems/compare/v1.2.0...v1.3.0) (2026-02-27)
 
 
