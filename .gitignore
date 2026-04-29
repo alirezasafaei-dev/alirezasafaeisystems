@@ -37,7 +37,7 @@ yarn-error.log*
 
 # env files
 .env*
-.env.example
+!.env.example
 
 # vercel
 .vercel
@@ -58,7 +58,7 @@ server.log
 
 .env
 .env.*
-.env.example
+!.env.example
 .deploy.env
 _ops/
 backups/
@@ -74,3 +74,9 @@ secret_*.md
 # local prisma sqlite artifacts
 prisma/*.db
 prisma/*.db-journal
+
+# generated operational artifacts
+reports/network-smoke/
+reports/enterprise-network/
+reports/edge-route/
+reports/postgres-audit/

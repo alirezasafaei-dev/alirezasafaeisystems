@@ -6,6 +6,7 @@ import { getSiteUrl } from '@/lib/site-config'
 import {
   PORTFOLIO_LABEL,
   PORTFOLIO_URL,
+  RESUME_PDF_URL,
   SIGNATURE_TEXT,
   TELEGRAM_URL,
   buildNetworkLinks,
@@ -100,6 +101,7 @@ export default async function ProfilePage() {
   const contactLinks = [
     { label: 'GitHub', href: 'https://github.com/parsairaniiidev/alirezasafaeisystems' },
     { label: 'Telegram', href: TELEGRAM_URL },
+    { label: 'Resume PDF', href: RESUME_PDF_URL },
     { label: 'Portfolio & contact', href: PORTFOLIO_URL },
   ]
 
@@ -122,6 +124,24 @@ export default async function ProfilePage() {
         <p className="text-muted-foreground leading-7 md:leading-8">
           طراحی و توسعه صفر تا صد، معماری نرم‌افزار، تکمیل پروژه‌های نیمه‌کاره، آماده‌سازی محیط تولید، و مقابله عملی با تحریم‌های خارجی علیه ایران از مسیر بومی‌سازی زیرساخت.
         </p>
+        <div className="flex flex-wrap gap-3 pt-2 text-sm">
+          <Link
+            href={RESUME_PDF_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center rounded-md border px-4 py-2 font-semibold hover:bg-muted"
+          >
+            دانلود رزومه PDF
+          </Link>
+          <Link
+            href={PORTFOLIO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center rounded-md border px-4 py-2 hover:bg-muted"
+          >
+            مشاهده پورتفولیو
+          </Link>
+        </div>
       </header>
 
       <section className="grid gap-4 md:gap-6 md:grid-cols-3">

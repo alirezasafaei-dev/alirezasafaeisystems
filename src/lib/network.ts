@@ -9,6 +9,7 @@ export type NetworkLink = {
 export const SIGNATURE_TEXT = 'AliReza Safaei — علیرضا صفایی'
 export const PORTFOLIO_LABEL = 'Portfolio & contact: alirezasafaeisystems.ir'
 export const PORTFOLIO_URL = 'https://alirezasafaeisystems.ir/'
+export const RESUME_PDF_URL = `${PORTFOLIO_URL}alireza-safaei-resume.pdf`
 export const TELEGRAM_LABEL = 'Telegram: @asdevsystems'
 export const TELEGRAM_URL = 'https://t.me/asdevsystems'
 

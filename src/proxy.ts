@@ -34,11 +34,11 @@ export function getCacheControl(pathname: string): string {
   return 'public, max-age=0, s-maxage=300, stale-while-revalidate=600'
 }
 
-function buildCsp(_nonce: string): string {
-  const scriptSources = [`'self'`, "'unsafe-inline'"]
-  const styleSources = [`'self'`, "'unsafe-inline'"]
+function buildCsp(nonce: string): string {
+  const scriptSources = [`'self'`, `'nonce-${nonce}'`]
+  const styleSources = [`'self'`, `'nonce-${nonce}'`]
   const fontSources = [`'self'`, 'data:']
-  const connectSources = [`'self'`, 'https:']
+  const connectSources = [`'self'`]
   const fontCdnOrigin = getFontCdnOrigin()
 
   if (fontCdnOrigin) {
@@ -49,6 +49,7 @@ function buildCsp(_nonce: string): string {
 
   if (env.NODE_ENV !== 'production') {
     scriptSources.push("'unsafe-eval'")
+    styleSources.push("'unsafe-inline'")
   }
 
   return [
