@@ -40,6 +40,7 @@ Evidence:
 - [ ] Confirm both domains are healthy after portfolio deploy:
 - [ ] `https://persiantoolbox.ir` (no regression)
 - [ ] `https://alirezasafaeisystems.ir` (portfolio healthy)
+- [ ] External visibility smoke: `MONITOR_LINKS` and `bash scripts/network/live-surface-audit.sh`
 
 ## Rollback (if needed)
 - [ ] Run `ops/deploy/rollback.sh --env production`.

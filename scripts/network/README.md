@@ -116,3 +116,35 @@ Runs:
 cd /home/dev/Project_Me_All/Project_Me/alirezasafaeisystems
 ./scripts/network/run-network-seo-ops.sh
 ```
+
+## 9) Live surface audit (DNS / TLS / HTTPS redirect / link checks)
+
+Run this when you need a fast external visibility guard for all 3 live public domains:
+
+```bash
+cd /home/dev/Project/alirezasafaeisystems
+bash scripts/network/live-surface-audit.sh
+```
+
+Default URL list:
+
+- `https://persiantoolbox.ir/`
+- `https://persiantoolbox.ir/api/ready`
+- `https://alirezasafaeisystems.ir/`
+- `https://alirezasafaeisystems.ir/profile`
+- `https://alirezasafaeisystems.ir/resume.pdf`
+- `https://alirezasafaeisystems.ir/alireza-safaei-resume.pdf`
+- `https://audit.alirezasafaeisystems.ir/`
+- `https://audit.alirezasafaeisystems.ir/api/ready`
+
+Outputs:
+- `docs/runtime/live-surface/live-surface-latest.md`
+
+Env vars:
+
+- `MONITOR_LINKS` (space-separated URL list)
+- `VPS_PUBLIC_IPS` (expected public A-record IPs for DNS check)
+- `SSH_HOST` (for evidence context only)
+- `ENFORCE_HTTP_REDIRECT` (`1`=strict fail, `0`=warn-only)
+- `EXPECTED_MAX_CERT_DAYS` (warn threshold before cert expiry)
+- `LIVE_SURFACE_REPORT_DIR` (default `docs/runtime/live-surface`)
