@@ -1,5 +1,9 @@
 # alirezasafaeisystems
 
+<p align="center">
+  <img src="./assets/repo-preview.svg" alt="alirezasafaeisystems preview" width="100%" />
+</p>
+
 Portfolio and lead-generation platform for AliReza Safaei (Web Systems Engineer), built with Next.js App Router and a production-focused ops/governance workflow.
 
 ## Tech Stack

@@ -3,7 +3,15 @@ import { ArrowUpRight, TrendingUp } from 'lucide-react'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { Reveal } from '@/components/ui/reveal'
 
-function getCaseStudies(lang: 'fa' | 'en') {
+type CaseStudyItem = {
+  title: string
+  summary: string
+  href: string
+  metric: string
+  external?: boolean
+}
+
+function getCaseStudies(lang: 'fa' | 'en'): CaseStudyItem[] {
   if (lang === 'en') {
     return [
       {
@@ -17,6 +25,13 @@ function getCaseStudies(lang: 'fa' | 'en') {
         summary: 'Built and scaled a local-first Persian utility platform with high UX clarity and reliability standards.',
         href: '/case-studies/asdev-persiantoolbox-platform',
         metric: 'Live product with production governance',
+      },
+      {
+        title: 'Audit Systems Platform',
+        summary: 'Launched a practical website audit system for technical SEO, performance, and security with actionable outputs.',
+        href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=case_studies&utm_campaign=alireza_safaei_network&utm_content=audit_case_card',
+        metric: 'Live audit product in production',
+        external: true,
       },
       {
         title: 'Infrastructure Localization Rescue',
@@ -53,6 +68,13 @@ function getCaseStudies(lang: 'fa' | 'en') {
       metric: 'محصول زنده با حاکمیت تولید',
     },
     {
+      title: 'پلتفرم Audit Systems',
+      summary: 'راه‌اندازی پلتفرم ارزیابی سایت برای سئو فنی، عملکرد و امنیت با خروجی عملی و قابل اجرا.',
+      href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=case_studies&utm_campaign=alireza_safaei_network&utm_content=audit_case_card',
+      metric: 'محصول ارزیابی زنده در تولید',
+      external: true,
+    },
+    {
       title: 'نجات بومی‌سازی زیرساخت',
       summary: 'پایدارسازی استک شکننده تحت محدودیت‌های بومی‌سازی و کاهش زمان بازیابی رخدادها.',
       href: '/case-studies/infrastructure-localization-rescue',
@@ -87,10 +109,12 @@ export async function FeaturedCaseStudies() {
     lang === 'en'
       ? 'Each case shows problem context, architecture decisions, and measurable outcomes.'
       : 'هر کیس شامل مسئله واقعی، تصمیم معماری، و خروجی قابل اندازه گیری است.'
-  const featuredTag = lang === 'en' ? 'Featured Product' : 'محصول نمونه‌کار'
   const openCta = lang === 'en' ? 'Open Case Study' : 'مشاهده کیس‌استادی'
   const allCta = lang === 'en' ? 'View All Case Studies' : 'مشاهده همه مطالعات موردی'
   const evidenceTitle = lang === 'en' ? 'Delivery Evidence Snapshot' : 'نمای سریع شواهد تحویل'
+  const networkTitle = lang === 'en' ? 'Live Product Network' : 'شبکه محصولات زنده'
+  const networkAuditLabel = lang === 'en' ? 'Audit Systems Platform' : 'پلتفرم Audit Systems'
+  const networkToolboxLabel = lang === 'en' ? 'PersianToolbox Platform' : 'پلتفرم PersianToolbox'
   const evidenceItems =
     lang === 'en'
       ? [
@@ -117,18 +141,20 @@ export async function FeaturedCaseStudies() {
           <Reveal>
             <article className="rounded-xl border bg-card p-6 md:p-7 card-hover relative overflow-hidden">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent/70 via-primary/75 to-accent/70" />
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <p className="text-xs font-medium text-primary inline-flex items-center gap-1.5">
                   <TrendingUp className="h-3.5 w-3.5" />
                   {featuredCase.metric}
                 </p>
-                <span className="rounded-full border border-primary/40 bg-primary px-2 py-1 text-[10px] font-semibold text-primary-foreground">
-                  {featuredTag}
-                </span>
               </div>
               <h3 className="mt-3 text-2xl md:text-3xl font-semibold headline-tight">{featuredCase.title}</h3>
               <p className="mt-3 text-sm md:text-base text-muted-foreground text-copy max-w-3xl">{featuredCase.summary}</p>
-              <Link href={withLocale(featuredCase.href, lang)} className="mt-5 inline-flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href={featuredCase.external ? featuredCase.href : withLocale(featuredCase.href, lang)}
+                target={featuredCase.external ? '_blank' : undefined}
+                rel={featuredCase.external ? 'noopener noreferrer' : undefined}
+                className="mt-5 inline-flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+              >
                 {openCta}
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
@@ -146,7 +172,12 @@ export async function FeaturedCaseStudies() {
                   </p>
                   <h3 className="mt-3 text-xl font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground flex-1 text-ui">{item.summary}</p>
-                  <Link href={withLocale(item.href, lang)} className="mt-4 inline-flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                  <Link
+                    href={item.external ? item.href : withLocale(item.href, lang)}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noopener noreferrer' : undefined}
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+                  >
                     {openCta}
                     <ArrowUpRight className="h-4 w-4" />
                   </Link>
@@ -163,6 +194,28 @@ export async function FeaturedCaseStudies() {
                   {item}
                 </p>
               ))}
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-border/70 bg-card/70 p-4 md:p-5">
+            <p className="text-sm font-semibold mb-3">{networkTitle}</p>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=cross_site&utm_campaign=alireza_safaei_network&utm_content=featured_case_network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-md border px-3 py-2 text-xs md:text-sm hover:bg-muted transition-colors"
+              >
+                {networkAuditLabel}
+              </a>
+              <a
+                href="https://persiantoolbox.ir/?utm_source=portfolio&utm_medium=cross_site&utm_campaign=alireza_safaei_network&utm_content=featured_case_network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-md border px-3 py-2 text-xs md:text-sm hover:bg-muted transition-colors"
+              >
+                {networkToolboxLabel}
+              </a>
             </div>
           </div>
 

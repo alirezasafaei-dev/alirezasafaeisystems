@@ -38,22 +38,10 @@ const nextConfig: NextConfig = {
 
   // Headers for security and performance
   async headers() {
-    const csp = [
-      "default-src 'self'",
-      "img-src 'self' data: blob:",
-      "font-src 'self' data:",
-      "style-src 'self' 'unsafe-inline'",
-      "script-src 'self'",
-      "connect-src 'self'",
-      "frame-ancestors 'none'",
-      "object-src 'none'",
-    ].join('; ')
-
     return [
       {
         source: '/(.*)',
         headers: [
-          { key: 'Content-Security-Policy', value: csp },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on'

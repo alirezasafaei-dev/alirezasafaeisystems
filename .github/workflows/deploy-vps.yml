@@ -149,7 +149,7 @@ jobs:
             curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/api/ready' >/dev/null; \
             curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/' | grep -Eq 'lang=\"fa\"|dir=\"rtl\"'; \
             curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/services' >/dev/null; \
-            curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/profile' | grep -q 'alireza_network'; \
+            curl --connect-timeout 10 --max-time 30 -fsS '${BASE_URL}/profile' | grep -q 'alireza_safaei_network'; \
           "
 
       - name: Output deployment summary

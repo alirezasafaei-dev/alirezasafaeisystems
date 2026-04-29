@@ -157,7 +157,7 @@ export default async function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
@@ -174,6 +174,38 @@ export default async function RootLayout({
           <JsonLd data={generatePersonSchema()} nonce={nonce} />
           <JsonLd data={generateWebSiteSchema()} nonce={nonce} />
           <JsonLd data={generateOrganizationSchema()} nonce={nonce} />
+          <JsonLd
+            data={{
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  name: ownerName,
+                  url: siteUrl,
+                  sameAs: [
+                    'https://audit.alirezasafaeisystems.ir/',
+                    'https://persiantoolbox.ir/',
+                  ],
+                },
+                {
+                  '@type': 'WebSite',
+                  name: 'Alireza Safaei Systems',
+                  url: siteUrl,
+                },
+                {
+                  '@type': 'WebSite',
+                  name: 'Audit Systems',
+                  url: 'https://audit.alirezasafaeisystems.ir/',
+                },
+                {
+                  '@type': 'WebSite',
+                  name: 'PersianToolbox',
+                  url: 'https://persiantoolbox.ir/',
+                },
+              ],
+            }}
+            nonce={nonce}
+          />
           <JsonLd
             data={{
               '@context': 'https://schema.org',

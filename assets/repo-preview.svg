@@ -1,0 +1,21 @@
+<svg width="1280" height="520" viewBox="0 0 1280 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="520" rx="28" fill="#0F172A"/>
+  <rect x="48" y="48" width="1184" height="424" rx="24" fill="#111827" stroke="#334155"/>
+  <text x="84" y="118" fill="#A5F3FC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">ALIREZASAFAEISYSTEMS</text>
+  <text x="84" y="174" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="800">Portfolio and lead-generation platform</text>
+  <text x="84" y="224" fill="#CBD5E1" font-family="Segoe UI, Arial, sans-serif" font-size="22">Production-focused positioning, case studies, governance, testing, and VPS-ready deployment flow.</text>
+  <rect x="84" y="274" width="204" height="46" rx="12" fill="#1D4ED8"/>
+  <text x="118" y="304" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Portfolio</text>
+  <rect x="304" y="274" width="184" height="46" rx="12" fill="#0F766E"/>
+  <text x="336" y="304" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Leads</text>
+  <rect x="504" y="274" width="220" height="46" rx="12" fill="#7C3AED"/>
+  <text x="538" y="304" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Operations</text>
+  <rect x="872" y="116" width="284" height="228" rx="18" fill="#020617" stroke="#1E293B"/>
+  <rect x="898" y="148" width="124" height="12" rx="6" fill="#22C55E"/>
+  <rect x="898" y="182" width="212" height="10" rx="5" fill="#DBEAFE"/>
+  <rect x="898" y="212" width="220" height="10" rx="5" fill="#94A3B8"/>
+  <rect x="898" y="242" width="176" height="10" rx="5" fill="#475569"/>
+  <rect x="898" y="282" width="186" height="18" rx="9" fill="#1D4ED8"/>
+  <text x="916" y="296" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="800">PRODUCTION READY</text>
+  <text x="84" y="384" fill="#E2E8F0" font-family="Segoe UI, Arial, sans-serif" font-size="18">Live: alirezasafaeisystems.ir</text>
+</svg>

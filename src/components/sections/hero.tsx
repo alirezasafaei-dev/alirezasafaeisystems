@@ -1,34 +1,47 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useSyncExternalStore } from 'react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
 import { ArrowRight, Github, Linkedin, Twitter, Instagram, Send, ShieldCheck, Wrench, Rocket, Handshake, CircleUserRound, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics/client'
-import { pickHeroVariant, type HeroVariant } from '@/lib/analytics/experiments'
+import { pickDeterministicBucket, pickHeroVariant, type HeroVariant } from '@/lib/analytics/experiments'
 
 function withLocale(path: string, language: 'fa' | 'en'): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
   return `/${language}${normalized === '/' ? '/' : normalized}`
 }
 
+type IntentRoute = {
+  key: 'audit' | 'toolbox' | 'execution'
+  title: string
+  detail: string
+  href: string
+  external: boolean
+  cta: string
+}
+
 export function Hero() {
   const { t, language } = useI18n()
   const router = useRouter()
-  const [variant] = useState<HeroVariant>(() => {
-    if (typeof window === 'undefined') return 'authority'
-    const storageKey = 'alireza_hero_variant'
-    const legacyStorageKey = 'asdev_hero_variant'
-    const savedVariant = window.localStorage.getItem(storageKey) || window.localStorage.getItem(legacyStorageKey)
-    const selected =
-      savedVariant === 'authority' || savedVariant === 'risk'
-        ? savedVariant
-        : pickHeroVariant(`${Date.now()}_${Math.random()}_${navigator.userAgent}`)
-    window.localStorage.setItem(storageKey, selected)
-    return selected
-  })
+  const variant = useSyncExternalStore(
+    () => () => undefined,
+    () => {
+      if (typeof navigator === 'undefined') return 'authority' as HeroVariant
+      return pickHeroVariant(navigator.userAgent || 'authority')
+    },
+    () => 'authority' as HeroVariant,
+  )
+  const intentVariant = useSyncExternalStore(
+    () => () => undefined,
+    () => {
+      if (typeof navigator === 'undefined') return 'audit_first' as const
+      return pickDeterministicBucket(`${navigator.userAgent}_intent_router`) < 50 ? 'audit_first' : 'execution_first'
+    },
+    () => 'audit_first' as const,
+  )
 
   useEffect(() => {
     void trackEvent({
@@ -111,6 +124,76 @@ export function Hero() {
     language === 'en'
       ? ['Production-ready delivery path', 'Risk-aware architecture decisions', 'Localization and sanctions resilience']
       : ['مسیر تحویل آماده تولید', 'تصمیم های معماری مبتنی بر ریسک', 'بومی سازی زیرساخت و تاب آوری در محدودیت ها']
+  const intentRoutes = useMemo<IntentRoute[]>(() => {
+    const routesFa: Record<IntentRoute['key'], IntentRoute> = {
+      audit: {
+        key: 'audit',
+        title: 'اول می خواهم وضعیت سایت را دقیق بررسی کنم',
+        detail: 'از Audit Systems گزارش عملی سئو، عملکرد و امنیت بگیرید.',
+        href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=intent_router&utm_campaign=alireza_safaei_network&utm_content=hero_route',
+        external: true,
+        cta: 'ورود به Audit Systems',
+      },
+      toolbox: {
+        key: 'toolbox',
+        title: 'الان ابزار فارسی سریع و امن لازم دارم',
+        detail: 'برای کارهای روزمره از PersianToolbox با پردازش local-first استفاده کنید.',
+        href: 'https://persiantoolbox.ir/?utm_source=portfolio&utm_medium=intent_router&utm_campaign=alireza_safaei_network&utm_content=hero_route',
+        external: true,
+        cta: 'ورود به PersianToolbox',
+      },
+      execution: {
+        key: 'execution',
+        title: 'برای اجرا و توسعه مستقیم کمک می خواهم',
+        detail: 'فرم Qualification را باز کنید تا مسیر اجرای دقیق پروژه مشخص شود.',
+        href: withLocale('/qualification', language),
+        external: false,
+        cta: 'شروع Qualification',
+      },
+    }
+    const routesEn: Record<IntentRoute['key'], IntentRoute> = {
+      audit: {
+        key: 'audit',
+        title: 'I need a technical audit first',
+        detail: 'Use Audit Systems for a practical SEO, performance, and security report.',
+        href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=intent_router&utm_campaign=alireza_safaei_network&utm_content=hero_route',
+        external: true,
+        cta: 'Open Audit Systems',
+      },
+      toolbox: {
+        key: 'toolbox',
+        title: 'I need practical Persian tools',
+        detail: 'Use PersianToolbox for local-first utilities without signup friction.',
+        href: 'https://persiantoolbox.ir/?utm_source=portfolio&utm_medium=intent_router&utm_campaign=alireza_safaei_network&utm_content=hero_route',
+        external: true,
+        cta: 'Open PersianToolbox',
+      },
+      execution: {
+        key: 'execution',
+        title: 'I need direct execution support',
+        detail: 'Start qualification to receive a clear execution path for your project.',
+        href: withLocale('/qualification', language),
+        external: false,
+        cta: 'Start Qualification',
+      },
+    }
+
+    const source = language === 'en' ? routesEn : routesFa
+    const order: IntentRoute['key'][] = intentVariant === 'execution_first' ? ['execution', 'audit', 'toolbox'] : ['audit', 'toolbox', 'execution']
+    return order.map((key) => source[key])
+  }, [intentVariant, language])
+
+  useEffect(() => {
+    void trackEvent({
+      name: 'intent_router_impression',
+      category: 'engagement',
+      locale: language,
+      variant: intentVariant,
+      metadata: {
+        section: 'hero',
+      },
+    })
+  }, [intentVariant, language])
 
   return (
     <section id="home" className="relative overflow-hidden section-block subtle-grid">
@@ -249,6 +332,40 @@ export function Hero() {
                     <social.icon className="h-4 w-4" />
                   </a>
                 </Button>
+              ))}
+            </div>
+          </div>
+
+          <div id="intent-router" className="rounded-xl border border-border/70 bg-card/75 p-4 md:p-5 space-y-3">
+            <p className="text-sm font-semibold">
+              {language === 'en' ? 'Choose Your Fastest Path' : 'مسیر مناسب شما از همین‌جا'}
+            </p>
+            <div className="grid gap-3 md:grid-cols-3">
+              {intentRoutes.map((route) => (
+                <article key={route.title} className="rounded-lg border border-border/60 bg-background/75 p-3 text-sm">
+                  <h3 className="font-semibold text-foreground">{route.title}</h3>
+                  <p className="mt-1 text-muted-foreground text-ui">{route.detail}</p>
+                  <a
+                    className="mt-3 inline-flex rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted transition-colors"
+                    href={route.href}
+                    target={route.external ? '_blank' : undefined}
+                    rel={route.external ? 'noopener noreferrer' : undefined}
+                    onClick={() => {
+                      void trackEvent({
+                        name: 'intent_router_click',
+                        category: route.key === 'execution' ? 'conversion' : 'engagement',
+                        locale: language,
+                        variant: intentVariant,
+                        metadata: {
+                          route: route.key,
+                          destination: route.external ? 'external' : 'internal',
+                        },
+                      })
+                    }}
+                  >
+                    {route.cta}
+                  </a>
+                </article>
               ))}
             </div>
           </div>

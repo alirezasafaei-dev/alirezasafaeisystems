@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { env } from '@/lib/env'
+import { trackEvent } from '@/lib/analytics/client'
 import { useI18n } from '@/lib/i18n-context'
 
 export function isAnalyticsEnabled(config: {
@@ -49,10 +50,43 @@ export function WebVitals() {
       const onLoad = () => {
         void reportWebVitals()
       }
+      const onWindowError = (event: ErrorEvent) => {
+        void trackEvent({
+          name: 'js_error',
+          category: 'engagement',
+          locale: language,
+          metadata: {
+            message: trimString(event.message, 200),
+            source: trimString(event.filename ?? 'unknown', 120),
+            line: event.lineno || 0,
+            column: event.colno || 0,
+          },
+        })
+      }
+      const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+        const reason =
+          typeof event.reason === 'string'
+            ? event.reason
+            : event.reason instanceof Error
+              ? event.reason.message
+              : 'unknown'
+        void trackEvent({
+          name: 'unhandled_rejection',
+          category: 'engagement',
+          locale: language,
+          metadata: {
+            message: trimString(reason, 200),
+          },
+        })
+      }
       window.addEventListener('load', onLoad)
+      window.addEventListener('error', onWindowError)
+      window.addEventListener('unhandledrejection', onUnhandledRejection)
 
       return () => {
         window.removeEventListener('load', onLoad)
+        window.removeEventListener('error', onWindowError)
+        window.removeEventListener('unhandledrejection', onUnhandledRejection)
       }
     }
   }, [language])
@@ -129,4 +163,8 @@ async function getTTFB() {
     return 0
   }
   return navigation.responseStart - navigation.requestStart
+}
+
+function trimString(value: string, maxLength: number): string {
+  return value.slice(0, maxLength)
 }

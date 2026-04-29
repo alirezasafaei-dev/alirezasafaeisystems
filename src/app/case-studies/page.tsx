@@ -7,13 +7,21 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
+type CaseStudyItem = {
+  title: string
+  sector: string
+  outcome: string
+  href: string
+  external?: boolean
+}
+
 export const metadata: Metadata = {
   title: 'Case Studies',
   description: 'Selected delivery case studies with measurable outcomes, constraints, and operational evidence.',
   alternates: { canonical: `${siteUrl}/case-studies` },
 }
 
-function getCases(lang: 'fa' | 'en') {
+function getCases(lang: 'fa' | 'en'): CaseStudyItem[] {
   if (lang === 'en') {
     return [
       {
@@ -27,6 +35,13 @@ function getCases(lang: 'fa' | 'en') {
         sector: 'Consumer Utilities',
         outcome: 'Local-first product delivery with disciplined UX, SEO, and release operations',
         href: '/case-studies/asdev-persiantoolbox-platform',
+      },
+      {
+        title: 'Audit Systems Platform',
+        sector: 'Technical SEO / Security',
+        outcome: 'Production audit workflow for performance, security, and technical SEO with actionable outputs',
+        href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=case_studies&utm_campaign=alireza_safaei_network&utm_content=audit_case_list',
+        external: true,
       },
       {
         title: 'Infrastructure Localization Rescue',
@@ -61,6 +76,13 @@ function getCases(lang: 'fa' | 'en') {
       sector: 'محصول مصرفی',
       outcome: 'تحویل محصول local-first با UX منسجم، SEO، و عملیات انتشار production-grade',
       href: '/case-studies/asdev-persiantoolbox-platform',
+    },
+    {
+      title: 'پلتفرم Audit Systems',
+      sector: 'سئو فنی / امنیت',
+      outcome: 'گردش‌کار ارزیابی سایت در تولید برای عملکرد، امنیت و سئو فنی با خروجی عملیاتی',
+      href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=case_studies&utm_campaign=alireza_safaei_network&utm_content=audit_case_list',
+      external: true,
     },
     {
       title: 'نجات بومی‌سازی زیرساخت',
@@ -102,7 +124,6 @@ export default async function CaseStudiesPage() {
       lang === 'en'
         ? 'Each case includes context, constraints, actions, outcomes, and accepted evidence.'
         : 'هر مورد شامل زمینه، محدودیت‌ها، اقدام‌ها، خروجی‌ها و شواهد قابل قبول است.',
-    featured: lang === 'en' ? 'Featured Product' : 'محصول نمونه‌کار',
     open: lang === 'en' ? 'Open Full Case' : 'مشاهده کامل',
   }
 
@@ -133,15 +154,15 @@ export default async function CaseStudiesPage() {
             <article key={item.title} className="rounded-xl border bg-card p-6 card-hover reveal-up" style={{ animationDelay: `${index * 70}ms` }}>
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-medium text-primary">{item.sector}</p>
-                {index === 0 ? (
-                  <span className="rounded-full border border-primary/40 bg-primary px-2 py-1 text-[10px] font-semibold text-primary-foreground">
-                    {copy.featured}
-                  </span>
-                ) : null}
               </div>
               <h2 className="mt-2 text-xl font-semibold">{item.title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{item.outcome}</p>
-              <Link href={withLocale(item.href)} className="mt-4 inline-flex rounded-md border px-4 py-2 text-sm hover:bg-muted card-hover">
+              <Link
+                href={item.external ? item.href : withLocale(item.href)}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener noreferrer' : undefined}
+                className="mt-4 inline-flex rounded-md border px-4 py-2 text-sm hover:bg-muted card-hover"
+              >
                 {copy.open}
               </Link>
             </article>

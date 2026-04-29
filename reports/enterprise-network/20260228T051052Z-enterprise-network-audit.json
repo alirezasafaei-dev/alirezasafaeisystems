@@ -1,0 +1,229 @@
+{
+  "generatedAt": "2026-02-28T05:10:52.458Z",
+  "resultSet": [
+    {
+      "site": {
+        "key": "portfolio",
+        "role": "conversion_engine",
+        "baseUrl": "https://alirezasafaeisystems.ir",
+        "readyPath": "/api/ready",
+        "expectedLocale": {
+          "lang": "fa",
+          "dir": "rtl"
+        }
+      },
+      "root": {
+        "status": 200,
+        "latencyMs": 818
+      },
+      "ready": {
+        "status": 200,
+        "latencyMs": 92
+      },
+      "checks": [
+        {
+          "id": "html_locale",
+          "status": "pass",
+          "detail": "lang=fa dir=rtl"
+        },
+        {
+          "id": "title",
+          "status": "pass",
+          "detail": "length=51"
+        },
+        {
+          "id": "meta_description",
+          "status": "pass",
+          "detail": "length=174"
+        },
+        {
+          "id": "canonical",
+          "status": "pass",
+          "detail": "https://alirezasafaeisystems.ir/fa/"
+        },
+        {
+          "id": "cross_link_audit",
+          "status": "pass",
+          "detail": "expects audit cross-link"
+        },
+        {
+          "id": "cross_link_toolbox",
+          "status": "pass",
+          "detail": "expects toolbox cross-link"
+        },
+        {
+          "id": "intent_router",
+          "status": "pass",
+          "detail": "expects intent-router section on homepage"
+        }
+      ],
+      "summary": {
+        "pass": 7,
+        "fail": 0,
+        "score": 100
+      },
+      "extracted": {
+        "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+        "description": "علیرضا صفایی — مهندس سیستم‌های وب | معماری نرم‌افزار، طراحی سیستم و اجرای صفر تا صد با تمرکز بر آمادگی تولید، عملیات قابل‌اعتماد، و مقابله عملی با تحریم‌های خارجی علیه ایران.",
+        "canonical": "https://alirezasafaeisystems.ir/fa/",
+        "lang": "fa",
+        "dir": "rtl"
+      }
+    },
+    {
+      "site": {
+        "key": "audit",
+        "role": "qualification_engine",
+        "baseUrl": "https://audit.alirezasafaeisystems.ir",
+        "readyPath": "/api/ready",
+        "expectedLocale": {
+          "lang": "fa",
+          "dir": "rtl"
+        }
+      },
+      "root": {
+        "status": 200,
+        "latencyMs": 904
+      },
+      "ready": {
+        "status": 200,
+        "latencyMs": 187
+      },
+      "checks": [
+        {
+          "id": "html_locale",
+          "status": "pass",
+          "detail": "lang=fa dir=rtl"
+        },
+        {
+          "id": "title",
+          "status": "pass",
+          "detail": "length=32"
+        },
+        {
+          "id": "meta_description",
+          "status": "pass",
+          "detail": "length=79"
+        },
+        {
+          "id": "canonical",
+          "status": "pass",
+          "detail": "https://audit.alirezasafaeisystems.ir"
+        },
+        {
+          "id": "cross_link_portfolio",
+          "status": "pass",
+          "detail": "expects portfolio cross-link"
+        },
+        {
+          "id": "cross_link_toolbox",
+          "status": "pass",
+          "detail": "expects toolbox cross-link"
+        },
+        {
+          "id": "intent_router",
+          "status": "pass",
+          "detail": "expects intent-router section on homepage"
+        },
+        {
+          "id": "footer_clean_old_network",
+          "status": "pass",
+          "detail": "legacy network footer section must be removed"
+        },
+        {
+          "id": "footer_clean_badges",
+          "status": "pass",
+          "detail": "legacy footer badges must be removed"
+        },
+        {
+          "id": "footer_clean_old_bottom",
+          "status": "pass",
+          "detail": "legacy footer-bottom block must be removed"
+        }
+      ],
+      "summary": {
+        "pass": 10,
+        "fail": 0,
+        "score": 100
+      },
+      "extracted": {
+        "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+        "description": "آدرس سایت را وارد کنید و یک گزارش قابل‌اجرا برای تیم فنی و تیم رشد دریافت کنید.",
+        "canonical": "https://audit.alirezasafaeisystems.ir",
+        "lang": "fa",
+        "dir": "rtl"
+      }
+    },
+    {
+      "site": {
+        "key": "toolbox",
+        "role": "acquisition_engine",
+        "baseUrl": "https://persiantoolbox.ir",
+        "readyPath": "/api/ready",
+        "expectedLocale": {
+          "lang": "fa",
+          "dir": "rtl"
+        }
+      },
+      "root": {
+        "status": 200,
+        "latencyMs": 1793
+      },
+      "ready": {
+        "status": 200,
+        "latencyMs": 124
+      },
+      "checks": [
+        {
+          "id": "html_locale",
+          "status": "pass",
+          "detail": "lang=fa dir=rtl"
+        },
+        {
+          "id": "title",
+          "status": "pass",
+          "detail": "length=28"
+        },
+        {
+          "id": "meta_description",
+          "status": "pass",
+          "detail": "length=73"
+        },
+        {
+          "id": "canonical",
+          "status": "pass",
+          "detail": "https://persiantoolbox.ir"
+        },
+        {
+          "id": "cross_link_portfolio",
+          "status": "pass",
+          "detail": "expects portfolio link"
+        },
+        {
+          "id": "intent_router",
+          "status": "pass",
+          "detail": "expects intent-router section on homepage"
+        }
+      ],
+      "summary": {
+        "pass": 6,
+        "fail": 0,
+        "score": 100
+      },
+      "extracted": {
+        "title": "جعبه ابزار فارسی - صفحه اصلی",
+        "description": "ابزارهای PDF، محاسبات مالی و پردازش تصویر - همه در یک مکان، رایگان و آسان",
+        "canonical": "https://persiantoolbox.ir",
+        "lang": "fa",
+        "dir": "rtl"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "phase": "Phase 7: Conversion and Funnel Optimization",
+      "priority": "medium",
+      "action": "Baseline is clean; proceed with CTA experiments and funnel drop-off optimization."
+    }
+  ]
+}

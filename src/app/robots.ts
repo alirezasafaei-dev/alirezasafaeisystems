@@ -3,6 +3,7 @@ import { getSiteUrl } from '@/lib/site-config'
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getSiteUrl()
+  const host = new URL(baseUrl).host
 
   return {
     rules: {
@@ -11,6 +12,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: ['/api/', '/admin/', '/private/'],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    host,
   }
 }

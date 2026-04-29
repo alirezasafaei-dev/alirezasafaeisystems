@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
 import {
@@ -123,7 +122,6 @@ export function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <ThemeToggle />
             </div>
           </div>
 
@@ -169,10 +167,6 @@ export function Header() {
                       {language === 'en' ? 'FA' : 'EN'}
                     </Button>
                   </div>
-                </div>
-                <div className="flex items-center justify-between px-4">
-                  <span className="text-sm text-muted-foreground">{t('ui.theme')}</span>
-                  <ThemeToggle />
                 </div>
               </div>
             </SheetContent>

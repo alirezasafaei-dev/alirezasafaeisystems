@@ -34,11 +34,11 @@ export function getCacheControl(pathname: string): string {
   return 'public, max-age=0, s-maxage=300, stale-while-revalidate=600'
 }
 
-function buildCsp(nonce: string): string {
-  const scriptSources = [`'self'`, `'nonce-${nonce}'`]
-  const styleSources = [`'self'`, `'nonce-${nonce}'`]
+function buildCsp(_nonce: string): string {
+  const scriptSources = [`'self'`, "'unsafe-inline'"]
+  const styleSources = [`'self'`, "'unsafe-inline'"]
   const fontSources = [`'self'`, 'data:']
-  const connectSources = [`'self'`]
+  const connectSources = [`'self'`, 'https:']
   const fontCdnOrigin = getFontCdnOrigin()
 
   if (fontCdnOrigin) {
@@ -49,7 +49,6 @@ function buildCsp(nonce: string): string {
 
   if (env.NODE_ENV !== 'production') {
     scriptSources.push("'unsafe-eval'")
-    styleSources.push("'unsafe-inline'")
   }
 
   return [
@@ -100,11 +99,6 @@ function resolveLocale(request: NextRequest, pathnameLocale?: string): 'fa' | 'e
   const cookieLocale = request.cookies.get('lang')?.value
   if (cookieLocale === 'en' || cookieLocale === 'fa') {
     return cookieLocale
-  }
-
-  const acceptLanguage = request.headers.get('accept-language')?.toLowerCase() || ''
-  if (acceptLanguage.includes('en')) {
-    return 'en'
   }
 
   return 'fa'

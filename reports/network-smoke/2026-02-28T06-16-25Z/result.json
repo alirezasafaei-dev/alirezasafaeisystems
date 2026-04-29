@@ -1,0 +1,113 @@
+{
+  "runId": "2026-02-28T06-16-25Z",
+  "scenarios": [
+    {
+      "id": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null
+    }
+  ],
+  "allResults": [
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2867,
+        "t1s": 2903,
+        "t5s": 2903
+      },
+      "htmlLens": {
+        "t0": 94915,
+        "t1s": 100897,
+        "t5s": 100897
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "fetch https://persiantoolbox.ir/guides?_rsc=1r34m :: net::ERR_ABORTED",
+        "document https://persiantoolbox.ir/ :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-16-25Z/direct-chromium/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-16-25Z/direct-chromium/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 306,
+        "t1s": 306,
+        "t5s": 306
+      },
+      "htmlLens": {
+        "t0": 10825,
+        "t1s": 10825,
+        "t5s": 10825
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-16-25Z/direct-chromium/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-16-25Z/direct-chromium/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 2265,
+        "t1s": 2265,
+        "t5s": 2265
+      },
+      "htmlLens": {
+        "t0": 24372,
+        "t1s": 24250,
+        "t5s": 24323
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "fetch https://audit.alirezasafaeisystems.ir/sample-report?_rsc=3lb4g :: net::ERR_ABORTED",
+        "fetch https://audit.alirezasafaeisystems.ir/standards?_rsc=3lb4g :: net::ERR_ABORTED",
+        "font https://audit.alirezasafaeisystems.ir/fonts/IRANSansX-Bold.woff2 :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [
+        "504 https://audit.alirezasafaeisystems.ir/fonts/IRANSansX-Bold.woff2"
+      ],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-16-25Z/direct-chromium/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-16-25Z/direct-chromium/audit.alirezasafaeisystems.ir_.har"
+      }
+    }
+  ]
+}

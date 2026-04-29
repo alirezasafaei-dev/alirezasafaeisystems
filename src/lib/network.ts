@@ -35,7 +35,7 @@ export function buildNetworkLinks(utmSource: string, utmContent: NetworkUtmConte
     const url = new URL(item.baseUrl)
     url.searchParams.set('utm_source', utmSource)
     url.searchParams.set('utm_medium', 'cross_site')
-    url.searchParams.set('utm_campaign', 'alireza_network')
+    url.searchParams.set('utm_campaign', 'alireza_safaei_network')
     url.searchParams.set('utm_content', utmContent)
     return {
       ...item,
@@ -43,4 +43,3 @@ export function buildNetworkLinks(utmSource: string, utmContent: NetworkUtmConte
     }
   })
 }
-

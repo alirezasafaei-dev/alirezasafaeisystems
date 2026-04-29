@@ -1,0 +1,314 @@
+{
+  "runId": "2026-02-27T21-49-52Z",
+  "scenarios": [
+    {
+      "id": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null
+    },
+    {
+      "id": "direct-firefox",
+      "browser": "firefox",
+      "proxy": null
+    },
+    {
+      "id": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": {
+        "server": "http://127.0.0.1:10808"
+      },
+      "source": "HTTPS_PROXY"
+    },
+    {
+      "id": "proxy-firefox-http-127-0-0-1-10808",
+      "browser": "firefox",
+      "proxy": {
+        "server": "http://127.0.0.1:10808"
+      },
+      "source": "HTTPS_PROXY"
+    },
+    {
+      "id": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": {
+        "server": "socks5://127.0.0.1:10808"
+      },
+      "source": "ALL_PROXY"
+    },
+    {
+      "id": "proxy-firefox-socks5-127-0-0-1-10808",
+      "browser": "firefox",
+      "proxy": {
+        "server": "socks5://127.0.0.1:10808"
+      },
+      "source": "ALL_PROXY"
+    }
+  ],
+  "allResults": [
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2464,
+        "t1s": 2500,
+        "t5s": 2500
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "fetch https://persiantoolbox.ir/guides?_rsc=1r34m :: net::ERR_ABORTED",
+        "document https://persiantoolbox.ir/ :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/direct-chromium/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/direct-chromium/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 5580,
+        "t1s": 5580,
+        "t5s": 5580
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/direct-chromium/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/direct-chromium/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 1568,
+        "t1s": 1568,
+        "t5s": 1568
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/direct-chromium/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/direct-chromium/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-firefox",
+      "browser": "firefox",
+      "proxy": null,
+      "target": null,
+      "ok": false,
+      "launchError": "browserType.launch: Executable doesn't exist at /home/dev/.cache/ms-playwright/firefox-1509/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2464,
+        "t1s": 2500,
+        "t5s": 0
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": false,
+      "failureSummary": "white-screen-after-load",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-http-127-0-0-1-10808/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-http-127-0-0-1-10808/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 5580,
+        "t1s": 5580,
+        "t5s": 5609
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [
+        "Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "requestFailed": [
+        "other https://alirezasafaeisystems.ir/fonts/Vazirmatn-Variable.woff2 :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": false,
+      "failureSummary": "pageerror:1",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-http-127-0-0-1-10808/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-http-127-0-0-1-10808/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 1568,
+        "t1s": 1568,
+        "t5s": 1568
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-http-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-http-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-firefox-http-127-0-0-1-10808",
+      "browser": "firefox",
+      "proxy": "http://127.0.0.1:10808",
+      "target": null,
+      "ok": false,
+      "launchError": "browserType.launch: Executable doesn't exist at /home/dev/.cache/ms-playwright/firefox-1509/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2464,
+        "t1s": 2464,
+        "t5s": 2500
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "fetch https://persiantoolbox.ir/text-tools/address-fa-to-en?_rsc=1r34m :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/text-tools?_rsc=1r34m :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/guides?_rsc=1r34m :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/tools?_rsc=1r34m :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/tools?_rsc=p37cr :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/?_rsc=p37cr :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/guides?_rsc=p37cr :: net::ERR_ABORTED",
+        "document https://persiantoolbox.ir/ :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-socks5-127-0-0-1-10808/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-socks5-127-0-0-1-10808/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 5580,
+        "t1s": 5580,
+        "t5s": 5580
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-socks5-127-0-0-1-10808/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-socks5-127-0-0-1-10808/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 1568,
+        "t1s": 1568,
+        "t5s": 1568
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-socks5-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-27T21-49-52Z/proxy-chromium-socks5-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-firefox-socks5-127-0-0-1-10808",
+      "browser": "firefox",
+      "proxy": "socks5://127.0.0.1:10808",
+      "target": null,
+      "ok": false,
+      "launchError": "browserType.launch: Executable doesn't exist at /home/dev/.cache/ms-playwright/firefox-1509/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     npx playwright install                                              ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "runId": "2026-02-28T05-04-57Z",
+  "scenarios": [
+    {
+      "id": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null
+    },
+    {
+      "id": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": {
+        "server": "http://127.0.0.1:10808"
+      },
+      "source": "HTTPS_PROXY"
+    },
+    {
+      "id": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": {
+        "server": "socks5://127.0.0.1:10808"
+      },
+      "source": "ALL_PROXY"
+    }
+  ],
+  "allResults": [
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2867,
+        "t1s": 2867,
+        "t5s": 0
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": false,
+      "failureSummary": "white-screen-after-load",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/direct-chromium/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/direct-chromium/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 6190,
+        "t1s": 6190,
+        "t5s": 6190
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/direct-chromium/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/direct-chromium/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 2265,
+        "t1s": 2265,
+        "t5s": 2265
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/direct-chromium/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/direct-chromium/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2867,
+        "t1s": 2867,
+        "t5s": 0
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "fetch https://persiantoolbox.ir/?_rsc=1r34m :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": false,
+      "failureSummary": "white-screen-after-load",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-http-127-0-0-1-10808/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-http-127-0-0-1-10808/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 6190,
+        "t1s": 6190,
+        "t5s": 6190
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "429 https://alirezasafaeisystems.ir/api/analytics/events"
+      ],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-http-127-0-0-1-10808/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-http-127-0-0-1-10808/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 2265,
+        "t1s": 2265,
+        "t5s": 2265
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-http-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-http-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2867,
+        "t1s": 2903,
+        "t5s": 2902
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-socks5-127-0-0-1-10808/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-socks5-127-0-0-1-10808/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 6190,
+        "t1s": 6190,
+        "t5s": 6190
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "other https://alirezasafaeisystems.ir/_next/static/chunks/a49ec7f3c2a98537.js :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-socks5-127-0-0-1-10808/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-socks5-127-0-0-1-10808/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 2265,
+        "t1s": 2265,
+        "t5s": 2265
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-socks5-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T05-04-57Z/proxy-chromium-socks5-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.har"
+      }
+    }
+  ]
+}

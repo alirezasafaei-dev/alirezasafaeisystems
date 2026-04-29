@@ -1,0 +1,316 @@
+{
+  "runId": "2026-03-01T19-47-44Z",
+  "scenarios": [
+    {
+      "id": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null
+    },
+    {
+      "id": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": {
+        "server": "http://127.0.0.1:10808"
+      },
+      "source": "HTTPS_PROXY"
+    },
+    {
+      "id": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": {
+        "server": "socks5://127.0.0.1:10808"
+      },
+      "source": "ALL_PROXY"
+    }
+  ],
+  "allResults": [
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://persiantoolbox.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 295,
+        "t1s": 295,
+        "t5s": 295
+      },
+      "htmlLens": {
+        "t0": 10803,
+        "t1s": 10803,
+        "t5s": 10803
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://persiantoolbox.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/direct-chromium/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/direct-chromium/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 307,
+        "t1s": 307,
+        "t5s": 307
+      },
+      "htmlLens": {
+        "t0": 10827,
+        "t1s": 10827,
+        "t5s": 10827
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/direct-chromium/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/direct-chromium/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 319,
+        "t1s": 319,
+        "t5s": 319
+      },
+      "htmlLens": {
+        "t0": 10851,
+        "t1s": 10851,
+        "t5s": 10851
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://audit.alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/direct-chromium/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/direct-chromium/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://persiantoolbox.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 295,
+        "t1s": 295,
+        "t5s": 295
+      },
+      "htmlLens": {
+        "t0": 10803,
+        "t1s": 10803,
+        "t5s": 10803
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://persiantoolbox.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-http-127-0-0-1-10808/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-http-127-0-0-1-10808/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 307,
+        "t1s": 307,
+        "t5s": 307
+      },
+      "htmlLens": {
+        "t0": 10827,
+        "t1s": 10827,
+        "t5s": 10827
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-http-127-0-0-1-10808/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-http-127-0-0-1-10808/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-http-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "http://127.0.0.1:10808",
+      "proxySource": "HTTPS_PROXY",
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 319,
+        "t1s": 319,
+        "t5s": 319
+      },
+      "htmlLens": {
+        "t0": 10851,
+        "t1s": 10851,
+        "t5s": 10851
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://audit.alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-http-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-http-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://persiantoolbox.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 295,
+        "t1s": 295,
+        "t5s": 295
+      },
+      "htmlLens": {
+        "t0": 10803,
+        "t1s": 10803,
+        "t5s": 10803
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://persiantoolbox.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-socks5-127-0-0-1-10808/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-socks5-127-0-0-1-10808/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 307,
+        "t1s": 307,
+        "t5s": 307
+      },
+      "htmlLens": {
+        "t0": 10827,
+        "t1s": 10827,
+        "t5s": 10827
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-socks5-127-0-0-1-10808/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-socks5-127-0-0-1-10808/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "proxy-chromium-socks5-127-0-0-1-10808",
+      "browser": "chromium",
+      "proxy": "socks5://127.0.0.1:10808",
+      "proxySource": "ALL_PROXY",
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 504,
+      "title": "Error 504  | Gateway Timeout",
+      "bodyLens": {
+        "t0": 319,
+        "t1s": 319,
+        "t5s": 319
+      },
+      "htmlLens": {
+        "t0": 10851,
+        "t1s": 10851,
+        "t5s": 10851
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [
+        "504 https://audit.alirezasafaeisystems.ir/"
+      ],
+      "ok": false,
+      "failureSummary": "http:504",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-socks5-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-03-01T19-47-44Z/proxy-chromium-socks5-127-0-0-1-10808/audit.alirezasafaeisystems.ir_.har"
+      }
+    }
+  ]
+}

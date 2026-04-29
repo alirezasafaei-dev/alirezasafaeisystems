@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           'fa-IR': `${baseUrl}${faPath}`,
           'en-US': `${baseUrl}${enPath}`,
+          'x-default': `${baseUrl}${faPath}`,
         },
       },
     }

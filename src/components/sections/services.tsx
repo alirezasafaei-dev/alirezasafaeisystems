@@ -100,7 +100,7 @@ export async function Services() {
       : 'مدل همکاری عملی برای تحویل قابل پیش بینی، زیرساخت پایدار، و اجرای آماده تولید.'
   const flowTitle = lang === 'en' ? 'How Collaboration Moves Forward' : 'جریان همکاری چگونه پیش می رود'
   const signalTitle = lang === 'en' ? 'Execution Quality Signals' : 'شاخص های کیفیت اجرا'
-  const ctaProgram = lang === 'en' ? 'View Full Service Program' : 'مشاهده برنامه کامل خدمات'
+  const ctaProgram = lang === 'en' ? 'Start With Service Program' : 'شروع از برنامه خدمات'
   const ctaAssessment = lang === 'en' ? 'Request Qualification' : 'درخواست ارزیابی و Qualification'
   const ctaCases = lang === 'en' ? 'See Real Case Studies' : 'مشاهده نمونه کارهای واقعی'
 
@@ -166,19 +166,21 @@ export async function Services() {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-10 flex flex-col items-center gap-3">
             <Button asChild size="lg" className="gap-2 shine-effect">
               <Link href={withLocale('/services/infrastructure-localization', lang)}>
                 {ctaProgram}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2 card-hover">
-              <Link href={withLocale('/qualification', lang)}>{ctaAssessment}</Link>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="gap-2 card-hover">
-              <Link href={withLocale('/case-studies', lang)}>{ctaCases}</Link>
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
+              <Link href={withLocale('/qualification', lang)} className="inline-flex rounded-md border px-3 py-2 hover:bg-muted card-hover">
+                {ctaAssessment}
+              </Link>
+              <Link href={withLocale('/case-studies', lang)} className="inline-flex rounded-md border px-3 py-2 hover:bg-muted card-hover">
+                {ctaCases}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

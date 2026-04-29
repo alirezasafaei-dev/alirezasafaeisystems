@@ -33,9 +33,9 @@ test.describe('smoke', () => {
     await expect(page.locator('h1')).toContainText('Services')
   })
 
-  test('theme toggle is available in header', async ({ page }) => {
+  test('theme toggle button is removed from header', async ({ page }) => {
     await page.goto('/fa/')
-    await expect(page.locator('header button[aria-label="Toggle theme"]')).toBeVisible()
+    await expect(page.locator('header button[aria-label="Toggle theme"]')).toHaveCount(0)
   })
 
   test('profile page loads in mobile viewport with brand links', async ({ page }) => {
@@ -45,13 +45,13 @@ test.describe('smoke', () => {
     await expect(page.getByRole('heading', { name: /پورتفولیو و راه‌های ارتباطی/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /PersianToolbox — ابزارهای فارسی/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /Audit IR — بررسی فنی و امنیتی/ })).toBeVisible()
-    expect(await page.locator('a[href*="utm_campaign=alireza_network"]').count()).toBeGreaterThanOrEqual(3)
+    expect(await page.locator('a[href*="utm_campaign=alireza_safaei_network"]').count()).toBeGreaterThanOrEqual(3)
   })
 
   test('standards page is available and keeps network links', async ({ page }) => {
     await page.goto('/fa/standards')
     await expect(page.locator('h1')).toContainText('استانداردهای تحویل')
-    expect(await page.locator('a[href*="utm_campaign=alireza_network"]').count()).toBeGreaterThanOrEqual(3)
+    expect(await page.locator('a[href*="utm_campaign=alireza_safaei_network"]').count()).toBeGreaterThanOrEqual(3)
   })
 
   test('admin route redirects unauthenticated users to login', async ({ page }) => {

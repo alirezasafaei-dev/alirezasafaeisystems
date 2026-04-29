@@ -1,0 +1,41 @@
+name: Network Smoke Nightly
+
+on:
+  schedule:
+    - cron: '30 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Run Chromium network smoke
+        run: pnpm run network:smoke:chrome
+      - name: Run enterprise network audit
+        run: pnpm run enterprise:audit:network
+      - name: Upload network artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-smoke-and-audit-reports
+          path: |
+            reports/network-smoke/
+            reports/enterprise-network/
+          if-no-files-found: warn

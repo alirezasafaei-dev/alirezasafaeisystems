@@ -1,0 +1,105 @@
+{
+  "runId": "2026-02-28T06-17-46Z",
+  "scenarios": [
+    {
+      "id": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null
+    }
+  ],
+  "allResults": [
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://persiantoolbox.ir/",
+      "status": 200,
+      "title": "جعبه ابزار فارسی - صفحه اصلی",
+      "bodyLens": {
+        "t0": 2867,
+        "t1s": 2867,
+        "t5s": 2903
+      },
+      "htmlLens": {
+        "t0": 94915,
+        "t1s": 94915,
+        "t5s": 100897
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [
+        "fetch https://persiantoolbox.ir/tools?_rsc=1r34m :: net::ERR_ABORTED",
+        "fetch https://persiantoolbox.ir/image-tools?_rsc=p37cr :: net::ERR_ABORTED"
+      ],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-17-46Z/direct-chromium/persiantoolbox.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-17-46Z/direct-chromium/persiantoolbox.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "علیرضا صفایی | بومی‌سازی زیرساخت و تاب‌آوری عملیاتی",
+      "bodyLens": {
+        "t0": 6190,
+        "t1s": 6190,
+        "t5s": 6190
+      },
+      "htmlLens": {
+        "t0": 140485,
+        "t1s": 140485,
+        "t5s": 140558
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-17-46Z/direct-chromium/alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-17-46Z/direct-chromium/alirezasafaeisystems.ir_.har"
+      }
+    },
+    {
+      "scenario": "direct-chromium",
+      "browser": "chromium",
+      "proxy": null,
+      "proxySource": null,
+      "target": "https://audit.alirezasafaeisystems.ir/",
+      "status": 200,
+      "title": "ارزیابی فنی، سئو و امنیت وب‌سایت",
+      "bodyLens": {
+        "t0": 2265,
+        "t1s": 2265,
+        "t5s": 2265
+      },
+      "htmlLens": {
+        "t0": 24372,
+        "t1s": 24250,
+        "t5s": 24250
+      },
+      "gotoError": null,
+      "cspViolations": [],
+      "pageErrors": [],
+      "requestFailed": [],
+      "responseErrors": [],
+      "ok": true,
+      "failureSummary": "none",
+      "artifacts": {
+        "screenshotPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-17-46Z/direct-chromium/audit.alirezasafaeisystems.ir_.png",
+        "harPath": "/home/dev/Project_Me_All/Project_Me/alirezasafaeisystems/reports/network-smoke/2026-02-28T06-17-46Z/direct-chromium/audit.alirezasafaeisystems.ir_.har"
+      }
+    }
+  ]
+}

@@ -34,15 +34,6 @@ export function I18nProvider({ children, initialLanguage = 'fa' }: { children: R
       return cookieLang
     }
 
-    try {
-      const saved = localStorage.getItem('language') as Language | null
-      if (saved === 'en' || saved === 'fa') {
-        return saved
-      }
-    } catch {
-      // ignore
-    }
-
     return initialLanguage
   })
 
