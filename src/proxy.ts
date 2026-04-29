@@ -9,6 +9,22 @@ import { env } from '@/lib/env'
 const ADMIN_LOGIN_PATH = '/admin/login'
 const PUBLIC_FILE = /\.(.*)$/
 const SUPPORTED_LOCALES = new Set(['fa', 'en'])
+const EXCLUDED_PREFIXES = [
+  '/_next',
+  '/api',
+  '/admin',
+  '/account',
+  '/auth',
+  '/assets',
+  '/fonts',
+  '/images',
+  '/manifest.json',
+  '/robots.txt',
+  '/sitemap.xml',
+  '/sitemap-manifest.json',
+  '/favicon.ico',
+  '/favicon.svg',
+]
 
 const BASE_SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -139,38 +155,44 @@ export async function proxy(request: NextRequest) {
     request.headers.get('x-correlation-id') ||
     crypto.randomUUID()
   const nonce = crypto.randomUUID().replace(/-/g, '')
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-request-id', correlationId)
-  requestHeaders.set('x-correlation-id', correlationId)
-  requestHeaders.set('x-csp-nonce', nonce)
-  requestHeaders.set('x-site-locale', locale)
-  requestHeaders.set('x-site-pathname', pathname)
-  requestHeaders.set('x-asdev-locale', locale)
-  requestHeaders.set('x-asdev-pathname', pathname)
-
-  const isLocalizedCandidate =
-    !pathname.startsWith('/api') &&
-    !pathname.startsWith('/admin') &&
-    pathname !== '/robots.txt' &&
-    pathname !== '/sitemap.xml' &&
-    pathname !== '/manifest.json' &&
-    pathname !== '/favicon.ico' &&
-    pathname !== '/favicon.svg' &&
-    !PUBLIC_FILE.test(pathname)
-
+  const isExcludedPath = EXCLUDED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+  const isLocalizedCandidate = !isExcludedPath && !PUBLIC_FILE.test(pathname)
   const hasLocalePrefix = SUPPORTED_LOCALES.has(maybeLocale ?? '')
+  const internalPath = hasLocalePrefix ? pathname.replace(/^\/(fa|en)(?=\/|$)/, '') || '/' : pathname
+  const normalizedLocalePath = internalPath.startsWith('/') ? internalPath : `/${internalPath}`
+  const isExcludedInternalPath = EXCLUDED_PREFIXES.some(
+    (prefix) => normalizedLocalePath === prefix || normalizedLocalePath.startsWith(`${prefix}/`),
+  )
 
-  if (isLocalizedCandidate && hasLocalePrefix) {
-    const internalPath = pathname.replace(/^\/(fa|en)(?=\/|$)/, '') || '/'
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = internalPath
-    const response = NextResponse.redirect(redirectUrl)
+  const requestHeadersWithContext = new Headers(request.headers)
+  requestHeadersWithContext.set('x-request-id', correlationId)
+  requestHeadersWithContext.set('x-correlation-id', correlationId)
+  requestHeadersWithContext.set('x-csp-nonce', nonce)
+  requestHeadersWithContext.set('x-site-locale', locale)
+  requestHeadersWithContext.set('x-site-pathname', normalizedLocalePath)
+  requestHeadersWithContext.set('x-asdev-locale', locale)
+  requestHeadersWithContext.set('x-asdev-pathname', normalizedLocalePath)
+
+  const isLocaleInternalCandidate = isLocalizedCandidate && hasLocalePrefix && !isExcludedInternalPath
+
+  if (isLocaleInternalCandidate) {
+    const rewriteUrl = request.nextUrl.clone()
+    rewriteUrl.pathname = normalizedLocalePath
+    const response = NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeadersWithContext } })
     response.cookies.set('lang', locale, {
       path: '/',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365,
     })
-    withRequestContextHeaders(response, { correlationId, nonce, locale, pathname })
+    withRequestContextHeaders(response, { correlationId, nonce, locale, pathname: normalizedLocalePath })
+    return withSecurityHeaders(response, pathname, nonce)
+  }
+
+  if (isLocalizedCandidate && !hasLocalePrefix) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = `/fa${pathname === '/' ? '' : pathname}`
+    const response = NextResponse.redirect(redirectUrl, 308)
+    withRequestContextHeaders(response, { correlationId, nonce, locale: 'fa', pathname })
     return withSecurityHeaders(response, pathname, nonce)
   }
 
@@ -196,7 +218,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  const response = NextResponse.next({ request: { headers: requestHeaders } })
+  const response = NextResponse.next({ request: { headers: requestHeadersWithContext } })
   withRequestContextHeaders(response, { correlationId, nonce, locale, pathname })
   return withSecurityHeaders(response, pathname, nonce)
 }

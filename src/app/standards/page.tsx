@@ -1,29 +1,33 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { getRequestLanguage } from '@/lib/i18n/server'
 import { getSiteUrl } from '@/lib/site-config'
 import { buildNetworkLinks } from '@/lib/network'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'استانداردهای تحویل AliReza Safaei',
-  description:
-    'راهنمای کوتاه استانداردهای تحویل علیرضا صفایی: این سایت چیست، برای چه تیمی مناسب است، و خروجی اجرایی چه خواهد بود.',
-  alternates: {
-    canonical: `${siteUrl}/standards`,
-  },
-  openGraph: {
-    title: 'AliReza Safaei Standards — استانداردهای تحویل',
-    description: 'استانداردهای تحویل، intent map فارسی، و برنامه لینک داخلی بین Portfolio، PersianToolbox و Audit IR.',
-    url: `${siteUrl}/standards`,
-    type: 'article',
-  },
-  twitter: {
-    card: 'summary_large_image',
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
     title: 'استانداردهای تحویل AliReza Safaei',
-    description: 'تعریف خروجی، مخاطب و نقشه لینک داخلی شبکه کاری.',
-  },
+    description:
+      'راهنمای کوتاه استانداردهای تحویل علیرضا صفایی: این سایت چیست، برای چه تیمی مناسب است، و خروجی اجرایی چه خواهد بود.',
+    alternates: {
+      canonical: `${siteUrl}/${lang}/standards`,
+    },
+    openGraph: {
+      title: 'AliReza Safaei Standards — استانداردهای تحویل',
+      description: 'استانداردهای تحویل، intent map فارسی، و برنامه لینک داخلی بین Portfolio، PersianToolbox و Audit IR.',
+      url: `${siteUrl}/${lang}/standards`,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'استانداردهای تحویل AliReza Safaei',
+      description: 'تعریف خروجی، مخاطب و نقشه لینک داخلی شبکه کاری.',
+    },
+  }
 }
 
 export default async function StandardsPage() {

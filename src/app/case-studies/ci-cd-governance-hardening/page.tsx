@@ -7,10 +7,15 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'Case Study: CI/CD Governance Hardening',
-  description: 'Governance-first CI/CD hardening to reduce deployment risk and improve accountability.',
-  alternates: { canonical: `${siteUrl}/case-studies/ci-cd-governance-hardening` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Case Study: CI/CD Governance Hardening',
+    description: 'How release quality and ownership were stabilized through enforceable CI/CD policy gates.',
+    alternates: {
+      canonical: `${siteUrl}/${lang}/case-studies/ci-cd-governance-hardening`,
+    },
+  }
 }
 
 export default async function CiCdGovernanceHardeningPage() {
@@ -68,11 +73,11 @@ export default async function CiCdGovernanceHardeningPage() {
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
   }
 
-  const pageUrl = `${siteUrl}/case-studies/ci-cd-governance-hardening`
+  const pageUrl = `${siteUrl}/${lang}/case-studies/ci-cd-governance-hardening`
   const projectSchema = generateProjectSchema({
     name: 'CI/CD Governance Hardening',
     description: 'Operational and governance hardening for high-stakes release pipelines.',
-    url: '/case-studies/ci-cd-governance-hardening',
+    url: `/${lang}/case-studies/ci-cd-governance-hardening`,
     technologies: ['GitHub Actions', 'Playwright', 'Lighthouse CI', 'Nginx', 'Node.js'],
   })
 
@@ -88,7 +93,7 @@ export default async function CiCdGovernanceHardeningPage() {
     <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: copy.breadcrumbHome, url: siteUrl },
-        { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
+        { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
         { name: copy.title, url: pageUrl },
       ])} />
       <JsonLd data={projectSchema} />

@@ -17,6 +17,7 @@ This file is the entry point for project documentation.
 
 ## Runtime Evidence
 - `docs/runtime/README.md`: runtime evidence policy and folder map
+- `docs/ROADMAP_TASKS.md`: برنامه‌ریزی roadmap و تسک‌بندی اولویت‌بندی‌شده‌ی پروژه
 - `docs/ENTERPRISE_RUNTIME_STATUS.md`: latest enterprise baseline status with real command evidence
 - `docs/runtime/ENTERPRISE_UPGRADE_2026-02-27.md`: enterprise hardening changes, executed gates, and remaining execution tasks
 - `docs/runtime/VPS_DEPLOY_PREP_*.md`: latest local VPS deploy-preparation reports (gates + artifact metadata)

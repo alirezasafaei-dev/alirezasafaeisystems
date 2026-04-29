@@ -12,6 +12,7 @@ Canonical location for operational runtime evidence.
 
 ## Action Docs
 - `docs/runtime/EXECUTION_NOW.md`: prioritized immediate execution phases.
+- `docs/ROADMAP_TASKS.md`: backlog اجرایی و تسک‌بندی اولویت‌های P0-P2.
 - `docs/runtime/OWNER_INPUT_QUEUE.md`: required owner decisions for remaining non-local tasks.
 - `docs/runtime/ENTERPRISE_10_10_EXECUTION_PLAN_2026-02-19.md`: real status analysis, hard release gates, and 10/10 execution protocol.
 - `docs/runtime/GITHUB_ORG_2FA_STATUS.md`: governance evidence for org 2FA enforcement state.

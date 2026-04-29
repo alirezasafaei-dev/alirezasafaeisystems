@@ -7,10 +7,15 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'Case Study: Legacy Next.js Replatform',
-  description: 'A legacy replatform under strict uptime constraints with measurable release reliability gains.',
-  alternates: { canonical: `${siteUrl}/case-studies/legacy-nextjs-replatform` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Case Study: Legacy Next.js Replatform',
+    description: 'How release reliability was restored through architecture boundaries and hard delivery gates.',
+    alternates: {
+      canonical: `${siteUrl}/${lang}/case-studies/legacy-nextjs-replatform`,
+    },
+  }
 }
 
 export default async function LegacyNextjsReplatformPage() {
@@ -68,11 +73,11 @@ export default async function LegacyNextjsReplatformPage() {
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
   }
 
-  const pageUrl = `${siteUrl}/case-studies/legacy-nextjs-replatform`
+  const pageUrl = `${siteUrl}/${lang}/case-studies/legacy-nextjs-replatform`
   const projectSchema = generateProjectSchema({
     name: 'Legacy Next.js Replatform',
     description: 'Migration from a fragile legacy codebase to a governed Next.js architecture.',
-    url: '/case-studies/legacy-nextjs-replatform',
+    url: `/${lang}/case-studies/legacy-nextjs-replatform`,
     technologies: ['Next.js', 'TypeScript', 'PostgreSQL', 'Redis', 'Nginx'],
   })
 
@@ -88,7 +93,7 @@ export default async function LegacyNextjsReplatformPage() {
     <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: copy.breadcrumbHome, url: siteUrl },
-        { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
+        { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
         { name: copy.title, url: pageUrl },
       ])} />
       <JsonLd data={projectSchema} />

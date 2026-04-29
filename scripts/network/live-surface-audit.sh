@@ -11,7 +11,7 @@ LATEST_LINK="${LIVE_SURFACE_LATEST_REPORT:-${REPORT_DIR}/live-surface-latest.md}
 
 MONITOR_LINKS_STR="${MONITOR_LINKS:-}"
 if [[ -z "$MONITOR_LINKS_STR" ]]; then
-  MONITOR_LINKS_STR='https://persiantoolbox.ir/ https://persiantoolbox.ir/api/ready https://alirezasafaeisystems.ir/ https://alirezasafaeisystems.ir/profile https://alirezasafaeisystems.ir/resume.pdf https://alirezasafaeisystems.ir/alireza-safaei-resume.pdf https://audit.alirezasafaeisystems.ir/ https://audit.alirezasafaeisystems.ir/api/ready https://audit.alirezasafaeisystems.ir/health'
+  MONITOR_LINKS_STR='https://persiantoolbox.ir/ https://persiantoolbox.ir/api/ready https://alirezasafaeisystems.ir/ https://alirezasafaeisystems.ir/profile https://alirezasafaeisystems.ir/resume.pdf https://alirezasafaeisystems.ir/alireza-safaei-resume.pdf https://audit.alirezasafaeisystems.ir/ https://audit.alirezasafaeisystems.ir/api/ready'
 fi
 read -r -a MONITOR_LINKS <<< "$MONITOR_LINKS_STR"
 
@@ -118,7 +118,7 @@ check_redirect_to_https() {
   local host="$1"
   local path="$2"
   local code
-  code="$(curl -sS -o /dev/null -I -m "$CONNECT_TIMEOUT" --max-time "$MAX_TIME" "http://${host}${path}" 2>/dev/null | awk 'NR==1 {print $2}' || echo ERR)"
+  code="$(curl -sS -o /dev/null -I -m "$CONNECT_TIMEOUT" --max-time "$MAX_TIME" -w "%{http_code}" "http://${host}${path}" 2>/dev/null || echo ERR)"
   if [[ "$code" == "301" || "$code" == "302" || "$code" == "307" || "$code" == "308" ]]; then
     echo "pass"
   elif [[ "$code" == "200" ]]; then

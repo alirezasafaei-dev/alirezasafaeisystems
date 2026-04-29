@@ -7,10 +7,13 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Practical engineering services for software architecture, production readiness, project rescue, and stable local-first operations.',
-  alternates: { canonical: `${siteUrl}/services` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Services',
+    description: 'Practical engineering services for software architecture, production readiness, project rescue, and stable local-first operations.',
+    alternates: { canonical: `${siteUrl}/${lang}/services` },
+  }
 }
 
 function getOffers(lang: 'fa' | 'en') {
@@ -147,7 +150,7 @@ export default async function ServicesPage() {
     <main className="container mx-auto px-4 py-28">
       <JsonLd data={generateBreadcrumbSchema([
         { name: copy.breadcrumbHome, url: siteUrl },
-        { name: copy.breadcrumbServices, url: `${siteUrl}/services` },
+        { name: copy.breadcrumbServices, url: `${siteUrl}/${lang}/services` },
       ])} />
       <JsonLd data={faqSchema} />
 

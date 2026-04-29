@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { getRequestLanguage } from '@/lib/i18n/server'
 import { brand } from '@/lib/brand'
 import { getSiteUrl } from '@/lib/site-config'
 import {
@@ -14,26 +15,29 @@ import {
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'AliReza Safaei — صفحه معرفی و شبکه',
-  description: 'معرفی علیرضا صفایی، مهندس سیستم‌های وب، به‌همراه لینک‌های رسمی Portfolio، PersianToolbox و Audit IR.',
-  alternates: {
-    canonical: `${siteUrl}/profile`,
-  },
-  openGraph: {
-    title: 'AliReza Safaei | Web Systems Engineer',
-    description: 'معرفی علیرضا صفایی و لینک‌دهی متقابل بین پورتفولیو، PersianToolbox و Audit IR.',
-    url: `${siteUrl}/profile`,
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'AliReza Safaei — صفحه معرفی',
-    description: 'لینک‌های رسمی شبکه کاری و راه‌های ارتباطی علیرضا صفایی.',
-  },
-  other: {
-    'x-robots-tag': 'index, follow',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'AliReza Safaei — صفحه معرفی و شبکه',
+    description: 'معرفی علیرضا صفایی، مهندس سیستم‌های وب، به‌همراه لینک‌های رسمی Portfolio، PersianToolbox و Audit IR.',
+    alternates: {
+      canonical: `${siteUrl}/${lang}/profile`,
+    },
+    openGraph: {
+      title: 'AliReza Safaei | Web Systems Engineer',
+      description: 'معرفی علیرضا صفایی و لینک‌دهی متقابل بین پورتفولیو، PersianToolbox و Audit IR.',
+      url: `${siteUrl}/${lang}/profile`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'AliReza Safaei — صفحه معرفی',
+      description: 'لینک‌های رسمی شبکه کاری و راه‌های ارتباطی علیرضا صفایی.',
+    },
+    other: {
+      'x-robots-tag': 'index, follow',
+    },
+  }
 }
 
 export default async function ProfilePage() {

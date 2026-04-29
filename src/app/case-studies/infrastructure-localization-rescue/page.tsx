@@ -7,11 +7,15 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'Case Study: Infrastructure Localization Rescue',
-  description:
-    'How a high-risk deployment stack was stabilized with local-first architecture, controlled rollout gates, and evidence-based operations.',
-  alternates: { canonical: `${siteUrl}/case-studies/infrastructure-localization-rescue` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Case Study: Infrastructure Localization Rescue',
+    description: 'How a high-risk deployment stack was stabilized with local-first architecture and governance gates.',
+    alternates: {
+      canonical: `${siteUrl}/${lang}/case-studies/infrastructure-localization-rescue`,
+    },
+  }
 }
 
 function getOutcomes(lang: 'fa' | 'en') {
@@ -81,11 +85,11 @@ export default async function InfrastructureLocalizationRescueCaseStudyPage() {
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
   }
 
-  const pageUrl = `${siteUrl}/case-studies/infrastructure-localization-rescue`
+  const pageUrl = `${siteUrl}/${lang}/case-studies/infrastructure-localization-rescue`
   const projectSchema = generateProjectSchema({
     name: 'Infrastructure Localization Rescue',
     description: 'Stabilization of a high-risk deployment stack under localization constraints.',
-    url: '/case-studies/infrastructure-localization-rescue',
+    url: `/${lang}/case-studies/infrastructure-localization-rescue`,
     technologies: ['Next.js', 'TypeScript', 'Prisma', 'Nginx', 'PM2'],
   })
   const articleSchema = generateArticleSchema({
@@ -100,7 +104,7 @@ export default async function InfrastructureLocalizationRescueCaseStudyPage() {
     <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: copy.breadcrumbHome, url: siteUrl },
-        { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
+        { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
         { name: copy.title, url: pageUrl },
       ])} />
       <JsonLd data={projectSchema} />

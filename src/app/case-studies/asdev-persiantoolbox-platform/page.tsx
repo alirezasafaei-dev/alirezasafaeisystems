@@ -8,11 +8,20 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 const siteUrl = getSiteUrl()
 const persianToolboxUrl = 'https://persiantoolbox.ir'
 
-export const metadata: Metadata = {
-  title: 'Case Study: PersianToolbox Platform',
-  description:
-    'How PersianToolbox was built as a local-first production platform with clean UX, strict quality gates, and operational discipline.',
-  alternates: { canonical: `${siteUrl}/case-studies/asdev-persiantoolbox-platform` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Case Study: PersianToolbox Platform',
+    description:
+      'A local-first Persian utility platform engineered to be fast, reliable, and intentionally simple for everyday users.',
+    alternates: {
+      canonical: `${siteUrl}/${lang}/case-studies/asdev-persiantoolbox-platform`,
+      languages: {
+        'fa-IR': `${siteUrl}/fa/case-studies/asdev-persiantoolbox-platform`,
+        'en-US': `${siteUrl}/en/case-studies/asdev-persiantoolbox-platform`,
+      },
+    },
+  }
 }
 
 export default async function AsdevPersianToolboxPlatformPage() {
@@ -73,12 +82,12 @@ export default async function AsdevPersianToolboxPlatformPage() {
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
   }
 
-  const pageUrl = `${siteUrl}/case-studies/asdev-persiantoolbox-platform`
+  const pageUrl = `${siteUrl}/${lang}/case-studies/asdev-persiantoolbox-platform`
 
   const projectSchema = generateProjectSchema({
     name: 'PersianToolbox Platform',
     description: 'A local-first Persian utility platform engineered for speed, clarity, and reliable operations.',
-    url: '/case-studies/asdev-persiantoolbox-platform',
+    url: withLocale('/case-studies/asdev-persiantoolbox-platform'),
     technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Playwright', 'Lighthouse CI'],
   })
 
@@ -96,7 +105,7 @@ export default async function AsdevPersianToolboxPlatformPage() {
       <JsonLd
         data={generateBreadcrumbSchema([
           { name: copy.breadcrumbHome, url: siteUrl },
-          { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
+          { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
           { name: 'PersianToolbox Platform', url: pageUrl },
         ])}
       />

@@ -7,12 +7,15 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: `About ${brand.ownerName}`,
-  description: `${brand.ownerName} profile, engineering principles, and execution model.`,
-  alternates: {
-    canonical: `${siteUrl}/about-brand`,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: `About ${brand.ownerName}`,
+    description: `${brand.ownerName} profile, engineering principles, and execution model.`,
+    alternates: {
+      canonical: `${siteUrl}/${lang}/about-brand`,
+    },
+  }
 }
 
 export default async function AboutBrandPage() {

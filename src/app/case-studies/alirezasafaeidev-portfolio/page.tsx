@@ -7,11 +7,14 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 
 const siteUrl = getSiteUrl()
 
-export const metadata: Metadata = {
-  title: 'Case Study: alirezasafaeisystems.ir Portfolio System',
-  description:
-    'How this portfolio was engineered as a production-grade lead acquisition system with strict QA gates and local-first deployment constraints.',
-  alternates: { canonical: `${siteUrl}/case-studies/alirezasafaeidev-portfolio` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Case Study: alirezasafaeisystems.ir Portfolio System',
+    description:
+      'How this portfolio was engineered as a production-grade lead acquisition system with strict QA gates and local-first deployment constraints.',
+    alternates: { canonical: `${siteUrl}/${lang}/case-studies/alirezasafaeidev-portfolio` },
+  }
 }
 
 export default async function PortfolioCaseStudyPage() {
@@ -66,12 +69,12 @@ export default async function PortfolioCaseStudyPage() {
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
   }
 
-  const pageUrl = `${siteUrl}/case-studies/alirezasafaeidev-portfolio`
+  const pageUrl = `${siteUrl}/${lang}/case-studies/alirezasafaeidev-portfolio`
 
   const projectSchema = generateProjectSchema({
     name: 'alirezasafaeisystems.ir Portfolio System',
     description: 'A portfolio that functions as a measurable visitor-to-lead conversion system with production readiness.',
-    url: '/case-studies/alirezasafaeidev-portfolio',
+    url: `/${lang}/case-studies/alirezasafaeidev-portfolio`,
     technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Prisma', 'Playwright', 'Lighthouse CI'],
   })
 
@@ -89,7 +92,7 @@ export default async function PortfolioCaseStudyPage() {
       <JsonLd
         data={generateBreadcrumbSchema([
           { name: copy.breadcrumbHome, url: siteUrl },
-          { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
+          { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
           { name: 'alirezasafaeisystems.ir Portfolio System', url: pageUrl },
         ])}
       />

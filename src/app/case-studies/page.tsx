@@ -15,10 +15,13 @@ type CaseStudyItem = {
   external?: boolean
 }
 
-export const metadata: Metadata = {
-  title: 'Case Studies',
-  description: 'Selected delivery case studies with measurable outcomes, constraints, and operational evidence.',
-  alternates: { canonical: `${siteUrl}/case-studies` },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: 'Case Studies',
+    description: 'Selected delivery case studies with measurable outcomes, constraints, and operational evidence.',
+    alternates: { canonical: `${siteUrl}/${lang}/case-studies` },
+  }
 }
 
 function getCases(lang: 'fa' | 'en'): CaseStudyItem[] {
@@ -127,19 +130,20 @@ export default async function CaseStudiesPage() {
     open: lang === 'en' ? 'Open Full Case' : 'مشاهده کامل',
   }
 
+  const canonicalPath = `/${lang}/case-studies`
   const collectionSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: copy.schemaName,
     description: copy.schemaDesc,
-    url: `${siteUrl}/case-studies`,
+    url: `${siteUrl}${canonicalPath}`,
   }
 
   return (
     <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: copy.breadcrumbHome, url: siteUrl },
-        { name: copy.breadcrumbCases, url: `${siteUrl}/case-studies` },
+        { name: copy.breadcrumbCases, url: `${siteUrl}${canonicalPath}` },
       ])} />
       <JsonLd data={collectionSchema} />
       <section className="mx-auto max-w-5xl space-y-8 section-surface aurora-shell p-6 md:p-8">

@@ -25,7 +25,7 @@
   },
   {
     "route": "/fa/profile",
-    "lastModified": "2026-02-27T16:38:45+01:00",
+    "lastModified": "2026-04-29T16:48:56-04:00",
     "priority": 0.88,
     "changeFrequency": "monthly"
   },
@@ -37,7 +37,7 @@
   },
   {
     "route": "/fa/case-studies",
-    "lastModified": "2026-02-27T16:38:45+01:00",
+    "lastModified": "2026-04-29T16:14:10-04:00",
     "priority": 0.85,
     "changeFrequency": "monthly"
   },
