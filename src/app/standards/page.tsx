@@ -33,6 +33,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StandardsPage() {
   const nonce = (await headers()).get('x-csp-nonce') || undefined
   const links = buildNetworkLinks('alireza-portfolio', 'standards_page')
+  const lang = await getRequestLanguage()
+  const withLocale = (path: string) => `/${lang}${path}`
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -98,7 +100,7 @@ export default async function StandardsPage() {
               {item.label}
             </Link>
           ))}
-          <Link href="/profile" className="underline underline-offset-4 text-sm">
+          <Link href={withLocale('/profile')} className="underline underline-offset-4 text-sm">
             صفحه معرفی شبکه
           </Link>
         </div>

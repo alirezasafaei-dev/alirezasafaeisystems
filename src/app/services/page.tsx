@@ -89,6 +89,7 @@ function getOffers(lang: 'fa' | 'en') {
 export default async function ServicesPage() {
   const lang = await getRequestLanguage()
   const offers = getOffers(lang)
+  const withLocale = (path: string) => `/${lang}${path}`
 
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
@@ -174,12 +175,12 @@ export default async function ServicesPage() {
         </div>
 
         <div className="space-y-3">
-          <Link href="/qualification" className="inline-flex rounded-md bg-primary px-4 py-2 text-primary-foreground">
+          <Link href={withLocale('/qualification')} className="inline-flex rounded-md bg-primary px-4 py-2 text-primary-foreground">
             {copy.cta}
           </Link>
           <p className="text-sm text-muted-foreground">
             {copy.proofLinePrefix}
-            <Link href="/case-studies" className="underline">{copy.proofLink}</Link>
+            <Link href={withLocale('/case-studies')} className="underline">{copy.proofLink}</Link>
             {copy.proofLineSuffix}
           </p>
         </div>

@@ -174,6 +174,20 @@ export async function proxy(request: NextRequest) {
   requestHeadersWithContext.set('x-asdev-pathname', normalizedLocalePath)
 
   const isLocaleInternalCandidate = isLocalizedCandidate && hasLocalePrefix && !isExcludedInternalPath
+  const isLegacyAsdevAlias = normalizedLocalePath === '/asdev'
+
+  if (isLegacyAsdevAlias) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = `/${locale}/profile`
+    const response = NextResponse.redirect(redirectUrl, 308)
+    response.cookies.set('lang', locale, {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365,
+    })
+    withRequestContextHeaders(response, { correlationId, nonce, locale, pathname: normalizedLocalePath })
+    return withSecurityHeaders(response, pathname, nonce)
+  }
 
   if (isLocaleInternalCandidate) {
     const rewriteUrl = request.nextUrl.clone()

@@ -108,6 +108,8 @@ export default async function ProfilePage() {
     { label: 'Resume PDF', href: RESUME_PDF_URL },
     { label: 'Portfolio & contact', href: PORTFOLIO_URL },
   ]
+  const lang = await getRequestLanguage()
+  const withLocale = (path: string) => `/${lang}${path}`
 
   return (
     <main className="container mx-auto px-4 py-16 max-w-5xl space-y-10 subtle-grid" id="main-content">
@@ -187,7 +189,7 @@ export default async function ProfilePage() {
             </Link>
           ))}
         </div>
-        <Link href="/standards" className="text-sm underline underline-offset-4">
+        <Link href={withLocale('/standards')} className="text-sm underline underline-offset-4">
           استانداردهای تحویل، کیفیت UX فارسی و نقشه اجرا
         </Link>
       </section>
