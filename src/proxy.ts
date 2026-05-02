@@ -148,6 +148,7 @@ function withRequestContextHeaders(
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+  const hasLocaleRedirectContext = request.headers.get('x-asdev-locale-context') === '1'
   const [, maybeLocale] = pathname.split('/')
   const locale = resolveLocale(request, maybeLocale)
   const correlationId =
@@ -172,6 +173,7 @@ export async function proxy(request: NextRequest) {
   requestHeadersWithContext.set('x-site-pathname', normalizedLocalePath)
   requestHeadersWithContext.set('x-asdev-locale', locale)
   requestHeadersWithContext.set('x-asdev-pathname', normalizedLocalePath)
+  requestHeadersWithContext.set('x-asdev-locale-context', '1')
 
   const isLocaleInternalCandidate = isLocalizedCandidate && hasLocalePrefix && !isExcludedInternalPath
   const isLegacyAsdevAlias = normalizedLocalePath === '/asdev'
@@ -215,7 +217,7 @@ export async function proxy(request: NextRequest) {
     return withSecurityHeaders(response, pathname, nonce)
   }
 
-  if (isLocalizedCandidate && !hasLocalePrefix && pathname !== '/') {
+  if (isLocalizedCandidate && !hasLocalePrefix && pathname !== '/' && !hasLocaleRedirectContext) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = `/fa${pathname === '/' ? '' : pathname}`
     const response = NextResponse.redirect(redirectUrl, 308)

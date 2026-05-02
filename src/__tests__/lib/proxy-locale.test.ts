@@ -44,6 +44,17 @@ describe('proxy locale routing', () => {
     expect(response.headers.get('x-site-pathname')).toBe('/')
   })
 
+  it('does not redirect locale-prefixed profile path and avoids middleware loop', async () => {
+    const request = new NextRequest('https://alirezasafaeisystems.ir/fa/profile')
+    const response = await proxy(request)
+
+    expect(response.status).toBe(200)
+    const location = response.headers.get('location')
+    expect(location).toBeNull()
+    expect(response.headers.get('x-site-pathname')).toBe('/profile')
+    expect(response.headers.get('x-site-locale')).toBe('fa')
+  })
+
   it('detects english from Accept-Language when locale cookie is not set', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/services', {
       headers: {
