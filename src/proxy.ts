@@ -189,6 +189,19 @@ export async function proxy(request: NextRequest) {
     return withSecurityHeaders(response, pathname, nonce)
   }
 
+  if (pathname === '/') {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/fa'
+    const response = NextResponse.redirect(redirectUrl, 308)
+    response.cookies.set('lang', 'fa', {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365,
+    })
+    withRequestContextHeaders(response, { correlationId, nonce, locale: 'fa', pathname })
+    return withSecurityHeaders(response, pathname, nonce)
+  }
+
   if (isLocaleInternalCandidate) {
     const rewriteUrl = request.nextUrl.clone()
     rewriteUrl.pathname = normalizedLocalePath
@@ -202,7 +215,7 @@ export async function proxy(request: NextRequest) {
     return withSecurityHeaders(response, pathname, nonce)
   }
 
-  if (isLocalizedCandidate && !hasLocalePrefix) {
+  if (isLocalizedCandidate && !hasLocalePrefix && pathname !== '/') {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = `/fa${pathname === '/' ? '' : pathname}`
     const response = NextResponse.redirect(redirectUrl, 308)

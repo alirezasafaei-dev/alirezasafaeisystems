@@ -10,36 +10,36 @@ function requireLocation(value: string | null): string {
 }
 
 describe('proxy locale routing', () => {
-  it('redirects localized /fa path to internal root and sets lang cookie', async () => {
+  it('rewrites localized /fa path to internal root and sets lang cookie', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/fa')
     const response = await proxy(request)
 
-    expect(response.status).toBe(307)
+    expect(response.status).toBe(200)
     const location = response.headers.get('location')
-    expect(new URL(requireLocation(location)).pathname).toBe('/')
+    expect(location).toBeNull()
+    expect(response.headers.get('x-site-pathname')).toBe('/')
     expect(response.cookies.get('lang')?.value).toBe('fa')
     expect(response.headers.get('x-site-locale')).toBe('fa')
-    expect(response.headers.get('x-site-pathname')).toBe('/fa')
   })
 
-  it('redirects localized /en path to internal route and sets english cookie', async () => {
+  it('rewrites localized /en path to internal route and sets english cookie', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/en/services')
     const response = await proxy(request)
 
-    expect(response.status).toBe(307)
+    expect(response.status).toBe(200)
     const location = response.headers.get('location')
-    expect(new URL(requireLocation(location)).pathname).toBe('/services')
+    expect(location).toBeNull()
+    expect(response.headers.get('x-site-pathname')).toBe('/services')
     expect(response.cookies.get('lang')?.value).toBe('en')
     expect(response.headers.get('x-site-locale')).toBe('en')
-    expect(response.headers.get('x-site-pathname')).toBe('/en/services')
   })
 
-  it('serves non-localized root directly without locale redirect loop', async () => {
+  it('redirects root to /fa once and avoids locale redirect loop', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/')
     const response = await proxy(request)
 
-    expect(response.status).toBe(200)
-    expect(response.headers.get('location')).toBeNull()
+    expect(response.status).toBe(308)
+    expect(response.headers.get('location')).toContain('/fa')
     expect(response.headers.get('x-site-locale')).toBe('fa')
     expect(response.headers.get('x-site-pathname')).toBe('/')
   })
@@ -52,8 +52,8 @@ describe('proxy locale routing', () => {
     })
     const response = await proxy(request)
 
-    expect(response.status).toBe(200)
-    expect(response.headers.get('x-site-locale')).toBe('en')
+    expect(response.status).toBe(308)
+    expect(response.headers.get('x-site-locale')).toBe('fa')
     expect(response.headers.get('x-site-pathname')).toBe('/services')
   })
 })
