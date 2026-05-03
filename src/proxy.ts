@@ -192,6 +192,17 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname === '/') {
+    if (hasLocaleRedirectContext) {
+      const response = NextResponse.next({ request: { headers: requestHeadersWithContext } })
+      withRequestContextHeaders(response, {
+        correlationId,
+        nonce,
+        locale: 'fa',
+        pathname,
+      })
+      return withSecurityHeaders(response, pathname, nonce)
+    }
+
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/fa'
     const response = NextResponse.redirect(redirectUrl, 308)
