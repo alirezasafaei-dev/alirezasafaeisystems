@@ -11,6 +11,7 @@ vi.mock('@/lib/db', () => ({
 
 describe('ready endpoint', () => {
   beforeEach(() => {
+    process.env.DATABASE_URL = 'file:./tmp/ready-test.db'
     vi.resetModules()
     vi.clearAllMocks()
   })
