@@ -22,7 +22,7 @@ This file is an internal reference to keep brand configuration consistent across
 
 ## Contact
 - Email: alirezasafaeisystems@gmail.com
-- Phone: +9890001602030
+- Phone: 09001602030
 
 ## Positioning (English)
 AliReza Safaei

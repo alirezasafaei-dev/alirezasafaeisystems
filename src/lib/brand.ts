@@ -8,7 +8,7 @@ const DEFAULT_TELEGRAM_URL = `https://t.me/asdevsystems`
 const DEFAULT_INSTAGRAM_URL = `https://www.instagram.com/${DEFAULT_HANDLE}`
 const DEFAULT_WHATSAPP_URL = 'https://wa.me/message/ANXJHRC3RKRSL1'
 const DEFAULT_CONTACT_EMAIL = 'alirezasafaeisystems@gmail.com'
-const DEFAULT_CONTACT_PHONE = '+9890001602030'
+const DEFAULT_CONTACT_PHONE = '09001602030'
 const DEFAULT_POSITIONING_EN = `AliReza Safaei — Web Systems Engineer | ${PROFILE_SUMMARY_EN}`
 const DEFAULT_POSITIONING_FA = `علیرضا صفایی — مهندس سیستم‌های وب | ${PROFILE_SUMMARY_FA}`
 
