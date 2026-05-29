@@ -11,10 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const isEn = lang === 'en'
   const canonicalPath = `/${lang}/qualification`
   return {
-    title: isEn ? 'Project Qualification' : 'ارزیابی و Qualification پروژه',
+    title: isEn ? 'Request Review + Quick Fix' : 'درخواست بررسی + رفع سریع',
     description: isEn
-      ? 'Submit project details to receive a structured discovery follow-up.'
-      : 'اطلاعات پروژه را ثبت کنید تا مسیر همکاری و جلسه Discovery به صورت ساختاریافته پیگیری شود.',
+      ? 'Send your live website and current issue to request a focused technical review and quick fix sprint.'
+      : 'آدرس سایت و مشکل فعلی را بفرستید تا بررسی فنی متمرکز و اسپرینت رفع سریع شروع شود.',
     alternates: {
       canonical: canonicalPath,
       languages: {
@@ -28,15 +28,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function QualificationPage() {
   const lang = await getRequestLanguage()
   const withLocale = (path: string) => `/${lang}${path}`
-  const title = lang === 'en' ? 'Project Qualification' : 'ارزیابی و Qualification پروژه'
+  const title = lang === 'en' ? 'Request Technical Review + Quick Fix' : 'درخواست بررسی فنی + رفع سریع'
   const desc =
     lang === 'en'
-      ? 'Submit project details to receive a structured discovery follow-up.'
-      : 'اطلاعات پروژه را ثبت کنید تا در سریع‌ترین زمان ممکن مسیر همکاری و جلسه Discovery هماهنگ شود.'
+      ? 'Send the live URL, the main visible issue, and your preferred contact channel. The first response focuses on whether a small paid sprint can create a useful result quickly.'
+      : 'آدرس سایت زنده، مشکل اصلی و راه ارتباطی را بفرستید. پاسخ اولیه مشخص می‌کند آیا یک اسپرینت کوچک و پولی می‌تواند سریع نتیجه قابل استفاده بسازد یا نه.'
   const trust =
     lang === 'en'
-      ? ['NDA available on request', 'Initial response within one business day', 'Evidence-backed delivery model']
-      : ['امکان امضای NDA', 'پاسخ اولیه حداکثر تا یک روز کاری', 'مدل تحویل مبتنی بر شواهد']
+      ? ['Fixed-scope starter', 'Initial response within one business day', 'Before/after evidence when fixes are delivered']
+      : ['شروع با دامنه محدود', 'پاسخ اولیه حداکثر تا یک روز کاری', 'تحویل شواهد قبل/بعد در صورت اجرای رفع']
   const back = lang === 'en' ? 'Back to home' : 'بازگشت به خانه'
 
   return (

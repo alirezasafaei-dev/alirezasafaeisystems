@@ -12,15 +12,15 @@ import { useI18n } from '@/lib/i18n-context'
 const initialState = {
   contactName: '',
   organizationName: '',
-  organizationType: 'government_contractor',
+  organizationType: 'service_business',
   email: '',
   phone: '',
-  teamSize: '',
+  teamSize: '1-5',
   currentStack: '',
   criticalRisk: '',
-  timeline: '',
-  budgetRange: '60-120m-irr',
-  preferredContact: 'email',
+  timeline: 'this_week',
+  budgetRange: 'starter-fixed-scope',
+  preferredContact: 'telegram',
   notes: '',
   website: '',
 }
@@ -51,44 +51,52 @@ export function InfrastructureLeadForm() {
   const isFa = language === 'fa'
   const copy = useMemo(
     () => ({
-      stepOneTitle: isFa ? '1) اطلاعات پایه' : '1) Basic Information',
-      stepTwoTitle: isFa ? '2) جزئیات فنی و ارزیابی' : '2) Technical Assessment',
-      stepOneHint: isFa ? 'اطلاعات تماس و سازمان را کامل کنید.' : 'Complete organization and contact details.',
-      stepTwoHint: isFa ? 'جزئیات فنی برای ارزیابی دقیق‌تر را وارد کنید.' : 'Provide technical context for a precise assessment.',
+      stepOneTitle: isFa ? '1) راه ارتباط و سایت' : '1) Contact and Website',
+      stepTwoTitle: isFa ? '2) مشکل و زمان‌بندی' : '2) Issue and Timing',
+      stepOneHint: isFa ? 'فقط اطلاعات ضروری برای شروع بررسی سریع را وارد کنید.' : 'Share only the essentials needed to start a quick review.',
+      stepTwoHint: isFa ? 'مشکل فعلی، فوریت و سطح همکاری را کوتاه مشخص کنید.' : 'Briefly define the current issue, urgency, and collaboration level.',
       contactName: isFa ? 'نام تماس' : 'Contact Name',
-      orgName: isFa ? 'نام سازمان' : 'Organization Name',
-      orgEmail: isFa ? 'ایمیل سازمانی' : 'Work Email',
-      phone: isFa ? 'شماره تماس' : 'Phone',
+      orgName: isFa ? 'نام کسب‌وکار / پروژه' : 'Business / Project Name',
+      orgEmail: isFa ? 'ایمیل' : 'Email',
+      phone: isFa ? 'شماره تماس یا آیدی تلگرام' : 'Phone or Telegram ID',
       preferredContact: isFa ? 'کانال ترجیحی ارتباط' : 'Preferred Contact Channel',
       prefEmail: isFa ? 'ایمیل' : 'Email',
       prefPhone: isFa ? 'تماس' : 'Phone Call',
       prefTelegram: isFa ? 'تلگرام' : 'Telegram',
-      nextStep: isFa ? 'مرحله بعد: جزئیات فنی' : 'Next Step: Technical Details',
-      teamSize: isFa ? 'اندازه تیم فنی' : 'Engineering Team Size',
-      teamSizePh: isFa ? 'مثلا 12' : 'e.g. 12',
-      timeline: isFa ? 'افق زمانی' : 'Timeline',
-      timelinePh: isFa ? 'مثلا 30 روز' : 'e.g. 30 days',
-      currentStack: isFa ? 'زیرساخت/استک فعلی' : 'Current Infrastructure / Stack',
-      criticalRisk: isFa ? 'مهم‌ترین ریسک فعلی' : 'Most Critical Current Risk',
-      notes: isFa ? 'توضیحات تکمیلی' : 'Additional Notes',
+      nextStep: isFa ? 'مرحله بعد: مشکل فعلی' : 'Next: Current Issue',
+      teamSize: isFa ? 'تعداد افراد درگیر فنی' : 'Technical People Involved',
+      timeline: isFa ? 'فوریت شروع' : 'Start Urgency',
+      currentStack: isFa ? 'آدرس سایت / لینک محصول زنده' : 'Live Website / Product URL',
+      currentStackPh: isFa ? 'https://example.ir' : 'https://example.com',
+      criticalRisk: isFa ? 'مشکل اصلی که باید سریع بهتر شود' : 'Main issue to improve quickly',
+      criticalRiskPh: isFa
+        ? 'مثلاً کندی سایت، خطای فرم، مشکل اعتماد، باگ خرید، افت ورودی یا مشکل deploy...'
+        : 'e.g. slow pages, broken forms, trust issues, checkout bugs, weak leads, deploy problems...',
+      notes: isFa ? 'توضیحات تکمیلی / دسترسی‌های قابل ارائه' : 'Extra context / available access',
       attachment: isFa ? 'فایل پیوست (اختیاری)' : 'Attachment (Optional)',
       attachmentHint: isFa
         ? 'حداکثر 5MB. فرمت‌های مجاز: PDF, DOC, DOCX, TXT, PNG, JPG'
         : 'Max 5MB. Allowed formats: PDF, DOC, DOCX, TXT, PNG, JPG',
-      budget: isFa ? 'بازه بودجه' : 'Budget Range',
-      budgetLow: isFa ? '60 تا 120 میلیون تومان' : '60M to 120M IRR',
-      budgetHigh: isFa ? 'بیش از 120 میلیون تومان' : 'Above 120M IRR',
-      orgType: isFa ? 'نوع سازمان' : 'Organization Type',
-      orgGovernment: isFa ? 'سازمان دولتی/پیمانکاری' : 'Government / Contractor',
-      orgPrivate: isFa ? 'شرکت خصوصی' : 'Private Enterprise',
-      orgSemiPrivate: isFa ? 'نیمه‌خصوصی' : 'Semi-Private',
-      orgStartup: isFa ? 'استارتاپ' : 'Startup',
+      budget: isFa ? 'مدل شروع قابل قبول' : 'Acceptable Starting Model',
+      budgetLow: isFa ? 'پکیج محدود و ثابت برای شروع سریع' : 'Fixed-scope starter package',
+      budgetHigh: isFa ? 'بعد از بررسی کوتاه، قیمت دقیق بدهید' : 'Quote after a short review',
+      orgType: isFa ? 'نوع کسب‌وکار' : 'Business Type',
+      orgGovernment: isFa ? 'خدماتی / مشاوره‌ای' : 'Service / Consulting',
+      orgPrivate: isFa ? 'فروشگاه / تجارت آنلاین' : 'Store / Online Commerce',
+      orgSemiPrivate: isFa ? 'رسانه / محتوا / آموزش' : 'Media / Content / Education',
+      orgStartup: isFa ? 'استارتاپ / محصول نرم‌افزاری' : 'Startup / Software Product',
+      teamSolo: isFa ? 'بدون تیم فنی ثابت' : 'No fixed technical team',
+      teamSmall: isFa ? '۱ تا ۵ نفر' : '1 to 5 people',
+      teamExistingDev: isFa ? 'توسعه‌دهنده یا پیمانکار فعلی داریم' : 'Existing developer or contractor',
+      timelineNow: isFa ? 'همین هفته' : 'This week',
+      timelineSoon: isFa ? 'تا ۲ هفته آینده' : 'Within 2 weeks',
+      timelineFlexible: isFa ? 'فوری نیست، اما می‌خواهیم بررسی شود' : 'Not urgent, but needs review',
       back: isFa ? 'بازگشت به مرحله قبل' : 'Back to Previous Step',
-      submit: isFa ? 'درخواست ارزیابی ریسک زیرساخت' : 'Request Infrastructure Risk Assessment',
+      submit: isFa ? 'درخواست بررسی + رفع سریع' : 'Request Review + Quick Fix',
       submitting: isFa ? 'در حال ارسال...' : 'Submitting...',
       submitError: isFa ? 'ارسال ناموفق بود. لطفا مجددا تلاش کنید.' : 'Submission failed. Please try again.',
-      stepOneLegend: isFa ? 'مرحله اول اطلاعات پایه' : 'Step 1 basic information',
-      stepTwoLegend: isFa ? 'مرحله دوم جزئیات فنی' : 'Step 2 technical details',
+      stepOneLegend: isFa ? 'مرحله اول راه ارتباط و سایت' : 'Step 1 contact and website',
+      stepTwoLegend: isFa ? 'مرحله دوم مشکل و زمان‌بندی' : 'Step 2 issue and timing',
     }),
     [isFa]
   )
@@ -234,7 +242,7 @@ export function InfrastructureLeadForm() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">{copy.phone}</Label>
-              <Input id="phone" value={formData.phone} onChange={(e) => onChange('phone', e.target.value)} />
+              <Input id="phone" value={formData.phone} onChange={(e) => onChange('phone', e.target.value)} placeholder="@username یا 09..." />
             </div>
           </div>
 
@@ -274,22 +282,40 @@ export function InfrastructureLeadForm() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="teamSize">{copy.teamSize}</Label>
-              <Input id="teamSize" value={formData.teamSize} onChange={(e) => onChange('teamSize', e.target.value)} placeholder={copy.teamSizePh} required />
+              <select
+                id="teamSize"
+                className={selectClass}
+                value={formData.teamSize}
+                onChange={(e) => onChange('teamSize', e.target.value)}
+              >
+                <option value="no-fixed-team">{copy.teamSolo}</option>
+                <option value="1-5">{copy.teamSmall}</option>
+                <option value="existing-dev">{copy.teamExistingDev}</option>
+              </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="timeline">{copy.timeline}</Label>
-              <Input id="timeline" value={formData.timeline} onChange={(e) => onChange('timeline', e.target.value)} placeholder={copy.timelinePh} required />
+              <select
+                id="timeline"
+                className={selectClass}
+                value={formData.timeline}
+                onChange={(e) => onChange('timeline', e.target.value)}
+              >
+                <option value="this_week">{copy.timelineNow}</option>
+                <option value="within_2_weeks">{copy.timelineSoon}</option>
+                <option value="flexible">{copy.timelineFlexible}</option>
+              </select>
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="currentStack">{copy.currentStack}</Label>
-            <Input id="currentStack" value={formData.currentStack} onChange={(e) => onChange('currentStack', e.target.value)} required />
+            <Input id="currentStack" value={formData.currentStack} onChange={(e) => onChange('currentStack', e.target.value)} placeholder={copy.currentStackPh} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="criticalRisk">{copy.criticalRisk}</Label>
-            <Textarea id="criticalRisk" value={formData.criticalRisk} onChange={(e) => onChange('criticalRisk', e.target.value)} required />
+            <Textarea id="criticalRisk" value={formData.criticalRisk} onChange={(e) => onChange('criticalRisk', e.target.value)} placeholder={copy.criticalRiskPh} required />
           </div>
 
           <div className="space-y-2">
