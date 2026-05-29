@@ -5,6 +5,12 @@ const routeMap = [
   { route: '/fa/', file: 'src/app/page.tsx', priority: 1, changeFrequency: 'weekly' },
   { route: '/fa/services', file: 'src/app/services/page.tsx', priority: 0.95, changeFrequency: 'weekly' },
   {
+    route: '/fa/services/quick-fix-sprint',
+    file: 'src/app/services/quick-fix-sprint/page.tsx',
+    priority: 0.98,
+    changeFrequency: 'weekly',
+  },
+  {
     route: '/fa/services/infrastructure-localization',
     file: 'src/app/services/infrastructure-localization/page.tsx',
     priority: 0.95,

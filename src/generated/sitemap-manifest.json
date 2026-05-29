@@ -12,6 +12,12 @@
     "changeFrequency": "weekly"
   },
   {
+    "route": "/fa/services/quick-fix-sprint",
+    "lastModified": "2026-05-29T12:13:26.282Z",
+    "priority": 0.98,
+    "changeFrequency": "weekly"
+  },
+  {
     "route": "/fa/services/infrastructure-localization",
     "lastModified": "2026-04-29T19:46:35-04:00",
     "priority": 0.95,

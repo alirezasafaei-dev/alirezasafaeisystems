@@ -20,9 +20,10 @@ function getOffers(lang: 'fa' | 'en') {
   if (lang === 'en') {
     return [
       {
-        title: 'Quick Stability Audit',
-        summary: 'Rapid risk scan for production fragility and delivery blind spots.',
-        deliverable: 'Risk report + prioritized action list within 5 business days',
+        title: 'Technical Review + Quick Fix Sprint',
+        summary: 'Focused diagnosis plus agreed fixes for live websites and web systems.',
+        deliverable: 'Priority review + quick-fix sprint + before/after evidence',
+        href: '/services/quick-fix-sprint',
       },
       {
         title: 'Infrastructure Localization Blueprint',
@@ -54,9 +55,10 @@ function getOffers(lang: 'fa' | 'en') {
 
   return [
     {
-      title: 'ممیزی سریع پایداری تولید',
-      summary: 'اسکن ریسک برای شناسایی شکنندگی production و نقاط کور تحویل.',
-      deliverable: 'گزارش ریسک + لیست اقدامات اولویت‌دار تا ۵ روز کاری',
+      title: 'بررسی فنی + اسپرینت رفع سریع',
+      summary: 'تشخیص متمرکز + رفع موارد توافق‌شده برای سایت‌ها و سیستم‌های زنده.',
+      deliverable: 'بررسی اولویت‌دار + اسپرینت رفع سریع + شواهد قبل/بعد',
+      href: '/services/quick-fix-sprint',
     },
     {
       title: 'بلوپرینت بومی‌سازی زیرساخت',
@@ -170,6 +172,11 @@ export default async function ServicesPage() {
               <div className="rounded-md bg-muted/50 p-3 text-sm">
                 <span className="font-medium">{copy.deliverableLabel}</span> {offer.deliverable}
               </div>
+              {offer.href ? (
+                <Link href={withLocale(offer.href)} className="inline-flex text-sm font-medium text-primary underline">
+                  {lang === 'en' ? 'View focused offer' : 'مشاهده پیشنهاد متمرکز'}
+                </Link>
+              ) : null}
             </article>
           ))}
         </div>
