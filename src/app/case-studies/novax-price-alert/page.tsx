@@ -106,7 +106,13 @@ export default async function NovaxPriceAlertPage() {
 
   return (
     <div className="container py-12">
-      <JsonLd data={[projectSchema, articleSchema]} />
+      <JsonLd data={generateBreadcrumbSchema([
+        { name: copy.breadcrumbHome, url: siteUrl },
+        { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
+        { name: copy.title, url: pageUrl },
+      ])} />
+      <JsonLd data={projectSchema} />
+      <JsonLd data={{ ...articleSchema, url: pageUrl }} />
 
       <nav className="mb-8 text-sm text-muted-foreground">
         <Link href={withLocale('/')}>{copy.breadcrumbHome}</Link>
