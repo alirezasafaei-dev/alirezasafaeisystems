@@ -218,6 +218,11 @@ export default async function QuickFixSprintPage() {
           <ul className="grid gap-2 text-sm text-muted-foreground md:grid-cols-3">
             {copy.proof.map((item) => <li key={item}>• {item}</li>)}
           </ul>
+          <div className="pt-2 text-sm">
+            <a href="/offers/Audit-QuickFix-Offer-OnePage.pdf" className="underline hover:no-underline" target="_blank" rel="noopener">دانلود اسکوپ یک‌صفحه‌ای (PDF)</a>
+            {' · '}
+            <a href="/offers/Sample-Audit-Report-Anonymized.pdf" className="underline hover:no-underline" target="_blank" rel="noopener">دانلود نمونه گزارش anonymized (PDF)</a>
+          </div>
         </section>
 
         <section className="rounded-xl border border-primary/20 bg-primary/5 p-6 md:flex md:items-center md:justify-between md:gap-6">
