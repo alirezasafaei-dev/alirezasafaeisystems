@@ -105,7 +105,7 @@ export default async function NovaxPriceAlertPage() {
   })
 
   return (
-    <div className="container py-12">
+    <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: copy.breadcrumbHome, url: siteUrl },
         { name: copy.breadcrumbCases, url: `${siteUrl}/${lang}/case-studies` },
@@ -114,21 +114,22 @@ export default async function NovaxPriceAlertPage() {
       <JsonLd data={projectSchema} />
       <JsonLd data={{ ...articleSchema, url: pageUrl }} />
 
-      <nav className="mb-8 text-sm text-muted-foreground">
-        <Link href={withLocale('/')}>{copy.breadcrumbHome}</Link>
-        <span className="mx-2">/</span>
-        <Link href={withLocale('/case-studies')}>{copy.breadcrumbCases}</Link>
-        <span className="mx-2">/</span>
-        <span>Novax Price Alert</span>
-      </nav>
+      <article className="mx-auto max-w-4xl space-y-6">
+        <nav className="mb-8 text-sm text-muted-foreground">
+          <Link href={withLocale('/')}>{copy.breadcrumbHome}</Link>
+          <span className="mx-2">/</span>
+          <Link href={withLocale('/case-studies')}>{copy.breadcrumbCases}</Link>
+          <span className="mx-2">/</span>
+          <span>Novax Price Alert</span>
+        </nav>
 
-      <div className="mb-8">
-        <div className="text-sm text-muted-foreground">{copy.eyebrow}</div>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight">{copy.title}</h1>
-        <p className="mt-3 max-w-3xl text-lg text-muted-foreground">{copy.intro}</p>
-      </div>
+        <div className="mb-8">
+          <div className="text-sm text-muted-foreground">{copy.eyebrow}</div>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight">{copy.title}</h1>
+          <p className="mt-3 max-w-3xl text-lg text-muted-foreground">{copy.intro}</p>
+        </div>
 
-      <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2">
         <section>
           <h2 className="text-xl font-semibold">{copy.hProblem}</h2>
           <p className="mt-3 text-muted-foreground">{copy.pProblem}</p>
@@ -179,6 +180,7 @@ export default async function NovaxPriceAlertPage() {
           {copy.back}
         </Link>
       </div>
-    </div>
+      </article>
+    </main>
   )
 }
