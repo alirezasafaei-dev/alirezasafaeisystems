@@ -27,6 +27,12 @@ function getCaseStudies(lang: 'fa' | 'en'): CaseStudyItem[] {
         metric: 'Live product with production governance',
       },
       {
+        title: 'Novax Price Alert (Telegram Bot + TWA)',
+        summary: 'Production Telegram price alert for Iranian markets (Binance USDT + TGJU Toman) with staged 6-step flows, atomic hardening, rich tabbed TWA (My Assets, suggestions, portfolio, advanced charts), PWA, and safe co-deploy on VPS.',
+        href: '/case-studies/novax-price-alert',
+        metric: 'Hardened alerts • Zero dups • Rich TWA live',
+      },
+      {
         title: 'Audit Systems Platform',
         summary: 'Launched a practical website audit system for technical SEO, performance, and security with actionable outputs.',
         href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=case_studies&utm_campaign=alireza_safaei_network&utm_content=audit_case_card',
@@ -66,6 +72,12 @@ function getCaseStudies(lang: 'fa' | 'en'): CaseStudyItem[] {
       summary: 'ساخت و رشد پلتفرم ابزارهای فارسی local-first با استاندارد بالا در سادگی تجربه و پایداری.',
       href: '/case-studies/asdev-persiantoolbox-platform',
       metric: 'محصول زنده با حاکمیت تولید',
+    },
+    {
+      title: 'Novax Price Alert (بات تلگرام + TWA)',
+      summary: 'سیستم هشدار قیمت تلگرام production برای بازار ایران (Binance USDT + TGJU تومان) با جریان ۶ مرحله‌ای، hardening اتمیک، TWA تب‌دار غنی (دارایی‌های من، پیشنهادها، پورتفولیو، چارت پیشرفته)، PWA و دیپلوی امن هم‌زمان روی VPS.',
+      href: '/case-studies/novax-price-alert',
+      metric: 'هشدارهای سخت‌شده • بدون تکرار • TWA غنی زنده',
     },
     {
       title: 'پلتفرم Audit Systems',
@@ -115,6 +127,7 @@ export async function FeaturedCaseStudies() {
   const networkTitle = lang === 'en' ? 'Live Product Network' : 'شبکه محصولات زنده'
   const networkAuditLabel = lang === 'en' ? 'Audit Systems Platform' : 'پلتفرم Audit Systems'
   const networkToolboxLabel = lang === 'en' ? 'PersianToolbox Platform' : 'پلتفرم PersianToolbox'
+  const networkNovaxLabel = lang === 'en' ? 'Novax Price Alert' : 'Novax Price Alert'
   const evidenceItems =
     lang === 'en'
       ? [
@@ -215,6 +228,14 @@ export async function FeaturedCaseStudies() {
                 className="inline-flex rounded-md border px-3 py-2 text-xs md:text-sm hover:bg-muted transition-colors"
               >
                 {networkToolboxLabel}
+              </a>
+              <a
+                href="https://novax.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=cross_site&utm_campaign=alireza_safaei_network&utm_content=featured_case_network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-md border px-3 py-2 text-xs md:text-sm hover:bg-muted transition-colors"
+              >
+                {networkNovaxLabel}
               </a>
             </div>
           </div>

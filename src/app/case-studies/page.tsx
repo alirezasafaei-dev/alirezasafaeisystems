@@ -40,6 +40,12 @@ function getCases(lang: 'fa' | 'en'): CaseStudyItem[] {
         href: '/case-studies/asdev-persiantoolbox-platform',
       },
       {
+        title: 'Novax Price Alert (Telegram Bot + TWA)',
+        sector: 'Iranian Market Tools',
+        outcome: 'Full production Telegram price alert system (Binance USDT + TGJU Toman) with hardened alerts, rich TWA, staged UX, and zero-downtime VPS deploy',
+        href: '/case-studies/novax-price-alert',
+      },
+      {
         title: 'Audit Systems Platform',
         sector: 'Technical SEO / Security',
         outcome: 'Production audit workflow for performance, security, and technical SEO with actionable outputs',
@@ -79,6 +85,12 @@ function getCases(lang: 'fa' | 'en'): CaseStudyItem[] {
       sector: 'محصول مصرفی',
       outcome: 'تحویل محصول local-first با UX منسجم، SEO، و عملیات انتشار production-grade',
       href: '/case-studies/asdev-persiantoolbox-platform',
+    },
+    {
+      title: 'Novax Price Alert (بات تلگرام + TWA)',
+      sector: 'ابزارهای بازار ایران',
+      outcome: 'سیستم کامل هشدار قیمت تلگرام در تولید (Binance USDT + TGJU تومان) با hardening، TWA غنی، UX مرحله‌ای، و دیپلوی VPS بدون downtime',
+      href: '/case-studies/novax-price-alert',
     },
     {
       title: 'پلتفرم Audit Systems',

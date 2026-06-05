@@ -25,7 +25,7 @@
   },
   {
     "route": "/fa/qualification",
-    "lastModified": "2026-02-20T14:05:51+01:00",
+    "lastModified": "2026-05-29T08:43:12-04:00",
     "priority": 0.9,
     "changeFrequency": "weekly"
   },
@@ -62,6 +62,12 @@
   {
     "route": "/fa/case-studies/asdev-persiantoolbox-platform",
     "lastModified": "2026-04-29T19:46:35-04:00",
+    "priority": 0.82,
+    "changeFrequency": "monthly"
+  },
+  {
+    "route": "/fa/case-studies/novax-price-alert",
+    "lastModified": "2026-06-05T08:08:38.309Z",
     "priority": 0.82,
     "changeFrequency": "monthly"
   },

@@ -62,3 +62,7 @@ pnpm run lighthouse:ci
 
 ## Current Operational Status
 - Use `docs/runtime/` as the canonical location for go/no-go, incident, and deployment validation evidence.
+
+## Featured Case Studies (نمونه کارهای واقعی)
+This site itself powers the public case studies listing and featured grid, currently including:
+- Novax Price Alert (https://novax.alirezasafaeisystems.ir/) — production Telegram bot + rich TWA for price alerts on Iranian markets, fully deployed on VPS with 3 other live sites co-existing safely. See `/case-studies/novax-price-alert`.

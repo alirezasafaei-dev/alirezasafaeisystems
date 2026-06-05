@@ -39,6 +39,12 @@ const routeMap = [
     changeFrequency: 'monthly',
   },
   {
+    route: '/fa/case-studies/novax-price-alert',
+    file: 'src/app/case-studies/novax-price-alert/page.tsx',
+    priority: 0.82,
+    changeFrequency: 'monthly',
+  },
+  {
     route: '/fa/case-studies/legacy-nextjs-replatform',
     file: 'src/app/case-studies/legacy-nextjs-replatform/page.tsx',
     priority: 0.8,
