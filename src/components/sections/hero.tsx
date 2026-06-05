@@ -90,7 +90,7 @@ export function Hero() {
     return {
       title: 'علیرضا صفایی | مهندس سیستم های وب',
       description:
-        'از طراحی سیستم تا تحویل تولید. تمرکز من تبدیل ایده به محصول پایدار، مستقل و قابل توسعه است.',
+        'بررسی فنی سایت + رفع مهم‌ترین ایرادهایی که روی اعتماد، سرعت، لید یا لانچ اثر می‌گذارند — در اسپرینت ثابت و کوتاه. از معماری و بومی‌سازی زیرساخت تا تحویل آماده تولید با شواهد قبل/بعد و گیت‌های کیفیت واقعی.',
       primaryCta: 'درخواست ارزیابی پروژه',
     }
   }, [language, variant])
@@ -128,11 +128,11 @@ export function Hero() {
     const routesFa: Record<IntentRoute['key'], IntentRoute> = {
       audit: {
         key: 'audit',
-        title: 'اول می خواهم وضعیت سایت را دقیق بررسی کنم',
-        detail: 'از Audit Systems گزارش عملی سئو، عملکرد و امنیت بگیرید.',
-        href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=intent_router&utm_campaign=alireza_safaei_network&utm_content=hero_route',
-        external: true,
-        cta: 'ورود به Audit Systems',
+        title: 'اول می خواهم وضعیت سایت را دقیق بررسی کنم + سریع فیکس کنم',
+        detail: 'از Audit Systems گزارش عملی بگیرید و مهم‌ترین ایرادها را در اسپرینت ثابت ۵-۷ روزه برطرف کنید (با before/after واقعی).',
+        href: '/offers/Audit-QuickFix-Offer-OnePage.pdf',
+        external: false,
+        cta: 'دریافت اسکوپ یک‌صفحه‌ای بررسی فنی + Quick Fix',
       },
       toolbox: {
         key: 'toolbox',
@@ -145,7 +145,7 @@ export function Hero() {
       execution: {
         key: 'execution',
         title: 'برای اجرا و توسعه مستقیم کمک می خواهم',
-        detail: 'فرم Qualification را باز کنید تا مسیر اجرای دقیق پروژه مشخص شود.',
+        detail: 'فرم Qualification را باز کنید یا مستقیم اسکوپ ثابت Quick Fix Sprint را درخواست کنید (دانلود PDF) تا مسیر دقیق و سریع مشخص شود.',
         href: withLocale('/qualification', language),
         external: false,
         cta: 'شروع Qualification',
@@ -154,11 +154,11 @@ export function Hero() {
     const routesEn: Record<IntentRoute['key'], IntentRoute> = {
       audit: {
         key: 'audit',
-        title: 'I need a technical audit first',
-        detail: 'Use Audit Systems for a practical SEO, performance, and security report.',
-        href: 'https://audit.alirezasafaeisystems.ir/?utm_source=portfolio&utm_medium=intent_router&utm_campaign=alireza_safaei_network&utm_content=hero_route',
-        external: true,
-        cta: 'Open Audit Systems',
+        title: 'I need a technical audit + quick fixes first',
+        detail: 'Get a practical report from Audit Systems and fix the highest-impact issues in a fixed 5-7 day sprint (with real before/after).',
+        href: '/offers/Audit-QuickFix-Offer-OnePage.pdf',
+        external: false,
+        cta: 'Get the one-page Audit + Quick Fix scope',
       },
       toolbox: {
         key: 'toolbox',
@@ -171,7 +171,7 @@ export function Hero() {
       execution: {
         key: 'execution',
         title: 'I need direct execution support',
-        detail: 'Start qualification to receive a clear execution path for your project.',
+        detail: 'Start qualification or request the fixed-scope Quick Fix Sprint directly (PDF available) for a clear, fast path.',
         href: withLocale('/qualification', language),
         external: false,
         cta: 'Start Qualification',

@@ -28,28 +28,30 @@ export default async function AboutBrandPage() {
     missionTitle: lang === 'en' ? 'Mission' : 'ماموریت',
     missionBody:
       lang === 'en'
-        ? 'Build web systems end-to-end, from architecture to production readiness, with measurable stability and clear release ownership.'
-        : 'ساخت سیستم‌های وب از صفر تا آمادگی تولید، با پایداری قابل اندازه‌گیری و مالکیت شفاف انتشار.',
+        ? 'Build real, resilient web systems end-to-end from architecture to production readiness, with measurable stability, before/after evidence, and clear release ownership — focused on infrastructure localization and operational resilience under real constraints.'
+        : 'ساخت سیستم‌های وب واقعی و پایدار از صفر تا آمادگی تولید، با تمرکز بر بومی‌سازی زیرساخت، تاب‌آوری عملیاتی تحت محدودیت‌ها، و تحویل قابل اندازه‌گیری با شواهد قبل/بعد و مالکیت شفاف.',
     principlesTitle: lang === 'en' ? 'Operating Principles' : 'اصول اجرایی',
     principles: lang === 'en'
       ? [
-          'Architecture decisions are documented before scale work starts.',
-          'Delivery quality is tracked with clear acceptance criteria.',
-          'Persian UX quality is treated as a product requirement, not decoration.',
-          'Production readiness means observability, rollback, and recovery are defined.',
+          'Architecture decisions are documented and risk-aware before scale.',
+          'Delivery quality is measured with clear gates and acceptance criteria.',
+          'Persian UX quality is a core product requirement, not decoration.',
+          'Production readiness means observability, ready rollback, and fast recovery are defined upfront.',
+          'Business impact first: trust, speed, leads, and launch/handover confidence.',
         ]
       : [
-          'تصمیم‌های معماری قبل از توسعه مقیاس ثبت و شفاف می‌شوند.',
-          'کیفیت تحویل با معیار پذیرش روشن سنجیده می‌شود.',
-          'کیفیت تجربه کاربری فارسی یک الزام محصول است، نه تزئین.',
-          'آمادگی تولید یعنی مشاهده‌پذیری، Rollback و بازیابی از قبل تعریف شده باشد.',
+          'تصمیم‌های معماری مستند، شفاف و مبتنی بر ریسک قبل از اجرا.',
+          'کیفیت تحویل با گیت‌های کیفیت واقعی و معیارهای پذیرش روشن سنجیده می‌شود.',
+          'تجربه کاربری فارسی یک الزام محصول است، نه تزئین.',
+          'آمادگی تولید یعنی مشاهده‌پذیری کامل، rollback آماده، و بازیابی سریع از قبل تعریف شده.',
+          'اولویت با تاثیر کسب‌وکار: اعتماد، سرعت، لید، و آمادگی لانچ یا تحویل.',
         ],
     workTitle: lang === 'en' ? 'Work With Me' : 'همکاری',
     workBody:
       lang === 'en'
-        ? 'If you need software architecture, idea-to-product execution, or project rescue to production, start with the assessment flow.'
-        : 'اگر برای معماری نرم‌افزار، تبدیل ایده به محصول، یا نجات پروژه تا رسیدن به تولید نیاز به همکاری دارید، از مسیر ارزیابی شروع کنید.',
-    cta: lang === 'en' ? 'Request Infrastructure Risk Assessment' : 'درخواست ارزیابی ریسک زیرساخت',
+        ? 'If you have a live site or app and need a precise technical review plus fast fixes for the highest-impact issues (trust, speed, leads, or launch readiness) in a fixed-scope sprint, start here.'
+        : 'اگر سایت یا اپ فعالی دارید و نیاز به بررسی دقیق فنی + رفع سریع مهم‌ترین ایرادها (اعتماد، سرعت، لید یا لانچ) در اسپرینت ثابت دارید، از اینجا شروع کنید.',
+    cta: lang === 'en' ? 'Get the one-page Audit + Quick Fix scope' : 'دریافت اسکوپ یک‌صفحه‌ای بررسی فنی + Quick Fix',
   }
 
   return (
@@ -80,10 +82,11 @@ export default async function AboutBrandPage() {
         <h2 className="text-2xl font-semibold">{copy.workTitle}</h2>
         <p className="text-muted-foreground leading-8">{copy.workBody}</p>
         <Button asChild className="shine-effect">
-          <Link href={withLocale('/services/infrastructure-localization#assessment')}>
+          <Link href="/offers/Audit-QuickFix-Offer-OnePage.pdf">
             {copy.cta}
           </Link>
         </Button>
+        <p className="text-xs text-muted-foreground mt-2">یا <Link href={withLocale('/services/infrastructure-localization#assessment')} className="underline">ارزیابی ریسک زیرساخت</Link> را شروع کنید.</p>
       </section>
     </main>
   )
