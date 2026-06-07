@@ -2,13 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
 import { proxy } from '@/proxy'
 
-function requireLocation(value: string | null): string {
-  if (!value) {
-    throw new Error('Expected location header to be set')
-  }
-  return value
-}
-
 describe('proxy locale routing', () => {
   it('rewrites localized /fa path to internal root and sets lang cookie', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/fa')
