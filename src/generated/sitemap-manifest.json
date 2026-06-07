@@ -13,7 +13,7 @@
   },
   {
     "route": "/fa/services/quick-fix-sprint",
-    "lastModified": "2026-05-29T08:16:26-04:00",
+    "lastModified": "2026-06-05T11:42:37-04:00",
     "priority": 0.98,
     "changeFrequency": "weekly"
   },
@@ -43,7 +43,7 @@
   },
   {
     "route": "/fa/case-studies",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-05T04:09:42-04:00",
     "priority": 0.85,
     "changeFrequency": "monthly"
   },
@@ -67,7 +67,7 @@
   },
   {
     "route": "/fa/case-studies/novax-price-alert",
-    "lastModified": "2026-06-05T08:08:38.309Z",
+    "lastModified": "2026-06-05T04:14:40-04:00",
     "priority": 0.82,
     "changeFrequency": "monthly"
   },
@@ -85,7 +85,7 @@
   },
   {
     "route": "/fa/about-brand",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-05T11:40:45-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
   }
