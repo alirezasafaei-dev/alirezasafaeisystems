@@ -8,24 +8,29 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { trackEvent } from '@/lib/analytics/client'
 import { useI18n } from '@/lib/i18n-context'
+import { validateLeadAttachment } from '@/lib/lead-attachments'
 
 const initialState = {
   contactName: '',
   organizationName: '',
-  organizationType: 'service_business',
+  organizationType: 'government_contractor',
   email: '',
   phone: '',
   teamSize: '1-5',
   currentStack: '',
   criticalRisk: '',
   timeline: 'this_week',
-  budgetRange: 'starter-fixed-scope',
+  budgetRange: '60-120m-irr',
   preferredContact: 'telegram',
   notes: '',
   website: '',
 }
 
 const draftStorageKey = 'infra_lead_form_draft_v1'
+
+function isDraftDifferentFromInitial(data: typeof initialState): boolean {
+  return Object.entries(initialState).some(([key, value]) => data[key as keyof typeof initialState] !== value)
+}
 
 export function InfrastructureLeadForm() {
   const router = useRouter()
@@ -45,6 +50,9 @@ export function InfrastructureLeadForm() {
   const [attachment, setAttachment] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [status, setStatus] = useState<'idle' | 'error'>('idle')
+  const [attachmentError, setAttachmentError] = useState<'empty' | 'size' | 'type' | null>(null)
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null)
+  const [draftRestored, setDraftRestored] = useState(() => isDraftDifferentFromInitial(formData))
   const viewTrackedRef = useRef(false)
 
   const locale = useMemo(() => (pathname.startsWith('/en') ? 'en' : 'fa'), [pathname])
@@ -77,6 +85,12 @@ export function InfrastructureLeadForm() {
       attachmentHint: isFa
         ? 'حداکثر 5MB. فرمت‌های مجاز: PDF, DOC, DOCX, TXT, PNG, JPG'
         : 'Max 5MB. Allowed formats: PDF, DOC, DOCX, TXT, PNG, JPG',
+      attachmentEmptyError: isFa ? 'فایل پیوست خالی است.' : 'Attachment file is empty.',
+      attachmentSizeError: isFa ? 'حجم فایل باید حداکثر ۵ مگابایت باشد.' : 'File size must be 5MB or less.',
+      attachmentTypeError: isFa ? 'فرمت فایل مجاز نیست.' : 'This file type is not allowed.',
+      draftSaved: isFa ? 'پیش‌نویس به صورت خودکار ذخیره شد' : 'Draft saved automatically',
+      draftRestored: isFa ? 'پیش‌نویس قبلی شما بازیابی شد.' : 'Your previous draft was restored.',
+      clearDraft: isFa ? 'پاک کردن پیش‌نویس' : 'Clear Draft',
       budget: isFa ? 'مدل شروع قابل قبول' : 'Acceptable Starting Model',
       budgetLow: isFa ? 'پکیج محدود و ثابت برای شروع سریع' : 'Fixed-scope starter package',
       budgetHigh: isFa ? 'بعد از بررسی کوتاه، قیمت دقیق بدهید' : 'Quote after a short review',
@@ -102,8 +116,24 @@ export function InfrastructureLeadForm() {
   )
 
   useEffect(() => {
-    window.localStorage.setItem(draftStorageKey, JSON.stringify(formData))
-  }, [formData])
+    if (typeof window === 'undefined') return
+
+    const timeout = window.setTimeout(() => {
+      if (!isDraftDifferentFromInitial(formData)) {
+        window.localStorage.removeItem(draftStorageKey)
+        setDraftSavedAt(null)
+        return
+      }
+
+      window.localStorage.setItem(draftStorageKey, JSON.stringify(formData))
+      setDraftSavedAt(new Intl.DateTimeFormat(locale === 'fa' ? 'fa-IR' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(new Date()))
+    }, 350)
+
+    return () => window.clearTimeout(timeout)
+  }, [formData, locale])
 
   useEffect(() => {
     if (viewTrackedRef.current) return
@@ -124,12 +154,18 @@ export function InfrastructureLeadForm() {
     formData.organizationName.trim().length > 1 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
     formData.preferredContact.length > 0
+  const isStepTwoValid =
+    formData.currentStack.trim().length > 3 &&
+    formData.criticalRisk.trim().length > 10 &&
+    attachmentError === null
+  const canSubmit = isStepOneValid && isStepTwoValid && !submitting
   const progress = step === 1 ? 50 : 100
   const selectClass =
     'h-11 w-full rounded-md border border-input bg-background px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring'
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!canSubmit) return
     setSubmitting(true)
     setStatus('idle')
 
@@ -178,6 +214,8 @@ export function InfrastructureLeadForm() {
       setAttachment(null)
       setStep(1)
       window.localStorage.removeItem(draftStorageKey)
+      setDraftSavedAt(null)
+      setDraftRestored(false)
       router.push(`/${locale}/thank-you?source=lead`)
     } catch {
       void trackEvent({
@@ -187,6 +225,35 @@ export function InfrastructureLeadForm() {
       })
       setStatus('error')
       setSubmitting(false)
+    }
+  }
+
+  const onAttachmentChange = (file: File | null) => {
+    setAttachmentError(null)
+    if (!file) {
+      setAttachment(null)
+      return
+    }
+
+    const validation = validateLeadAttachment(file)
+    if (!validation.valid) {
+      setAttachment(null)
+      setAttachmentError(validation.reason)
+      return
+    }
+
+    setAttachment(file)
+  }
+
+  const clearDraft = () => {
+    setFormData(initialState)
+    setAttachment(null)
+    setAttachmentError(null)
+    setDraftSavedAt(null)
+    setDraftRestored(false)
+    setStep(1)
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(draftStorageKey)
     }
   }
 
@@ -204,21 +271,38 @@ export function InfrastructureLeadForm() {
         />
       </div>
 
+      {draftRestored ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm" role="status">
+          <span className="text-muted-foreground">{copy.draftRestored}</span>
+          <Button type="button" variant="ghost" size="sm" onClick={clearDraft}>
+            {copy.clearDraft}
+          </Button>
+        </div>
+      ) : null}
+
       <div className="space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3">
         <div className="flex items-center justify-between gap-3 text-sm">
           <span className={step === 1 ? 'font-semibold text-primary' : 'text-muted-foreground'}>{copy.stepOneTitle}</span>
           <span className="text-muted-foreground">/</span>
           <span className={step === 2 ? 'font-semibold text-primary' : 'text-muted-foreground'}>{copy.stepTwoTitle}</span>
         </div>
-        <div className="h-1.5 w-full rounded-full bg-background/80 overflow-hidden">
+        <div
+          className="h-1.5 w-full rounded-full bg-background/80 overflow-hidden"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+          aria-label={isFa ? 'پیشرفت فرم' : 'Form progress'}
+        >
           <div
             className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-xs text-muted-foreground">
-          {step === 1 ? copy.stepOneHint : copy.stepTwoHint}
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+          <p>{step === 1 ? copy.stepOneHint : copy.stepTwoHint}</p>
+          {draftSavedAt ? <p aria-live="polite">{copy.draftSaved} · {draftSavedAt}</p> : null}
+        </div>
       </div>
 
       {step === 1 ? (
@@ -329,9 +413,18 @@ export function InfrastructureLeadForm() {
               id="attachment"
               type="file"
               accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
-              onChange={(e) => setAttachment(e.target.files?.[0] ?? null)}
+              onChange={(e) => onAttachmentChange(e.target.files?.[0] ?? null)}
             />
             <p className="text-xs text-muted-foreground">{copy.attachmentHint}</p>
+            {attachmentError ? (
+              <p className="text-xs text-red-600" role="alert">
+                {attachmentError === 'empty'
+                  ? copy.attachmentEmptyError
+                  : attachmentError === 'size'
+                    ? copy.attachmentSizeError
+                    : copy.attachmentTypeError}
+              </p>
+            ) : null}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -367,7 +460,7 @@ export function InfrastructureLeadForm() {
             <Button type="button" variant="outline" className="h-11 card-hover" onClick={() => setStep(1)} data-testid="qualification-back-button">
               {copy.back}
             </Button>
-            <Button type="submit" disabled={submitting} className="w-full h-11 shine-effect">
+            <Button type="submit" disabled={!canSubmit} className="w-full h-11 shine-effect">
               {submitting ? copy.submitting : copy.submit}
             </Button>
           </div>

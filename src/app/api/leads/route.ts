@@ -6,6 +6,7 @@ import { checkRateLimit, createRequestId, withCommonApiHeaders } from '@/lib/api
 import { db } from '@/lib/db'
 import { notifyLeadSubmission } from '@/lib/lead-notifier'
 import { logger } from '@/lib/logger'
+import { validateLeadAttachment, sanitizeLeadAttachmentFileName } from '@/lib/lead-attachments'
 import { isLikelySpam } from '@/lib/security'
 import { isValidEmail, sanitizeInput } from '@/lib/validators'
 
@@ -61,30 +62,18 @@ function containsMaliciousContent(payload: LeadPayload): boolean {
   return fields.some((value) => injectionLikePattern.test(value) || isLikelySpam(value))
 }
 
-const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024
-const allowedAttachmentTypes = new Set([
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'text/plain',
-  'image/png',
-  'image/jpeg',
-])
-
-function sanitizeFileName(name: string): string {
-  return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120)
-}
-
 async function saveAttachment(file: File, requestId: string): Promise<string> {
-  if (file.size === 0) return ''
-  if (file.size > MAX_ATTACHMENT_BYTES) {
-    throw new Error('Attachment exceeds max size')
-  }
-  if (!allowedAttachmentTypes.has(file.type)) {
-    throw new Error('Attachment type is not allowed')
+  const validation = validateLeadAttachment(file)
+  if (!validation.valid) {
+    const messages = {
+      empty: 'Attachment is empty',
+      size: 'Attachment exceeds max size',
+      type: 'Attachment type is not allowed',
+    } as const
+    throw new Error(messages[validation.reason])
   }
 
-  const safeName = sanitizeFileName(file.name || 'attachment')
+  const safeName = sanitizeLeadAttachmentFileName(file.name || 'attachment')
   const fileName = `${Date.now()}-${requestId}-${safeName}`
   const targetDir = path.join(process.cwd(), 'storage', 'leads')
   await mkdir(targetDir, { recursive: true })
@@ -108,28 +97,33 @@ export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || ''
     let rawPayload: Record<string, unknown>
+    let attachmentFile: File | null = null
 
     if (contentType.includes('multipart/form-data')) {
       const form = await request.formData()
       const fileInput = form.get('attachment')
-      const attachmentPath =
-        fileInput instanceof File ? await saveAttachment(fileInput, requestId) : ''
+      attachmentFile = fileInput instanceof File ? fileInput : null
+
+      const formString = (key: string) => {
+        const value = form.get(key)
+        return typeof value === 'string' ? value : undefined
+      }
 
       rawPayload = {
-        contactName: form.get('contactName'),
-        organizationName: form.get('organizationName'),
-        organizationType: form.get('organizationType'),
-        email: form.get('email'),
-        phone: form.get('phone'),
-        teamSize: form.get('teamSize'),
-        currentStack: form.get('currentStack'),
-        criticalRisk: form.get('criticalRisk'),
-        timeline: form.get('timeline'),
-        budgetRange: form.get('budgetRange'),
-        preferredContact: form.get('preferredContact'),
-        notes: form.get('notes'),
-        website: form.get('website'),
-        attachmentPath,
+        contactName: formString('contactName'),
+        organizationName: formString('organizationName'),
+        organizationType: formString('organizationType'),
+        email: formString('email'),
+        phone: formString('phone'),
+        teamSize: formString('teamSize'),
+        currentStack: formString('currentStack'),
+        criticalRisk: formString('criticalRisk'),
+        timeline: formString('timeline'),
+        budgetRange: formString('budgetRange'),
+        preferredContact: formString('preferredContact'),
+        notes: formString('notes'),
+        website: formString('website'),
+        attachmentPath: '',
       }
     } else {
       rawPayload = (await request.json()) as Record<string, unknown>
@@ -183,6 +177,10 @@ export async function POST(request: NextRequest) {
         requestId,
         limit.headers
       )
+    }
+
+    if (attachmentFile) {
+      payload.attachmentPath = await saveAttachment(attachmentFile, requestId)
     }
 
     await db.lead.create({
