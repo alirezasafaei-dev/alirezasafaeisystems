@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function ThankYouPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const title = lang === 'en' ? 'Thanks. Your request is in.' : 'ممنون. درخواست شما ثبت شد.'
   const desc =
     lang === 'en'

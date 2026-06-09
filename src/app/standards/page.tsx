@@ -34,7 +34,7 @@ export default async function StandardsPage() {
   const nonce = (await headers()).get('x-csp-nonce') || undefined
   const links = buildNetworkLinks('alireza-portfolio', 'standards_page')
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   const jsonLd = {
     '@context': 'https://schema.org',

@@ -35,7 +35,7 @@ function getOutcomes(lang: 'fa' | 'en') {
 
 export default async function InfrastructureLocalizationRescueCaseStudyPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const outcomes = getOutcomes(lang)
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
@@ -89,7 +89,7 @@ export default async function InfrastructureLocalizationRescueCaseStudyPage() {
   const projectSchema = generateProjectSchema({
     name: 'Infrastructure Localization Rescue',
     description: 'Stabilization of a high-risk deployment stack under localization constraints.',
-    url: `/${lang}/case-studies/infrastructure-localization-rescue`,
+    url: lang === 'fa' ? '/case-studies/infrastructure-localization-rescue' : `/${lang}/case-studies/infrastructure-localization-rescue`,
     technologies: ['Next.js', 'TypeScript', 'Prisma', 'Nginx', 'PM2'],
   })
   const articleSchema = generateArticleSchema({

@@ -25,7 +25,7 @@ const fontCdnEnabled =
 const fontCdnUrl = env.NEXT_PUBLIC_FONT_CDN_URL;
 
 function normalizePathname(pathname: string): string {
-  if (!pathname || pathname === '/') return '/fa/'
+  if (!pathname || pathname === '/') return '/'
   const cleaned = pathname.endsWith('/') ? pathname : `${pathname}/`
   return cleaned
 }
@@ -38,6 +38,9 @@ function swapLocalePath(pathname: string, targetLocale: 'fa' | 'en'): string {
   if (normalized.startsWith('/en/')) {
     return normalized.replace('/en/', `/${targetLocale}/`)
   }
+  if (targetLocale === 'fa') {
+    return normalized
+  }
   return `/${targetLocale}${normalized}`
 }
 
@@ -48,7 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cookieLocale = reqCookies.get('lang')?.value
   const locale = headerLocale === 'en' || cookieLocale === 'en' ? 'en' : 'fa'
   const pathname = normalizePathname(reqHeaders.get('x-site-pathname') || reqHeaders.get('x-asdev-pathname') || '/')
-  const canonicalPath = pathname.startsWith('/fa/') || pathname.startsWith('/en/') ? pathname : `/${locale}${pathname}`
+  const canonicalPath = pathname.startsWith('/en/') || locale === 'fa' ? pathname : `/${locale}${pathname}`
   const canonicalUrl = new URL(canonicalPath, siteUrl).toString()
 
   const description = locale === 'fa' ? brand.positioningFa : brand.positioningEn

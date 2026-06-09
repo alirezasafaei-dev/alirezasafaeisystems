@@ -3,13 +3,12 @@ import { NextRequest } from 'next/server'
 import { proxy } from '@/proxy'
 
 describe('proxy locale routing', () => {
-  it('rewrites localized /fa path to internal root and sets lang cookie', async () => {
+  it('redirects localized /fa path to root and sets lang cookie', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/fa')
     const response = await proxy(request)
 
-    expect(response.status).toBe(200)
-    const location = response.headers.get('location')
-    expect(location).toBeNull()
+    expect(response.status).toBe(308)
+    expect(response.headers.get('location')).toBe('https://alirezasafaeisystems.ir/')
     expect(response.headers.get('x-site-pathname')).toBe('/')
     expect(response.cookies.get('lang')?.value).toBe('fa')
     expect(response.headers.get('x-site-locale')).toBe('fa')
@@ -27,23 +26,22 @@ describe('proxy locale routing', () => {
     expect(response.headers.get('x-site-locale')).toBe('en')
   })
 
-  it('redirects root to /fa once and avoids locale redirect loop', async () => {
+  it('serves root as the default Persian page without /fa redirect', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/')
     const response = await proxy(request)
 
-    expect(response.status).toBe(308)
-    expect(response.headers.get('location')).toContain('/fa')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('location')).toBeNull()
     expect(response.headers.get('x-site-locale')).toBe('fa')
     expect(response.headers.get('x-site-pathname')).toBe('/')
   })
 
-  it('does not redirect locale-prefixed profile path and avoids middleware loop', async () => {
+  it('redirects locale-prefixed Persian paths to unprefixed paths', async () => {
     const request = new NextRequest('https://alirezasafaeisystems.ir/fa/profile')
     const response = await proxy(request)
 
-    expect(response.status).toBe(200)
-    const location = response.headers.get('location')
-    expect(location).toBeNull()
+    expect(response.status).toBe(308)
+    expect(response.headers.get('location')).toBe('https://alirezasafaeisystems.ir/profile')
     expect(response.headers.get('x-site-pathname')).toBe('/profile')
     expect(response.headers.get('x-site-locale')).toBe('fa')
   })
@@ -56,7 +54,7 @@ describe('proxy locale routing', () => {
     })
     const response = await proxy(request)
 
-    expect(response.status).toBe(308)
+    expect(response.status).toBe(200)
     expect(response.headers.get('x-site-locale')).toBe('fa')
     expect(response.headers.get('x-site-pathname')).toBe('/services')
   })

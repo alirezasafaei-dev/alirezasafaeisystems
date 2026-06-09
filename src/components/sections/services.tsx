@@ -6,7 +6,7 @@ import { getRequestLanguage } from '@/lib/i18n/server'
 import { Reveal } from '@/components/ui/reveal'
 
 function withLocale(path: string, lang: 'fa' | 'en') {
-  return `/${lang}${path}`
+  return lang === 'fa' ? path : `/${lang}${path}`
 }
 
 function getCapabilities(lang: 'fa' | 'en') {

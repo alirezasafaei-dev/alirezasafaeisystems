@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function NovaxPriceAlertPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',

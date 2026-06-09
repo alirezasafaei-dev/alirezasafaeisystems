@@ -28,7 +28,7 @@ const navItems = [
 
 function withLocale(path: string, lang: 'fa' | 'en'): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
-  return `/${lang}${normalized === '/' ? '/' : normalized}`
+  return lang === 'fa' ? normalized : `/${lang}${normalized === '/' ? '/' : normalized}`
 }
 
 function getLocalizedPathname(pathname: string, lang: 'fa' | 'en'): string {

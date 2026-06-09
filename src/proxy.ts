@@ -192,20 +192,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname === '/') {
-    if (hasLocaleRedirectContext) {
-      const response = NextResponse.next({ request: { headers: requestHeadersWithContext } })
-      withRequestContextHeaders(response, {
-        correlationId,
-        nonce,
-        locale: 'fa',
-        pathname,
-      })
-      return withSecurityHeaders(response, pathname, nonce)
-    }
-
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/fa'
-    const response = NextResponse.redirect(redirectUrl, 308)
+    const response = NextResponse.next({ request: { headers: requestHeadersWithContext } })
     response.cookies.set('lang', 'fa', {
       path: '/',
       sameSite: 'lax',
@@ -216,8 +203,22 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isLocaleInternalCandidate) {
+    if (locale === 'fa') {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = normalizedLocalePath
+      const response = NextResponse.redirect(redirectUrl, 308)
+      response.cookies.set('lang', locale, {
+        path: '/',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 365,
+      })
+      withRequestContextHeaders(response, { correlationId, nonce, locale, pathname: normalizedLocalePath })
+      return withSecurityHeaders(response, pathname, nonce)
+    }
+
     const rewriteUrl = request.nextUrl.clone()
     rewriteUrl.pathname = normalizedLocalePath
+    rewriteUrl.protocol = 'http:'
     const response = NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeadersWithContext } })
     response.cookies.set('lang', locale, {
       path: '/',
@@ -228,11 +229,11 @@ export async function proxy(request: NextRequest) {
     return withSecurityHeaders(response, pathname, nonce)
   }
 
-  if (isLocalizedCandidate && !hasLocalePrefix && pathname !== '/' && !hasLocaleRedirectContext) {
+  if (isLocalizedCandidate && !hasLocalePrefix && pathname !== '/' && !hasLocaleRedirectContext && locale === 'en') {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = `/fa${pathname === '/' ? '' : pathname}`
+    redirectUrl.pathname = `/en${pathname === '/' ? '' : pathname}`
     const response = NextResponse.redirect(redirectUrl, 308)
-    withRequestContextHeaders(response, { correlationId, nonce, locale: 'fa', pathname })
+    withRequestContextHeaders(response, { correlationId, nonce, locale: 'en', pathname })
     return withSecurityHeaders(response, pathname, nonce)
   }
 

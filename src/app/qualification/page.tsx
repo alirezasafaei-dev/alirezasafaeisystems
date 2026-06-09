@@ -9,7 +9,7 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   const isEn = lang === 'en'
-  const canonicalPath = `/${lang}/qualification`
+  const canonicalPath = lang === 'fa' ? '/qualification' : `/${lang}/qualification`
   return {
     title: isEn ? 'Request Review + Quick Fix' : 'درخواست بررسی + رفع سریع',
     description: isEn
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function QualificationPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const title = lang === 'en' ? 'Request Technical Review + Quick Fix' : 'درخواست بررسی فنی + رفع سریع'
   const desc =
     lang === 'en'

@@ -11,7 +11,7 @@ import { pickDeterministicBucket, pickHeroVariant, type HeroVariant } from '@/li
 
 function withLocale(path: string, language: 'fa' | 'en'): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
-  return `/${language}${normalized === '/' ? '/' : normalized}`
+  return language === 'fa' ? normalized : `/${language}${normalized === '/' ? '/' : normalized}`
 }
 
 type IntentRoute = {

@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PortfolioCaseStudyPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
@@ -74,7 +74,7 @@ export default async function PortfolioCaseStudyPage() {
   const projectSchema = generateProjectSchema({
     name: 'alirezasafaeisystems.ir Portfolio System',
     description: 'A portfolio that functions as a measurable visitor-to-lead conversion system with production readiness.',
-    url: `/${lang}/case-studies/alirezasafaeidev-portfolio`,
+    url: lang === 'fa' ? '/case-studies/alirezasafaeidev-portfolio' : `/${lang}/case-studies/alirezasafaeidev-portfolio`,
     technologies: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Prisma', 'Playwright', 'Lighthouse CI'],
   })
 

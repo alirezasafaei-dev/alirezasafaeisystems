@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function QuickFixSprintPage() {
   const lang = await getRequestLanguage()
   const isEn = lang === 'en'
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   const copy = {
     eyebrow: isEn ? 'Fast revenue-safe technical help' : 'کمک فنی سریع و درآمدمحور',

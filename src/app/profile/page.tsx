@@ -109,7 +109,7 @@ export default async function ProfilePage() {
     { label: 'Portfolio & contact', href: PORTFOLIO_URL },
   ]
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   return (
     <main className="container mx-auto px-4 py-16 max-w-5xl space-y-10 subtle-grid" id="main-content">

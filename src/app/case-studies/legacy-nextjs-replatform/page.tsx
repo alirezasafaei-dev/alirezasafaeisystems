@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LegacyNextjsReplatformPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
@@ -77,7 +77,7 @@ export default async function LegacyNextjsReplatformPage() {
   const projectSchema = generateProjectSchema({
     name: 'Legacy Next.js Replatform',
     description: 'Migration from a fragile legacy codebase to a governed Next.js architecture.',
-    url: `/${lang}/case-studies/legacy-nextjs-replatform`,
+    url: lang === 'fa' ? '/case-studies/legacy-nextjs-replatform' : `/${lang}/case-studies/legacy-nextjs-replatform`,
     technologies: ['Next.js', 'TypeScript', 'PostgreSQL', 'Redis', 'Nginx'],
   })
 

@@ -82,7 +82,7 @@ export async function AboutSummary() {
   const sectionLabel = lang === 'en' ? 'Practical Tracks' : 'مسیرهای اجرایی'
   const ctaQual = lang === 'en' ? 'Request Project Qualification' : 'درخواست ارزیابی و Qualification'
   const ctaBrand = lang === 'en' ? 'Read Delivery Standards' : 'مشاهده استانداردهای تحویل'
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   return (
     <section id="about" className="section-block-soft bg-muted/30 subtle-grid">

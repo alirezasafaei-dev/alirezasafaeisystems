@@ -123,7 +123,7 @@ function getCases(lang: 'fa' | 'en'): CaseStudyItem[] {
 export default async function CaseStudiesPage() {
   const lang = await getRequestLanguage()
   const cases = getCases(lang)
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
@@ -142,7 +142,7 @@ export default async function CaseStudiesPage() {
     open: lang === 'en' ? 'Open Full Case' : 'مشاهده کامل',
   }
 
-  const canonicalPath = `/${lang}/case-studies`
+  const canonicalPath = lang === 'fa' ? '/case-studies' : `/${lang}/case-studies`
   const collectionSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',

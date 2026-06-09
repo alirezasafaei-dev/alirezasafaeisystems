@@ -108,7 +108,7 @@ function getCaseStudies(lang: 'fa' | 'en'): CaseStudyItem[] {
 }
 
 function withLocale(path: string, lang: 'fa' | 'en') {
-  return `/${lang}${path}`
+  return lang === 'fa' ? path : `/${lang}${path}`
 }
 
 export async function FeaturedCaseStudies() {

@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CiCdGovernanceHardeningPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
@@ -77,7 +77,7 @@ export default async function CiCdGovernanceHardeningPage() {
   const projectSchema = generateProjectSchema({
     name: 'CI/CD Governance Hardening',
     description: 'Operational and governance hardening for high-stakes release pipelines.',
-    url: `/${lang}/case-studies/ci-cd-governance-hardening`,
+    url: lang === 'fa' ? '/case-studies/ci-cd-governance-hardening' : `/${lang}/case-studies/ci-cd-governance-hardening`,
     technologies: ['GitHub Actions', 'Playwright', 'Lighthouse CI', 'Nginx', 'Node.js'],
   })
 

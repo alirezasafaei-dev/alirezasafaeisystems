@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutBrandPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const copy = {
     eyebrow: lang === 'en' ? 'Engineering Profile' : 'پروفایل مهندسی',
     title: `${brand.ownerName}`,

@@ -91,7 +91,7 @@ function getOffers(lang: 'fa' | 'en') {
 export default async function ServicesPage() {
   const lang = await getRequestLanguage()
   const offers = getOffers(lang)
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   const copy = {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',

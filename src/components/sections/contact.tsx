@@ -14,7 +14,7 @@ import { trackEvent } from '@/lib/analytics/client'
 
 function withLocale(path: string, language: 'fa' | 'en'): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
-  return `/${language}${normalized === '/' ? '/' : normalized}`
+  return language === 'fa' ? normalized : `/${language}${normalized === '/' ? '/' : normalized}`
 }
 
 function getIntentTemplates(language: 'fa' | 'en') {

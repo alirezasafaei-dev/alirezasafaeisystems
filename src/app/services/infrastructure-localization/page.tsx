@@ -70,7 +70,7 @@ function getWeeklyPlan(lang: 'fa' | 'en') {
 export default async function InfrastructureLocalizationServicePage() {
   const lang = await getRequestLanguage()
   const weeklyPlan = getWeeklyPlan(lang)
-  const withLocale = (path: string) => `/${lang}${path}`
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const copy = {
     eyebrow: lang === 'en' ? 'Flagship Consulting Offer' : 'پیشنهاد اصلی',
     title: lang === 'en' ? 'Infrastructure Localization & Operational Resilience Program' : 'برنامه بومی‌سازی زیرساخت و تاب‌آوری عملیاتی',
