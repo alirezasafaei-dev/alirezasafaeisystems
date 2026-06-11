@@ -118,7 +118,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.0",
+    "@axe-core/playwright": "^4.11.3",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "1.58.2",
     "@storybook/addon-a11y": "^10.2.13",
