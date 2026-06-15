@@ -50,7 +50,7 @@ export function Footer() {
             </h2>
             <p className="text-sm text-muted-foreground text-copy">{summaryText}</p>
             <p className="text-xs text-muted-foreground">
-              {language === 'fa' ? 'تهران — همکاری حضوری/ریموت در سراسر ایران' : 'Tehran — on-site/remote collaboration across Iran'}
+              {t('footer.location')}
             </p>
           </div>
 
@@ -121,16 +121,16 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-8 pt-5 border-t text-xs text-muted-foreground flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <span>{language === 'fa' ? `© ${currentYear} علیرضا صفایی. همه حقوق محفوظ است.` : `© ${currentYear} Alireza Safaei. All rights reserved.`}</span>
+          <span>{`© ${currentYear} ${brand.ownerName}. ${t('footer.allRights')}`}</span>
           <span>
-            {language === 'fa' ? 'طراحی و توسعه توسط ' : 'Designed and developed by '}
+            {t('footer.designedBy')}
             <Link
               href="https://alirezasafaeisystems.ir/"
               target="_blank"
               rel="noopener noreferrer"
               className="underline underline-offset-4 hover:text-primary"
             >
-              {language === 'fa' ? 'علیرضا صفایی مهندس سیستم های وب' : 'Alireza Safaei, Web Systems Engineer'}
+              {`${brand.ownerName}, ${language === 'fa' ? 'مهندس سیستم‌های وب' : 'Web Systems Engineer'}`}
             </Link>
           </span>
         </div>

@@ -8,13 +8,13 @@ import { useI18n } from '@/lib/i18n-context'
 import { withLocale } from '@/lib/locale-utils'
 
 export function BottomNav() {
-  const { language } = useI18n()
+  const { t, language } = useI18n()
   const pathname = usePathname()
 
   const navItems = [
-    { key: 'home', name: language === 'en' ? 'Home' : 'خانه', href: '/', icon: Home },
-    { key: 'services', name: language === 'en' ? 'Services' : 'خدمات', href: '/services', icon: Workflow },
-    { key: 'case-studies', name: language === 'en' ? 'Cases' : 'نمونه‌ها', href: '/case-studies', icon: Briefcase },
+    { key: 'home', name: t('nav.home'), href: '/', icon: Home },
+    { key: 'services', name: t('nav.services'), href: '/services', icon: Workflow },
+    { key: 'case-studies', name: t('nav.caseStudies'), href: '/case-studies', icon: Briefcase },
     { key: 'qualification', name: language === 'en' ? 'Qualify' : 'ارزیابی', href: '/qualification', icon: ClipboardCheck },
   ] as const
 

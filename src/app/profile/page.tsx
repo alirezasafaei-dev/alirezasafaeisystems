@@ -91,7 +91,7 @@ export default async function ProfilePage() {
         '@type': 'Person',
         name: brand.ownerName,
         url: siteUrl,
-        jobTitle: 'Architecture & Systems Engineer',
+        jobTitle: lang === 'fa' ? 'مهندس معماری و سیستم‌ها' : 'Architecture & Systems Engineer',
       },
     ],
   }
@@ -161,7 +161,9 @@ export default async function ProfilePage() {
       />
 
       <header className="space-y-3 rounded-2xl border bg-card p-6 md:p-8 card-hover aurora-shell">
-        <p className="text-sm font-semibold text-primary">AliReza Safaei | Web Systems Engineer</p>
+        <p className="text-sm font-semibold text-primary">
+          {lang === 'fa' ? 'علیرضا صفایی | مهندس سیستم‌های وب' : 'AliReza Safaei | Web Systems Engineer'}
+        </p>
         <h1 className="text-3xl md:text-4xl font-bold">
           {lang === 'fa' ? 'علیرضا صفایی — مهندس سیستم‌های وب' : 'Alireza Safaei — Web Systems Engineer'}
         </h1>

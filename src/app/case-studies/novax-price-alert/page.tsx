@@ -29,7 +29,7 @@ export default async function NovaxPriceAlertPage() {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
     eyebrow: lang === 'en' ? 'Case Study' : 'مطالعه موردی',
-    title: 'Novax Price Alert',
+    title: lang === 'en' ? 'Novax Price Alert' : 'هشدار قیمت Novax',
     intro:
       lang === 'en'
         ? 'A production Telegram bot + rich TWA for real-time price alerts on Iranian markets (crypto via Binance USDT, fiat/gold via TGJU Toman) with explicit staged flows, reliability hardening, and zero-downtime VPS deployment alongside other live sites.'

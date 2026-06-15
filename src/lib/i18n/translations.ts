@@ -116,6 +116,8 @@ export const translations = {
       quickCaseStudies: 'Case Studies',
       quickBrand: 'About Me',
       quickContact: 'Contact',
+      location: 'Tehran — on-site/remote collaboration across Iran',
+      designedBy: 'Designed and developed by',
     },
   },
   fa: {
@@ -233,6 +235,8 @@ export const translations = {
       quickCaseStudies: 'مطالعات موردی',
       quickBrand: 'درباره من',
       quickContact: 'تماس',
+      location: 'تهران — همکاری حضوری/ریموت در سراسر ایران',
+      designedBy: 'طراحی و توسعه توسط',
     },
   },
 }

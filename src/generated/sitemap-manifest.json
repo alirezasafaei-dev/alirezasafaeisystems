@@ -13,7 +13,7 @@
   },
   {
     "route": "/fa/services/quick-fix-sprint",
-    "lastModified": "2026-06-09T14:19:35-04:00",
+    "lastModified": "2026-06-15T16:48:55-04:00",
     "priority": 0.98,
     "changeFrequency": "weekly"
   },
@@ -85,7 +85,7 @@
   },
   {
     "route": "/fa/about-brand",
-    "lastModified": "2026-06-15T16:34:52-04:00",
+    "lastModified": "2026-06-15T16:48:55-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
   }

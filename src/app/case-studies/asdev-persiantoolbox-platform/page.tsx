@@ -29,7 +29,7 @@ export default async function AsdevPersianToolboxPlatformPage() {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
     eyebrow: lang === 'en' ? 'Case Study' : 'مطالعه موردی',
-    title: 'PersianToolbox Platform',
+    title: lang === 'en' ? 'PersianToolbox Platform' : 'پلتفرم PersianToolbox',
     intro:
       lang === 'en'
         ? 'A local-first Persian utility platform engineered to be fast, reliable, and intentionally simple for everyday users.'

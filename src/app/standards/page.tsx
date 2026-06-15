@@ -61,7 +61,9 @@ export default async function StandardsPage() {
       <script type="application/ld+json" nonce={nonce} dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section className="rounded-2xl border bg-card p-6 md:p-8 space-y-3">
-        <p className="text-sm font-semibold text-primary">AliReza Safaei Standards</p>
+        <p className="text-sm font-semibold text-primary">
+          {lang === 'fa' ? 'استانداردهای AliReza Safaei' : 'AliReza Safaei Standards'}
+        </p>
         <h1 className="text-3xl font-bold">
           {lang === 'fa' ? 'استانداردهای تحویل و رشد پایدار' : 'Delivery Standards & Sustainable Growth'}
         </h1>

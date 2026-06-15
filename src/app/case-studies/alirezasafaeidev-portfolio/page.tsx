@@ -26,7 +26,7 @@ export default async function PortfolioCaseStudyPage() {
     breadcrumbHome: lang === 'en' ? 'Home' : 'خانه',
     breadcrumbCases: lang === 'en' ? 'Case Studies' : 'مطالعات موردی',
     eyebrow: lang === 'en' ? 'Case Study' : 'مطالعه موردی',
-    title: 'alirezasafaeisystems.ir Portfolio System',
+    title: lang === 'en' ? 'alirezasafaeisystems.ir Portfolio System' : 'سیستم پورتفولیو alirezasafaeisystems.ir',
     intro:
       lang === 'en'
         ? 'This site was built as an engineering proof: not just a skills page, but a visitor→lead conversion system with measurable quality.'

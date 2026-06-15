@@ -9,16 +9,24 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Infrastructure Localization & Operational Resilience Program',
+    title: lang === 'fa'
+      ? 'برنامه بومی‌سازی زیرساخت و تاب‌آوری عملیاتی'
+      : 'Infrastructure Localization & Operational Resilience Program',
     description:
-      '4-week consulting program for infrastructure risk audit, sanction-resilient architecture design, governance hardening, and executive delivery.',
+      lang === 'fa'
+        ? 'برنامه مشاوره ۴ هفته‌ای برای ارزیابی ریسک زیرساخت، طراحی معماری مقاوم در برابر تحریم، سخت‌سازی حکمرانی و تحویل اجرایی.'
+        : '4-week consulting program for infrastructure risk audit, sanction-resilient architecture design, governance hardening, and executive delivery.',
     alternates: {
       canonical: `${siteUrl}/${lang}/services/infrastructure-localization`,
     },
     openGraph: {
-      title: 'Infrastructure Localization & Operational Resilience Program',
+      title: lang === 'fa'
+        ? 'برنامه بومی‌سازی زیرساخت و تاب‌آوری عملیاتی'
+        : 'Infrastructure Localization & Operational Resilience Program',
       description:
-        'Audit dependencies, reduce operational fragility, and build production stability with a structured 4-week program.',
+        lang === 'fa'
+          ? 'ارزیابی وابستگی‌ها، کاهش شکنندگی عملیاتی و ایجاد پایداری تولید با یک برنامه ساختاریافته ۴ هفته‌ای.'
+          : 'Audit dependencies, reduce operational fragility, and build production stability with a structured 4-week program.',
       url: `${siteUrl}/${lang}/services/infrastructure-localization`,
       type: 'website',
     },
