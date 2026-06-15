@@ -1,6 +1,6 @@
 # نقشه راه و تسک‌بندی اولویت‌بندی‌شده
 
-**تاریخ به‌روزرسانی:** 2026-04-29
+**تاریخ به‌روزرسانی:** 2026-06-15
 **منبع:** ترکیب `docs/IMMEDIATE_EXECUTION_MAP_2026-02-20.md` + `docs/ENTERPRISE_EXECUTION_BACKLOG.md` + `docs/runtime/EXECUTION_NOW.md`
 
 ## اصول اولویت‌بندی
@@ -18,54 +18,62 @@
   خروجی: گزارش جدید در `docs/runtime/VPS_ACCESS_CHECK_*.md`.  
   پذیرش: `https://alirezasafaeisystems.ir/` و `/api/ready` پایدار `200`.
 
-- [ ] `P0-2` **مهاجرت ناوبری به مسیر واقعی (Route-first)**  
+- [x] `P0-2` **مهاجرت ناوبری به مسیر واقعی (Route-first)** ✅  
   مالک: `FE`  
-  شرح: اصلاح `src/components/layout/header.tsx` برای لینک‌های واقعی صفحه‌ها (`/`, `/services`, `/case-studies`, `/qualification`) بدون اتکا به hash-only.  
+  شرح: اصلاح `src/components/layout/header.tsx` برای لینک‌های واقعی صفحه‌ها.  
   خروجی: فایل‌های تغییر یافته و Evidence route-refresh سالم.  
-  پذیرش: هر لینک منو روی Refresh پاسخ می‌دهد و مسیر ثابت می‌ماند.
+  پذیرش: هر لینک منو روی Refresh پاسخ می‌دهد و مسیر ثابت می‌ماند.  
+  **تاریخ اتمام:** 2026-06-15 — هدر از مسیرهای واقعی `/services`, `/case-studies`, `/qualification` استفاده می‌کند.
 
-- [ ] `P0-3` **بازنویسی Hero و پیام برند سازمانی**  
+- [x] `P0-3` **بازنویسی Hero و پیام برند سازمانی** ✅  
   مالک: `FE + Product`  
-  شرح: حذف آمار غیرمستند، افزودن پیام outcome-driven و proof chips بومی/مهندسی (مثلاً استقرار داخلی، CI/CD و DR).  
-  خروجی: به‌روزرسانی `src/components/sections/hero.tsx` و ترجمه‌ها در `src/lib/i18n/translations.ts`.  
-  پذیرش: پیام ۳ ثانیه اول صفحه، authority + local stability + trust را منتقل کند.
+  شرح: حذف آمار غیرمستند، افزودن پیام outcome-driven و proof chips.  
+  خروجی: به‌روزرسانی `src/components/sections/hero.tsx` و ترجمه‌ها.  
+  پذیرش: پیام ۳ ثانیه اول صفحه، authority + local stability + trust را منتقل کند.  
+  **تاریخ اتمام:** 2026-06-15 — Hero شامل intent router، capabilities و collaboration flow است.
 
-- [ ] `P0-4` **هم‌راستاسازی بخش تماس و microcopy اعتماد**  
+- [x] `P0-4` **هم‌راستاسازی بخش تماس و microcopy اعتماد** ✅  
   مالک: `FE`  
-  شرح: حذف `Remote / Global`، جایگزینی با `تهران / ریموت (سراسر ایران)` و افزودن microcopyهای اعتماد (NDA/SLA).  
+  شرح: حذف `Remote / Global`، جایگزینی با `تهران / ریموت (سراسر ایران)` و افزودن microcopyهای اعتماد.  
   خروجی: `src/components/sections/contact.tsx`.  
-  پذیرش: متن `Remote / Global` حذف شده و microcopyها روی صفحه قابل مشاهده باشند.
+  پذیرش: متن `Remote / Global` حذف شده و microcopyها روی صفحه قابل مشاهده باشند.  
+  **تاریخ اتمام:** 2026-06-15 — microcopy NDA/SLA اضافه شد.
 
-- [ ] `P0-5` **اصلاح فوری Sitemap**  
+- [x] `P0-5` **اصلاح فوری Sitemap** ✅  
   مالک: `FE`  
-  شرح: جایگزینی `lastModified=now` با تاریخ واقعی به‌روزرسانی مسیرها در `src/app/sitemap.ts`.  
+  شرح: جایگزینی `lastModified=now` با تاریخ واقعی به‌روزرسانی مسیرها.  
   خروجی: `src/app/sitemap.ts` و تایید تست ساختار sitemap.  
-  پذیرش: `pnpm run test`/`build` بدون regression در sitemap.
+  پذیرش: `pnpm run test`/`build` بدون regression در sitemap.  
+  **تاریخ اتمام:** 2026-06-15 — Sitemap از `sitemap-manifest.json` با تاریخ واقعی git استفاده می‌کند.
 
 ### P1 — کوتاه‌مدت (هفته اول تا دوم)
-- [ ] `P1-1` **مهاجرت مسیریابی locale-centered (`/fa`)**  
+- [x] `P1-1` **مهاجرت مسیریابی locale-centered (`/fa`)** ✅  
   مالک: `FE`  
-  شرح: پیاده‌سازی `src/middleware.ts` و اسکلت `src/app/[lang]/*` برای canonical پایدار مبتنی بر locale.  
-  خروجی: routeهای جدید locale-first در production-safe.  
-  پذیرش: canonical/hreflang قابل تولید براساس locale باشد.
+  شرح: پیاده‌سازی `src/proxy.ts` (middleware) و مسیریابی locale-aware.  
+  خروجی: routeهای locale-first در production-safe.  
+  پذیرش: canonical/hreflang قابل تولید براساس locale باشد.  
+  **تاریخ اتمام:** 2026-06-15 — proxy.ts شامل language detection، admin protection، security headers.
 
-- [ ] `P1-2` **بازطراحی Metadata و canonical per-locale**  
+- [x] `P1-2` **بازطراحی Metadata و canonical per-locale** ✅  
   مالک: `FE + SEO`  
-  شرح: تنظیم `generateMetadata` پویا در `src/app/layout.tsx` و مدیریت self-reference/alternate.  
+  شرح: تنظیم `generateMetadata` پویا در تمام صفحات و مدیریت self-reference/alternate.  
   خروجی: بهبود schema متا برای فارسی و انگلیسی.  
-  پذیرش: canonical، `fa-IR` و `en-US` در مسیرهای مرتبط صحیح.
+  پذیرش: canonical، `fa-IR` و `en-US` در مسیرهای مرتبط صحیح.  
+  **تاریخ اتمام:** 2026-06-15 — تمام ۱۲ صفحه متادیتای پویا و دوزبانه دارند.
 
-- [ ] `P1-3` **اصلاح inLanguage در Schema**  
+- [x] `P1-3` **اصلاح inLanguage در Schema** ✅  
   مالک: `FE`  
   شرح: پارامتری‌سازی `inLanguage` در `src/lib/seo.ts`.  
   خروجی: `src/lib/seo.ts` و تست اعتبار خروجی JSON-LD.  
-  پذیرش: محتوای فارسی به‌درستی با `fa-IR` خروجی شود.
+  پذیرش: محتوای فارسی به‌درستی با `fa-IR` خروجی شود.  
+  **تاریخ اتمام:** 2026-06-15 — `inLanguage` پویا در Person, WebSite, Organization schemas.
 
-- [ ] `P1-4` **به‌روزرسانی مسیرهای LHCI مطابق مسیر نهایی**  
+- [x] `P1-4` **به‌روزرسانی مسیرهای LHCI مطابق مسیر نهایی** ✅  
   مالک: `FE`  
   شرح: هم‌سو سازی `lighthouserc.json` با مسیرهای جدید و اصلی سایت.  
   خروجی: تنظیمات بهینه‌شده Lighthouse budget/route set.  
-  پذیرش: اجرای `pnpm run lighthouse:ci` بدون false-fail مرتبط با مسیر.
+  پذیرش: اجرای `pnpm run lighthouse:ci` بدون false-fail مرتبط با مسیر.  
+  **تاریخ اتمام:** 2026-06-15 — مسیرهای qualification و about-brand اضافه شد، آستانه‌ها افزایش یافت.
 
 ### P2 — میانه‌مدت (هفته دوم تا چهارم)
 - [ ] `P2-1` **حاکمیت Design Token**  
@@ -74,27 +82,66 @@
   خروجی: `docs/DESIGN_TOKEN_REGISTRY.md` + به‌روزرسانی `src/app/globals.css` و کامپوننت‌ها.  
   پذیرش: رفرنس‌گذاری استاندارد در قالب tokenهای رسمی.
 
-- [ ] `P2-2` **افزودن A11y gate به Playwright**  
+- [x] `P2-2` **افزودن A11y gate به Playwright** ✅  
   مالک: `QA + FE`  
   شرح: افزودن تست‌های accessibility برای مسیرهای اصلی با Axe.  
   خروجی: `e2e/a11y.spec.ts` و اسکریپت اجرا در CI.  
-  پذیرش: عدم وجود critical violations در صفحه اصلی و Qualification.
+  پذیرش: عدم وجود critical violations در صفحه اصلی و Qualification.  
+  **تاریخ اتمام:** 2026-06-15 — ۹ صفحه تست می‌شوند، شامل heading hierarchy، skip-link، lang/dir attrs، form labels.
 
-- [ ] `P2-3` **فرم دو مرحله‌ای Qualification**  
+- [x] `P2-3` **فرم دو مرحله‌ای Qualification** ✅  
   مالک: `FE + Product`  
-  شرح: دو مرحله‌ای‌سازی فرم `src/components/sections/infrastructure-lead-form.tsx` با ذخیره‌ی پیش‌نویس.  
+  شرح: دو مرحله‌ای‌سازی فرم با ذخیره‌ی پیش‌نویس.  
   خروجی: فرم step1/step2 و رفتار بازگشت‌پذیر در خطای submit.  
-  پذیرش: بهبود completion نسبت به baseline فعلی + تست e2e مسیر فرم.
+  پذیرش: بهبود completion نسبت به baseline فعلی + تست e2e مسیر فرم.  
+  **تاریخ اتمام:** 2026-06-15 — فرم شامل ۲ مرحله، draft saving با localStorage، progress bar ARIA.
 
 ## تسک‌های راهبردی باز از بک‌لاگ (P1/P2)
 - [ ] `STRAT-1` Freeze نقش/هدف هر دامنه + KPI اصلی + ۳ KPI پشتیبان.
 - [ ] `STRAT-2` تعریف taxonomy مشترک eventها (`source`, `stage`, `intent`, `outcome`).
 - [ ] `STRAT-3` تعریف acceptance criteria برای `qualified lead`.
 - [ ] `STRAT-4` اجرای baseline فنی/UX/SEO (network readiness, metadata, link integrity) و گزارش `critical/high/medium`.
-- [ ] `STRAT-5` حذف مسیرهای intent تکراری و dead-end در IA.
-- [ ] `STRAT-6` استانداردسازی microcopy فرم/خطا/موفقیت و glossary اصطلاحات فنی فارسی.
-- [ ] `STRAT-7` اجرای segment و consistency های SEO (canonical/hreflang/meta/schema) و بهینه‌سازی internal linking.
+- [x] `STRAT-5` حذف مسیرهای intent تکراری و dead-end در IA. ✅
+- [x] `STRAT-6` استانداردسازی microcopy فرم/خطا/موفقیت و glossary اصطلاحات فنی فارسی. ✅
+- [x] `STRAT-7` اجرای segment و consistency های SEO (canonical/hreflang/meta/schema) و بهینه‌سازی internal linking. ✅
 - [ ] `STRAT-8` Define SLO/availability budget + اعتبارسنجی incident rollback readiness.
+
+## بهبودهای فنی انجام شده (این جلسه)
+
+### کیفیت کد
+- [x] حذف `withLocale` تکراری → `locale-utils.ts` مشترک
+- [x] `api-schemas.ts` مشترک برای Zod validation
+- [x] حذف ۴۸ کامپوننت بی‌استفاده (۳۹ UI + ۹ section)
+- [x] حذف ۳۳ پکیج بی‌استفاده (framer-motion, Radix unused, recharts, cmdk, ...)
+- [x] `prisma` به devDependencies منتقل شد
+- [x] `console.*` در service-worker با logger جایگزین شد
+
+### SEO
+- [x] متادیتای تمام ۱۲ صفحه دوزبانه شد
+- [x] Schema.org تکراری حذف شد → single @graph
+- [x] OG Image مabsolute شد
+- [x] x-default hreflang اضافه شد
+- [x] proficiencyLevel Expert شد
+- [x] inLanguage پویا در schemas
+
+### UI/UX
+- [x] `scroll-padding-top` برای رفع overlap هدر
+- [x] Redirect فرم تماس به `/thank-you`
+- [x] خطای فرم تماس به کاربر نمایش داده می‌شود
+- [x] RTL ArrowRight اصلاح شد
+- [x] `loading.tsx` و `not-found.tsx` اضافه شد
+- [x] progress bar ARIA attributes
+
+### امنیت
+- [x] `dangerouslyAllowSVG: false`
+- [x] `.env.example` پاکسازی شده
+- [x] Rate limiting روی تمام API endpoints
+
+### عملکرد
+- [x] حذف Turbopack (نابالغ)
+- [x] حذف `tailwindcss-animate` plugin (tw-animate-css جایگزین)
+- [x] CSS self-referencing variable حذف شد
+- [x] Comment گمراه‌کننده اصلاح شد
 
 ## تعریف Done (برای هر تسک)
 - [ ] PR اتمیک و دامنه‌بندی‌شده (یک هدف)
