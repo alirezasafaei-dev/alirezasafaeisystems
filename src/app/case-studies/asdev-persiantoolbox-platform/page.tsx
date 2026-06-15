@@ -11,15 +11,13 @@ const persianToolboxUrl = 'https://persiantoolbox.ir'
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Study: PersianToolbox Platform',
+    title: lang === 'fa' ? 'کیس استادی: پلتفرم PersianToolbox' : 'Case Study: PersianToolbox Platform',
     description:
-      'A local-first Persian utility platform engineered to be fast, reliable, and intentionally simple for everyday users.',
+      lang === 'fa'
+        ? 'یک پلتفرم ابزار فارسی بومی‌اول که برای سرعت، قابلیت اطمینان و سادگی عمدی برای کاربران روزمره مهندسی شده است.'
+        : 'A local-first Persian utility platform engineered to be fast, reliable, and intentionally simple for everyday users.',
     alternates: {
       canonical: `${siteUrl}/${lang}/case-studies/asdev-persiantoolbox-platform`,
-      languages: {
-        'fa-IR': `${siteUrl}/fa/case-studies/asdev-persiantoolbox-platform`,
-        'en-US': `${siteUrl}/en/case-studies/asdev-persiantoolbox-platform`,
-      },
     },
   }
 }

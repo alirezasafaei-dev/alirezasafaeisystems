@@ -18,21 +18,30 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'AliReza Safaei — صفحه معرفی و شبکه',
-    description: 'معرفی علیرضا صفایی، مهندس سیستم‌های وب، به‌همراه لینک‌های رسمی Portfolio، PersianToolbox و Audit IR.',
+    title: lang === 'fa' ? `${brand.ownerName} — صفحه معرفی و شبکه` : `${brand.ownerName} — Profile & Network`,
+    description:
+      lang === 'fa'
+        ? `معرفی ${brand.ownerName}، مهندس سیستم‌های وب، به‌همراه لینک‌های رسمی Portfolio، PersianToolbox و Audit IR.`
+        : `${brand.ownerName}, Web Systems Engineer, with official links to Portfolio, PersianToolbox, and Audit IR.`,
     alternates: {
       canonical: `${siteUrl}/${lang}/profile`,
     },
     openGraph: {
-      title: 'AliReza Safaei | Web Systems Engineer',
-      description: 'معرفی علیرضا صفایی و لینک‌دهی متقابل بین پورتفولیو، PersianToolbox و Audit IR.',
+      title: lang === 'fa' ? `${brand.ownerName} | مهندس سیستم‌های وب` : `${brand.ownerName} | Web Systems Engineer`,
+      description:
+        lang === 'fa'
+          ? `معرفی ${brand.ownerName} و لینک‌دهی متقابل بین پورتفولیو، PersianToolbox و Audit IR.`
+          : `${brand.ownerName} profile with cross-links to Portfolio, PersianToolbox, and Audit IR.`,
       url: `${siteUrl}/${lang}/profile`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'AliReza Safaei — صفحه معرفی',
-      description: 'لینک‌های رسمی شبکه کاری و راه‌های ارتباطی علیرضا صفایی.',
+      title: lang === 'fa' ? `${brand.ownerName} — صفحه معرفی` : `${brand.ownerName} — Profile`,
+      description:
+        lang === 'fa'
+          ? `لینک‌های رسمی شبکه کاری و راه‌های ارتباطی ${brand.ownerName}.`
+          : `Official network links and contact channels for ${brand.ownerName}.`,
     },
     other: {
       'x-robots-tag': 'index, follow',
@@ -42,22 +51,30 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ProfilePage() {
   const nonce = (await headers()).get('x-csp-nonce') || undefined
+  const lang = await getRequestLanguage()
+  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
   const networkLinks = buildNetworkLinks('alireza-portfolio', 'profile_page').map((item) => {
     if (item.key === 'portfolio') {
       return {
         ...item,
-        description: 'رزومه، خدمات و راه‌های تماس مستقیم با علیرضا صفایی.',
+        description: lang === 'fa'
+          ? 'رزومه، خدمات و راه‌های تماس مستقیم با علیرضا صفایی.'
+          : 'Resume, services, and direct contact channels for Alireza Safaei.',
       }
     }
     if (item.key === 'toolbox') {
       return {
         ...item,
-        description: 'مجموعه ابزارهای فارسی با پردازش لوکال و حریم خصوصی کاربر.',
+        description: lang === 'fa'
+          ? 'مجموعه ابزارهای فارسی با پردازش لوکال و حریم خصوصی کاربر.'
+          : 'Persian utility tools with local-first processing and user privacy.',
       }
     }
     return {
       ...item,
-      description: 'پلتفرم تحلیل Performance/SEO/Security با گزارش عملیاتی.',
+      description: lang === 'fa'
+        ? 'پلتفرم تحلیل Performance/SEO/Security با گزارش عملیاتی.'
+        : 'Performance/SEO/Security analysis platform with operational reports.',
     }
   })
 
@@ -79,7 +96,7 @@ export default async function ProfilePage() {
     ],
   }
 
-  const faqLd = {
+  const faqLd = lang === 'fa' ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: [
@@ -100,6 +117,27 @@ export default async function ProfilePage() {
         },
       },
     ],
+  } : {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'How do I navigate between products in this network?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Use the links on this page or the footer; all links include UTM parameters for transparent tracking.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is the official Telegram channel?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Official channel: https://t.me/asdevsystems',
+        },
+      },
+    ],
   }
 
   const contactLinks = [
@@ -108,8 +146,6 @@ export default async function ProfilePage() {
     { label: 'Resume PDF', href: RESUME_PDF_URL },
     { label: 'Portfolio & contact', href: PORTFOLIO_URL },
   ]
-  const lang = await getRequestLanguage()
-  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   return (
     <main className="container mx-auto px-4 py-16 max-w-5xl space-y-10 subtle-grid" id="main-content">
@@ -126,9 +162,13 @@ export default async function ProfilePage() {
 
       <header className="space-y-3 rounded-2xl border bg-card p-6 md:p-8 card-hover aurora-shell">
         <p className="text-sm font-semibold text-primary">AliReza Safaei | Web Systems Engineer</p>
-        <h1 className="text-3xl md:text-4xl font-bold">علیرضا صفایی — مهندس سیستم‌های وب</h1>
+        <h1 className="text-3xl md:text-4xl font-bold">
+          {lang === 'fa' ? 'علیرضا صفایی — مهندس سیستم‌های وب' : 'Alireza Safaei — Web Systems Engineer'}
+        </h1>
         <p className="text-muted-foreground leading-7 md:leading-8">
-          طراحی و توسعه صفر تا صد، معماری نرم‌افزار، تکمیل پروژه‌های نیمه‌کاره، آماده‌سازی محیط تولید، و مقابله عملی با تحریم‌های خارجی علیه ایران از مسیر بومی‌سازی زیرساخت.
+          {lang === 'fa'
+            ? 'طراحی و توسعه صفر تا صد، معماری نرم‌افزار، تکمیل پروژه‌های نیمه‌کاره، آماده‌سازی محیط تولید، و مقابله عملی با تحریم‌های خارجی علیه ایران از مسیر بومی‌سازی زیرساخت.'
+            : 'End-to-end design and development, software architecture, completion of unfinished projects, production environment preparation, and practical resilience against external sanctions through infrastructure localization.'}
         </p>
         <div className="flex flex-wrap gap-3 pt-2 text-sm">
           <Link
@@ -137,7 +177,7 @@ export default async function ProfilePage() {
             rel="noopener noreferrer"
             className="inline-flex items-center rounded-md border px-4 py-2 font-semibold hover:bg-muted"
           >
-            دانلود رزومه PDF
+            {lang === 'fa' ? 'دانلود رزومه PDF' : 'Download Resume PDF'}
           </Link>
           <Link
             href={PORTFOLIO_URL}
@@ -145,7 +185,7 @@ export default async function ProfilePage() {
             rel="noopener noreferrer"
             className="inline-flex items-center rounded-md border px-4 py-2 hover:bg-muted"
           >
-            مشاهده پورتفولیو
+            {lang === 'fa' ? 'مشاهده پورتفولیو' : 'View Portfolio'}
           </Link>
         </div>
       </header>
@@ -161,7 +201,7 @@ export default async function ProfilePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              مشاهده
+              {lang === 'fa' ? 'مشاهده' : 'View'}
               <span aria-hidden>→</span>
             </Link>
           </article>
@@ -169,7 +209,9 @@ export default async function ProfilePage() {
       </section>
 
       <section className="rounded-xl border bg-muted/30 p-5 md:p-6 space-y-3">
-        <h2 className="text-base font-semibold">امضا و مسیر همکاری</h2>
+        <h2 className="text-base font-semibold">
+          {lang === 'fa' ? 'امضا و مسیر همکاری' : 'Signature & Collaboration Path'}
+        </h2>
         <p className="text-sm text-muted-foreground">{SIGNATURE_TEXT}</p>
         <p className="text-sm text-muted-foreground">
           <Link href={PORTFOLIO_URL} className="underline underline-offset-4" target="_blank" rel="noopener noreferrer">
@@ -190,7 +232,9 @@ export default async function ProfilePage() {
           ))}
         </div>
         <Link href={withLocale('/standards')} className="text-sm underline underline-offset-4">
-          استانداردهای تحویل، کیفیت UX فارسی و نقشه اجرا
+          {lang === 'fa'
+            ? 'استانداردهای تحویل، کیفیت UX فارسی و نقشه اجرا'
+            : 'Delivery standards, Persian UX quality, and execution map'}
         </Link>
       </section>
     </main>

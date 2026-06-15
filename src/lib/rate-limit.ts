@@ -189,16 +189,22 @@ export function getRateLimitStatus(identifier: string): {
   }
 }
 
-/**
- * Clean up old rate limit records periodically
- */
-if (typeof window !== 'undefined') {
-  setInterval(() => {
+let cleanupTimer: ReturnType<typeof setInterval> | null = null
+
+function ensureCleanupRunning() {
+  if (cleanupTimer !== null) return
+  cleanupTimer = setInterval(() => {
     const now = Date.now()
     for (const [key, value] of rateLimitStore.entries()) {
       if (now > value.resetTime) {
         rateLimitStore.delete(key)
       }
     }
-  }, 60 * 1000) // Clean up every minute
+    if (rateLimitStore.size === 0 && cleanupTimer !== null) {
+      clearInterval(cleanupTimer)
+      cleanupTimer = null
+    }
+  }, 60 * 1000)
 }
+
+ensureCleanupRunning()

@@ -1,30 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 import { checkRateLimit, createRequestId, withCommonApiHeaders } from '@/lib/api-security'
 import { notifyLeadSubmission } from '@/lib/lead-notifier'
 import { logger } from '@/lib/logger'
 import { hasSqlInjection, isLikelySpam } from '@/lib/security'
-import { isValidEmail, sanitizeInput } from '@/lib/validators'
-
-const contactSchema = z.object({
-  name: z.string().min(2).max(100),
-  email: z.string().email().max(255),
-  subject: z.string().max(200).optional().default(''),
-  message: z.string().min(10).max(5000),
-  website: z.string().max(255).optional().default(''),
-})
-
-type ContactPayload = z.infer<typeof contactSchema>
-
-function normalizePayload(input: ContactPayload): ContactPayload {
-  return {
-    name: sanitizeInput(input.name, 100),
-    email: sanitizeInput(input.email, 255).toLowerCase(),
-    subject: sanitizeInput(input.subject, 200),
-    message: sanitizeInput(input.message, 5000),
-    website: sanitizeInput(input.website, 255),
-  }
-}
+import { isValidEmail } from '@/lib/validators'
+import { contactSchema, normalizeContactPayload, type ContactPayload } from '@/lib/api-schemas'
 
 function containsMaliciousContent(payload: ContactPayload): boolean {
   return (
@@ -71,7 +51,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const payload = normalizePayload(parsed.data)
+    const payload = normalizeContactPayload(parsed.data)
     if (!isValidEmail(payload.email)) {
       return withCommonApiHeaders(
         NextResponse.json(

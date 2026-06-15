@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowUpRight, TrendingUp } from 'lucide-react'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { Reveal } from '@/components/ui/reveal'
+import { withLocale } from '@/lib/locale-utils'
 
 type CaseStudyItem = {
   title: string
@@ -105,10 +106,6 @@ function getCaseStudies(lang: 'fa' | 'en'): CaseStudyItem[] {
       metric: 'Rollback اضطراری: ۰ در ۳۰ روز',
     },
   ]
-}
-
-function withLocale(path: string, lang: 'fa' | 'en') {
-  return lang === 'fa' ? path : `/${lang}${path}`
 }
 
 export async function FeaturedCaseStudies() {

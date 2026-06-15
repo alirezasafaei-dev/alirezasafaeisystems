@@ -10,8 +10,11 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: `About ${brand.ownerName}`,
-    description: `${brand.ownerName} profile, engineering principles, and execution model.`,
+    title: lang === 'fa' ? `درباره ${brand.ownerName}` : `About ${brand.ownerName}`,
+    description:
+      lang === 'fa'
+        ? `پروفایل ${brand.ownerName}، اصول مهندسی و مدل اجرایی.`
+        : `${brand.ownerName} profile, engineering principles, and execution model.`,
     alternates: {
       canonical: `${siteUrl}/${lang}/about-brand`,
     },

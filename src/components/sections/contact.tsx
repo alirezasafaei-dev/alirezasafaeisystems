@@ -11,11 +11,7 @@ import { Mail, MapPin, MessageCircle, Send, CheckCircle, ClipboardList, Handshak
 import { brand } from '@/lib/brand'
 import { useI18n } from '@/lib/i18n-context'
 import { trackEvent } from '@/lib/analytics/client'
-
-function withLocale(path: string, language: 'fa' | 'en'): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`
-  return language === 'fa' ? normalized : `/${language}${normalized === '/' ? '/' : normalized}`
-}
+import { withLocale } from '@/lib/locale-utils'
 
 function getIntentTemplates(language: 'fa' | 'en') {
   if (language === 'en') {
@@ -114,6 +110,7 @@ export function Contact() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const completionPercent = useMemo(() => {
     let completed = 0
     if (activeIntent) completed += 1
@@ -229,6 +226,7 @@ export function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setErrorMsg(null)
     void trackEvent({
       name: 'contact_submit_attempt',
       category: 'conversion',
@@ -252,6 +250,9 @@ export function Contact() {
         setActiveIntent(null)
         setFormData({ name: '', email: '', subject: '', message: '', website: '' })
       } else {
+        const data = await response.json().catch(() => null)
+        const msg = data?.message || (language === 'fa' ? 'خطا در ارسال درخواست' : 'Failed to submit request')
+        setErrorMsg(msg)
         void trackEvent({
           name: 'contact_submit_failed',
           category: 'conversion',
@@ -259,6 +260,7 @@ export function Contact() {
         })
       }
     } catch {
+      setErrorMsg(language === 'fa' ? 'خطا در اتصال. لطفاً دوباره تلاش کنید.' : 'Connection error. Please try again.')
       void trackEvent({
         name: 'contact_submit_failed',
         category: 'conversion',
@@ -287,7 +289,14 @@ export function Contact() {
             </p>
           </div>
 
-          <div className="mb-4 h-2 w-full rounded-full bg-muted">
+          <div
+            className="mb-4 h-2 w-full rounded-full bg-muted"
+            role="progressbar"
+            aria-valuenow={completionPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={copy.progressLabel}
+          >
             <div
               className="h-2 rounded-full bg-primary transition-all duration-300"
               style={{ width: `${completionPercent}%` }}
@@ -458,6 +467,12 @@ export function Contact() {
                       required
                     />
                   </div>
+
+                  {errorMsg && (
+                    <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                      {errorMsg}
+                    </div>
+                  )}
 
                   <Button type="submit" className="w-full gap-2 shine-effect" disabled={isSubmitting || !validateForm()}>
                     {isSubmitting ? (

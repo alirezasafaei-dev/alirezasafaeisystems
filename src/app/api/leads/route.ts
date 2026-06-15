@@ -1,52 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { z } from 'zod'
 import { checkRateLimit, createRequestId, withCommonApiHeaders } from '@/lib/api-security'
 import { db } from '@/lib/db'
 import { notifyLeadSubmission } from '@/lib/lead-notifier'
 import { logger } from '@/lib/logger'
 import { validateLeadAttachment, sanitizeLeadAttachmentFileName } from '@/lib/lead-attachments'
 import { isLikelySpam } from '@/lib/security'
-import { isValidEmail, sanitizeInput } from '@/lib/validators'
-
-const leadSchema = z.object({
-  contactName: z.string().min(2).max(120),
-  organizationName: z.string().min(2).max(180),
-  organizationType: z.string().min(3).max(80),
-  email: z.string().email().max(255),
-  phone: z.string().max(40).optional().default(''),
-  teamSize: z.string().min(1).max(40),
-  currentStack: z.string().min(3).max(300),
-  criticalRisk: z.string().min(10).max(2000),
-  timeline: z.string().min(1).max(120),
-  budgetRange: z.string().min(3).max(120),
-  preferredContact: z.string().min(3).max(80),
-  notes: z.string().max(2000).optional().default(''),
-  website: z.string().max(255).optional().default(''),
-  attachmentPath: z.string().max(400).optional().default(''),
-})
-
-type LeadPayload = z.infer<typeof leadSchema>
-
-function normalizePayload(input: LeadPayload): LeadPayload {
-  return {
-    contactName: sanitizeInput(input.contactName, 120),
-    organizationName: sanitizeInput(input.organizationName, 180),
-    organizationType: sanitizeInput(input.organizationType, 80),
-    email: sanitizeInput(input.email, 255).toLowerCase(),
-    phone: sanitizeInput(input.phone, 40),
-    teamSize: sanitizeInput(input.teamSize, 40),
-    currentStack: sanitizeInput(input.currentStack, 300),
-    criticalRisk: sanitizeInput(input.criticalRisk, 2000),
-    timeline: sanitizeInput(input.timeline, 120),
-    budgetRange: sanitizeInput(input.budgetRange, 120),
-    preferredContact: sanitizeInput(input.preferredContact, 80),
-    notes: sanitizeInput(input.notes, 2000),
-    website: sanitizeInput(input.website, 255),
-    attachmentPath: sanitizeInput(input.attachmentPath, 400),
-  }
-}
+import { isValidEmail } from '@/lib/validators'
+import { leadSchema, normalizeLeadPayload, type LeadPayload } from '@/lib/api-schemas'
 
 function containsMaliciousContent(payload: LeadPayload): boolean {
   const injectionLikePattern = /(;|--|\b(drop|delete|insert|update|union|select|exec|execute)\b)/i
@@ -145,7 +107,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const payload = normalizePayload(parsed.data)
+    const payload = normalizeLeadPayload(parsed.data)
     if (!isValidEmail(payload.email)) {
       return withCommonApiHeaders(
         NextResponse.json({ success: false, message: 'Invalid email' }, { status: 400 }),

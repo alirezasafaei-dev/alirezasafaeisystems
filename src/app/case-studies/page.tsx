@@ -18,8 +18,11 @@ type CaseStudyItem = {
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Studies',
-    description: 'Selected delivery case studies with measurable outcomes, constraints, and operational evidence.',
+    title: lang === 'fa' ? 'مطالعات موردی' : 'Case Studies',
+    description:
+      lang === 'fa'
+        ? 'مطالعات موردی اجرایی با خروجی‌های قابل اندازه‌گیری، محدودیت‌ها و شواهد عملیاتی.'
+        : 'Selected delivery case studies with measurable outcomes, constraints, and operational evidence.',
     alternates: { canonical: `${siteUrl}/${lang}/case-studies` },
   }
 }

@@ -4,10 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowRight, ServerCog, Boxes, ShieldCheck, GitBranch, ClipboardCheck } from 'lucide-react'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { Reveal } from '@/components/ui/reveal'
-
-function withLocale(path: string, lang: 'fa' | 'en') {
-  return lang === 'fa' ? path : `/${lang}${path}`
-}
+import { withLocale } from '@/lib/locale-utils'
 
 function getCapabilities(lang: 'fa' | 'en') {
   if (lang === 'en') {

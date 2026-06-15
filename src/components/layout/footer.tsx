@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
 import { PROFILE_SUMMARY_EN, PROFILE_SUMMARY_FA } from '@/lib/profile-copy'
+import { withLocale } from '@/lib/locale-utils'
 
 const quickLinks = [
   { key: 'quickHome', href: '/' },
@@ -14,11 +15,6 @@ const quickLinks = [
   { key: 'quickBrand', href: '/about-brand' },
   { key: 'quickContact', href: '/qualification' },
 ]
-
-function withLocale(path: string, language: 'fa' | 'en'): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`
-  return language === 'fa' ? normalized : `/${language}${normalized === '/' ? '/' : normalized}`
-}
 
 export function Footer() {
   const { t, language } = useI18n()

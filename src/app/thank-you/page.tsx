@@ -2,13 +2,19 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getRequestLanguage } from '@/lib/i18n/server'
 
-export const metadata: Metadata = {
-  title: 'Thank You',
-  description: 'Your request has been received. We will follow up shortly.',
-  robots: {
-    index: false,
-    follow: false,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getRequestLanguage()
+  return {
+    title: lang === 'fa' ? 'ممنون' : 'Thank You',
+    description:
+      lang === 'fa'
+        ? 'درخواست شما ثبت شد. در مرحله بعد، بررسی اولیه انجام می‌شود و سپس برای هماهنگی Discovery با شما تماس می‌گیریم.'
+        : 'Your request has been received. We will follow up shortly.',
+    robots: {
+      index: false,
+      follow: false,
+    },
+  }
 }
 
 export default async function ThankYouPage() {

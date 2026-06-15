@@ -1,8 +1,12 @@
 import { ImageResponse } from 'next/og'
+import { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const locale = request.nextUrl.searchParams.get('lang') || 'fa'
+  const isFa = locale === 'fa'
+
   return new ImageResponse(
     (
       <div
@@ -16,7 +20,7 @@ export async function GET() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: 'system-ui, sans-serif',
+          fontFamily: isFa ? 'system-ui, sans-serif' : 'system-ui, sans-serif',
         }}
       >
         <div
@@ -36,7 +40,7 @@ export async function GET() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            AliReza Safaei
+            {isFa ? 'علیرضا صفایی' : 'AliReza Safaei'}
           </div>
           <div
             style={{
@@ -45,7 +49,7 @@ export async function GET() {
               textAlign: 'center',
             }}
           >
-            Web Systems Engineer
+            {isFa ? 'مهندس سیستم‌های وب' : 'Web Systems Engineer'}
           </div>
           <div
             style={{
@@ -54,7 +58,9 @@ export async function GET() {
               marginTop: '16px',
             }}
           >
-            Architecture | End-to-End Delivery | Production Readiness
+            {isFa
+              ? 'معماری | تحویل کامل | آمادگی تولید'
+              : 'Architecture | End-to-End Delivery | Production Readiness'}
           </div>
         </div>
       </div>

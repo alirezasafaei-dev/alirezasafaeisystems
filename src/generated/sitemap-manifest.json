@@ -7,85 +7,85 @@
   },
   {
     "route": "/fa/services",
-    "lastModified": "2026-05-29T08:16:26-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.95,
     "changeFrequency": "weekly"
   },
   {
     "route": "/fa/services/quick-fix-sprint",
-    "lastModified": "2026-06-05T11:42:37-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.98,
     "changeFrequency": "weekly"
   },
   {
     "route": "/fa/services/infrastructure-localization",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.95,
     "changeFrequency": "weekly"
   },
   {
     "route": "/fa/qualification",
-    "lastModified": "2026-05-29T08:43:12-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.9,
     "changeFrequency": "weekly"
   },
   {
     "route": "/fa/profile",
-    "lastModified": "2026-05-01T03:17:39-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.88,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/standards",
-    "lastModified": "2026-05-01T03:17:39-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.84,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies",
-    "lastModified": "2026-06-05T04:09:42-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.85,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies/alirezasafaeidev-portfolio",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.82,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies/infrastructure-localization-rescue",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies/asdev-persiantoolbox-platform",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.82,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies/novax-price-alert",
-    "lastModified": "2026-06-05T04:14:40-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.82,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies/legacy-nextjs-replatform",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/case-studies/ci-cd-governance-hardening",
-    "lastModified": "2026-04-29T19:46:35-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
   },
   {
     "route": "/fa/about-brand",
-    "lastModified": "2026-06-05T11:40:45-04:00",
+    "lastModified": "2026-06-09T14:19:35-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
   }

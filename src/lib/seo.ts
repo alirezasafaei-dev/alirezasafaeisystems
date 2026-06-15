@@ -72,7 +72,7 @@ export function generateMetadata({
 }
 
 // Schema.org structured data generators
-export function generatePersonSchema() {
+export function generatePersonSchema(locale?: 'fa-IR' | 'en-US') {
   const siteUrl = getSiteUrl()
   return {
     '@context': 'https://schema.org',
@@ -103,10 +103,11 @@ export function generatePersonSchema() {
       'Disaster Recovery',
       'Production Stability',
     ],
+    inLanguage: locale || 'fa-IR',
   }
 }
 
-export function generateWebSiteSchema() {
+export function generateWebSiteSchema(locale?: 'fa-IR' | 'en-US') {
   const siteUrl = getSiteUrl()
   return {
     '@context': 'https://schema.org',
@@ -114,6 +115,7 @@ export function generateWebSiteSchema() {
     name: brand.brandName,
     url: siteUrl,
     description: brand.positioningFa,
+    inLanguage: locale || 'fa-IR',
   }
 }
 
@@ -247,7 +249,7 @@ export function generateBlogPostSchema({
 }
 
 // Organization Schema
-export function generateOrganizationSchema() {
+export function generateOrganizationSchema(locale?: 'fa-IR' | 'en-US') {
   const siteUrl = getSiteUrl()
   return {
     '@context': 'https://schema.org',
@@ -275,6 +277,7 @@ export function generateOrganizationSchema() {
       brand.whatsappUrl,
       brand.twitterUrl,
     ],
+    inLanguage: locale || 'fa-IR',
   }
 }
 
@@ -307,7 +310,7 @@ export function generateTechArticleSchema({
       name: author,
     },
     datePublished: publishDate,
-    proficiencyLevel: 'Beginner',
+    proficiencyLevel: 'Expert',
     dependencies: technologies,
   }
 }

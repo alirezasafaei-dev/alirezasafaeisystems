@@ -11,15 +11,13 @@ const novaxUrl = 'https://novax.alirezasafaeisystems.ir'
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Study: Novax Price Alert',
+    title: lang === 'fa' ? 'کیس استادی: هشدار قیمت Novax' : 'Case Study: Novax Price Alert',
     description:
-      'Production-grade Telegram price alert system for Iranian users with Binance USDT + TGJU Toman, hardened backend, rich TWA, and VPS co-deploy.',
+      lang === 'fa'
+        ? 'سیستم هشدار قیمت تلگرام درجه تولید برای کاربران ایرانی با USDT 바이낸س + تومان TGJU، بک‌اند سخت‌شده، TWA غنی و استقرار مشترک VPS.'
+        : 'Production-grade Telegram price alert system for Iranian users with Binance USDT + TGJU Toman, hardened backend, rich TWA, and VPS co-deploy.',
     alternates: {
       canonical: `${siteUrl}/${lang}/case-studies/novax-price-alert`,
-      languages: {
-        'fa-IR': `${siteUrl}/fa/case-studies/novax-price-alert`,
-        'en-US': `${siteUrl}/en/case-studies/novax-price-alert`,
-      },
     },
   }
 }

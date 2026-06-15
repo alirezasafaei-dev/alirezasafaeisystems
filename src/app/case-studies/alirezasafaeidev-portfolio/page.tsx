@@ -10,9 +10,11 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Study: alirezasafaeisystems.ir Portfolio System',
+    title: lang === 'fa' ? 'کیس استادی: سیستم پورتفولیو alirezasafaeisystems.ir' : 'Case Study: alirezasafaeisystems.ir Portfolio System',
     description:
-      'How this portfolio was engineered as a production-grade lead acquisition system with strict QA gates and local-first deployment constraints.',
+      lang === 'fa'
+        ? 'چگونه این پورتفولیو به‌عنوان یک سیستم جذب لید درجه تولید با دروازه‌های QA سخت‌گیرانه و محدودیت‌های استقرار بومی مهندسی شد.'
+        : 'How this portfolio was engineered as a production-grade lead acquisition system with strict QA gates and local-first deployment constraints.',
     alternates: { canonical: `${siteUrl}/${lang}/case-studies/alirezasafaeidev-portfolio` },
   }
 }

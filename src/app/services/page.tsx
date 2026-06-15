@@ -10,8 +10,11 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Services',
-    description: 'Practical engineering services for software architecture, production readiness, project rescue, and stable local-first operations.',
+    title: lang === 'fa' ? 'خدمات' : 'Services',
+    description:
+      lang === 'fa'
+        ? 'خدمات مهندسی عملی برای معماری نرم‌افزار، آمادگی تولید، نجات پروژه و عملیات پایدار بومی.'
+        : 'Practical engineering services for software architecture, production readiness, project rescue, and stable local-first operations.',
     alternates: { canonical: `${siteUrl}/${lang}/services` },
   }
 }

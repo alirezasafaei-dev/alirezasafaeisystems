@@ -10,8 +10,11 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Study: CI/CD Governance Hardening',
-    description: 'How release quality and ownership were stabilized through enforceable CI/CD policy gates.',
+    title: lang === 'fa' ? 'کیس استادی: سخت‌سازی حکمرانی CI/CD' : 'Case Study: CI/CD Governance Hardening',
+    description:
+      lang === 'fa'
+        ? 'چگونه کیفیت انتشار و مالکیت از طریق دروازه‌های سیاست CI/CD قابل اجرا پایدار شد.'
+        : 'How release quality and ownership were stabilized through enforceable CI/CD policy gates.',
     alternates: {
       canonical: `${siteUrl}/${lang}/case-studies/ci-cd-governance-hardening`,
     },

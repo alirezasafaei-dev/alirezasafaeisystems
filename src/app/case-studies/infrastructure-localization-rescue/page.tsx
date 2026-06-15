@@ -10,8 +10,11 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Study: Infrastructure Localization Rescue',
-    description: 'How a high-risk deployment stack was stabilized with local-first architecture and governance gates.',
+    title: lang === 'fa' ? 'کیس استادی: نجات بومی‌سازی زیرساخت' : 'Case Study: Infrastructure Localization Rescue',
+    description:
+      lang === 'fa'
+        ? 'چگونه یک استک استقرار پرریسک با معماری بومی و دروازه‌های حکمرانی پایدار شد.'
+        : 'How a high-risk deployment stack was stabilized with local-first architecture and governance gates.',
     alternates: {
       canonical: `${siteUrl}/${lang}/case-studies/infrastructure-localization-rescue`,
     },

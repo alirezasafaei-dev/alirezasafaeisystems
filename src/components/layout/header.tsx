@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
+import { withLocale, getLocalizedPathname } from '@/lib/locale-utils'
+import type { Locale } from '@/lib/locale-utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,16 +28,6 @@ const navItems = [
   { key: 'contact', name: 'nav.contact', href: '/qualification' },
 ]
 
-function withLocale(path: string, lang: 'fa' | 'en'): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`
-  return lang === 'fa' ? normalized : `/${lang}${normalized === '/' ? '/' : normalized}`
-}
-
-function getLocalizedPathname(pathname: string, lang: 'fa' | 'en'): string {
-  const withoutLocale = pathname.replace(/^\/(fa|en)(?=\/|$)/, '') || '/'
-  return withLocale(withoutLocale, lang)
-}
-
 export function Header() {
   const { t, language, setLanguage } = useI18n()
   const pathname = usePathname()
@@ -52,7 +44,7 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const changeLanguage = (lang: 'en' | 'fa') => {
+  const changeLanguage = (lang: Locale) => {
     setLanguage(lang)
     const localizedPath = getLocalizedPathname(pathname, lang)
     router.push(localizedPath)

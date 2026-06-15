@@ -15,6 +15,7 @@ import { getSiteUrl } from "@/lib/site-config";
 import { brand } from "@/lib/brand";
 import { env } from "@/lib/env";
 import { cookies, headers } from "next/headers";
+import { swapLocale } from "@/lib/locale-utils";
 
 const siteUrl = getSiteUrl();
 const ownerName = brand.ownerName;
@@ -28,20 +29,6 @@ function normalizePathname(pathname: string): string {
   if (!pathname || pathname === '/') return '/'
   const cleaned = pathname.endsWith('/') ? pathname : `${pathname}/`
   return cleaned
-}
-
-function swapLocalePath(pathname: string, targetLocale: 'fa' | 'en'): string {
-  const normalized = normalizePathname(pathname)
-  if (normalized.startsWith('/fa/')) {
-    return normalized.replace('/fa/', `/${targetLocale}/`)
-  }
-  if (normalized.startsWith('/en/')) {
-    return normalized.replace('/en/', `/${targetLocale}/`)
-  }
-  if (targetLocale === 'fa') {
-    return normalized
-  }
-  return `/${targetLocale}${normalized}`
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -90,8 +77,9 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: canonicalPath,
       languages: {
-        'fa-IR': swapLocalePath(canonicalPath, 'fa'),
-        'en-US': swapLocalePath(canonicalPath, 'en'),
+        'fa-IR': swapLocale(canonicalPath, 'fa'),
+        'en-US': swapLocale(canonicalPath, 'en'),
+        'x-default': swapLocale(canonicalPath, 'fa'),
       },
     },
     openGraph: {
@@ -104,8 +92,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: [
         {
-          url: '/api/og-image',
+          url: new URL('/api/og-image', siteUrl).toString(),
           height: 630,
+          width: 1200,
           alt: `${ownerName} - Web Systems Engineer`,
         },
       ],
@@ -114,7 +103,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: titleDefault,
       description,
-      images: ['/api/og-image'],
+      images: [new URL('/api/og-image', siteUrl).toString()],
       creator: brand.twitterHandle,
     },
     robots: {
@@ -173,28 +162,14 @@ export default async function RootLayout({
             {lang === 'fa' ? 'پرش به محتوای اصلی' : 'Skip to main content'}
           </a>
 
-          {/* Schema.org Structured Data */}
-          <JsonLd data={generatePersonSchema()} nonce={nonce} />
-          <JsonLd data={generateWebSiteSchema()} nonce={nonce} />
-          <JsonLd data={generateOrganizationSchema()} nonce={nonce} />
+          {/* Schema.org Structured Data - Single @graph to avoid duplicates */}
           <JsonLd
             data={{
               '@context': 'https://schema.org',
               '@graph': [
-                {
-                  '@type': 'Organization',
-                  name: ownerName,
-                  url: siteUrl,
-                  sameAs: [
-                    'https://audit.alirezasafaeisystems.ir/',
-                    'https://persiantoolbox.ir/',
-                  ],
-                },
-                {
-                  '@type': 'WebSite',
-                  name: 'Alireza Safaei Systems',
-                  url: siteUrl,
-                },
+                generatePersonSchema(lang === 'fa' ? 'fa-IR' : 'en-US'),
+                generateOrganizationSchema(lang === 'fa' ? 'fa-IR' : 'en-US'),
+                generateWebSiteSchema(lang === 'fa' ? 'fa-IR' : 'en-US'),
                 {
                   '@type': 'WebSite',
                   name: 'Audit Systems',
@@ -205,38 +180,37 @@ export default async function RootLayout({
                   name: 'PersianToolbox',
                   url: 'https://persiantoolbox.ir/',
                 },
+                {
+                  '@type': 'Service',
+                  name: lang === 'fa' ? 'برنامه بومی‌سازی زیرساخت و تاب‌آوری عملیاتی' : 'Infrastructure Localization & Operational Resilience',
+                  provider: {
+                    '@type': 'Person',
+                    name: ownerName,
+                    url: siteUrl,
+                  },
+                  areaServed: 'IR',
+                  serviceType: 'Infrastructure risk audit, architecture hardening, governance and DR planning',
+                  offers: {
+                    '@type': 'Offer',
+                    priceCurrency: 'IRR',
+                    priceSpecification: {
+                      '@type': 'PriceSpecification',
+                      minPrice: 60000000,
+                      maxPrice: 120000000,
+                      priceCurrency: 'IRR',
+                    },
+                  },
+                },
+                ...generateBreadcrumbSchema([
+                  { name: lang === 'fa' ? 'خانه' : 'Home', url: siteUrl },
+                ]).itemListElement.map((item) => ({
+                  ...item,
+                  '@context': 'https://schema.org',
+                })),
               ],
             }}
             nonce={nonce}
           />
-          <JsonLd
-            data={{
-              '@context': 'https://schema.org',
-              '@type': 'Service',
-              name: 'برنامه بومی‌سازی زیرساخت و تاب‌آوری عملیاتی',
-              provider: {
-                '@type': 'Person',
-                name: ownerName,
-                url: siteUrl,
-              },
-              areaServed: 'IR',
-              serviceType: 'Infrastructure risk audit, architecture hardening, governance and DR planning',
-              offers: {
-                '@type': 'Offer',
-                priceCurrency: 'IRR',
-                priceSpecification: {
-                  '@type': 'PriceSpecification',
-                  minPrice: '60000000',
-                  maxPrice: '120000000',
-                  priceCurrency: 'IRR',
-                },
-              },
-            }}
-            nonce={nonce}
-          />
-          <JsonLd data={generateBreadcrumbSchema([
-            { name: 'Home', url: siteUrl },
-          ])} nonce={nonce} />
 
           <ScrollProgress />
           <Header />

@@ -4,15 +4,11 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n-context'
 import { brand } from '@/lib/brand'
+import { withLocale } from '@/lib/locale-utils'
 import { ArrowRight, Github, Linkedin, Twitter, Instagram, Send, ShieldCheck, Wrench, Rocket, Handshake, CircleUserRound, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics/client'
 import { pickDeterministicBucket, pickHeroVariant, type HeroVariant } from '@/lib/analytics/experiments'
-
-function withLocale(path: string, language: 'fa' | 'en'): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`
-  return language === 'fa' ? normalized : `/${language}${normalized === '/' ? '/' : normalized}`
-}
 
 type IntentRoute = {
   key: 'audit' | 'toolbox' | 'execution'
@@ -298,7 +294,7 @@ export function Hero() {
                 }}
               >
                 {variantCopy.primaryCta}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className={`h-4 w-4 ${language === 'fa' ? 'rotate-180' : ''}`} />
               </Button>
 
               <Button

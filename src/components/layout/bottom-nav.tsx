@@ -5,11 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Home, Workflow, Briefcase, ClipboardCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n-context'
-
-function withLocale(path: string, language: 'fa' | 'en'): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`
-  return language === 'fa' ? normalized : `/${language}${normalized === '/' ? '/' : normalized}`
-}
+import { withLocale } from '@/lib/locale-utils'
 
 export function BottomNav() {
   const { language } = useI18n()

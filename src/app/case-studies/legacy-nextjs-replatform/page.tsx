@@ -10,8 +10,11 @@ const siteUrl = getSiteUrl()
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getRequestLanguage()
   return {
-    title: 'Case Study: Legacy Next.js Replatform',
-    description: 'How release reliability was restored through architecture boundaries and hard delivery gates.',
+    title: lang === 'fa' ? 'کیس استادی: بازسازی Legacy Next.js' : 'Case Study: Legacy Next.js Replatform',
+    description:
+      lang === 'fa'
+        ? 'چگونه قابلیت اطمینان انتشار از طریق مرزهای معماری و دروازه‌های تحویل سخت بازیابی شد.'
+        : 'How release reliability was restored through architecture boundaries and hard delivery gates.',
     alternates: {
       canonical: `${siteUrl}/${lang}/case-studies/legacy-nextjs-replatform`,
     },
