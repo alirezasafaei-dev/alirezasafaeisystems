@@ -10,11 +10,6 @@ export function getLocalizedPathname(pathname: string, lang: Locale): string {
   return withLocale(withoutLocale, lang)
 }
 
-export function extractLocale(pathname: string): Locale {
-  if (pathname.startsWith('/en')) return 'en'
-  return 'fa'
-}
-
 export function swapLocale(pathname: string, targetLocale: Locale): string {
   const normalized = pathname.endsWith('/') ? pathname : `${pathname}/`
   if (normalized.startsWith('/fa/')) {

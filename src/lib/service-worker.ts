@@ -1,10 +1,12 @@
+import { logger } from '@/lib/logger'
+
 export function registerServiceWorker() {
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.warn('Service Worker registered with scope:', registration.scope)
+          logger.info('Service Worker registered', { scope: registration.scope })
 
           // Check for updates
           registration.addEventListener('updatefound', () => {
@@ -12,7 +14,6 @@ export function registerServiceWorker() {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // New service worker is available, reload to activate
                   window.location.reload()
                 }
               })
@@ -20,7 +21,9 @@ export function registerServiceWorker() {
           })
         })
         .catch((error) => {
-          console.error('Service Worker registration failed:', error)
+          logger.error('Service Worker registration failed', {
+            error: error instanceof Error ? error.message : 'unknown',
+          })
         })
     })
   }
@@ -33,7 +36,9 @@ export function unregisterServiceWorker() {
         registration.unregister()
       })
       .catch((error) => {
-        console.error('Service Worker unregistration failed:', error)
+        logger.error('Service Worker unregistration failed', {
+          error: error instanceof Error ? error.message : 'unknown',
+        })
       })
   }
 }
