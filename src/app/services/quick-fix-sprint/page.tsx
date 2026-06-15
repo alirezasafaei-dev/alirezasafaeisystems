@@ -219,9 +219,13 @@ export default async function QuickFixSprintPage() {
             {copy.proof.map((item) => <li key={item}>• {item}</li>)}
           </ul>
           <div className="pt-2 text-sm">
-            <a href="/offers/Audit-QuickFix-Offer-OnePage.pdf" className="underline hover:no-underline" target="_blank" rel="noopener">دانلود اسکوپ یک‌صفحه‌ای (PDF)</a>
+            <a href="/offers/Audit-QuickFix-Offer-OnePage.pdf" className="underline hover:no-underline" target="_blank" rel="noopener">
+              {isEn ? 'Download one-page scope (PDF)' : 'دانلود اسکوپ یک‌صفحه‌ای (PDF)'}
+            </a>
             {' · '}
-            <a href="/offers/Sample-Audit-Report-Anonymized.pdf" className="underline hover:no-underline" target="_blank" rel="noopener">دانلود نمونه گزارش anonymized (PDF)</a>
+            <a href="/offers/Sample-Audit-Report-Anonymized.pdf" className="underline hover:no-underline" target="_blank" rel="noopener">
+              {isEn ? 'Download sample anonymized report (PDF)' : 'دانلود نمونه گزارش anonymized (PDF)'}
+            </a>
           </div>
         </section>
 

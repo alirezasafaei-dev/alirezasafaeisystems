@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -97,6 +98,7 @@ function getIntentTemplates(language: 'fa' | 'en') {
 
 export function Contact() {
   const { language } = useI18n()
+  const router = useRouter()
   const intentTemplates = getIntentTemplates(language)
   const intentAlignClass = language === 'fa' ? 'text-right' : 'text-left'
   const formTopRef = useRef<HTMLDivElement>(null)
@@ -246,9 +248,7 @@ export function Contact() {
           category: 'conversion',
           locale: language,
         })
-        setIsSubmitted(true)
-        setActiveIntent(null)
-        setFormData({ name: '', email: '', subject: '', message: '', website: '' })
+        router.push(withLocale('/thank-you', language))
       } else {
         const data = await response.json().catch(() => null)
         const msg = data?.message || (language === 'fa' ? 'خطا در ارسال درخواست' : 'Failed to submit request')

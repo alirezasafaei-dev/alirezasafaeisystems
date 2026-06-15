@@ -2,9 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  turbopack: {
-    root: process.cwd(),
-  },
   
   // TypeScript - strict mode (fail on errors)
   typescript: {
@@ -26,14 +23,14 @@ const nextConfig: NextConfig = {
     // Local-first: no external image domains
     remotePatterns: [],
     minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true,
+    dangerouslyAllowSVG: false,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Bundle optimizations
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    optimizePackageImports: ['lucide-react'],
   },
 
   // Headers for security and performance

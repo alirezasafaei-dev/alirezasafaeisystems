@@ -89,7 +89,13 @@ export default async function AboutBrandPage() {
             {copy.cta}
           </Link>
         </Button>
-        <p className="text-xs text-muted-foreground mt-2">یا <Link href={withLocale('/services/infrastructure-localization#assessment')} className="underline">ارزیابی ریسک زیرساخت</Link> را شروع کنید.</p>
+        <p className="text-xs text-muted-foreground mt-2">
+          {lang === 'fa' ? (
+            <>یا <Link href={withLocale('/services/infrastructure-localization#assessment')} className="underline">ارزیابی ریسک زیرساخت</Link> را شروع کنید.</>
+          ) : (
+            <>or <Link href={withLocale('/services/infrastructure-localization#assessment')} className="underline">start infrastructure risk assessment</Link>.</>
+          )}
+        </p>
       </section>
     </main>
   )
