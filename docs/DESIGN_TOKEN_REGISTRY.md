@@ -1,7 +1,8 @@
 # Design Token Registry
 
-Last updated: 2026-02-27
+Last updated: 2026-06-16
 Owner: `platform-owner`
+Status: ✅ Frozen and Audited
 
 ## Source of Truth
 - Token definitions: `src/app/globals.css`
@@ -41,6 +42,17 @@ Owner: `platform-owner`
   - `.text-ui`
   - `.section-block`
   - `.section-block-soft`
+
+## Audit Results (2026-06-16)
+- ✅ No hard-coded colors found in components (0 hex/rgb/hsl matches)
+- ✅ No hard-coded spacing values in components (only technical values like Intersection Observer thresholds)
+- ✅ All colors use CSS custom properties (--primary, --secondary, etc.)
+- ✅ All spacing uses Tailwind utility classes or CSS variables
+- ✅ All radii use CSS custom properties (--radius, --radius-sm/md/lg/xl)
+- ✅ Typography uses CSS custom properties (--font-sans, --font-heading, --copy-line-height, etc.)
+- ✅ RTL/LTR direction uses CSS custom properties for typography
+- ✅ Section spacing uses CSS custom properties (--section-space-y, --flow-space)
+- ✅ Component tokens follow Tailwind theme inline mapping
 
 ## Governance Rules
 1. New visual values must be introduced as tokens before component usage.

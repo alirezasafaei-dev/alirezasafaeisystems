@@ -1,6 +1,6 @@
 # نقشه راه و تسک‌بندی اولویت‌بندی‌شده
 
-**تاریخ به‌روزرسانی:** 2026-06-15
+**تاریخ به‌روزرسانی:** 2026-06-16
 **منبع:** ترکیب `docs/IMMEDIATE_EXECUTION_MAP_2026-02-20.md` + `docs/ENTERPRISE_EXECUTION_BACKLOG.md` + `docs/runtime/EXECUTION_NOW.md`
 
 ## اصول اولویت‌بندی
@@ -76,11 +76,12 @@
   **تاریخ اتمام:** 2026-06-15 — مسیرهای qualification و about-brand اضافه شد، آستانه‌ها افزایش یافت.
 
 ### P2 — میانه‌مدت (هفته دوم تا چهارم)
-- [ ] `P2-1` **حاکمیت Design Token**  
-  مالک: `FE Lead`  
-  شرح: Freeze tokenها برای رنگ/typography/spacing/radius/elevation و رفع hard-codeهای UI.  
-  خروجی: `docs/DESIGN_TOKEN_REGISTRY.md` + به‌روزرسانی `src/app/globals.css` و کامپوننت‌ها.  
+- [x] `P2-1` **حاکمیت Design Token** ✅
+  مالک: `FE Lead`
+  شرح: Freeze tokenها برای رنگ/typography/spacing/radius/elevation و رفع hard-codeهای UI.
+  خروجی: `docs/DESIGN_TOKEN_REGISTRY.md` + به‌روزرسانی `src/app/globals.css` و کامپوننت‌ها.
   پذیرش: رفرنس‌گذاری استاندارد در قالب tokenهای رسمی.
+  **تاریخ اتمام:** 2026-06-16 — audit کامل انجام شد، 0 hard-coded color در کامپوننت‌ها.
 
 - [x] `P2-2` **افزودن A11y gate به Playwright** ✅  
   مالک: `QA + FE`  
@@ -97,16 +98,31 @@
   **تاریخ اتمام:** 2026-06-15 — فرم شامل ۲ مرحله، draft saving با localStorage، progress bar ARIA.
 
 ## تسک‌های راهبردی باز از بک‌لاگ (P1/P2)
-- [ ] `STRAT-1` Freeze نقش/هدف هر دامنه + KPI اصلی + ۳ KPI پشتیبان.
-- [ ] `STRAT-2` تعریف taxonomy مشترک eventها (`source`, `stage`, `intent`, `outcome`).
-- [ ] `STRAT-3` تعریف acceptance criteria برای `qualified lead`.
-- [ ] `STRAT-4` اجرای baseline فنی/UX/SEO (network readiness, metadata, link integrity) و گزارش `critical/high/medium`.
+- [x] `STRAT-1` Freeze نقش/هدف هر دامنه + KPI اصلی + ۳ KPI پشتیبان. ✅
+- [x] `STRAT-2` تعریف taxonomy مشترک eventها (`source`, `stage`, `intent`, `outcome`). ✅
+- [x] `STRAT-3` تعریف acceptance criteria برای `qualified lead`. ✅
+- [x] `STRAT-4` اجرای baseline فنی/UX/SEO (network readiness, metadata, link integrity) و گزارش `critical/high/medium`. ✅
 - [x] `STRAT-5` حذف مسیرهای intent تکراری و dead-end در IA. ✅
 - [x] `STRAT-6` استانداردسازی microcopy فرم/خطا/موفقیت و glossary اصطلاحات فنی فارسی. ✅
 - [x] `STRAT-7` اجرای segment و consistency های SEO (canonical/hreflang/meta/schema) و بهینه‌سازی internal linking. ✅
-- [ ] `STRAT-8` Define SLO/availability budget + اعتبارسنجی incident rollback readiness.
+- [x] `STRAT-8` Define SLO/availability budget + اعتبارسنجی incident rollback readiness. ✅
 
-## بهبودهای فنی انجام شده (این جلسه)
+## بهبودهای فنی انجام شده (این جلسه - 2026-06-16)
+
+### حاکمیت و مستندات
+- [x] حاکمیت Design Token اجرا و freeze شد (P2-1)
+- [x] Domain KPIs برای تمام دامنه‌ها تعریف شد (STRAT-1)
+- [x] Event taxonomy مشترک تعریف شد (STRAT-2)
+- [x] Lead qualification criteria تعریف شد (STRAT-3)
+- [x] SLO و availability budget تعریف شد (STRAT-8)
+- [x] Baseline گزارش کامل فنی/UX/SEO ایجاد شد (STRAT-4)
+
+### مستندات جدید
+- `docs/DOMAIN_KPIS.md` - KPIهای هر دامنه
+- `docs/EVENT_TAXONOMY.md` - taxonomy مشترک eventها
+- `docs/LEAD_QUALIFICATION_CRITERIA.md` - معیارهای qualified lead
+- `docs/SLO_AVAILABILITY_BUDGET.md` - SLO و availability budget
+- `docs/runtime/BASELINE_REPORT_2026-06-16.md` - گزارش baseline
 
 ### کیفیت کد
 - [x] حذف `withLocale` تکراری → `locale-utils.ts` مشترک
