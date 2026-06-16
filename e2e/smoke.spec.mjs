@@ -75,7 +75,7 @@ test.describe('smoke', () => {
     await page.locator('#organizationName').fill('Industrial Co')
     await page.locator('#email').fill('lead-e2e@example.com')
     await page.locator('#phone').fill('09120000000')
-    await page.getByRole('button', { name: 'مرحله بعد: جزئیات فنی' }).click()
+    await page.getByRole('button', { name: 'مرحله بعد: مشکل فعلی' }).click()
 
     await page.locator('#teamSize').fill('12')
     await page.locator('#timeline').fill('30 days')
@@ -83,7 +83,7 @@ test.describe('smoke', () => {
     await page.locator('#criticalRisk').fill('Deployment governance is missing and rollback drills are not practiced.')
     await page.locator('#notes').fill('Please contact by email.')
 
-    await page.getByRole('button', { name: /درخواست ارزیابی ریسک زیرساخت/ }).click()
+    await page.getByRole('button', { name: /درخواست بررسی \+ رفع سریع/ }).click()
     await expect(page).toHaveURL(/\/(?:fa\/)?thank-you\?source=lead/)
     await expect(page.locator('h1')).toContainText(/Thanks\. Your request is in\.|ممنون\. درخواست شما ثبت شد\./)
   })
