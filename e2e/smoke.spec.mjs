@@ -6,7 +6,7 @@ test.describe('smoke', () => {
   })
 
   test('skip link is keyboard reachable and targets main content', async ({ page }) => {
-    await page.goto('/fa/')
+    await page.goto('/')
     await page.keyboard.press('Tab')
 
     const focusedHref = await page.evaluate(() => {
@@ -20,10 +20,10 @@ test.describe('smoke', () => {
   })
 
   test('home page renders key sections', async ({ page }) => {
-    await page.goto('/fa/')
+    await page.goto('/')
     await expect(page.locator('main')).toBeVisible()
     await expect(page.locator('section#services')).toBeVisible()
-    await expect(page.locator('a[href="/fa/services/infrastructure-localization"]')).toBeVisible()
+    await expect(page.locator('a[href="/services/infrastructure-localization"]')).toBeVisible()
     await expect(page.locator('section#contact')).toBeVisible()
   })
 
@@ -34,7 +34,7 @@ test.describe('smoke', () => {
   })
 
   test('theme toggle button is removed from header', async ({ page }) => {
-    await page.goto('/fa/')
+    await page.goto('/')
     await expect(page.locator('header button[aria-label="Toggle theme"]')).toHaveCount(0)
   })
 
@@ -49,7 +49,7 @@ test.describe('smoke', () => {
   })
 
   test('standards page is available and keeps network links', async ({ page }) => {
-    await page.goto('/fa/standards')
+    await page.goto('/standards')
     await expect(page.locator('h1')).toContainText('استانداردهای تحویل')
     expect(await page.locator('a[href*="utm_campaign=alireza_safaei_network"]').count()).toBeGreaterThanOrEqual(3)
   })
@@ -69,7 +69,7 @@ test.describe('smoke', () => {
       })
     })
 
-    await page.goto('/fa/qualification')
+    await page.goto('/qualification')
 
     await page.locator('#contactName').fill('Ali Safaei')
     await page.locator('#organizationName').fill('Industrial Co')
