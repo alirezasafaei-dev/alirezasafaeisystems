@@ -110,10 +110,12 @@ export function Footer() {
               <Button
                 variant="default"
                 className="w-full card-hover shine-effect gap-2"
-                onClick={() => window.location.href = `mailto:${brand.contactEmail}`}
+                asChild
               >
-                <Mail className="h-4 w-4" />
-                {t('contact.sendMessage')}
+                <a href={`mailto:${brand.contactEmail}`}>
+                  <Mail className="h-4 w-4" />
+                  {t('contact.sendMessage')}
+                </a>
               </Button>
             </div>
           </div>

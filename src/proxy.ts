@@ -28,6 +28,8 @@ const EXCLUDED_PREFIXES = [
 
 const BASE_SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
   'X-DNS-Prefetch-Control': 'off',
   'X-Permitted-Cross-Domain-Policies': 'none',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
@@ -102,9 +104,7 @@ function withSecurityHeaders(response: NextResponse, pathname: string, nonce: st
   }
   response.headers.set('Content-Security-Policy', buildCsp(nonce))
   response.headers.set('Cache-Control', getCacheControl(pathname))
-  if (env.NODE_ENV === 'production') {
-    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
-  }
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
   return response
 }
 

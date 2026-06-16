@@ -311,18 +311,18 @@ export function InfrastructureLeadForm() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="contactName">{copy.contactName}</Label>
-              <Input id="contactName" value={formData.contactName} onChange={(e) => onChange('contactName', e.target.value)} required />
+              <Input id="contactName" value={formData.contactName} onChange={(e) => onChange('contactName', e.target.value)} required aria-required="true" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="organizationName">{copy.orgName}</Label>
-              <Input id="organizationName" value={formData.organizationName} onChange={(e) => onChange('organizationName', e.target.value)} required />
+              <Input id="organizationName" value={formData.organizationName} onChange={(e) => onChange('organizationName', e.target.value)} required aria-required="true" />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="email">{copy.orgEmail}</Label>
-              <Input id="email" type="email" value={formData.email} onChange={(e) => onChange('email', e.target.value)} required />
+              <Input id="email" type="email" value={formData.email} onChange={(e) => onChange('email', e.target.value)} required aria-required="true" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">{copy.phone}</Label>
@@ -394,12 +394,12 @@ export function InfrastructureLeadForm() {
 
           <div className="space-y-2">
             <Label htmlFor="currentStack">{copy.currentStack}</Label>
-            <Input id="currentStack" value={formData.currentStack} onChange={(e) => onChange('currentStack', e.target.value)} placeholder={copy.currentStackPh} required />
+            <Input id="currentStack" value={formData.currentStack} onChange={(e) => onChange('currentStack', e.target.value)} placeholder={copy.currentStackPh} required aria-required="true" />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="criticalRisk">{copy.criticalRisk}</Label>
-            <Textarea id="criticalRisk" value={formData.criticalRisk} onChange={(e) => onChange('criticalRisk', e.target.value)} placeholder={copy.criticalRiskPh} required />
+            <Textarea id="criticalRisk" value={formData.criticalRisk} onChange={(e) => onChange('criticalRisk', e.target.value)} placeholder={copy.criticalRiskPh} required aria-required="true" />
           </div>
 
           <div className="space-y-2">

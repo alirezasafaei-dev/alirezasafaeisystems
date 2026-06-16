@@ -425,6 +425,8 @@ export function Contact() {
                         placeholder={copy.namePh}
                         className="h-11"
                         required
+                        aria-required="true"
+                        aria-describedby={errorMsg ? 'contact-error' : undefined}
                       />
                     </div>
 
@@ -439,6 +441,8 @@ export function Contact() {
                         placeholder={copy.emailPh}
                         className="h-11"
                         required
+                        aria-required="true"
+                        aria-describedby={errorMsg ? 'contact-error' : undefined}
                       />
                     </div>
                   </div>
@@ -452,6 +456,7 @@ export function Contact() {
                       onChange={handleChange}
                       placeholder={copy.subjectPh}
                       className="h-11"
+                      aria-describedby={errorMsg ? 'contact-error' : undefined}
                     />
                   </div>
 
@@ -465,11 +470,13 @@ export function Contact() {
                       placeholder={copy.messagePh}
                       rows={6}
                       required
+                      aria-required="true"
+                      aria-describedby={errorMsg ? 'contact-error' : undefined}
                     />
                   </div>
 
                   {errorMsg && (
-                    <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                    <div id="contact-error" className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
                       {errorMsg}
                     </div>
                   )}

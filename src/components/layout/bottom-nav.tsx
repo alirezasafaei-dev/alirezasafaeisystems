@@ -15,7 +15,7 @@ export function BottomNav() {
     { key: 'home', name: t('nav.home'), href: '/', icon: Home },
     { key: 'services', name: t('nav.services'), href: '/services', icon: Workflow },
     { key: 'case-studies', name: t('nav.caseStudies'), href: '/case-studies', icon: Briefcase },
-    { key: 'qualification', name: language === 'en' ? 'Qualify' : 'ارزیابی', href: '/qualification', icon: ClipboardCheck },
+    { key: 'qualification', name: t('nav.contact'), href: '/qualification', icon: ClipboardCheck },
   ] as const
 
   return (

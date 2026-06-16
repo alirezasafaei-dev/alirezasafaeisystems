@@ -124,7 +124,7 @@ export async function Services() {
                     </div>
                     <CardTitle className="text-lg text-ui">{item.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground text-copy">{item.detail}</CardContent>
+                  <CardContent className="text-sm text-foreground/85 text-copy">{item.detail}</CardContent>
                 </Card>
               </Reveal>
             ))}
@@ -139,7 +139,7 @@ export async function Services() {
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/12 text-xs text-primary">{index + 1}</span>
                     {item.title}
                   </p>
-                  <p className="text-xs md:text-sm text-muted-foreground text-ui">{item.detail}</p>
+                  <p className="text-xs md:text-sm text-foreground/80 text-ui">{item.detail}</p>
                 </div>
               ))}
             </div>
@@ -157,7 +157,7 @@ export async function Services() {
               {executionSignals.map((item) => (
                 <div key={item.title} className="rounded-lg border border-border/60 bg-background/70 px-4 py-3">
                   <p className="text-sm font-semibold">{item.title}</p>
-                  <p className="mt-1 text-xs md:text-sm text-muted-foreground text-ui">{item.value}</p>
+                  <p className="mt-1 text-xs md:text-sm text-foreground/80 text-ui">{item.value}</p>
                 </div>
               ))}
             </div>

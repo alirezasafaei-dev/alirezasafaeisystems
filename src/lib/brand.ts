@@ -24,7 +24,10 @@ export const brand = {
   twitterUrl: env.NEXT_PUBLIC_TWITTER_URL || '',
   contactEmail: env.NEXT_PUBLIC_CONTACT_EMAIL || DEFAULT_CONTACT_EMAIL,
   contactPhone: env.NEXT_PUBLIC_CONTACT_PHONE || DEFAULT_CONTACT_PHONE,
-  googleVerificationCode: env.NEXT_PUBLIC_GOOGLE_VERIFICATION_CODE || undefined,
+  googleVerificationCode:
+    env.NEXT_PUBLIC_GOOGLE_VERIFICATION_CODE && env.NEXT_PUBLIC_GOOGLE_VERIFICATION_CODE !== 'not-configured'
+      ? env.NEXT_PUBLIC_GOOGLE_VERIFICATION_CODE
+      : undefined,
   positioningEn: env.NEXT_PUBLIC_POSITIONING_EN || DEFAULT_POSITIONING_EN,
   positioningFa: env.NEXT_PUBLIC_POSITIONING_FA || DEFAULT_POSITIONING_FA,
 } as const

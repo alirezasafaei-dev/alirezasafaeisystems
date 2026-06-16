@@ -97,7 +97,7 @@ export async function AboutSummary() {
             <div className="grid gap-3 md:grid-cols-2">
               {operationalScope.map((item, index) => (
                 <Reveal key={item.title} delayMs={index * 90}>
-                  <div className="rounded-lg border border-border/70 bg-card/75 p-4 card-hover text-sm text-muted-foreground text-ui">
+                  <div className="rounded-lg border border-border/70 bg-card/75 p-4 card-hover text-sm text-foreground/85 text-ui">
                     <p className="mb-2 inline-flex items-center gap-2 font-semibold text-foreground">
                       <item.icon className="h-4 w-4 text-primary" />
                       <span>{item.title}</span>
@@ -112,7 +112,7 @@ export async function AboutSummary() {
           <div className="grid gap-3 md:grid-cols-3">
             {principles.map((item, index) => (
               <Reveal key={item} delayMs={index * 90}>
-                <div className="rounded-lg border border-border/70 bg-card/75 p-4 card-hover text-sm text-muted-foreground text-ui">
+                <div className="rounded-lg border border-border/70 bg-card/75 p-4 card-hover text-sm text-foreground/85 text-ui">
                   <p className="inline-flex items-start gap-2">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
                     <span>{item}</span>
