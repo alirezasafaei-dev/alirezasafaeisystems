@@ -77,9 +77,9 @@ test.describe('smoke', () => {
     await page.locator('#phone').fill('09120000000')
     await page.getByRole('button', { name: 'مرحله بعد: مشکل فعلی' }).click()
 
-    await page.locator('#teamSize').fill('12')
-    await page.locator('#timeline').fill('30 days')
-    await page.locator('#currentStack').fill('Next.js + PostgreSQL')
+    await page.locator('#teamSize').selectOption('1-5')
+    await page.locator('#timeline').selectOption('this_week')
+    await page.locator('#currentStack').fill('https://example.com')
     await page.locator('#criticalRisk').fill('Deployment governance is missing and rollback drills are not practiced.')
     await page.locator('#notes').fill('Please contact by email.')
 
