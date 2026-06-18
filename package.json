@@ -100,7 +100,7 @@
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
     "happy-dom": "^20.9.0",
-    "jsdom": "^28.0.0",
+    "jsdom": "^29.1.1",
     "prisma": "^6.19.2",
     "storybook": "^10.2.13",
     "tailwindcss": "^4.2.4",
