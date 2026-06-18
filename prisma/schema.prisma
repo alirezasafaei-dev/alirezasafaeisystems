@@ -10,6 +10,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// ANALYTICS & FUNNEL TRACKING MODELS
+// ============================================
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  site       String   // 'toolbox' | 'portfolio' | 'audit'
+  event      String   
+  properties String   @default("{}") // JSON string
+  sessionId  String?
+  userId     String?
+  timestamp  DateTime?
+  ip         String?
+  userAgent  String?
+  // Internal analytics fields
+  name       String?
+  category   String?  // 'conversion' | 'engagement' | 'web_vital'
+  path       String?
+  locale     String?  // 'fa' | 'en'
+  variant    String?
+  value      Float?
+  metadata   String?  // JSON string
+  createdAt  DateTime @default(now())
+  
+  @@index([sessionId])
+  @@index([site, event])
+  @@index([timestamp])
+  @@index([name])
+  @@index([category])
+}
+
+model FunnelConversion {
+  id              String   @id @default(cuid())
+  sessionId       String   @unique
+  entryPoint      String   // 'toolbox' | 'organic' | 'direct' | 'portfolio' | 'audit'
+  visitedToolbox  Boolean  @default(false)
+  visitedPortfolio Boolean @default(false)
+  visitedAudit    Boolean  @default(false)
+  contacted       Boolean  @default(false)
+  converted       Boolean  @default(false)
+  conversionValue Float?   
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([sessionId])
+  @@index([entryPoint])
+  @@index([converted])
+}
+
 model Project {
   id          String   @id @default(cuid())
   title       String
@@ -107,16 +156,4 @@ model Lead {
 
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
-}
-
-model AnalyticsEvent {
-  id        String   @id @default(cuid())
-  name      String
-  category  String
-  path      String?
-  locale    String?
-  variant   String?
-  value     Float?
-  metadata  String?
-  createdAt DateTime @default(now())
 }

@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
 
     await db.analyticsEvent.create({
       data: {
+        site: 'portfolio',
+        event: payload.category,
         name: payload.name,
         category: payload.category,
         path: payload.path || undefined,

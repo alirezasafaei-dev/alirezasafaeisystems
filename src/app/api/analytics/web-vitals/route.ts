@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
       vitals.map(([name, value]) =>
         db.analyticsEvent.create({
           data: {
+            site: 'portfolio',
+            event: 'web_vital',
             name,
             category: 'web_vital',
             path,
