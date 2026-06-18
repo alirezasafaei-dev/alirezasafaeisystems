@@ -4,7 +4,7 @@ import { db as prisma } from '@/lib/db';
 interface TrackingPayload {
   site: 'toolbox' | 'portfolio' | 'audit';
   event: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
   timestamp: number;
   sessionId: string;
   userId?: string;
@@ -66,7 +66,15 @@ async function updateFunnelConversion(payload: TrackingPayload) {
       where: { sessionId: payload.sessionId },
     });
 
-    const updates: any = {};
+    const updates: {
+      entryPoint?: string;
+      visitedToolbox?: boolean;
+      visitedPortfolio?: boolean;
+      visitedAudit?: boolean;
+      contacted?: boolean;
+      converted?: boolean;
+      conversionValue?: number;
+    } = {};
 
     // Determine entry point
     if (!funnel) {
@@ -90,7 +98,8 @@ async function updateFunnelConversion(payload: TrackingPayload) {
     }
     if (payload.event === 'conversion') {
       updates.converted = true;
-      updates.conversionValue = payload.properties?.value || 0;
+      const val = payload.properties?.value;
+      updates.conversionValue = typeof val === 'number' ? val : 0;
     }
 
     // Upsert funnel record
