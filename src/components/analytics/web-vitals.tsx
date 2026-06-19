@@ -43,6 +43,8 @@ export function WebVitals() {
             path: window.location.pathname,
           }),
           keepalive: true,
+        }).catch(() => {
+          // Web vitals reporting is best-effort
         })
       }
 
