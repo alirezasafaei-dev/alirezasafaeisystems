@@ -170,9 +170,10 @@ module.exports = {
 ECOSYSTEM
 
 if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
-  pm2 delete "$APP_NAME"
+  pm2 startOrReload ecosystem.config.cjs --only "$APP_NAME" --update-env
+else
+  pm2 start ecosystem.config.cjs --only "$APP_NAME" --update-env
 fi
-pm2 start ecosystem.config.cjs --only "$APP_NAME" --update-env
 pm2 save >/dev/null 2>&1 || true
 
 ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
