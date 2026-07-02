@@ -103,7 +103,7 @@
     "@vitest/ui": "^4.1.0",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.2.9",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "^20.10.6",
     "jsdom": "^29.1.1",
     "prisma": "^6.19.2",
     "storybook": "^10.4.6",
