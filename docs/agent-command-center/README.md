@@ -66,12 +66,26 @@ Frozen unless explicitly approved:
 | `docs/agent-command-center/STATE.json` | Last handled prompt/report comment IDs |
 | `.github/workflows/agent-command-center-hourly.yml` | Hourly monitor (warns if prompt pending) |
 
+### Actionable prompt headings (monitor detects these)
+
+- `# Next Agent Prompt — {title}`
+- `Protected review requested.`
+
+### Guard headings (read and obey; logged by monitor)
+
+- `# Critical Guard — {title}`
+- `# Monitoring Continues`
+
+### Report heading (required after execution)
+
+- `# Agent Execution Report — {title}`
+
 ### Monitor statuses
 
-- `NO_PROMPT` — no prompt comment yet
-- `PROMPT_PENDING` — prompt exists without a newer execution report
+- `NO_PROMPT` — no actionable prompt comment yet
+- `PROMPT_PENDING` — actionable prompt exists without a newer execution report
 - `PROMPT_HANDLED_NEW` — report found; state updated
-- `IDLE_WAITING` — waiting for next prompt
+- `IDLE_WAITING` — waiting for next actionable prompt
 
 ### Agent protocol (every session)
 
