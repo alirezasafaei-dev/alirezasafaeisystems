@@ -58,6 +58,29 @@ Frozen unless explicitly approved:
 - broad architecture change
 - work on frozen projects
 
+## Automation
+
+| Asset | Purpose |
+|---|---|
+| `scripts/agent-command-center/monitor-pr.sh` | Poll PR #42; detect unhandled prompts vs reports |
+| `docs/agent-command-center/STATE.json` | Last handled prompt/report comment IDs |
+| `.github/workflows/agent-command-center-hourly.yml` | Hourly monitor (warns if prompt pending) |
+
+### Monitor statuses
+
+- `NO_PROMPT` — no prompt comment yet
+- `PROMPT_PENDING` — prompt exists without a newer execution report
+- `PROMPT_HANDLED_NEW` — report found; state updated
+- `IDLE_WAITING` — waiting for next prompt
+
+### Agent protocol (every session)
+
+1. Run `scripts/agent-command-center/monitor-pr.sh`
+2. If `PROMPT_PENDING`, read latest `# Next Agent Prompt` comment or `NEXT_AGENT_PROMPT.md`
+3. Execute, validate, commit (separate repos)
+4. Post `# Agent Execution Report` on PR #42
+5. Stop
+
 ## Note
 
 This PR is the handoff channel. Agents should put execution reports here and wait for the next prompt.
