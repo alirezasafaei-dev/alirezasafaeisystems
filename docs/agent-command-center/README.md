@@ -70,6 +70,8 @@ Frozen unless explicitly approved:
 
 - `# Next Agent Prompt — {title}`
 - `Protected review requested.`
+- `Hermes-first check requested.`
+- `# Decision — {title}`
 
 ### Guard headings (read and obey; logged by monitor)
 

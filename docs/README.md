@@ -28,6 +28,13 @@
 
 ---
 
+## Automation
+
+| Document | Purpose |
+|---|---|
+| [automation/README.md](automation/README.md) | Multi-agent layer overview (Hermes-first gate) |
+| [automation/HERMES_CAPABILITY_REVIEW.md](automation/HERMES_CAPABILITY_REVIEW.md) | Local Hermes vs n8n decision input |
+
 ## Operations
 
 | Document | Purpose |

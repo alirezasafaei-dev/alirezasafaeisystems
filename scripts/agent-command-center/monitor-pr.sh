@@ -11,6 +11,8 @@ STATE_FILE="${ASDEV_COMMAND_STATE:-$(dirname "$0")/../../docs/agent-command-cent
 PROMPT_PATTERNS=(
   '^# Next Agent Prompt'
   '^Protected review requested\.'
+  '^Hermes-first check requested\.'
+  '^# Decision —'
 )
 
 # Informational guards: must be respected; logged but not sole trigger.
