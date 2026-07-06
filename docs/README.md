@@ -12,6 +12,7 @@
 | [strategy/FOCUS_POLICY.md](strategy/FOCUS_POLICY.md) | What to work on; what to reject |
 | [strategy/PROJECT_ROLES.md](strategy/PROJECT_ROLES.md) | Official repository classification |
 | [strategy/ASDEV_AUDIT_MASTER_ROADMAP.md](strategy/ASDEV_AUDIT_MASTER_ROADMAP.md) | Master execution roadmap |
+| [strategy/PHASE_1_TRUST_AND_CONVERSION.md](strategy/PHASE_1_TRUST_AND_CONVERSION.md) | Phase 1 execution notes (E1-01, E1-02) |
 | [strategy/FROZEN_BACKLOG.md](strategy/FROZEN_BACKLOG.md) | Explicitly frozen scopes |
 
 ---

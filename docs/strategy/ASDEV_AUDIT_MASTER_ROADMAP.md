@@ -45,6 +45,8 @@ ASDEV Audit Platform is the primary revenue product. PersianToolbox acquires tra
 
 **Audit-first priority:** E1-01 and E1-02 directly drive audit submissions.
 
+**Execution detail:** [`PHASE_1_TRUST_AND_CONVERSION.md`](PHASE_1_TRUST_AND_CONVERSION.md)
+
 ---
 
 ## Phase 2: High-Intent Organic Growth
