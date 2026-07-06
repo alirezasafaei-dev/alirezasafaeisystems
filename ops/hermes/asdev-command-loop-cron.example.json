@@ -1,0 +1,16 @@
+{
+  "name": "asdev-issue45-watch",
+  "description": "ASDEV command loop: monitor Issue #45 for pending prompts",
+  "schedule": "0 * * * *",
+  "script": "/home/dev13/my-project/sites/live/alirezasafaeisystems/scripts/agent-command-center/run-command-loop.sh",
+  "args": ["--issue", "45", "--dry-run"],
+  "env": {
+    "ASDEV_COMMAND_REPO": "alirezasafaei-dev/alirezasafaeisystems",
+    "ASDEV_COMMAND_ISSUE": "45",
+    "HERMES_KANBAN_BOARD": "asdev-audit",
+    "ASDEV_WORKSPACE": "/home/dev13/my-project/sites/live/alirezasafaeisystems"
+  },
+  "deliver": "log",
+  "enabled": false,
+  "notes": "Dry-run only. Enable after owner approval. Requires gh auth in Hermes env."
+}
