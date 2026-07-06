@@ -15,6 +15,13 @@ PROMPT_PATTERNS=(
   '^# Decision —'
 )
 
+# Blocked prompts: must not trigger execution.
+BLOCKED_PROMPT_PATTERNS=(
+  '^# Next Agent Prompt — Awaiting Owner Approval'
+)
+
+NEXT_PROMPT_FILE="${ASDEV_NEXT_PROMPT_FILE:-$(dirname "$0")/../../docs/agent-command-center/NEXT_AGENT_PROMPT.md}"
+
 # Informational guards: must be respected; logged but not sole trigger.
 GUARD_PATTERNS=(
   '^# Critical Guard'
@@ -26,9 +33,27 @@ fetch_comments() {
     --jq 'sort_by(.created_at) | .[] | {id, created_at, body, first_line: (.body | split("\n")[0])}'
 }
 
+is_blocked_prompt() {
+  local first_line="$1"
+  local pattern
+  for pattern in "${BLOCKED_PROMPT_PATTERNS[@]}"; do
+    if [[ "$first_line" =~ $pattern ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+command_center_has_no_active_prompt() {
+  [[ -f "$NEXT_PROMPT_FILE" ]] && grep -q "No active implementation prompt" "$NEXT_PROMPT_FILE"
+}
+
 is_actionable_prompt() {
   local first_line="$1"
   local pattern
+  if is_blocked_prompt "$first_line"; then
+    return 1
+  fi
   for pattern in "${PROMPT_PATTERNS[@]}"; do
     if [[ "$first_line" =~ $pattern ]]; then
       return 0
@@ -113,8 +138,20 @@ main() {
   fi
 
   if [[ -z "$prompt_id" ]]; then
+    if command_center_has_no_active_prompt; then
+      echo "STATUS: BLOCKED_AWAITING_APPROVAL"
+      echo "Action: Owner must approve and publish a new prompt in NEXT_AGENT_PROMPT.md or PR #42."
+      exit 0
+    fi
     echo "STATUS: NO_PROMPT"
     echo "Action: Post '# Next Agent Prompt — ...' or 'Protected review requested.'"
+    exit 0
+  fi
+
+  if command_center_has_no_active_prompt && [[ "$(echo "$prompt_json" | jq -r '.first_line')" =~ ^#\ Next\ Agent\ Prompt ]]; then
+    echo "STATUS: BLOCKED_AWAITING_APPROVAL"
+    echo "Note: NEXT_AGENT_PROMPT.md has no active prompt. Legacy '# Next Agent Prompt' PR comments are ignored."
+    echo "Ignored prompt: $(echo "$prompt_json" | jq -r '.first_line')"
     exit 0
   fi
 

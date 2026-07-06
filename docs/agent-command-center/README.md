@@ -15,9 +15,22 @@ Primary product: **ASDEV Audit Platform**.
 ## Workflow
 
 1. The next task is written in `NEXT_AGENT_PROMPT.md` or in the PR conversation.
-2. The agent executes only that task.
-3. The agent reports in the PR conversation using `REPORT_TEMPLATE.md`.
-4. The agent stops after reporting and waits for the next approved prompt.
+2. If `NEXT_AGENT_PROMPT.md` says **No active implementation prompt**, do not execute runtime work. Wait for owner-approved prompt.
+3. The agent executes only the approved task.
+4. The agent reports in the PR conversation using `REPORT_TEMPLATE.md`.
+5. The agent stops after reporting and waits for the next approved prompt.
+
+## PersianToolbox protection (default)
+
+PersianToolbox is protected production software (~101 tools, ~1300 tests).
+
+The command center must **not** route sensitive PersianToolbox changes by default:
+
+- No runtime, UI, routing, template, analytics, test, or build changes via `NEXT_AGENT_PROMPT.md` without explicit owner approval.
+- Docs-only planning may be allowed when marked `BLOCKED / owner-approval-required / docs-plan only`.
+- See `docs/automation/PERSIANTOOLBOX_PROTECTION.md` and PR `# Critical Guard — PersianToolbox Production Protection`.
+
+Blocked default state heading: `# Next Agent Prompt — Awaiting Owner Approval`
 
 ## Valid ASDEV Audit goals
 
@@ -68,10 +81,14 @@ Frozen unless explicitly approved:
 
 ### Actionable prompt headings (monitor detects these)
 
-- `# Next Agent Prompt — {title}`
+- `# Next Agent Prompt — {title}` (except blocked default below)
 - `Protected review requested.`
 - `Hermes-first check requested.`
 - `# Decision — {title}`
+
+### Blocked prompt headings (no execution)
+
+- `# Next Agent Prompt — Awaiting Owner Approval`
 
 ### Guard headings (read and obey; logged by monitor)
 
