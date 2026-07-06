@@ -1,0 +1,19 @@
+{
+  "provider": "deepseek",
+  "model": "deepseek-v4-flash-free",
+  "role": "code-worker",
+  "permissions": {
+    "persiantoolbox": "read-only",
+    "auditsystems": "draft-implementation",
+    "alirezasafaeisystems": "full",
+    "deploy": "denied",
+    "billing": "denied"
+  },
+  "safety": {
+    "no_push_to_main": true,
+    "no_secrets_in_output": true,
+    "no_persiantoolbox_edits": true,
+    "no_deploy_commands": true,
+    "no_billing_changes": true
+  }
+}
