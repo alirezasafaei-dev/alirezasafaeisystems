@@ -32,6 +32,9 @@ n8n = optional dashboard / notifications / approval UI
 | [MIMO_HANDOFF.md](MIMO_HANDOFF.md) | MiMo ↔ Hermes handoff protocol |
 | [MIMO_AGENT_PROFILES.md](MIMO_AGENT_PROFILES.md) | MiMo role definitions and routing |
 | [LOCAL_COMMAND_LOOP_P1.md](LOCAL_COMMAND_LOOP_P1.md) | Phase P1 setup guide and dry-run results |
+| [HERMES_GITHUB_COMMAND_LOOP_P2.md](HERMES_GITHUB_COMMAND_LOOP_P2.md) | Phase P2 GitHub command loop implementation |
+| [COMMAND_LOOP_RUNBOOK.md](COMMAND_LOOP_RUNBOOK.md) | Step-by-step runbook for running the loop |
+| [SECRETS_AND_TOKENS_POLICY.md](SECRETS_AND_TOKENS_POLICY.md) | Token handling policy |
 
 ---
 
@@ -61,7 +64,7 @@ n8n = optional dashboard / notifications / approval UI
 |---|---|
 | P0 Docs | ✅ This package |
 | P1 Hermes profiles + kanban | ✅ Local setup complete (2026-07-06) |
-| P2 GitHub loop automation | 📋 Designed — monitor exists |
+| P2 GitHub loop automation | ✅ Scripts + dry-run complete (2026-07-06) |
 | P3 Telegram approval | 📋 Optional |
 | P4 n8n glue | ⏸️ Only if owner requests |
 

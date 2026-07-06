@@ -123,12 +123,18 @@ The dry-run validated:
 
 ---
 
-## Next Phase (P2 — when approved)
+## Next Phase (P2 — complete)
 
-- Wire monitor script → Hermes kanban create
-- Add Hermes cron for PR #42 polling
-- Configure GitHub token for `gh` in worker scripts
-- Test full loop: prompt → kanban → dispatch → report → PR comment
+Phase P2 has been implemented. See:
+- [`HERMES_GITHUB_COMMAND_LOOP_P2.md`](HERMES_GITHUB_COMMAND_LOOP_P2.md) — implementation details
+- [`COMMAND_LOOP_RUNBOOK.md`](COMMAND_LOOP_RUNBOOK.md) — step-by-step guide
+- [`SECRETS_AND_TOKENS_POLICY.md`](SECRETS_AND_TOKENS_POLICY.md) — token handling
+
+Scripts created:
+- `scripts/agent-command-center/create-kanban-task.sh`
+- `scripts/agent-command-center/dispatch-hermes-task.sh`
+- `scripts/agent-command-center/post-agent-report.sh`
+- `scripts/agent-command-center/dry-run-loop.sh`
 
 ---
 
