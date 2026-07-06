@@ -28,6 +28,18 @@
 
 ---
 
+## Automation
+
+| Document | Purpose |
+|---|---|
+| [automation/README.md](automation/README.md) | Hermes-first orchestration index |
+| [automation/HERMES_FIRST_ORCHESTRATION.md](automation/HERMES_FIRST_ORCHESTRATION.md) | Master multi-agent architecture |
+| [automation/HERMES_VS_N8N_DECISION.md](automation/HERMES_VS_N8N_DECISION.md) | Hermes vs n8n decision record |
+| [automation/HERMES_AGENT_PROFILES.md](automation/HERMES_AGENT_PROFILES.md) | Agent profile registry |
+| [automation/HERMES_GITHUB_COMMAND_LOOP.md](automation/HERMES_GITHUB_COMMAND_LOOP.md) | PR #42 command loop |
+| [automation/HERMES_APPROVAL_GATES.md](automation/HERMES_APPROVAL_GATES.md) | Approval tiers |
+| [automation/PERSIANTOOLBOX_PROTECTION.md](automation/PERSIANTOOLBOX_PROTECTION.md) | Protected production rules |
+
 ## Operations
 
 | Document | Purpose |

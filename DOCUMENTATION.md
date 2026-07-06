@@ -3,7 +3,9 @@
 **Project:** Portfolio & Analytics Hub (Trust Engine)
 **URL:** https://alirezasafaeisystems.ir/
 **Role:** Middle of Funnel - Trust building & conversion
-**Last Updated:** 2026-06-18
+**Last Updated:** 2026-06-20
+
+> **Reality note:** The analytics API and models exist, but the Prisma datasource is currently SQLite and cross-site production attribution is not proven. Current status and migration priority: [ecosystem research synthesis](../../../docs/reports/ecosystem-research-synthesis-2026-06-20.md).
 
 ---
 

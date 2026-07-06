@@ -219,6 +219,11 @@ export function Hero() {
             <p className="max-w-3xl text-base md:text-lg text-muted-foreground text-copy">
               {variantCopy.description}
             </p>
+            <p className="max-w-3xl text-sm text-muted-foreground/80 text-copy italic">
+              {language === 'en'
+                ? 'I build web systems that stay stable during crises, outages, sanctions, and user growth spikes.'
+                : 'سایت و نرم‌افزار شما را طوری پایدار، امن و آماده رشد می‌کنم که در بحران، قطعی، تحریم یا افزایش کاربر از کار نیفتد.'}
+            </p>
           </div>
 
           <div className="rounded-2xl border border-border/70 bg-card/60 p-4 md:p-5">
@@ -260,6 +265,59 @@ export function Hero() {
                 {point}
               </p>
             ))}
+          </div>
+
+          {/* User Path Cards */}
+          <div className="rounded-xl border border-border/70 bg-card/60 p-4 md:p-5 space-y-3">
+            <p className="text-sm font-semibold">
+              {language === 'en' ? 'What do you need?' : 'دقیقاً چه کمکی نیاز دارید؟'}
+            </p>
+            <div className="grid gap-3 md:grid-cols-3">
+              <article className="rounded-lg border border-border/60 bg-background/75 p-4 text-sm">
+                <h3 className="font-semibold text-foreground">
+                  {language === 'en' ? 'My site is slow or unstable' : 'سایت کند یا ناپایدار دارم'}
+                </h3>
+                <p className="mt-1 text-muted-foreground text-ui">
+                  {language === 'en' ? 'Get a quick technical audit and fix the most critical issues.' : 'دریافت Audit سریع و رفع مهم‌ترین ایرادها در اسپرینت ثابت.'}
+                </p>
+                <a
+                  className="mt-3 inline-flex rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                  href="/offers/Audit-QuickFix-Offer-OnePage.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {language === 'en' ? 'Quick Audit' : 'دریافت گزارش سریع'}
+                </a>
+              </article>
+              <article className="rounded-lg border border-border/60 bg-background/75 p-4 text-sm">
+                <h3 className="font-semibold text-foreground">
+                  {language === 'en' ? 'My project is half-done' : 'پروژه نیمه‌کاره دارم'}
+                </h3>
+                <p className="mt-1 text-muted-foreground text-ui">
+                  {language === 'en' ? 'Code review, architecture analysis, and completion plan.' : 'بررسی کد، تحلیل معماری و برنامه تکمیل پروژه.'}
+                </p>
+                <a
+                  className="mt-3 inline-flex rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                  href={withLocale('/qualification', language)}
+                >
+                  {language === 'en' ? 'Start Qualification' : 'شروع بررسی'}
+                </a>
+              </article>
+              <article className="rounded-lg border border-border/60 bg-background/75 p-4 text-sm">
+                <h3 className="font-semibold text-foreground">
+                  {language === 'en' ? 'I want a new product' : 'محصول جدید می‌خواهم'}
+                </h3>
+                <p className="mt-1 text-muted-foreground text-ui">
+                  {language === 'en' ? 'From idea to production-ready with architecture and delivery.' : 'از ایده تا آمادگی تولید با معماری و تحویل حرفه‌ای.'}
+                </p>
+                <a
+                  className="mt-3 inline-flex rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                  href={withLocale('/qualification', language)}
+                >
+                  {language === 'en' ? 'Discovery Meeting' : 'جلسه Discovery'}
+                </a>
+              </article>
+            </div>
           </div>
 
           <div className="space-y-3">

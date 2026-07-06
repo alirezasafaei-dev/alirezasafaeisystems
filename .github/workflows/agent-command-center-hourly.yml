@@ -1,0 +1,41 @@
+name: Agent Command Center Monitor
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: read
+  pull-requests: read
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: |
+          type -p gh >/dev/null || (sudo apt-get update && sudo apt-get install -y gh)
+          gh --version
+
+      - name: Monitor PR #42 for pending agent prompts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASDEV_COMMAND_REPO: ${{ github.repository }}
+          ASDEV_COMMAND_PR: '42'
+        run: |
+          chmod +x scripts/agent-command-center/monitor-pr.sh
+          set +e
+          ./scripts/agent-command-center/monitor-pr.sh
+          code=$?
+          set -e
+          echo "monitor_exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" -eq 2 ]; then
+            echo "::warning::Unhandled agent prompt detected on PR #42"
+          fi
+
+      - name: Summary
+        run: |
+          echo "Hourly monitor finished. Check PR #42 conversation for agent prompts and reports."
