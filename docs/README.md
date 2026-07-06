@@ -1,30 +1,65 @@
-# Documentation Index
+# ASDEV Documentation Index
 
-This file is the entry point for project documentation.
+**Mother repo:** `alirezasafaeisystems` — brand governance, strategy, and agent rules.
 
-## Product and Architecture
-- `docs/ARCHITECTURE.md`: high-level runtime architecture
-- `docs/BRAND_IDENTITY.md`: brand direction and positioning
+---
 
-## Deployment and Operations
-- `docs/DEPLOYMENT_PRECHECKLIST.md`: reusable pre/deploy/post-deploy checklist
-- `docs/VPS_DEPLOYMENT.md`: VPS deployment details
-- `docs/ONCALL_ESCALATION.md`: incident ownership and escalation
+## Strategy (read first)
 
-## 10/10 Program
-- `docs/10_10_CHECKLIST.md`: master action checklist to reach all-around 10/10 quality.
-- `docs/DATA_RETENTION_POLICY.md`: finalized production data-retention policy for leads/messages.
+| Document | Purpose |
+|---|---|
+| [../ASDEV.md](../ASDEV.md) | Brand one-pager |
+| [strategy/FOCUS_POLICY.md](strategy/FOCUS_POLICY.md) | What to work on; what to reject |
+| [strategy/PROJECT_ROLES.md](strategy/PROJECT_ROLES.md) | Official repository classification |
+| [strategy/ASDEV_AUDIT_MASTER_ROADMAP.md](strategy/ASDEV_AUDIT_MASTER_ROADMAP.md) | Master execution roadmap |
+| [strategy/FROZEN_BACKLOG.md](strategy/FROZEN_BACKLOG.md) | Explicitly frozen scopes |
 
-## Runtime Evidence
-- `docs/runtime/README.md`: runtime evidence policy and folder map
-- `docs/ROADMAP_TASKS.md`: برنامه‌ریزی roadmap و تسک‌بندی اولویت‌بندی‌شده‌ی پروژه
-- `docs/ENTERPRISE_RUNTIME_STATUS.md`: latest enterprise baseline status with real command evidence
-- `docs/runtime/ENTERPRISE_UPGRADE_2026-02-27.md`: enterprise hardening changes, executed gates, and remaining execution tasks
-- `docs/runtime/VPS_DEPLOY_PREP_*.md`: latest local VPS deploy-preparation reports (gates + artifact metadata)
-- `docs/runtime/CODEX_CLI_AUTOCOMPACT_RUNBOOK.md`: Codex CLI bootstrap automation and operational notes
-- `docs/runtime/CODEX_CLI_AUTOCOMPACT_STATUS_LATEST.md`: latest Codex CLI auto-compact runtime snapshot
-- `docs/runtime/CODEX_CLI_AUTOCOMPACT_HEARTBEAT.txt`: latest successful codex maintenance heartbeat
-- `docs/runtime/ENTERPRISE_10_10_EXECUTION_PLAN_2026-02-19.md`: current-state analysis and enterprise 10/10 execution plan
-- `docs/runtime/GITHUB_ORG_2FA_STATUS.md`: governance record for org 2FA enforcement and recovery-code process
-- `docs/runtime/GoNoGo_Evidence/`: release go/no-go evidence snapshots
-- `docs/runtime/Incidents/`: rollback drill and incident notes
+---
+
+## Projects
+
+| Document | Role |
+|---|---|
+| [projects/auditsystems.md](projects/auditsystems.md) | Primary product — ASDEV Audit Platform |
+| [projects/persiantoolbox.md](projects/persiantoolbox.md) | Traffic engine |
+| [projects/devatlas.md](projects/devatlas.md) | Future premium module (hold) |
+| [projects/alirezasafaei-dev.md](projects/alirezasafaei-dev.md) | GitHub showcase rules |
+
+---
+
+## Operations
+
+| Document | Purpose |
+|---|---|
+| [operations/WORKSPACE_STRUCTURE.md](operations/WORKSPACE_STRUCTURE.md) | Local workspace layout and move plan |
+| [operations/DEPLOYMENT_INDEX.md](operations/DEPLOYMENT_INDEX.md) | Deploy scripts, ports, domains |
+| [operations/SERVER_OPERATIONS.md](operations/SERVER_OPERATIONS.md) | Production ops overview |
+
+---
+
+## Archive / migration
+
+| Document | Purpose |
+|---|---|
+| [archive/ASDEV_CONSOLIDATION_AUDIT.md](archive/ASDEV_CONSOLIDATION_AUDIT.md) | Phase 1 consolidation audit |
+| [archive/migrated-from-meta-repo.md](archive/migrated-from-meta-repo.md) | Migration report and deletion gate |
+
+---
+
+## Product-specific (this repo's application)
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) — runtime architecture
+- [BRAND_IDENTITY.md](BRAND_IDENTITY.md) — brand handles (internal reference)
+- [DEPLOYMENT_PRECHECKLIST.md](DEPLOYMENT_PRECHECKLIST.md) — deploy checklist
+- [VPS_DEPLOYMENT.md](VPS_DEPLOYMENT.md) — VPS deployment detail
+- [runtime/README.md](runtime/README.md) — deployment evidence
+
+---
+
+## Separate product repos
+
+Implementation detail lives in each product repository:
+
+- `sites/live/auditsystems/DOCUMENTATION.md`
+- `sites/live/persiantoolbox/DOCUMENTATION.md`
+- `sites/hold/devatlas/` (hold — no active docs priority)

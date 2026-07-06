@@ -1,7 +1,29 @@
-# Agent Governance - AlirezaSafaeiSystems
+# Agent Governance — ASDEV (AlirezaSafaeiSystems Mother Repo)
 
-**Last Updated**: 2026-06-15
-**Status**: ✅ Active
+**Last Updated**: 2026-07-06
+**Status**: Active
+
+---
+
+## ASDEV Focus Rule (mandatory)
+
+> The current strategic focus is ASDEV Audit Platform. Agents must not start unrelated product work, create new product scopes, revive frozen projects, or make DevAtlas standalone unless the task directly supports ASDEV Audit acquisition, conversion, retention, report quality, reliability, or revenue.
+
+Every agent task must answer:
+
+> **Which ASDEV Audit goal does this task support?**
+
+Valid goals:
+
+1. More submitted audits
+2. Better and more trusted reports
+3. More leads, signups, paid users, or agency contacts
+4. Better production reliability, security, and operations
+5. Lower audit cost, support cost, or execution time
+
+If none apply, reject the task or move it to `docs/strategy/FROZEN_BACKLOG.md`.
+
+**Read before working:** [ASDEV.md](ASDEV.md) → [docs/strategy/FOCUS_POLICY.md](docs/strategy/FOCUS_POLICY.md) → [docs/strategy/PROJECT_ROLES.md](docs/strategy/PROJECT_ROLES.md)
 
 ---
 
