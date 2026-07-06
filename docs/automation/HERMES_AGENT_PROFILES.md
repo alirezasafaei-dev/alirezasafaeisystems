@@ -160,16 +160,22 @@ When a task explicitly names Codex/Grok/Gemini CLI outside Hermes:
 
 ## Profile setup checklist (Phase P1 — local)
 
+**Status:** ✅ Complete (2026-07-06)
+
 ```bash
-# Example — do not run in production automation without owner OK
-hermes profile create hermes-asdev-controller --description "ASDEV dispatcher..."
-hermes profile create hermes-code-codex --description "AuditSystems implementation..."
-# ... repeat for each profile
-hermes kanban init
-hermes kanban boards create asdev-audit
+# Profiles created:
+hermes profile create hermes-asdev-controller --description "ASDEV task classifier and dispatcher..."
+hermes profile create hermes-asdev-reviewer --description "Read-only code review..."
+hermes profile create hermes-asdev-docs --description "Long-context documentation..."
+hermes profile create hermes-asdev-ops --description "Workspace hygiene, doc sync..."
+hermes profile create hermes-asdev-code-draft --description "Implementation drafts for auditsystems..."
+
+# Kanban board created:
+hermes kanban boards create asdev-audit --name "ASDEV Audit Command Loop"
 ```
 
-Store profile export archives in `docs/automation/profiles/` (future, no secrets).
+See [`LOCAL_COMMAND_LOOP_P1.md`](LOCAL_COMMAND_LOOP_P1.md) for full setup guide and dry-run results.
+See [`MIMO_AGENT_PROFILES.md`](MIMO_AGENT_PROFILES.md) for MiMo ↔ Hermes profile mapping.
 
 ---
 

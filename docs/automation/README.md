@@ -29,6 +29,9 @@ n8n = optional dashboard / notifications / approval UI
 | [HERMES_APPROVAL_GATES.md](HERMES_APPROVAL_GATES.md) | Tier 0/1/2 approval rules |
 | [PERSIANTOOLBOX_PROTECTION.md](PERSIANTOOLBOX_PROTECTION.md) | Protected production policy |
 | [HERMES_CAPABILITY_REVIEW.md](HERMES_CAPABILITY_REVIEW.md) | Local inspection (2026-07-06) |
+| [MIMO_HANDOFF.md](MIMO_HANDOFF.md) | MiMo ↔ Hermes handoff protocol |
+| [MIMO_AGENT_PROFILES.md](MIMO_AGENT_PROFILES.md) | MiMo role definitions and routing |
+| [LOCAL_COMMAND_LOOP_P1.md](LOCAL_COMMAND_LOOP_P1.md) | Phase P1 setup guide and dry-run results |
 
 ---
 
@@ -57,7 +60,7 @@ n8n = optional dashboard / notifications / approval UI
 | Phase | Status |
 |---|---|
 | P0 Docs | ✅ This package |
-| P1 Hermes profiles + kanban | 📋 Designed — not deployed |
+| P1 Hermes profiles + kanban | ✅ Local setup complete (2026-07-06) |
 | P2 GitHub loop automation | 📋 Designed — monitor exists |
 | P3 Telegram approval | 📋 Optional |
 | P4 n8n glue | ⏸️ Only if owner requests |
