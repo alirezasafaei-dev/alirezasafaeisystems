@@ -1,6 +1,6 @@
 {
   "agent": {
-    "model": "openai/gpt-4o",
+    "model": "UNCONFIGURED",
     "workspace": "/home/openclaw/.openclaw/workspace"
   },
   "gateway": {
