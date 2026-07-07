@@ -1,0 +1,21 @@
+[Unit]
+Description=ASDEV Autonomous Agent Loop
+After=default.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/asdev/alirezasafaeisystems
+Environment=HOME=/home/asdev
+Environment=PATH=/home/asdev/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin
+Environment=ASDEV_COMMAND_ISSUE=45
+Environment=ASDEV_MAX_JOBS=2
+Environment=ASDEV_AGENT_LOG_DIR=/var/log/asdev-agent
+ExecStart=/usr/bin/env bash -lc '/opt/asdev/alirezasafaeisystems/scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 2'
+TimeoutStartSec=1800
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=asdev-agent-loop
+
+[Install]
+WantedBy=default.target
