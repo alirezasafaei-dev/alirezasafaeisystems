@@ -190,6 +190,14 @@ if [ -f "$QUEUE_FILE" ]; then
     TASK_TITLE=$(echo "$line" | sed 's/^- \[ \] //' | sed 's/|.*//' | xargs)
     MODE=$(echo "$line" | grep -oP 'Mode:\s*\K\S+' || echo "read-only")
     REPO=$(echo "$line" | grep -oP 'Repo:\s*\K\S+' || echo "auditsystems")
+    EXEC_TARGET=$(echo "$line" | grep -oP 'Target:\s*\K\S+' || echo "vps")
+
+    if [ "$EXEC_TARGET" = "local-heavy" ]; then
+      warn "Task ${TASK_ID} requires local execution — skipping on VPS"
+      warn "Run locally: ./scripts/agent-command-center/local-heavy-runner.sh ${TASK_ID}"
+      PROCESSED=$((PROCESSED + 1))
+      continue
+    fi
 
     if ! circuit_breaker_check 2>/dev/null && [ "$MODE" = "product-branch" ]; then
       warn "Circuit breaker active — skipping product-branch task ${TASK_ID}"
