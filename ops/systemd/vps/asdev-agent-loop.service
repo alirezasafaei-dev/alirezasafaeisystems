@@ -14,6 +14,8 @@ Environment=AUDITSYSTEMS_DIR=/home/asdev/repos/auditsystems
 Environment=ASDEV_AGENT_LOG_DIR=/home/asdev/repos/alirezasafaeisystems/ops/automation-logs
 Environment=ASDEV_AGENT_STATE_DIR=/home/asdev/repos/alirezasafaeisystems/.state/asdev-agent-loop
 Environment=ASDEV_QUEUE_FILE=/home/asdev/repos/alirezasafaeisystems/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md
+Environment=ASDEV_ALLOWED_MODES=read-only,docs-only,automation-script
+Environment=ASDEV_BLOCK_PRODUCT_VALIDATION=true
 Environment=ASDEV_COMMAND_ISSUE=45
 Environment=ASDEV_MAX_JOBS=2
 ExecStart=/usr/bin/env bash -lc '/home/asdev/repos/alirezasafaeisystems/scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 2'
