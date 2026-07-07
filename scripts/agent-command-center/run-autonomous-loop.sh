@@ -2,13 +2,17 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-WORKSPACE_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-AUDITSYSTEMS_DIR="${WORKSPACE_ROOT}/sites/live/auditsystems"
-LOG_DIR="${WORKSPACE_ROOT}/ops/automation-logs"
-STATE_DIR="${WORKSPACE_ROOT}/.state/asdev-agent-loop"
+
+ASDEV_ROOT="${ASDEV_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
+ASDEV_SYSTEMS_DIR="${ASDEV_SYSTEMS_DIR:-${ASDEV_ROOT}/sites/live/alirezasafaeisystems}"
+AUDITSYSTEMS_DIR="${AUDITSYSTEMS_DIR:-${ASDEV_SYSTEMS_DIR}/../auditsystems}"
+ASDEV_AGENT_LOG_DIR="${ASDEV_AGENT_LOG_DIR:-${ASDEV_ROOT}/ops/automation-logs}"
+ASDEV_AGENT_STATE_DIR="${ASDEV_AGENT_STATE_DIR:-${ASDEV_ROOT}/.state/asdev-agent-loop}"
+ASDEV_QUEUE_FILE="${ASDEV_QUEUE_FILE:-${ASDEV_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md}"
+
 LOCK_DIR="/tmp/asdev-agent-loop"
 LOCK_FILE="${LOCK_DIR}/asdev-agent-loop.lock"
-STATE_FILE="${STATE_DIR}/state.json"
+STATE_FILE="${ASDEV_AGENT_STATE_DIR}/state.json"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 DRY_RUN=false
@@ -41,8 +45,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-mkdir -p "$LOG_DIR" "$STATE_DIR" "$LOCK_DIR"
-LOG_FILE="${LOG_DIR}/loop-$(date -u +%Y-%m-%d).log"
+mkdir -p "$ASDEV_AGENT_LOG_DIR" "$ASDEV_AGENT_STATE_DIR" "$LOCK_DIR"
+LOG_FILE="${ASDEV_AGENT_LOG_DIR}/loop-$(date -u +%Y-%m-%d).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 acquire_lock() {
@@ -71,10 +75,14 @@ load_state() {
 
 save_state() {
   local failures="$1"
+  local success_at=""
+  if [ "$failures" -eq 0 ]; then
+    success_at="${TIMESTAMP}"
+  fi
   cat > "$STATE_FILE" <<EOF
 {
   "last_run_at": "${TIMESTAMP}",
-  "last_success_at": "${failures}" == "0" && "${TIMESTAMP}" || "",
+  "last_success_at": "${success_at}",
   "consecutive_failures": ${failures}
 }
 EOF
@@ -86,8 +94,7 @@ check_network() {
     return 1
   fi
   getent hosts github.com >/dev/null 2>&1 && \
-  curl -fsS --max-time 5 https://api.github.com/rate_limit >/dev/null 2>&1 && \
-  gh auth status >/dev/null 2>&1
+  curl -fsS --max-time 5 https://api.github.com/rate_limit >/dev/null 2>&1
 }
 
 circuit_breaker_check() {
@@ -155,6 +162,8 @@ log "Max jobs: ${MAX_JOBS}"
 log "Once: ${ONCE}"
 log "Issue: ${ISSUE:-none}"
 log "Simulate-offline: ${SIMULATE_OFFLINE}"
+log "Root: ${ASDEV_ROOT}"
+log "Queue: ${ASDEV_QUEUE_FILE}"
 echo ""
 
 acquire_lock
@@ -172,11 +181,9 @@ ok "Network OK"
 JOBS_EXECUTED=0
 JOBS_FAILED=0
 
-QUEUE_FILE="${WORKSPACE_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md"
-
-if [ -f "$QUEUE_FILE" ]; then
+if [ -f "$ASDEV_QUEUE_FILE" ]; then
   section "Processing Queue"
-  PENDING=$(grep -c "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || echo "0")
+  PENDING=$(grep -c "^\- \[ \]" "$ASDEV_QUEUE_FILE" 2>/dev/null || echo "0")
   log "Pending tasks: ${PENDING}"
 
   PROCESSED=0
@@ -187,14 +194,14 @@ if [ -f "$QUEUE_FILE" ]; then
     fi
 
     TASK_ID=$(echo "$line" | grep -oP 'ID:\s*\K\S+' || continue)
-    TASK_TITLE=$(echo "$line" | sed 's/^- \[ \] //' | sed 's/|.*//' | xargs)
+    TASK_TITLE=$(echo "$line" | sed 's/^- \[.\] //' | sed 's/|.*//' | xargs)
     MODE=$(echo "$line" | grep -oP 'Mode:\s*\K\S+' || echo "read-only")
     REPO=$(echo "$line" | grep -oP 'Repo:\s*\K\S+' || echo "auditsystems")
     EXEC_TARGET=$(echo "$line" | grep -oP 'Target:\s*\K\S+' || echo "vps")
 
     if [ "$EXEC_TARGET" = "local-heavy" ]; then
-      warn "Task ${TASK_ID} requires local execution — skipping on VPS"
-      warn "Run locally: ./scripts/agent-command-center/local-heavy-runner.sh ${TASK_ID}"
+      warn "Task ${TASK_ID} requires local execution — skipping"
+      warn "Run locally: ./scripts/agent-command-center/heavy-task-runner.sh ${TASK_ID}"
       PROCESSED=$((PROCESSED + 1))
       continue
     fi
@@ -214,9 +221,9 @@ if [ -f "$QUEUE_FILE" ]; then
 
     PROCESSED=$((PROCESSED + 1))
     if $ONCE; then break; fi
-  done < <(grep "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || true)
+  done < <(grep "^\- \[ \]" "$ASDEV_QUEUE_FILE" 2>/dev/null || true)
 else
-  warn "No queue file found at ${QUEUE_FILE}"
+  warn "No queue file found at ${ASDEV_QUEUE_FILE}"
 fi
 
 section "Loop Summary"
