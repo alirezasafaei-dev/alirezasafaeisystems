@@ -2,16 +2,39 @@
 
 **Status:** Ready for procurement
 **Date:** 2026-07-07
+**Mode:** Hybrid Runner Architecture
+
+## Architecture
+
+The VPS acts as a **lightweight always-on controller**. The local PC handles heavy jobs.
+
+| Environment | Role | Specs |
+|---|---|---|
+| **VPS** | Controller (light tasks) | 2 vCPU / 4GB RAM / 50GB NVMe |
+| **Local PC** | Heavy runner (builds, GPU, tests) | Developer machine |
+| **GitHub Actions** | Fallback scheduler | Free tier |
 
 ## Recommended Specs
 
+### Controller Mode (Current — Recommended)
+
 | Resource | Minimum | Recommended |
 |---|---|---|
-| CPU | 2 vCPU | 4 vCPU |
-| RAM | 4GB | 8GB |
-| Disk | 40GB SSD | 80GB NVMe |
+| CPU | 2 vCPU | 2 vCPU |
+| RAM | 4GB | 4GB |
+| Disk | 40GB SSD | 50GB NVMe |
 | OS | Ubuntu 24.04 LTS | Ubuntu 24.04 LTS |
 | IPv4 | 1 public | 1 public |
+
+### Full Runner Mode (Future Upgrade)
+
+| Resource | Minimum | Recommended |
+|---|---|---|
+| CPU | 4 vCPU | 4 vCPU |
+| RAM | 8GB | 8GB |
+| Disk | 80GB NVMe | 80GB NVMe |
+
+**When to upgrade:** If VPS needs to run heavy tests, full builds, or multiple concurrent tasks regularly.
 
 ## Location
 
