@@ -1,0 +1,21 @@
+[Unit]
+Description=OpenClaw Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=openclaw
+WorkingDirectory=/home/openclaw
+Environment=HOME=/home/openclaw
+Environment=PATH=/home/openclaw/node/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/openclaw/node/bin/openclaw gateway --port 18789
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openclaw-gateway
+
+[Install]
+WantedBy=default.target

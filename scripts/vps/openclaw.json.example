@@ -1,0 +1,29 @@
+{
+  "agent": {
+    "model": "openai/gpt-4o",
+    "workspace": "/home/openclaw/.openclaw/workspace"
+  },
+  "gateway": {
+    "host": "127.0.0.1",
+    "port": 18789
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "allowFrom": ["OWNER_TELEGRAM_ID"]
+    }
+  },
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "all",
+        "backend": "docker"
+      }
+    }
+  },
+  "tools": {
+    "allowed": ["read", "sessions_list", "sessions_history"],
+    "denied": ["write", "edit", "bash", "process", "gateway"]
+  }
+}
