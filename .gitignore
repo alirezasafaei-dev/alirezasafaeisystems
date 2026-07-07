@@ -80,3 +80,4 @@ reports/network-smoke/
 reports/enterprise-network/
 reports/edge-route/
 reports/postgres-audit/
+.state/asdev-agent-loop/
