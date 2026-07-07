@@ -1,0 +1,13 @@
+{
+  "name": "asdev-command-loop",
+  "description": "ASDEV autonomous execution loop — checks Issue #45, executes approved tasks",
+  "schedule": "*/30 * * * *",
+  "command": "/home/dev13/my-project/scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 2",
+  "enabled": true,
+  "env": {
+    "HOME": "/home/dev13"
+  },
+  "timeout": 600,
+  "retries": 1,
+  "log": "/home/dev13/my-project/ops/automation-logs/cron.log"
+}

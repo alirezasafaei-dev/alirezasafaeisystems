@@ -1,0 +1,11 @@
+[Unit]
+Description=ASDEV Autonomous Agent Loop Timer
+After=network.target
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
