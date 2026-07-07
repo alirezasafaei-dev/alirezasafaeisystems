@@ -1,0 +1,17 @@
+{
+  "name": "asdev-telegram-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "No-LLM Telegram status bot for ASDEV",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "node --watch bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

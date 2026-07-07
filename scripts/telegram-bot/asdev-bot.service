@@ -1,0 +1,15 @@
+[Unit]
+Description=ASDEV Telegram Status Bot
+After=network.target
+
+[Service]
+Type=simple
+User=dev13
+WorkingDirectory=/tmp/asdev-telegram-bot
+ExecStart=/usr/bin/node bot.js
+Restart=on-failure
+RestartSec=10
+EnvironmentFile=/tmp/asdev-telegram-bot/.env
+
+[Install]
+WantedBy=multi-user.target
