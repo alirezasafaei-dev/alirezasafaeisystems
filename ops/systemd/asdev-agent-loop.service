@@ -1,0 +1,14 @@
+[Unit]
+Description=ASDEV Autonomous Agent Loop
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev13/my-project
+ExecStart=/home/dev13/my-project/scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 2
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=600
+
+[Install]
+WantedBy=default.target
