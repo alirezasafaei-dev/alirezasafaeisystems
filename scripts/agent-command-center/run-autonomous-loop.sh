@@ -9,6 +9,8 @@ AUDITSYSTEMS_DIR="${AUDITSYSTEMS_DIR:-${ASDEV_SYSTEMS_DIR}/../auditsystems}"
 ASDEV_AGENT_LOG_DIR="${ASDEV_AGENT_LOG_DIR:-${ASDEV_ROOT}/ops/automation-logs}"
 ASDEV_AGENT_STATE_DIR="${ASDEV_AGENT_STATE_DIR:-${ASDEV_ROOT}/.state/asdev-agent-loop}"
 ASDEV_QUEUE_FILE="${ASDEV_QUEUE_FILE:-${ASDEV_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md}"
+ASDEV_ALLOWED_MODES="${ASDEV_ALLOWED_MODES:-read-only,docs-only,automation-script}"
+ASDEV_BLOCK_PRODUCT_VALIDATION="${ASDEV_BLOCK_PRODUCT_VALIDATION:-false}"
 
 LOCK_DIR="/tmp/asdev-agent-loop"
 LOCK_FILE="${LOCK_DIR}/asdev-agent-loop.lock"
@@ -111,6 +113,17 @@ circuit_breaker_check() {
   return 0
 }
 
+is_mode_allowed() {
+  local mode="$1"
+  IFS=',' read -ra ALLOWED <<< "$ASDEV_ALLOWED_MODES"
+  for am in "${ALLOWED[@]}"; do
+    if [ "$am" = "$mode" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 execute_job() {
   local task_id="$1"
   local task_title="$2"
@@ -132,6 +145,10 @@ execute_job() {
       log "Read-only task ${task_id}"
       ;;
     test-only|product-branch)
+      if [ "$ASDEV_BLOCK_PRODUCT_VALIDATION" = "true" ]; then
+        warn "Product validation blocked by ASDEV_BLOCK_PRODUCT_VALIDATION — skipping"
+        return 0
+      fi
       if [ -d "$AUDITSYSTEMS_DIR/node_modules" ] && command -v pnpm >/dev/null 2>&1; then
         cd "$AUDITSYSTEMS_DIR"
         TYPECHECK=$(pnpm typecheck 2>&1 && echo "PASS" || echo "FAIL")
@@ -164,6 +181,8 @@ log "Issue: ${ISSUE:-none}"
 log "Simulate-offline: ${SIMULATE_OFFLINE}"
 log "Root: ${ASDEV_ROOT}"
 log "Queue: ${ASDEV_QUEUE_FILE}"
+log "Allowed modes: ${ASDEV_ALLOWED_MODES}"
+log "Block product validation: ${ASDEV_BLOCK_PRODUCT_VALIDATION}"
 echo ""
 
 acquire_lock
@@ -180,6 +199,7 @@ ok "Network OK"
 
 JOBS_EXECUTED=0
 JOBS_FAILED=0
+JOBS_SKIPPED=0
 
 if [ -f "$ASDEV_QUEUE_FILE" ]; then
   section "Processing Queue"
@@ -201,8 +221,15 @@ if [ -f "$ASDEV_QUEUE_FILE" ]; then
 
     if [ "$EXEC_TARGET" = "local-heavy" ]; then
       warn "Task ${TASK_ID} requires local execution — skipping"
-      warn "Run locally: ./scripts/agent-command-center/heavy-task-runner.sh ${TASK_ID}"
       PROCESSED=$((PROCESSED + 1))
+      JOBS_SKIPPED=$((JOBS_SKIPPED + 1))
+      continue
+    fi
+
+    if ! is_mode_allowed "$MODE"; then
+      warn "Task ${TASK_ID} mode '${MODE}' not in allowed modes (${ASDEV_ALLOWED_MODES}) — deferred"
+      PROCESSED=$((PROCESSED + 1))
+      JOBS_SKIPPED=$((JOBS_SKIPPED + 1))
       continue
     fi
 
@@ -229,6 +256,7 @@ fi
 section "Loop Summary"
 log "Jobs executed: ${JOBS_EXECUTED}"
 log "Jobs failed: ${JOBS_FAILED}"
+log "Jobs skipped: ${JOBS_SKIPPED}"
 log "Consecutive failures: ${CONSECUTIVE_FAILURES}"
 
 save_state "$CONSECUTIVE_FAILURES"
