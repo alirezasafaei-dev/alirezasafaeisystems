@@ -5,104 +5,29 @@
 
 ## Completed
 
-| Step | Status |
-|---|---|
-| SSH key login | ✅ Works |
-| Base packages | ✅ Installed |
-| Firewall (UFW) | ✅ Configured (sudo-limited) |
-| Fail2ban | ✅ Installed (sudo-limited) |
-| Timezone | ✅ UTC |
-| Node.js v22.16.0 | ✅ Installed (user dir) |
-| npm 10.9.2 | ✅ Installed |
-| pnpm 11.10.0 | ✅ Installed |
-| gh CLI 2.96.0 | ✅ Installed |
+- SSH key login works
+- Base packages installed
+- Node.js, npm, pnpm, and GitHub CLI installed
+- UFW and fail2ban configured
+- SSH hardening applied
 
-## Pending
+## Current Blocker
 
-| Step | Status | Action Needed |
-|---|---|---|
-| GitHub auth | ⏳ | Owner must run `gh auth login` on VPS |
-| Repo clone | ⏳ | After gh auth |
-| Deps install | ⏳ | After repo clone |
-| Systemd timer | ⏳ | After deps |
-| Healthcheck | ⏳ | After timer |
-| Dry-run | ⏳ | After healthcheck |
+Owner action is still required for GitHub CLI authentication on the server. No token, password, IP address, or secret is stored in this document.
 
-## Manual Steps for Owner
+## Next Steps
 
-### 1. Set up sudo (optional but recommended)
+1. Configure passwordless sudo for the `asdev` user and validate the sudoers file.
+2. Authenticate GitHub CLI interactively on the server.
+3. Clone `alirezasafaeisystems` and `auditsystems` under `/opt/asdev`.
+4. Install dependencies in both repos.
+5. Copy systemd user units, reload systemd, and enable linger.
+6. Run healthcheck and dry-run before enabling the recurring timer.
+7. Run one safe real job and confirm the report appears in Issue #45.
+8. Cut over only after VPS validation passes.
 
-On VPS console:
+## Safety
 
-```bash
-echo 'asdev ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/asdev
-```
-
-### 2. Authenticate GitHub CLI
-
-On VPS:
-
-```bash
-export PATH=$HOME/node/bin:$PATH
-gh auth login
-```
-
-Choose:
-- GitHub.com
-- HTTPS
-- Paste an authentication token
-
-### 3. Clone repos after auth
-
-```bash
-cd ~/repos
-git clone git@github.com:alirezasafaei-dev/alirezasafaeisystems.git
-git clone git@github.com:alirezasafaei-dev/auditsystems.git
-```
-
-### 4. Install dependencies
-
-```bash
-export PATH=$HOME/node/bin:$PATH
-cd ~/repos/alirezasafaeisystems && pnpm install
-cd ~/repos/auditsystems && NODE_OPTIONS="--max-old-space-size=2048" pnpm install
-```
-
-### 5. Set up systemd timer
-
-```bash
-mkdir -p ~/.config/systemd/user
-cp ~/repos/alirezasafaeisystems/ops/systemd/vps/asdev-agent-loop.service ~/.config/systemd/user/
-cp ~/repos/alirezasafaeisystems/ops/systemd/vps/asdev-agent-loop.timer ~/.config/systemd/user/
-systemctl --user daemon-reload
-sudo loginctl enable-linger asdev
-systemctl --user enable --now asdev-agent-loop.timer
-```
-
-### 6. Run healthcheck
-
-```bash
-cd ~/repos/alirezasafaeisystems
-./scripts/agent-command-center/agent-healthcheck.sh
-```
-
-## SSH Hardening Status
-
-SSH config hardened:
-- PasswordAuthentication no
-- PubkeyAuthentication yes
-- PermitRootLogin no
-- AllowUsers asdev
-
-## VPS Specs
-
-| Resource | Value |
-|---|---|
-| OS | Ubuntu 24.04 LTS |
-| CPU | 2 vCPU |
-| RAM | 3.7GB |
-| Disk | 38GB (34GB free) |
-| Location | Germany |
-| Node.js | v22.16.0 |
-| pnpm | 11.10.0 |
-| gh CLI | 2.96.0 |
+- PersianToolbox remains protected and must not be edited or cloned for write tasks.
+- No secrets, IPs, passwords, or tokens are documented here.
+- Keep the local timer as fallback until VPS healthcheck, dry-run, and one safe real job pass.
