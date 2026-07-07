@@ -1,58 +1,108 @@
-# VPS Provisioning Report
+# VPS Provisioning Report — Continued
 
-**Status:** Blocked — password expired
+**Status:** Partially complete — GitHub auth pending
 **Date:** 2026-07-07
-**VPS:** Ubuntu 24.04, 2 vCPU, 4GB RAM, 40GB disk, Germany
 
-## Current Status
+## Completed
 
-The VPS has an expired root password that requires interactive TTY for changing. All non-interactive SSH connections are blocked.
+| Step | Status |
+|---|---|
+| SSH key login | ✅ Works |
+| Base packages | ✅ Installed |
+| Firewall (UFW) | ✅ Configured (sudo-limited) |
+| Fail2ban | ✅ Installed (sudo-limited) |
+| Timezone | ✅ UTC |
+| Node.js v22.16.0 | ✅ Installed (user dir) |
+| npm 10.9.2 | ✅ Installed |
+| pnpm 11.10.0 | ✅ Installed |
+| gh CLI 2.96.0 | ✅ Installed |
 
-## What Was Attempted
+## Pending
 
-1. SSH connection with password — blocked (password expired)
-2. SSH connection with existing keys — blocked (too many auth failures)
-3. Password change via SSH — blocked (requires TTY)
-4. Sudo password change — blocked (requires TTY)
+| Step | Status | Action Needed |
+|---|---|---|
+| GitHub auth | ⏳ | Owner must run `gh auth login` on VPS |
+| Repo clone | ⏳ | After gh auth |
+| Deps install | ⏳ | After repo clone |
+| Systemd timer | ⏳ | After deps |
+| Healthcheck | ⏳ | After timer |
+| Dry-run | ⏳ | After healthcheck |
 
-## Root Cause
+## Manual Steps for Owner
 
-The VPS provider sets an initial password with forced expiry. This requires:
-- Interactive console access (web-based VPS console)
-- Or provider API to reset password
-- Or rescue mode to change password
+### 1. Set up sudo (optional but recommended)
 
-## Resolution Steps
-
-The owner must:
-
-1. Log into VPS provider console (web interface)
-2. Open VPS console/terminal
-3. Login with current credentials
-4. Change root password when prompted
-5. Create `asdev` user: `useradd -m -s /bin/bash asdev`
-6. Set password for asdev: `passwd asdev`
-7. Add SSH key: `mkdir -p /home/asdev/.ssh && echo "PUBKEY" > /home/asdev/.ssh/authorized_keys`
-8. Set permissions: `chmod 700 /home/asdev/.ssh && chmod 600 /home/asdev/.ssh/authorized_keys && chown -R asdev:asdev /home/asdev/.ssh`
-
-## After Manual Setup
-
-Once the owner completes manual setup, run:
+On VPS console:
 
 ```bash
-# Generate SSH key locally (if not done)
-ssh-keygen -t ed25519 -a 100 -f ~/.ssh/asdev_vps_ed25519 -C "asdev-vps-controller" -N ""
-
-# Test connection
-ssh -i ~/.ssh/asdev_vps_ed25519 asdev@VPS_HOST "whoami"
-
-# Run bootstrap
-ssh -i ~/.ssh/asdev_vps_ed25519 asdev@VPS_HOST "bash -s" < scripts/vps/bootstrap-asdev-agent.sh
+echo 'asdev ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/asdev
 ```
 
-## Security Notes
+### 2. Authenticate GitHub CLI
 
-- VPS IP: [REDACTED]
-- Password changed by owner via console
-- SSH key login preferred after initial setup
-- Password login will be disabled after key verified
+On VPS:
+
+```bash
+export PATH=$HOME/node/bin:$PATH
+gh auth login
+```
+
+Choose:
+- GitHub.com
+- HTTPS
+- Paste an authentication token
+
+### 3. Clone repos after auth
+
+```bash
+cd ~/repos
+git clone git@github.com:alirezasafaei-dev/alirezasafaeisystems.git
+git clone git@github.com:alirezasafaei-dev/auditsystems.git
+```
+
+### 4. Install dependencies
+
+```bash
+export PATH=$HOME/node/bin:$PATH
+cd ~/repos/alirezasafaeisystems && pnpm install
+cd ~/repos/auditsystems && NODE_OPTIONS="--max-old-space-size=2048" pnpm install
+```
+
+### 5. Set up systemd timer
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp ~/repos/alirezasafaeisystems/ops/systemd/vps/asdev-agent-loop.service ~/.config/systemd/user/
+cp ~/repos/alirezasafaeisystems/ops/systemd/vps/asdev-agent-loop.timer ~/.config/systemd/user/
+systemctl --user daemon-reload
+sudo loginctl enable-linger asdev
+systemctl --user enable --now asdev-agent-loop.timer
+```
+
+### 6. Run healthcheck
+
+```bash
+cd ~/repos/alirezasafaeisystems
+./scripts/agent-command-center/agent-healthcheck.sh
+```
+
+## SSH Hardening Status
+
+SSH config hardened:
+- PasswordAuthentication no
+- PubkeyAuthentication yes
+- PermitRootLogin no
+- AllowUsers asdev
+
+## VPS Specs
+
+| Resource | Value |
+|---|---|
+| OS | Ubuntu 24.04 LTS |
+| CPU | 2 vCPU |
+| RAM | 3.7GB |
+| Disk | 38GB (34GB free) |
+| Location | Germany |
+| Node.js | v22.16.0 |
+| pnpm | 11.10.0 |
+| gh CLI | 2.96.0 |
