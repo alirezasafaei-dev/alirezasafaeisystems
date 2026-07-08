@@ -144,6 +144,54 @@ Owner Approval:
 | Date | Task | Agent | Status |
 |---|---|---|---|
 | 2026-07-08 | ASDEV governance docs | MiMo | Complete |
+| 2026-07-08 | Production app-layer + Ops Loop v1 | Grok/ASDEV Lead | Complete (edge gated) |
+
+---
+
+## Latest handoff — Autonomous Production Ops Loop v1
+
+**Date:** 2026-07-08T22:25:00Z  
+**PR:** pending this branch
+
+### What Changed
+- Confirmed production app-layer HEALTHY on IRAN_PROD `:3100`
+- Added post-deploy reports, public-edge plan + nginx 3100 template (not applied)
+- Monitoring standard + `check-prod-app-layer` / `check-deploy-status`
+- DR runbook, automation-host health, site-standard template, clean-root standard
+- Roadmaps + AGENT_MEMORY + queue refresh
+- ASDEV site backup helper (dry-run safe)
+
+### Where
+- `docs/reports/*`, `docs/ops/*`, `docs/automation/*`, `docs/architecture/*`
+- `docs/roadmaps/*`, `TODAY_ROADMAP.md`, `NEXT_WEEK_ROADMAP.md`, `MONTHLY_ROADMAP.md`
+- `scripts/monitoring/*`, `scripts/deploy/asdev-backup-site.sh`
+- `ops/nginx/critical-site-production-3100.conf.template`
+- `templates/site-standard/**`
+
+### Why
+- Continue ASDEV as production platform after first cutover without micro-task stop
+- Supports reliability + repeatable multi-site ops
+
+### Validation
+- Remote: ready/health 200 on `:3100`; staging 200 on `:3000`
+- Local: automation-host DEGRADED_NON_BLOCKING; disk OK
+- New scripts: `--dry-run` PASS
+
+### Risks
+- No backup artifacts yet on IRAN_PROD
+- First prod has no previous_release
+- Public not exposed
+
+### Next Command
+```bash
+# After merge: implement live onsite backup on IRAN_PROD (no nginx)
+# Only with phrase:
+# APPROVE_CRITICAL_SITE_PUBLIC_EDGE
+```
+
+### Owner Approval
+- Required for public edge / live timers / migration
+- Not required for docs+scripts PR merge (owner review still recommended)
 
 ---
 

@@ -22,12 +22,15 @@ No IRAN_PROD mutation. No nginx/pm2 restarts. No DNS/SSL changes.
 
 | Script | Purpose | Mode |
 |--------|---------|------|
+| `scripts/monitoring/check-prod-app-layer.sh` | Loopback prod ready/health (`:3100`) | read-only HTTP |
+| `scripts/monitoring/check-deploy-status.sh` | current symlink, meta, pid | local read-only |
 | `scripts/monitoring/check-critical-site-http.sh` | Public HTTP root/ready/health | read-only HTTP |
 | `scripts/monitoring/check-automation-host-readiness.sh` | Tooling + repo + resource checks | local read-only |
 | `scripts/monitoring/check-disk-local.sh` | Disk used% thresholds | local read-only |
 | `scripts/monitoring/check-backup-freshness.sh` | Newest backup age | local read-only |
 
-All scripts support `--dry-run` / `--check`.
+All scripts support `--dry-run` / `--check`.  
+Standard: `docs/ops/monitoring-standard.md`.
 
 ---
 
@@ -35,13 +38,19 @@ All scripts support `--dry-run` / `--check`.
 
 ```bash
 # Dry-run first
+bash scripts/monitoring/check-prod-app-layer.sh --dry-run
+bash scripts/monitoring/check-deploy-status.sh --dry-run
 bash scripts/monitoring/check-critical-site-http.sh --dry-run
 bash scripts/monitoring/check-automation-host-readiness.sh --dry-run
 bash scripts/monitoring/check-disk-local.sh --dry-run
 bash scripts/monitoring/check-backup-freshness.sh --dry-run
 
 # Live checks (still non-mutating)
-bash scripts/monitoring/check-critical-site-http.sh
+# On IRAN_PROD:
+bash scripts/monitoring/check-prod-app-layer.sh
+bash scripts/monitoring/check-deploy-status.sh
+# Anywhere:
+bash scripts/monitoring/check-critical-site-http.sh   # meaningful after public edge
 bash scripts/monitoring/check-automation-host-readiness.sh
 bash scripts/monitoring/check-disk-local.sh
 ASDEV_BACKUP_ROOT=/path/to/backups bash scripts/monitoring/check-backup-freshness.sh

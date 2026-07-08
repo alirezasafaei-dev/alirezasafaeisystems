@@ -1,278 +1,141 @@
 # Agent Memory — ASDEV
 
-**Format:** Each entry records agent state at a point in time.
-**Source of Truth:** GitHub (alirezasafaei-dev/alirezasafaeisystems)
+**Format:** Each entry records agent state at a point in time.  
+**Source of Truth:** GitHub (`alirezasafaei-dev/alirezasafaeisystems`)  
+**Workspace:** `/home/dev13/ASDEV`
+
+---
+
+## Architecture (current)
+
+```
+GitHub main (SoT)
+    │
+    ▼
+/home/dev13/ASDEV  (OWNER_PC / AUTOMATION_HOST checkout)
+    │  deploy engine, registry, monitoring, docs
+    ▼
+IRAN_PROD
+    ├── /home/asdev/asdev-platform   (synced scripts/registry)
+    ├── /srv/asdev/sites/persiantoolbox          production :3100
+    └── /srv/asdev/sites/persiantoolbox-staging  staging (legacy :3000 live)
+```
+
+| Layer | Pin / state |
+|-------|-------------|
+| Product | `persiantoolbox@fcc7192af26a5713e31d4ec078365f9507c8108a` |
+| Production release | `20260708T221124Z-fcc7192` LIVE on `127.0.0.1:3100` |
+| Staging release | `20260708T210149Z-fcc7192` LIVE on legacy `:3000` |
+| Public edge | NOT configured (plan ready) |
+| Registry ports | prod **3100** / staging **3200** |
 
 ---
 
 ## Current State
 
-**Date:** 2026-07-08T20:15:00Z  
-**Current Source of Truth:** GitHub main (local HEAD was `eaddee4` at cycle start; mission branch pending merge)  
-**OWNER_PC:** SYNCED_CLEAN  
-**AUTOMATION_HOST:** DEGRADED_NON_BLOCKING  
-**CRITICAL_SITE staging:** READY_WITH_WARNINGS (dry-run only)  
-**CI:** INFRA_DEGRADED_NON_BLOCKING  
+**Date:** 2026-07-08T22:25:00Z  
+**Loop:** Autonomous Production Operations Loop v1  
+**OWNER_PC:** usable executor  
+**AUTOMATION_HOST:** DEGRADED_NON_BLOCKING (PM2 idle, no self-hosted runner)  
+**CRITICAL_SITE production app-layer:** **LIVE** ready/health **200**  
+**CRITICAL_SITE public edge:** waiting `APPROVE_CRITICAL_SITE_PUBLIC_EDGE`  
+**CI:** GHA historically infra-degraded; local checks preferred  
 **Active queue:** `docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md`
 
 ---
 
-## Decisions Made
+## Decisions
 
 | Date | Decision | Rationale |
-|---|---|---|
-| 2026-07-06 | Hermes-first orchestration approved | n8n deferred; GitHub = command center |
-| 2026-07-06 | Issue #45 as command bus | Single source for reports and commands |
-| 2026-07-08 | Backup-wait phase ended for queue | Superseded by autonomous master loop approvals |
-| 2026-07-08 | PM2 empty = non-blocking | No ASDEV ecosystem configured |
-| 2026-07-08 | halo-secret containers = legacy non-blocking | Exited weeks; not ASDEV-critical |
-| 2026-07-08 | Staging next gate | APPROVE_PHASE_2_STAGING_DEPLOY |
+|------|----------|-----------|
+| 2026-07-06 | Hermes-first orchestration | n8n deferred; GitHub = command center |
+| 2026-07-08 | Staging live under PHASE_2 phrase | proven pin `fcc7192` |
+| 2026-07-08 | First prod = **app layer only** Option A | reduce blast radius; edge separate |
+| 2026-07-08 | Prod port **3100** not 3000 | isolation vs legacy staging |
+| 2026-07-08 | Remote build on IRAN | large SCP unstable; heap+swap |
+| 2026-07-08 | One PR per major phase | avoid micro-PR thrash |
+| 2026-07-08 | Continue autonomous loop after prod | do not stop for tiny tasks |
+
+---
+
+## Rules (non-negotiable)
+
+- GitHub is SoT; never commit `.env`, keys, raw IPs in reports when avoidable  
+- Production / edge / migration / live timers require **exact** phrases  
+- Prefer automation + reusable scripts + docs  
+- Batch related work into one meaningful PR  
+- `/home/dev13/ASDEV` is the only active workspace root  
 
 ---
 
 ## Blockers
 
-- Live staging deploy: needs `APPROVE_PHASE_2_STAGING_DEPLOY`
-- CRITICAL_SITE source path `sites/live/persiantoolbox` not present on OWNER_PC checkout
-- GitHub Actions infrastructure degraded (multi-workflow fail in seconds; log TLS timeouts)
-- Live monitoring timers: needs `APPROVE_MONITORING_LIVE_TIMERS`
-- Production deploy: needs `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY` (not next)
+| Blocker | Type |
+|---------|------|
+| Public edge not live | **WAITING_APPROVAL** `APPROVE_CRITICAL_SITE_PUBLIC_EDGE` |
+| Backup artifacts missing on IRAN_PROD | technical gap (safe to implement onsite backup next) |
+| First prod has no previous_release | expected; need second release for symlink rollback history |
+| Shared secrets for full product features | owner placement on host shared path |
+| Live monitoring timers | **WAITING_APPROVAL** `APPROVE_MONITORING_LIVE_TIMERS` |
 
 ---
 
-## Next Action
+## Owner approval phrases
 
-1. Owner grants `APPROVE_PHASE_2_STAGING_DEPLOY` **only if** ready for IRAN_PROD staging mutation
-2. Resolve site source/artifact on executor before live staging
-3. After staging success, prepare production gate separately
-4. Do not spam CI reruns until GHA infra recovers
+### Granted (this mission arc)
 
----
-
-## Owner Approval Phrases
-
-### Granted this master loop
-
-- APPROVE_OWNER_PC_SYNC_MAIN
-- APPROVE_AUTOMATION_HOST_READONLY_AUDIT
-- APPROVE_AUTOMATION_HOST_REPAIR_NON_DESTRUCTIVE
-- APPROVE_REPO_AUTOMATION_MAINTENANCE
-- APPROVE_CI_ROUTER_REPAIR
-- APPROVE_QUEUE_MAINTENANCE
-- APPROVE_CRITICAL_SITE_STAGING_PREFLIGHT_DRY_RUN
-- APPROVE_MONITORING_FOUNDATION_PREP
-- APPROVE_DOCS_AND_REPORTS_UPDATE
+- `APPROVE_OWNER_PC_SYNC_MAIN`  
+- `APPROVE_AUTOMATION_HOST_READONLY_AUDIT`  
+- `APPROVE_AUTOMATION_HOST_REPAIR_NON_DESTRUCTIVE`  
+- `APPROVE_REPO_AUTOMATION_MAINTENANCE`  
+- `APPROVE_CI_ROUTER_REPAIR`  
+- `APPROVE_QUEUE_MAINTENANCE`  
+- `APPROVE_CRITICAL_SITE_STAGING_PREFLIGHT_DRY_RUN`  
+- `APPROVE_PHASE_2_STAGING_DEPLOY`  
+- `APPROVE_MONITORING_FOUNDATION_PREP`  
+- `APPROVE_DOCS_AND_REPORTS_UPDATE`  
+- **`APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`** (app layer only — executed)  
+- Autonomous Production Operations Loop v1 (post-deploy continue)
 
 ### Not granted (stop gates)
 
-- APPROVE_PHASE_2_STAGING_DEPLOY
-- APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-- APPROVE_MONITORING_LIVE_TIMERS
-- APPROVE_NON_CRITICAL_QUARANTINE_LIVE
+- `APPROVE_CRITICAL_SITE_PUBLIC_EDGE`  
+- `APPROVE_MONITORING_LIVE_TIMERS`  
+- `APPROVE_CRITICAL_SITE_MIGRATION`  
+- `APPROVE_NON_CRITICAL_QUARANTINE_LIVE`  
+- `APPROVE_RELEASE_DELETE`
 
-### Informal phrases (still require explicit deploy phrases for prod/staging)
-
-- "approved" / "go ahead" / "ship it" — **insufficient alone** for CRITICAL_SITE deploy
-
----
-
-## What Must Not Be Repeated
-
-- Do not re-audit AUTOMATION_HOST as BLOCKING solely for empty PM2
-- Do not restart legacy exited halo-secret containers without need
-- Do not thrash GitHub Actions reruns
-- Do not live staging without APPROVE_PHASE_2_STAGING_DEPLOY
-- Do not print secrets, raw IPs, or .env contents
-- Do not create tiny fragmented PRs for the same mission
+Informal “go ahead” is **insufficient** for prod/edge/migration.
 
 ---
 
-## Memory Updates
+## Next actions (priority)
 
-Agents append new entries at the bottom of this file when:
-- A decision is made
-- A blocker is discovered or resolved
-- An approval is granted
-- A task completes or fails
-- The source of truth state changes
-
-Format:
-
-```
-## [YYYY-MM-DD HH:MM UTC] Entry Title
-- What happened
-- Why it matters
-- What's next
-```
+1. Land ops-loop PR (docs/scripts/template/roadmaps)  
+2. Implement ASDEV-path onsite backup + restore drill (no edge)  
+3. On phrase: public edge nginx→3100 + SSL + DNS  
+4. On phrase: monitoring live timers  
+5. Second production release when product changes → enable rollback history  
 
 ---
 
-## [2026-07-08 20:15 UTC] Autonomous high-output master loop
+## What must not be repeated
 
-- Reconciled OWNER_PC to main `eaddee4` (clean ff-only)
-- Re-audited AUTOMATION_HOST → DEGRADED_NON_BLOCKING
-- Fixed deploy engine `get_field` bugs; hardened release.meta + previous-release
-- Completed CRITICAL_SITE staging preflight dry-run → READY_WITH_WARNINGS
-- Added monitoring foundation scripts + runbook + alerting policy
-- Refreshed queue, roadmaps, reports
-- Stopped at staging live gate
-- Next: APPROVE_PHASE_2_STAGING_DEPLOY
+- Do not redeploy production “just because” loop restarted  
+- Do not install nginx template without public-edge phrase  
+- Do not treat portfolio backup defaults as CRITICAL_SITE complete  
+- Do not spam GHA reruns  
+- Do not print secrets / raw IPs / .env contents  
+- Do not create many tiny PRs for one mission  
 
-## [2026-07-08 20:22 UTC] Loop-2: staging source + CI router local
+---
 
-- Prepared CRITICAL_SITE source via asdev-prepare-site-source (public repo clone, gitignored)
-- Source status ready; preflight/deploy dry-run use product SHA fcc7192
-- Added staging-execution-plan.md and site-source-map.tsv
-- Fixed check-dangerous-patterns false positives + wrong PROJECT_ROOT
-- Removed eval from backup-onsite / restore-drill-onsite
-- Local CI Router PASS; GHA still infra-failed (empty steps)
-- Live staging still gated: APPROVE_PHASE_2_STAGING_DEPLOY
+## Memory log
 
-## [2026-07-08 21:06 UTC] CRITICAL_SITE staging LIVE_OK
+### [2026-07-08 22:25 UTC] Autonomous Production Operations Loop v1
 
-- Owner granted APPROVE_PHASE_2_STAGING_DEPLOY
-- Staging release 20260708T210149Z-fcc7192 on IRAN_PROD
-- /api/ready and /api/health HTTP 200 on 127.0.0.1:3000
-- Production current not created/touched
-- Added 2G swap for build OOM mitigation
-- Next: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-
-## [2026-07-08 21:11 UTC] Document + AUTOMATION_HOST recheck
-
-- Mission worklog written (docs/reports/asdev-mission-worklog-20260708.md)
-- AUTOMATION_HOST still DEGRADED_NON_BLOCKING; runner false-positive fixed
-- Staging re-verified: ready/health 200, PID alive, prod current absent
-- Safe work remaining without production phrase is limited
-- Next: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-
-## [2026-07-08T21:15:44Z] Production prep loop (no live prod)
-
-- Staging re-verified LIVE_OK (ready/health 200)
-- Production dry-run preflight/deploy/rollback PASS
-- production-execution-plan.md + port-3000 conflict documented
-- asdev-remote-status.sh for redacted IRAN_PROD checks
-- CI still infra-failed; local router PASS
-- Stopped at production phrase gate
-
-## [2026-07-08T21:28:21Z] Production Hardening Gate complete
-
-### Architecture assumptions
-- CRITICAL_SITE prod_port=3100, staging_port=3200 (isolated)
-- Immutable releases under /srv/asdev/sites/<site>/[staging/]releases/
-- current symlink is only cutover mutation
-- Healthcheck post-activation; auto rollback on failure
-- Migration changes require APPROVE_CRITICAL_SITE_MIGRATION
-
-### Known blockers before clean production
-- Live staging still on legacy port 3000 (needs rebind to 3200)
-- Nginx not applied
-- Production secrets/shared readiness at execute time
-
-### Next gates
-1. Staging rebind: APPROVE_PHASE_2_STAGING_DEPLOY
-2. Production: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-
-### Gate verdict
-PASS_WITH_WARNINGS — no production mutation performed
-
-## [2026-07-08T21:38:40Z] Final Release Candidate Audit
-
-### Architecture
-- CRITICAL_SITE prod_port=3100 staging_port=3200
-- Staging LIVE: 20260708T210149Z-fcc7192 on legacy :3000 (healthy)
-- Production: no current, no releases yet
-- Engine: immutable releases, post-activation HC, port/migration guards
-
-### Release pin
-- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
-- Platform RC: PR #72 (not merged to main at audit time)
-
-### AUTOMATION_HOST
-- DEGRADED_NON_BLOCKING (usable)
-
-### Decision
-- READY_FOR_PRODUCTION_APPROVAL
-- NEXT_GATE: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-- Owner should merge PR #72 first
-
-### Blockers (soft)
-- PR not on main
-- Staging not on 3200 (optional)
-- First prod has no previous release for rollback
-
-## [2026-07-08T21:44:19Z] RELEASE CANDIDATE FROZEN
-
-### Frozen pins
-- Platform main: 5aff1dfed17dcf0672b3022564b321660b297580 (PR #72 merged)
-- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
-- Staging release: 20260708T210149Z-fcc7192 (ready/health 200)
-
-### Actions completed
-- PR #72 reviewed (local validation PASS; GHA infra red → admin merge)
-- OWNER_PC main ff-only synced to 5aff1df
-- IRAN_PROD /home/asdev/asdev-platform ops surface synced + RELEASE_CANDIDATE.pin
-- No production deploy
-
-### Current gate
-APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-
-### Status
-READY_FOR_PRODUCTION_FREEZE
-
-## [2026-07-08T21:45:37Z] RELEASE CANDIDATE FROZEN (corrected)
-
-### Frozen pins
-- Platform: GitHub main after PR #72 merge (see docs/reports/critical-site-release-freeze-latest.md for exact SHA)
-- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
-- Staging: 20260708T210149Z-fcc7192 (ready/health 200)
-
-### Actions
-- PR #72 merged (local validation PASS; GHA infra red)
-- OWNER_PC main synced
-- IRAN_PROD platform ops synced + RELEASE_CANDIDATE.pin
-- No production deploy
-
-### Gate
-APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-
-### Status
-READY_FOR_PRODUCTION_FREEZE
-
-## [2026-07-08T21:57:43Z] PRODUCTION FINAL PREFLIGHT
-
-### Result
-PRODUCTION_PREFLIGHT_PASS
-
-### Validated
-- Platform pin re-synced on IRAN_PROD to main tip
-- Tools/disk/mem OK
-- Port 3100 free; staging on :3000 healthy
-- Empty-state inventory captured (metadata only)
-- Shared .env: none in known paths (residual)
-- Backup evidence: weak (residual)
-- Dry-run production PASS
-
-### Next
-APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-
-### Not done
-production deploy, nginx, DNS, SSL, migration
-
-## [2026-07-08T22:16:19Z] PRODUCTION APP-LAYER LIVE
-
-### Deployed
-- Phrase: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-- Scope: application layer only 127.0.0.1:3100
-- Release: 20260708T221124Z-fcc7192
-- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
-- ready/health: 200/200
-- PID alive
-- Staging untouched (still 200 on :3000)
-- nginx/DNS/SSL: not touched
-
-### Rollback
-- First production release — no previous-release pointer
-- Recovery: redeploy same SHA or stop pid
-
-### Next
-Public edge phase needs separate approval
+- Confirmed production app-layer still HEALTHY (pid alive, ready/health 200, p50~18ms)  
+- Phase 2–10 docs/scripts/templates/roadmaps produced in one batch  
+- Public edge **prepared only** (template + plan)  
+- Automation host reclassified DEGRADED_NON_BLOCKING  
+- Next stop gate: `APPROVE_CRITICAL_SITE_PUBLIC_EDGE` or backup implementation work  
