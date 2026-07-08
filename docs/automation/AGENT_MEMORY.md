@@ -237,3 +237,23 @@ APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 
 ### Status
 READY_FOR_PRODUCTION_FREEZE
+
+## [2026-07-08T21:57:43Z] PRODUCTION FINAL PREFLIGHT
+
+### Result
+PRODUCTION_PREFLIGHT_PASS
+
+### Validated
+- Platform pin re-synced on IRAN_PROD to main tip
+- Tools/disk/mem OK
+- Port 3100 free; staging on :3000 healthy
+- Empty-state inventory captured (metadata only)
+- Shared .env: none in known paths (residual)
+- Backup evidence: weak (residual)
+- Dry-run production PASS
+
+### Next
+APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+
+### Not done
+production deploy, nginx, DNS, SSL, migration
