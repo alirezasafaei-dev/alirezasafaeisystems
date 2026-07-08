@@ -1,6 +1,6 @@
 # CRITICAL_SITE Release Candidate Freeze
 
-**Date:** 2026-07-08T21:45:00Z  
+**Date:** 2026-07-08T21:46:00Z  
 **Status:** **FROZEN**  
 **Production mutation:** **none**
 
@@ -12,8 +12,8 @@
 |-------|-------|
 | Repo | `alirezasafaei-dev/alirezasafaeisystems` |
 | Branch | `main` |
-| Full SHA | `14eac6a7a92d563940294f85afe4b88415f17018` |
-| Short | `14eac6a` |
+| Full SHA | `66f01badb3fb54978bc8360e21bd4c3beb94a96b` |
+| Short | `66f01ba` |
 | How arrived | PR #72 merged (`5aff1df`) + freeze documentation commits |
 | OWNER_PC | `/home/dev13/ASDEV` on `main`, matches `origin/main` |
 | IRAN_PROD platform | `/home/asdev/asdev-platform` ops surface synced; `RELEASE_CANDIDATE.pin` written |
@@ -36,7 +36,7 @@
 ## Reproducible deployment equation
 
 ```
-ASDEV platform 192d8d5
+ASDEV platform 66f01ba
 +
 CRITICAL_SITE product fcc7192
 =
