@@ -153,3 +153,24 @@ Format:
 - asdev-remote-status.sh for redacted IRAN_PROD checks
 - CI still infra-failed; local router PASS
 - Stopped at production phrase gate
+
+## [2026-07-08T21:28:21Z] Production Hardening Gate complete
+
+### Architecture assumptions
+- CRITICAL_SITE prod_port=3100, staging_port=3200 (isolated)
+- Immutable releases under /srv/asdev/sites/<site>/[staging/]releases/
+- current symlink is only cutover mutation
+- Healthcheck post-activation; auto rollback on failure
+- Migration changes require APPROVE_CRITICAL_SITE_MIGRATION
+
+### Known blockers before clean production
+- Live staging still on legacy port 3000 (needs rebind to 3200)
+- Nginx not applied
+- Production secrets/shared readiness at execute time
+
+### Next gates
+1. Staging rebind: APPROVE_PHASE_2_STAGING_DEPLOY
+2. Production: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+
+### Gate verdict
+PASS_WITH_WARNINGS — no production mutation performed

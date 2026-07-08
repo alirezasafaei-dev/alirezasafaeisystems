@@ -30,6 +30,19 @@ Without this exact phrase, only dry-run/check modes are allowed.
 
 ---
 
+## Runtime ports (isolated)
+
+| Env | Port | Notes |
+|-----|------|-------|
+| production | **3100** | registry `prod_port` |
+| staging | **3200** | registry `staging_port` |
+
+See `docs/ops/runtime-port-isolation.md`.
+
+Live staging may still be on legacy **3000** until rebind — **do not** start production on 3000.
+
+---
+
 ## Lessons from staging (apply to production)
 
 1. Build on IRAN_PROD when OWNER→IRAN bulk transfer is unreliable  
@@ -38,6 +51,8 @@ Without this exact phrase, only dry-run/check modes are allowed.
 4. Do **not** set `NODE_ENV=production` before install (skips devDependencies)  
 5. Start `node-standalone` after symlink; healthcheck post-activation  
 6. Never touch staging-only paths when activating production  
+7. Env-specific ports: production 3100, staging 3200  
+8. Engine refuses target port if already listening and not owned by this env
 
 ---
 
@@ -140,13 +155,19 @@ bash scripts/deploy/asdev-rollback.sh \
 
 ### Port note (critical)
 
-Staging currently uses `127.0.0.1:3000`. Registry production healthcheck is also port **3000**.  
-Before production start on the same host, either:
+Registry now isolates:
 
-- stop staging runtime, or  
-- change staging to another port and update registry/staging process  
+- production **3100**
+- staging **3200**
 
-This must be resolved in the production runbook step, not after failure.
+Legacy staging may still listen on **3000** until rebind. Production deploy targets **3100** only.  
+Before production start:
+
+1. Prefer rebind staging → 3200 (`APPROVE_PHASE_2_STAGING_DEPLOY`), **or**  
+2. Stop legacy staging on 3000 if it would confuse ops (not required for 3100 free)  
+3. Confirm 3100 free via `check-port-isolation.sh --live` / preflight  
+
+Nginx templates: see `runtime-port-isolation.md` (not applied in hardening gate).
 
 ---
 

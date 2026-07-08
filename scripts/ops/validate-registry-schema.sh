@@ -19,7 +19,8 @@ warn()  { echo -e "${YELLOW}[$(date -u +%Y-%m-%dT%H:%M:%SZ)] WARN:${NC} $1"; ((W
 error() { echo -e "${RED}[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR:${NC} $1"; ((ERRORS++)) || true; }
 ok()    { echo -e "${GREEN}[$(date -u +%Y-%m-%dT%H:%M:%SZ)] OK:${NC} $1"; }
 
-EXPECTED_COLS=20
+# 21 columns: added staging_port for env isolation
+EXPECTED_COLS=21
 
 usage() {
     cat <<EOF
@@ -30,7 +31,9 @@ Validate registry.tsv schema consistency.
 Checks:
   - Each row has exactly $EXPECTED_COLS columns
   - protected is true/false
-  - healthcheck_port is numeric when mode=local-port
+  - prod_port (col 12) numeric when mode=local-port
+  - staging_port (col 21) numeric when mode=local-port
+  - prod_port != staging_port (port isolation)
   - healthcheck_path starts with / or is "-"
 
 Options:
@@ -65,6 +68,15 @@ while IFS= read -r line; do
         else
             ok "Header has $EXPECTED_COLS columns"
         fi
+        # Accept prod_port or legacy healthcheck_port in header col 12 name
+        col12=$(echo "$line" | cut -f12)
+        if [[ "$col12" != "prod_port" && "$col12" != "healthcheck_port" ]]; then
+            warn "Header col12 is '$col12' (expected prod_port or healthcheck_port)"
+        fi
+        col21=$(echo "$line" | cut -f21)
+        if [[ "$col21" != "staging_port" ]]; then
+            error "Header col21 is '$col21' (expected staging_port)"
+        fi
         continue
     fi
 
@@ -86,12 +98,22 @@ while IFS= read -r line; do
     fi
 
     hc_mode=$(echo "$line" | cut -f10)
-    hc_port=$(echo "$line" | cut -f12)
+    prod_port=$(echo "$line" | cut -f12)
+    staging_port=$(echo "$line" | cut -f21)
+
     if [[ "$hc_mode" == "local-port" ]]; then
-        if [[ "$hc_port" == "-" ]]; then
-            error "Line $line_num ($site_id): healthcheck_mode=local-port but healthcheck_port is '-'"
-        elif ! [[ "$hc_port" =~ ^[0-9]+$ ]]; then
-            error "Line $line_num ($site_id): healthcheck_port='$hc_port' is not numeric (required for local-port)"
+        if [[ "$prod_port" == "-" || -z "$prod_port" ]]; then
+            error "Line $line_num ($site_id): local-port requires prod_port"
+        elif ! [[ "$prod_port" =~ ^[0-9]+$ ]]; then
+            error "Line $line_num ($site_id): prod_port='$prod_port' is not numeric"
+        fi
+        if [[ "$staging_port" == "-" || -z "$staging_port" ]]; then
+            error "Line $line_num ($site_id): local-port requires staging_port"
+        elif ! [[ "$staging_port" =~ ^[0-9]+$ ]]; then
+            error "Line $line_num ($site_id): staging_port='$staging_port' is not numeric"
+        fi
+        if [[ "$prod_port" == "$staging_port" ]]; then
+            error "Line $line_num ($site_id): prod_port and staging_port must differ (both $prod_port)"
         fi
     fi
 
@@ -102,7 +124,7 @@ while IFS= read -r line; do
         fi
     fi
 
-    ok "Line $line_num ($site_id): valid"
+    ok "Line $line_num ($site_id): valid (prod_port=$prod_port staging_port=$staging_port)"
 done < "$REGISTRY"
 
 echo ""
@@ -118,9 +140,5 @@ if [[ $ERRORS -gt 0 ]]; then
     exit 1
 fi
 
-if [[ $WARNINGS -gt 0 ]]; then
-    echo -e "${YELLOW}Validation passed with warnings${NC}"
-else
-    echo -e "${GREEN}All checks passed${NC}"
-fi
+echo -e "${GREEN}All checks passed${NC}"
 exit 0

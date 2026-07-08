@@ -70,3 +70,53 @@ asdev_site_src_status() {
     echo "missing"
   fi
 }
+
+# Registry column numbers (21-col schema)
+# 12 = prod_port (legacy name healthcheck_port accepted in validators)
+# 21 = staging_port
+ASDEV_COL_PROD_PORT=12
+ASDEV_COL_STAGING_PORT=21
+
+# Resolve runtime/health port for an environment from registry fields.
+# Args: environment prod_port staging_port
+asdev_resolve_env_port() {
+  local environment="$1"
+  local prod_port="$2"
+  local staging_port="${3:-}"
+  if [[ "$environment" == "staging" ]]; then
+    if [[ -n "$staging_port" && "$staging_port" != "-" ]]; then
+      printf '%s\n' "$staging_port"
+    else
+      printf '%s\n' "$prod_port"
+    fi
+  else
+    printf '%s\n' "$prod_port"
+  fi
+}
+
+# Return 0 if TCP port is listening locally
+asdev_port_is_listening() {
+  local port="$1"
+  if command -v ss >/dev/null 2>&1; then
+    if ss -lnt 2>/dev/null | grep -E ":${port}\\b" | grep -q LISTEN; then
+      return 0
+    fi
+    return 1
+  fi
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
+    return $?
+  fi
+  return 1
+}
+
+# True if path looks like a DB migration change
+asdev_path_is_migration() {
+  local f="$1"
+  case "$f" in
+    *migration*|*migrations*|prisma/migrations/*|**/migrate/*|db/migrate/*)
+      return 0
+      ;;
+  esac
+  return 1
+}

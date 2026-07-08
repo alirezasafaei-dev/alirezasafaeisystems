@@ -31,6 +31,7 @@ COL_STAGING_BASE=8
 COL_SHARED_PATH=9
 COL_HC_MODE=10
 COL_HC_HOST_ALIAS=11
+COL_PROD_PORT=12
 COL_HC_PORT=12
 COL_HC_PATH=13
 COL_RUNTIME=14
@@ -40,6 +41,7 @@ COL_START_CMD_ID=17
 COL_ENV_ALIAS=18
 COL_DEPLOY_STRATEGY=19
 COL_ROLLBACK_STRATEGY=20
+COL_STAGING_PORT=21
 
 usage() {
     cat <<EOF
@@ -164,8 +166,12 @@ detect_changes() {
         echo "none"
         return
     fi
-    local has_source=false has_config=false has_deps=false has_docs=false
+    local has_source=false has_config=false has_deps=false has_docs=false has_migration=false
     while IFS= read -r f; do
+        if asdev_path_is_migration "$f"; then
+            has_migration=true
+            continue
+        fi
         case "$f" in
             *.ts|*.tsx|*.js|*.jsx|*.py|*.rb|*.go|src/*|app/*|lib/*) has_source=true ;;
             *.env*|*.json|*.yaml|*.yml|*.toml|config/*) has_config=true ;;
@@ -173,12 +179,67 @@ detect_changes() {
             *.md|*.txt|docs/*) has_docs=true ;;
         esac
     done <<< "$changed_files"
-    if [[ "$has_source" == "true" ]]; then echo "source"
+    if [[ "$has_migration" == "true" ]]; then echo "migration"
+    elif [[ "$has_source" == "true" ]]; then echo "source"
     elif [[ "$has_config" == "true" ]]; then echo "config"
     elif [[ "$has_deps" == "true" ]]; then echo "deps"
     elif [[ "$has_docs" == "true" ]]; then echo "docs"
     else echo "other"
     fi
+}
+
+# Resolve env-specific port from registry; enforce isolation.
+resolve_runtime_port() {
+    local site="$1" environment="$2"
+    local prod_port staging_port
+    prod_port=$(get_field "$site" "$COL_PROD_PORT")
+    staging_port=$(get_field "$site" "$COL_STAGING_PORT")
+    if [[ -z "$prod_port" || "$prod_port" == "-" ]]; then
+        error "Registry missing prod_port for $site"
+    fi
+    if [[ -z "$staging_port" || "$staging_port" == "-" ]]; then
+        error "Registry missing staging_port for $site"
+    fi
+    if [[ "$prod_port" == "$staging_port" ]]; then
+        error "Port isolation violation: prod_port and staging_port both $prod_port for $site"
+    fi
+    asdev_resolve_env_port "$environment" "$prod_port" "$staging_port"
+}
+
+# Fail if target port is already in use by a process not owned by this deploy_base pid file.
+guard_port_available() {
+    local port="$1" deploy_base="$2" environment="$3"
+    local pid_file="${deploy_base}/asdev-runtime.pid"
+    if ! asdev_port_is_listening "$port"; then
+        ok "Port $port is free for $environment"
+        return 0
+    fi
+    # Allow re-bind if our own runtime already holds it
+    if [[ -f "$pid_file" ]]; then
+        local own_pid
+        own_pid=$(tr -d '[:space:]' < "$pid_file" || true)
+        if [[ -n "$own_pid" ]] && kill -0 "$own_pid" 2>/dev/null; then
+            warn "Port $port already held by this environment runtime pid=$own_pid (will restart)"
+            return 0
+        fi
+    fi
+    error "Port $port already listening and not owned by this environment ($deploy_base). Stop the conflicting process or rebind before deploy."
+}
+
+guard_no_migration_without_phrase() {
+    local change_type="$1" environment="$2"
+    if [[ "$change_type" != "migration" ]]; then
+        return 0
+    fi
+    if [[ "$DRY_RUN" == "true" || "$CHECK_MODE" == "true" ]]; then
+        warn "Change type is migration — live $environment deploy would require APPROVE_CRITICAL_SITE_MIGRATION"
+        return 0
+    fi
+    if [[ "$APPROVE_PHRASE" == "APPROVE_CRITICAL_SITE_MIGRATION" ]]; then
+        warn "Migration approval phrase present — proceeding (ensure DBA review done)"
+        return 0
+    fi
+    error "Migration-like changes detected. Live deploy blocked. Use --dry-run or APPROVE_CRITICAL_SITE_MIGRATION after review."
 }
 
 deploy_site_artifact() {
@@ -218,18 +279,23 @@ deploy_site_artifact() {
     log "Source: $src_dir (status=$src_status)"
     log "Previous release: ${current_release:-none}"
 
+    local dry_port
+    dry_port=$(resolve_runtime_port "$site" "$environment")
     if [[ "$DRY_RUN" == "true" ]]; then
-        log "[DRY RUN] Would create release dir: $release_dir"
+        log "[DRY RUN] Would create immutable release dir: $release_dir"
         log "[DRY RUN] Would write release metadata (release.meta)"
         log "[DRY RUN] Would sync site-scoped source from: $src_dir"
         if [[ "$src_status" != "ready" ]]; then
             warn "[DRY RUN] Source not ready — run: scripts/deploy/asdev-prepare-site-source.sh --site $site --apply"
         fi
         log "[DRY RUN] Would run build_command_id: $build_cmd_id"
+        log "[DRY RUN] Runtime port for $environment: $dry_port"
+        log "[DRY RUN] Would guard port $dry_port available"
         if [[ -n "$current_release" ]]; then
             log "[DRY RUN] Would record previous-release pointer: $current_release"
         fi
-        log "[DRY RUN] Would symlink current -> $release_dir"
+        log "[DRY RUN] Would symlink current -> $release_dir (only cutover mutation)"
+        log "[DRY RUN] Would start node-standalone on 127.0.0.1:$dry_port"
         log "[DRY RUN] Would run post-activation healthcheck"
         log "[DRY RUN] Would rollback symlink if healthcheck fails"
         return 0
@@ -254,7 +320,13 @@ deploy_site_artifact() {
         error "No source or artifact found for $site (tried $src_dir). Run asdev-prepare-site-source.sh --site $site --apply"
     fi
 
+    local hc_mode hc_port hc_path
+    hc_mode=$(get_field "$site" "$COL_HC_MODE")
+    hc_port=$(resolve_runtime_port "$site" "$environment")
+    hc_path=$(get_field "$site" "$COL_HC_PATH")
+
     # Release metadata for audit trail and safer rollback selection.
+    # Immutable release dir: write meta once; never modify after activation success path relies on it.
     cat > "${release_dir}/release.meta" <<EOF
 site=${site}
 environment=${environment}
@@ -265,12 +337,22 @@ runtime=${runtime}
 build_command_id=${build_cmd_id}
 start_command_id=${start_cmd_id}
 previous_release=${current_release:-}
+runtime_port=${hc_port}
+prod_port=$(get_field "$site" "$COL_PROD_PORT")
+staging_port=$(get_field "$site" "$COL_STAGING_PORT")
 EOF
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        : # meta written only on live; dry-run already returned earlier
+    fi
 
     if [[ -n "$build_cmd_id" && "$build_cmd_id" != "-" ]]; then
         log "Running build_command_id: $build_cmd_id"
         (cd "$release_dir" && run_build_command_id "$build_cmd_id")
     fi
+
+    # Port guard before activation (production-grade isolation)
+    guard_port_available "$hc_port" "$deploy_base" "$environment"
 
     # Record previous release before symlink switch.
     if [[ -n "$current_release" ]]; then
@@ -278,13 +360,9 @@ EOF
         log "Recorded previous-release: $current_release"
     fi
 
+    # Cutover: only current symlink changes (immutable releases under releases/)
     ln -sfn "$release_dir" "$current_link"
     log "Symlink switched: $current_link -> $release_dir"
-
-    local hc_mode hc_port hc_path
-    hc_mode=$(get_field "$site" "$COL_HC_MODE")
-    hc_port=$(get_field "$site" "$COL_HC_PORT")
-    hc_path=$(get_field "$site" "$COL_HC_PATH")
 
     # Start runtime after activation (required for post-activation healthcheck).
     start_runtime "$site" "$environment" "$deploy_base" "$release_dir" "$start_cmd_id" "$hc_port" "$process_names"
@@ -433,6 +511,12 @@ main() {
     local change_type
     change_type=$(detect_changes "$SITE_NAME" "$(get_field "$SITE_NAME" "$COL_REPO_PATH")" "$COMMIT")
     log "Change type: $change_type"
+    guard_no_migration_without_phrase "$change_type" "$ENVIRONMENT"
+
+    # Fail-fast port isolation before any mutation
+    local runtime_port
+    runtime_port=$(resolve_runtime_port "$SITE_NAME" "$ENVIRONMENT")
+    log "Resolved runtime port for $ENVIRONMENT: $runtime_port"
 
     deploy_site_artifact "$SITE_NAME" "$COMMIT" "$ENVIRONMENT"
 }

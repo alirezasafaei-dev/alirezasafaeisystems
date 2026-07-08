@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/asdev-common.sh"
 PROJECT_ROOT="$(asdev_project_root_from "$SCRIPT_DIR")"
 REGISTRY="$PROJECT_ROOT/deploy/registry.tsv"
+# ensure common is loaded for port helpers
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -30,6 +31,7 @@ COL_STAGING_BASE=8
 COL_SHARED_PATH=9
 COL_HC_MODE=10
 COL_HC_HOST_ALIAS=11
+COL_PROD_PORT=12
 COL_HC_PORT=12
 COL_HC_PATH=13
 COL_RUNTIME=14
@@ -39,6 +41,7 @@ COL_START_CMD_ID=17
 COL_ENV_ALIAS=18
 COL_DEPLOY_STRATEGY=19
 COL_ROLLBACK_STRATEGY=20
+COL_STAGING_PORT=21
 
 ERRORS=0
 WARNINGS=0
@@ -157,34 +160,64 @@ check_commit() {
 
 check_healthcheck_endpoint() {
     log "Checking healthcheck endpoint..."
-    local hc_mode hc_port hc_path
+    local hc_mode hc_port hc_path prod_port staging_port
     hc_mode=$(get_field "$COL_HC_MODE")
-    hc_port=$(get_field "$COL_HC_PORT")
+    prod_port=$(get_field "$COL_PROD_PORT")
+    staging_port=$(get_field "$COL_STAGING_PORT")
     hc_path=$(get_field "$COL_HC_PATH")
+    hc_port=$(asdev_resolve_env_port "$ENVIRONMENT" "$prod_port" "$staging_port")
+    if [[ "$prod_port" == "$staging_port" && -n "$prod_port" && "$prod_port" != "-" ]]; then
+        error "Port isolation violation: prod_port == staging_port ($prod_port)"
+        return 1
+    fi
+    ok "Port plan: prod=$prod_port staging=$staging_port active_env_port=$hc_port"
     if [[ "$hc_mode" == "none" ]]; then
         warn "Healthcheck mode is 'none' — no endpoint to check"
         return 0
     fi
     if [[ "$hc_mode" == "local-port" ]]; then
         if [[ -z "$hc_port" || "$hc_port" == "-" ]]; then
-            warn "local-port mode but no healthcheck_port configured"
+            warn "local-port mode but no port configured for $ENVIRONMENT"
             return 0
         fi
         if command -v curl >/dev/null 2>&1; then
             local http_code
             http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "http://127.0.0.1:${hc_port}${hc_path}" 2>/dev/null || echo "000")
             if [[ "$http_code" == "000" ]]; then
-                warn "Healthcheck endpoint not reachable (expected if not deployed)"
+                warn "Healthcheck endpoint not reachable on :$hc_port (expected if not deployed)"
             elif [[ "$http_code" -ge 200 && "$http_code" -lt 400 ]]; then
-                ok "Healthcheck endpoint reachable (HTTP $http_code)"
+                ok "Healthcheck endpoint reachable on :$hc_port (HTTP $http_code)"
             else
-                warn "Healthcheck endpoint returned HTTP $http_code"
+                warn "Healthcheck endpoint returned HTTP $http_code on :$hc_port"
             fi
         else
             warn "curl not available — skipping endpoint check"
         fi
     else
         warn "Healthcheck mode '$hc_mode' — skipping endpoint check"
+    fi
+}
+
+check_port_collision_guard() {
+    log "Checking port isolation guards..."
+    local prod_port staging_port active
+    prod_port=$(get_field "$COL_PROD_PORT")
+    staging_port=$(get_field "$COL_STAGING_PORT")
+    active=$(asdev_resolve_env_port "$ENVIRONMENT" "$prod_port" "$staging_port")
+    if [[ "$prod_port" == "$staging_port" ]]; then
+        error "Cannot deploy: prod_port and staging_port collide ($prod_port)"
+        return 1
+    fi
+    # If deploying production while staging holds same port as production target — blocked by isolation above.
+    # If target port is listening and this is production, warn strongly.
+    if asdev_port_is_listening "$active"; then
+        if [[ "$ENVIRONMENT" == "production" ]]; then
+            warn "Target production port $active is currently listening — cutover must own/stop it before live start"
+        else
+            warn "Target staging port $active is currently listening — redeploy will restart owned runtime if pid matches"
+        fi
+    else
+        ok "Target port $active is free"
     fi
 }
 
@@ -267,6 +300,7 @@ run_all_checks() {
     check_shared_path || true
     check_commit || true
     check_healthcheck_endpoint || true
+    check_port_collision_guard || true
     check_disk_space || true
     check_no_conflicting_deploy || true
     check_environment_tools || true

@@ -1,58 +1,24 @@
-# گزارش حلقه خودمختار ASDEV — آخرین وضعیت
+# گزارش حلقه — Production Hardening Gate
 
-**تاریخ:** 2026-07-08T21:16:00Z  
-**شاخه:** `ops/autonomous-loop-staging-readiness-20260708`  
+**تاریخ:** 2026-07-08T21:28:21Z  
 **PR:** #72  
+**Verdict:** PASS_WITH_WARNINGS  
 
----
+## انجام‌شده
+- isolation پورت: prod 3100 / staging 3200 در registry
+- guardهای deploy: port conflict، migration block، env port resolve
+- checklist readiness + معماری isolation + rehearsal rollback
+- هیچ mutation تولیدی
 
-## ۱. این حلقه
+## Validation
+- registry PASS، port isolation PASS، dry-run prod/staging PASS، CI local PASS
 
-- بازتأیید staging: ready/health **200**، PID زنده، prod current=no
-- AUTOMATION_HOST: DEGRADED_NON_BLOCKING
-- Production dry-run (preflight/deploy/rollback) بدون mutation
-- `docs/ops/production-execution-plan.md` + هشدار conflict پورت 3000
-- `scripts/ops/asdev-remote-status.sh` (read-only، بدون secret در git)
-- به‌روزرسانی staging-execution-plan (وضعیت LIVE_OK)
-- نمونه CI: همچنان infra fail؛ CI Router محلی PASS
+## Blockers باقی‌مانده
+- staging زنده هنوز روی :3000 (rebind لازم)
+- nginx اعمال نشده
 
-## ۲. GitHub
-
-- PR #72 به‌روز می‌شود
-
-## ۳. AUTOMATION_HOST
-
-| مورد | وضعیت |
-|------|--------|
-| Classification | DEGRADED_NON_BLOCKING |
-| Executor usable | yes |
-| GHA runner | absent (optional) |
-| PM2 | idle expected |
-
-## ۴. Staging
-
-| مورد | وضعیت |
-|------|--------|
-| Release | 20260708T210149Z-fcc7192 |
-| ready/health | 200/200 |
-| Prod current | no |
-
-## ۵. Production prep
-
-| مورد | وضعیت |
-|------|--------|
-| Dry-run | PASS (warnings local path) |
-| Live | NOT RUN |
-| Blocker | phrase + port 3000 plan |
-
-## ۶. عمداً انجام نشد
-
-- production live
-- nginx reload
-- DNS/SSL
-- monitoring live timers
-
-## ۷. NEXT_GATE
+## NEXT
+ابتدا rebind staging به 3200، سپس:
 
 ```
 APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
