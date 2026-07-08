@@ -1,25 +1,19 @@
-# گزارش حلقه — Production Hardening Gate
+# گزارش نهایی RC Audit
 
-**تاریخ:** 2026-07-08T21:28:21Z  
+**تاریخ:** 2026-07-08T21:38:40Z  
+**Verdict:** READY_FOR_PRODUCTION_APPROVAL  
 **PR:** #72  
-**Verdict:** PASS_WITH_WARNINGS  
 
-## انجام‌شده
-- isolation پورت: prod 3100 / staging 3200 در registry
-- guardهای deploy: port conflict، migration block، env port resolve
-- checklist readiness + معماری isolation + rehearsal rollback
-- هیچ mutation تولیدی
+## نتیجه
+- Cutover simulation dry-run: PASS
+- Staging LIVE_OK
+- Production untouched
+- Port isolation registry: 3100/3200
+- AUTOMATION_HOST: DEGRADED_NON_BLOCKING
 
-## Validation
-- registry PASS، port isolation PASS، dry-run prod/staging PASS، CI local PASS
+## Owner steps
+1. Merge PR #72 → main  
+2. `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`  
 
-## Blockers باقی‌مانده
-- staging زنده هنوز روی :3000 (rebind لازم)
-- nginx اعمال نشده
-
-## NEXT
-ابتدا rebind staging به 3200، سپس:
-
-```
-APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-```
+## عمداً اجرا نشد
+production deploy / nginx / DNS / SSL / migration

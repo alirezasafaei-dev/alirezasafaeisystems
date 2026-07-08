@@ -455,7 +455,10 @@ start_runtime() {
         return 0
     fi
 
-    local port="${hc_port:-3000}"
+    local port="${hc_port:-}"
+    if [[ -z "$port" || "$port" == "-" ]]; then
+        error "Cannot start runtime: no resolved port for $site/$environment (refusing legacy default 3000)"
+    fi
     log "Starting node-standalone for $site ($environment) on 127.0.0.1:${port}"
     (
         cd "$(dirname "$server_js")"

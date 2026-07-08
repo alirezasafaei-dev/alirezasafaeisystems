@@ -1,6 +1,6 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-08T21:28:21Z
+**Last Updated:** 2026-07-08T21:38:40Z
 **Status:** Active
 **Source of Truth:** GitHub
 
@@ -8,28 +8,25 @@
 
 ## Current Queue
 
-### 1. ASDEV-STAGING-REBIND
-- **Title:** Rebind CRITICAL_SITE staging from legacy :3000 to registry :3200
-- **Mode:** automation-script
-- **Approval:** `APPROVE_PHASE_2_STAGING_DEPLOY` (already granted class; confirm if re-executing)
-- **Status:** PENDING — architecture ready; live rebind not done in hardening gate
-- **Risk:** medium (staging only)
+### 1. ASDEV-MERGE-RC
+- **Title:** Owner merge PR #72 to main (release candidate)
+- **Mode:** docs-only (owner action)
+- **Status:** PENDING_OWNER
+- **Blocks clean main-based prod**
 
 ### 2. ASDEV-PROD-GATE
 - **Title:** CRITICAL_SITE production deploy
-- **Mode:** read-only until approval
 - **Approval:** `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`
-- **Status:** BLOCKED — hardening PASS_WITH_WARNINGS
-- **Precondition:** ports isolated in registry; staging rebind recommended
+- **Status:** READY_FOR_APPROVAL (engineering)
+- **Pin:** product `fcc7192…` / staging release `20260708T210149Z-fcc7192`
 
-### 3. ASDEV-EDGE-NGINX (optional)
-- **Title:** Wire nginx upstreams 3100/3200
-- **Approval:** nginx reload not granted
-- **Status:** DOCUMENTED only
+### 3. ASDEV-STAGING-REBIND (optional)
+- **Title:** Rebind staging :3000 → :3200
+- **Approval:** `APPROVE_PHASE_2_STAGING_DEPLOY`
+- **Status:** OPTIONAL — does not block prod :3100
 
-### 4. ASDEV-MONITOR-LIVE
-- **Approval:** `APPROVE_MONITORING_LIVE_TIMERS`
-- **Status:** BLOCKED
+### 4. ASDEV-EDGE-NGINX (optional)
+- **Status:** DOCUMENTED — not applied
 
 ---
 
@@ -37,25 +34,17 @@
 
 | ID | Result |
 |----|--------|
-| ASDEV-HARDENING-GATE | DONE — PASS_WITH_WARNINGS |
-| ASDEV-PORT-ISOLATION | DONE — registry + engine |
-| ASDEV-PROD-READINESS-DOC | DONE |
-| ASDEV-ROLLBACK-REHEARSE | DONE (dry-run) |
-| ASDEV-STAGING-LIVE | LIVE_OK (legacy :3000) |
+| ASDEV-FINAL-RC-AUDIT | DONE |
+| ASDEV-HARDENING-GATE | DONE |
+| ASDEV-STAGING-LIVE | LIVE_OK |
+| ASDEV-CUTOVER-SIM | PASS (dry-run) |
 
 ---
 
-## NEXT
-
-Recommended: staging rebind then production phrase.
-
-```
-APPROVE_PHASE_2_STAGING_DEPLOY
-```
-(for rebind to 3200)
-
-then
+## NEXT_GATE
 
 ```
 APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 ```
+
+(after merge PR #72 recommended)

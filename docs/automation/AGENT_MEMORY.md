@@ -174,3 +174,28 @@ Format:
 
 ### Gate verdict
 PASS_WITH_WARNINGS — no production mutation performed
+
+## [2026-07-08T21:38:40Z] Final Release Candidate Audit
+
+### Architecture
+- CRITICAL_SITE prod_port=3100 staging_port=3200
+- Staging LIVE: 20260708T210149Z-fcc7192 on legacy :3000 (healthy)
+- Production: no current, no releases yet
+- Engine: immutable releases, post-activation HC, port/migration guards
+
+### Release pin
+- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
+- Platform RC: PR #72 (not merged to main at audit time)
+
+### AUTOMATION_HOST
+- DEGRADED_NON_BLOCKING (usable)
+
+### Decision
+- READY_FOR_PRODUCTION_APPROVAL
+- NEXT_GATE: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+- Owner should merge PR #72 first
+
+### Blockers (soft)
+- PR not on main
+- Staging not on 3200 (optional)
+- First prod has no previous release for rollback
