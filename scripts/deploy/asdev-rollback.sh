@@ -30,6 +30,7 @@ COL_STAGING_BASE=8
 COL_SHARED_PATH=9
 COL_HC_MODE=10
 COL_HC_HOST_ALIAS=11
+COL_PROD_PORT=12
 COL_HC_PORT=12
 COL_HC_PATH=13
 COL_RUNTIME=14
@@ -39,6 +40,7 @@ COL_START_CMD_ID=17
 COL_ENV_ALIAS=18
 COL_DEPLOY_STRATEGY=19
 COL_ROLLBACK_STRATEGY=20
+COL_STAGING_PORT=21
 
 usage() {
     cat <<EOF
@@ -74,7 +76,7 @@ registry_field() {
     awk -F'\t' -v site="$site" -v col="$field" '$1 == site {print $col}' "$REGISTRY"
 }
 
-get_field() { registry_field "$SITE_NAME" "$2"; }
+get_field() { registry_field "$SITE_NAME" "$1"; }
 
 validate_args() {
     [[ -z "$SITE_NAME" ]] && error "Missing required --site"
@@ -91,14 +93,16 @@ is_protected() {
 }
 
 require_approval() {
-    local env="$1" protected="$2"
-    if [[ "$APPROVE_PHRASE" != "" ]]; then return 0; fi
+    local env="$1"
+    # Dry-run and check mode never require approval.
+    if [[ "$DRY_RUN" == "true" || "$CHECK_MODE" == "true" ]]; then
+        return 0
+    fi
+    if [[ "$APPROVE_PHRASE" != "" ]]; then
+        return 0
+    fi
     if [[ "$env" == "production" ]]; then
-        if [[ "$protected" == "true" ]]; then
-            error "Production rollback to protected site requires --approve-phrase APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
-        else
-            error "Production rollback requires --approve-phrase APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
-        fi
+        error "Production rollback requires --approve-phrase APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
     fi
     if [[ "$env" == "staging" ]]; then
         error "Staging rollback requires --approve-phrase APPROVE_PHASE_2_STAGING_DEPLOY"
@@ -106,12 +110,14 @@ require_approval() {
 }
 
 validate_approve_phrase() {
-    local env="$1" protected="$2"
+    local env="$1"
+    # Dry-run and check mode must always be approval-free.
+    if [[ "$DRY_RUN" == "true" || "$CHECK_MODE" == "true" ]]; then
+        return 0
+    fi
     if [[ "$APPROVE_PHRASE" == "" ]]; then
-        if [[ "$DRY_RUN" == "false" ]]; then
-            warn "No --approve-phrase provided; defaulting to dry-run mode"
-            DRY_RUN=true
-        fi
+        warn "No --approve-phrase provided; defaulting to dry-run mode"
+        DRY_RUN=true
         return 0
     fi
     if [[ "$env" == "production" ]]; then
@@ -162,12 +168,34 @@ rollback_symlink() {
     fi
     local current_link="${deploy_base}/current"
     local releases_dir="${deploy_base}/releases"
+    local previous_pointer="${deploy_base}/previous-release"
     if [[ -z "$target_version" ]]; then
-        target_version=$(find_previous_release "$deploy_base")
-        [[ -z "$target_version" ]] && error "No previous release found to roll back to"
+        # Prefer explicit previous-release pointer written by deploy engine.
+        if [[ -f "$previous_pointer" ]]; then
+            target_version=$(tr -d '[:space:]' < "$previous_pointer")
+            log "Using previous-release pointer: $target_version"
+        else
+            target_version=$(find_previous_release "$deploy_base")
+        fi
+        if [[ -z "$target_version" ]]; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                warn "[DRY RUN] No previous release found (expected before first deploy)"
+                log "[DRY RUN] Would fail live rollback without a previous release"
+                return 0
+            fi
+            error "No previous release found to roll back to"
+        fi
     fi
     local target_dir="${releases_dir}/${target_version}"
-    [[ ! -d "$target_dir" ]] && error "Target release not found: $target_dir"
+    if [[ ! -d "$target_dir" ]]; then
+        if [[ "$DRY_RUN" == "true" ]]; then
+            warn "[DRY RUN] Target release not found yet: $target_dir"
+            log "[DRY RUN] Would symlink: $current_link -> $target_dir"
+            log "[DRY RUN] Would run healthcheck"
+            return 0
+        fi
+        error "Target release not found: $target_dir"
+    fi
     local current_release=""
     if [[ -L "$current_link" ]]; then
         current_release=$(basename "$(readlink -f "$current_link")")
@@ -177,8 +205,13 @@ rollback_symlink() {
     log "Target:  $target_version"
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would symlink: $current_link -> $target_dir"
+        log "[DRY RUN] Would update previous-release pointer after swap"
         log "[DRY RUN] Would run healthcheck"
         return 0
+    fi
+    # Capture current as previous before swap for next rollback.
+    if [[ -n "$current_release" ]]; then
+        printf '%s\n' "$current_release" > "$previous_pointer"
     fi
     ln -sfn "$target_dir" "$current_link"
     ok "Symlink updated: $current_link -> $target_dir"
@@ -217,11 +250,16 @@ main() {
         fi
         log "Available releases:"
         list_releases "$deploy_base" | sed 's/^/  - /' || true
+        if [[ -f "${deploy_base}/previous-release" ]]; then
+            log "previous-release pointer: $(tr -d '[:space:]' < "${deploy_base}/previous-release")"
+        else
+            log "previous-release pointer: (none)"
+        fi
         ok "Validation complete — no changes applied"
         exit 0
     fi
-    validate_approve_phrase "$ENVIRONMENT" "$protected"
-    require_approval "$ENVIRONMENT" "$protected"
+    validate_approve_phrase "$ENVIRONMENT"
+    require_approval "$ENVIRONMENT"
     rollback_symlink "$SITE_NAME" "$ENVIRONMENT" "$COMMIT" "$TARGET_VERSION"
 }
 

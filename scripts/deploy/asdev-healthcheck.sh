@@ -2,7 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+# shellcheck source=lib/asdev-common.sh
+source "${SCRIPT_DIR}/lib/asdev-common.sh"
+PROJECT_ROOT="$(asdev_project_root_from "$SCRIPT_DIR")"
 REGISTRY="$PROJECT_ROOT/deploy/registry.tsv"
 
 RED='\033[0;31m'
@@ -31,6 +33,7 @@ COL_STAGING_BASE=8
 COL_SHARED_PATH=9
 COL_HC_MODE=10
 COL_HC_HOST_ALIAS=11
+COL_PROD_PORT=12
 COL_HC_PORT=12
 COL_HC_PATH=13
 COL_RUNTIME=14
@@ -40,6 +43,7 @@ COL_START_CMD_ID=17
 COL_ENV_ALIAS=18
 COL_DEPLOY_STRATEGY=19
 COL_ROLLBACK_STRATEGY=20
+COL_STAGING_PORT=21
 
 usage() {
     cat <<EOF
@@ -159,7 +163,7 @@ run_healthcheck() {
     local hc_mode hc_host_alias hc_port hc_path deploy_base process_names
     hc_mode=$(get_field "$COL_HC_MODE")
     hc_host_alias=$(get_field "$COL_HC_HOST_ALIAS")
-    hc_port=$(get_field "$COL_HC_PORT")
+    hc_port=$(asdev_resolve_env_port "$ENVIRONMENT" "$(get_field "$COL_PROD_PORT")" "$(get_field "$COL_STAGING_PORT")")
     hc_path=$(get_field "$COL_HC_PATH")
     process_names=$(get_field "$COL_PROCESS_NAMES")
     if [[ "$ENVIRONMENT" == "production" ]]; then
@@ -176,9 +180,9 @@ run_healthcheck() {
         local-port)
             if [[ -n "$hc_port" && "$hc_port" != "-" ]]; then
                 local full_url="http://127.0.0.1:${hc_port}${hc_path}"
-                check_http "$full_url" "Health endpoint (local-port)" || all_ok=false
+                check_http "$full_url" "Health endpoint (local-port :$hc_port)" || all_ok=false
             else
-                warn "local-port mode but no healthcheck_port configured — skipping HTTP check"
+                warn "local-port mode but no port configured for $ENVIRONMENT — skipping HTTP check"
             fi
             ;;
         public-url)
@@ -231,10 +235,11 @@ main() {
         log "Check mode — validating healthcheck config for $SITE_NAME"
         local hc_mode hc_port hc_path
         hc_mode=$(get_field "$COL_HC_MODE")
-        hc_port=$(get_field "$COL_HC_PORT")
+        hc_port=$(asdev_resolve_env_port "$ENVIRONMENT" "$(get_field "$COL_PROD_PORT")" "$(get_field "$COL_STAGING_PORT")")
         hc_path=$(get_field "$COL_HC_PATH")
         log "Healthcheck mode: $hc_mode"
-        log "Healthcheck port: $hc_port"
+        log "Healthcheck port ($ENVIRONMENT): $hc_port"
+        log "prod_port=$(get_field "$COL_PROD_PORT") staging_port=$(get_field "$COL_STAGING_PORT")"
         log "Healthcheck path: $hc_path"
         ok "Validation complete — no checks executed"
         exit 0

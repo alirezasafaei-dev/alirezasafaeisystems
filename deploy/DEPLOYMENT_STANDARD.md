@@ -1,8 +1,15 @@
 # ASDEV Deployment Standard
 
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-07-08
 **Scope:** All production site deployments
+
+### Runtime port isolation (v1.1)
+
+- Registry must define distinct `prod_port` and `staging_port` (never equal).
+- CRITICAL_SITE defaults: production **3100**, staging **3200**.
+- Deploy engine resolves port per environment; refuses target port if in use by non-owned process.
+- See `docs/ops/runtime-port-isolation.md`.
 
 ---
 

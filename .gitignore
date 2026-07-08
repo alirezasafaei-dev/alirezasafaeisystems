@@ -78,6 +78,12 @@ prisma/*.db-journal
 # generated operational artifacts
 reports/network-smoke/
 reports/enterprise-network/
+
+# Local multi-site checkouts for deploy engine (asdev-prepare-site-source.sh)
+# Do not commit full product trees into the mother repo.
+/sites/live/
+/sites/hold/
+/sites/secondary/
 reports/edge-route/
 reports/postgres-audit/
 .state/asdev-agent-loop/

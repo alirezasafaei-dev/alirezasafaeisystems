@@ -1,107 +1,64 @@
 # NEXT 7 DAYS — ASDEV Roadmap
 
-**Period:** 2026-07-08 to 2026-07-15
+**Period:** 2026-07-08 to 2026-07-15  
 **Source of Truth:** GitHub
 
 ---
 
-## 1. CRITICAL_SITE Stabilization
+## 1. CRITICAL_SITE staging → verify → production gate
 
-- Verify live site health (https://alirezasafaeisystems.ir/)
-- Run synthetic route checks
-- Verify uptime evidence
-- Create healthcheck script
-- Review error logs
-- Document incident runbook
-
-**Validation:** Healthcheck passes, no critical errors in logs, all routes respond.
+- [x] Registry + deploy engine dry-run (preflight)
+- [ ] Ensure source/artifact on executor
+- [ ] Live staging after `APPROVE_PHASE_2_STAGING_DEPLOY`
+- [ ] Staging smoke + healthcheck
+- [ ] Production only after separate `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`
 
 ---
 
-## 2. ASDEV Root Rename
+## 2. AUTOMATION_HOST as stable executor
 
-- Audit current ASDEV directory structure
-- Define clean naming conventions
-- Update all internal references
-- Verify no broken links or imports
-- Update docs to reflect new structure
-
-**Validation:** `pnpm build` succeeds, all docs links resolve.
+- [x] Classify PM2 idle / legacy Docker as non-blocking
+- [x] Tooling readiness checker script
+- [ ] Optional: self-hosted runner (only if needed)
+- [ ] Optional: ASDEV PM2 ecosystem if long-running worker required
 
 ---
 
-## 3. Deploy Engine Correction
+## 3. CI usefulness
 
-- Review current deploy scripts
-- Fix any deploy pipeline issues
-- Add validation gates to deploy process
-- Ensure deploy only happens with owner approval
-- Test deploy flow in dry-run mode
-
-**Validation:** Deploy script runs in dry-run without errors, validation gates present.
+- [x] Classify multi-workflow fail as infra-class
+- [ ] When GHA recovers: confirm CI Router green on mission PR
+- [ ] Do **not** invest in legacy app workflow thrash this week unless blocking merge policy
 
 ---
 
-## 4. Staging Deploy
+## 4. Monitoring foundation → optional live timers
 
-- Set up staging environment configuration
-- Create staging deploy workflow
-- Deploy to staging first, verify
-- Run smoke tests on staging
-- Get owner approval for production deploy
-
-**Validation:** Staging site responds, smoke tests pass, owner approves production.
+- [x] HTTP / host / disk / backup-freshness scripts
+- [x] Runbook + alerting policy
+- [ ] Live timers only with `APPROVE_MONITORING_LIVE_TIMERS`
 
 ---
 
-## 5. Monitoring
+## 5. Non-critical quarantine (plan only)
 
-- Create monitoring docs (ASDEV-BW03)
-- Define alert thresholds
-- Set up synthetic monitoring templates
-- Create alert notification plan
-- Document escalation procedures
-
-**Validation:** Monitoring docs complete, alert thresholds defined, templates created.
+- [x] Current plan document
+- [ ] IRAN_PROD inventory (read-only) when scheduled
+- [ ] Live quarantine only with explicit future approval
 
 ---
 
-## 6. Quarantine Preparation
+## Validation standard
 
-- Review quarantined features (PR-D, PR-E)
-- Document what's quarantined and why
-- Define criteria for un-quarantine
-- Create testing plan for quarantined features
-- Schedule owner review for quarantine decisions
-
-**Validation:** Quarantine inventory complete, un-quarantine criteria defined.
+- Registry schema green
+- Dangerous-pattern check green
+- Deploy/rollback/healthcheck dry-run green for CRITICAL_SITE
+- No secrets in git
 
 ---
 
-## Task Priority
+## Stop conditions
 
-| Priority | Task | Risk | Approval |
-|---|---|---|---|
-| 1 | CRITICAL_SITE stabilization | low | auto |
-| 2 | Monitoring prep | low | auto |
-| 3 | Deploy engine correction | medium | owner |
-| 4 | Staging deploy | medium | owner |
-| 5 | ASDEV root rename | low | auto |
-| 6 | Quarantine preparation | low | auto |
-
----
-
-## Deep Research Report
-
-- Reference: `docs/reports/asdev-production-grade-deep-research-20260708.md`
-
----
-
-## Success Criteria
-
-By end of 7 days:
-- Live site health verified and monitored
-- Deploy pipeline corrected and tested
-- Staging environment operational
-- Monitoring templates ready
-- Quarantine inventory documented
+- Staging/production without exact approval phrase
+- Destructive Docker/DB/firewall actions
+- GitHub API spam / mass workflow reruns
