@@ -33,8 +33,9 @@ command -v jq >/dev/null 2>&1 || { echo "jq required" >&2; exit 1; }
 
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 DAY=$(date -u +%Y%m%d)
-N=$(jq --arg p "ASDEV-$DAY" '[.tasks[]?.id | select(startswith($p))] | length' "$QUEUE")
-ID=$(printf 'ASDEV-%s-%03d' "$DAY" "$((N + 1))")
+# next id = max existing suffix for day + 1 (avoid collisions after archive)
+MAX=$(jq --arg p "ASDEV-$DAY-" '[.tasks[]?.id | select(startswith($p)) | split("-")[-1] | tonumber] | if length==0 then 0 else max end' "$QUEUE")
+ID=$(printf 'ASDEV-%s-%03d' "$DAY" "$((MAX + 1))")
 
 TMP=$(mktemp)
 jq --arg id "$ID" --arg title "$TITLE" --arg owner "$OWNER" --argjson pri "$PRIORITY" \
