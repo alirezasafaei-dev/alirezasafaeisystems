@@ -27,24 +27,27 @@ jobs:
 
       - name: Validate registry schema
         run: |
-          if [ -x ./scripts/ops/validate-registry-schema.sh ]; then
-            ./scripts/ops/validate-registry-schema.sh
+          if [ -f ./scripts/ops/validate-registry-schema.sh ]; then
+            bash ./scripts/ops/validate-registry-schema.sh
           else
-            echo "validate-registry-schema.sh not found or not executable, skipping"
+            echo "::error::validate-registry-schema.sh not found"
+            exit 1
           fi
 
       - name: Check dangerous patterns in protection scripts
         run: |
-          if [ -x ./scripts/ops/check-dangerous-patterns.sh ]; then
-            ./scripts/ops/check-dangerous-patterns.sh
+          if [ -f ./scripts/ops/check-dangerous-patterns.sh ]; then
+            bash ./scripts/ops/check-dangerous-patterns.sh
           else
-            echo "check-dangerous-patterns.sh not found or not executable, skipping"
+            echo "::error::check-dangerous-patterns.sh not found"
+            exit 1
           fi
 
       - name: Detect sensitive files in changed paths
         run: |
           SENSITIVE_PATTERNS="\.env|credentials|secret|\.pem$|\.key$|id_rsa|\.p12$"
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || git diff --name-only HEAD~1)
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD 2>/dev/null || git diff --name-only HEAD~1)
           if echo "$CHANGED" | grep -iE "$SENSITIVE_PATTERNS"; then
             echo "::error::Sensitive files detected in changed paths"
             exit 1
