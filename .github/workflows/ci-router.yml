@@ -1,0 +1,88 @@
+name: CI Router
+
+on:
+  pull_request:
+    branches: ["*"]
+
+permissions:
+  contents: read
+
+jobs:
+  safe-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve changed files
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD 2>/dev/null || git diff --name-only HEAD~1)
+          printf '%s\n' "$CHANGED" > /tmp/asdev_changed_files.txt
+          echo "Changed files:"
+          cat /tmp/asdev_changed_files.txt
+
+      - name: Syntax-check changed shell scripts
+        run: |
+          scripts=$(grep -E '\.sh$' /tmp/asdev_changed_files.txt || true)
+          if [ -n "$scripts" ]; then
+            echo "Checking changed shell script syntax..."
+            echo "$scripts" | while read -r f; do
+              [ -z "$f" ] && continue
+              if [ -f "$f" ]; then
+                echo "  bash -n $f"
+                bash -n "$f"
+              fi
+            done
+          else
+            echo "No changed shell scripts."
+          fi
+
+      - name: Validate registry schema
+        run: |
+          if grep -qx 'deploy/registry.tsv' /tmp/asdev_changed_files.txt || grep -qE '^scripts/(deploy|ops)/' /tmp/asdev_changed_files.txt; then
+            if [ -f ./scripts/ops/validate-registry-schema.sh ]; then
+              bash ./scripts/ops/validate-registry-schema.sh
+            else
+              echo "::error::validate-registry-schema.sh not found"
+              exit 1
+            fi
+          else
+            echo "Registry/deploy files unchanged; skipping registry validation."
+          fi
+
+      - name: Check dangerous patterns in protection scripts
+        run: |
+          if grep -qE '^scripts/(deploy|ops)/' /tmp/asdev_changed_files.txt; then
+            if [ -f ./scripts/ops/check-dangerous-patterns.sh ]; then
+              bash ./scripts/ops/check-dangerous-patterns.sh --project-root .
+            else
+              echo "::error::check-dangerous-patterns.sh not found"
+              exit 1
+            fi
+          else
+            echo "Ops/deploy scripts unchanged; skipping dangerous-pattern check."
+          fi
+
+      - name: Detect sensitive files in changed paths
+        run: |
+          BLOCK_PATTERNS='(^|/)\.env$|(^|/)\.env\.[^.]+$|credentials|(^|/).*\.pem$|(^|/).*\.key$|id_rsa|(^|/).*\.p12$'
+          ALLOW_PATTERNS='\.example\.env$|\.env\.example$|example|template|docs/'
+          violations=0
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            if echo "$path" | grep -qiE "$BLOCK_PATTERNS"; then
+              if echo "$path" | grep -qiE "$ALLOW_PATTERNS"; then
+                echo "Allowed safe template/doc path: $path"
+              else
+                echo "::error::Sensitive-looking file path is not allowed: $path"
+                violations=$((violations + 1))
+              fi
+            fi
+          done < /tmp/asdev_changed_files.txt
+          if [ "$violations" -gt 0 ]; then
+            exit 1
+          fi
+          echo "No disallowed sensitive files detected."

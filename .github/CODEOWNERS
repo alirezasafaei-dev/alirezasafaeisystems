@@ -1,8 +1,11 @@
 # Default owner for this repository.
-* @alirezasafaeisystems
+* @alirezasafaei-dev
 
-# Sensitive areas.
-/.github/ @alirezasafaeisystems
-/src/app/api/ @alirezasafaeisystems
-/src/lib/ @alirezasafaeisystems
-/prisma/ @alirezasafaeisystems
+# Protected paths.
+/.github/workflows/ @alirezasafaei-dev
+/deploy/ @alirezasafaei-dev
+/scripts/deploy/ @alirezasafaei-dev
+/scripts/ops/ @alirezasafaei-dev
+/docs/automation/ @alirezasafaei-dev
+/docs/roadmaps/ @alirezasafaei-dev
+/docs/reports/ @alirezasafaei-dev
