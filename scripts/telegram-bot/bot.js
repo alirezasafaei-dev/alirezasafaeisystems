@@ -2,11 +2,9 @@ import TelegramBot from "node-telegram-bot-api";
 import { execSync } from "child_process";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const AUDIT_REPO = process.env.AUDIT_REPO || "auditsystems";
-const BRAND_REPO = process.env.BRAND_REPO || "AliRezaSafaeiSystems";
-const ALIREZASAFAEISYSTEMS_REPO =
-  process.env.ALIREZASAFAEISYSTEMS_REPO || "alirezasafaeisystems";
+const ASDEV_SYSTEMS_REPO = process.env.ASDEV_SYSTEMS_REPO || "alirezasafaei-dev/alirezasafaeisystems";
+const AUDITSYSTEMS_REPO = process.env.AUDITSYSTEMS_REPO || "alirezasafaei-dev/auditsystems";
+const COMMAND_CENTER_ISSUE = process.env.COMMAND_CENTER_ISSUE || "45";
 
 if (!TOKEN) {
   console.error("TELEGRAM_BOT_TOKEN is required");
@@ -16,10 +14,12 @@ if (!TOKEN) {
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 function gh(endpoint) {
-  const cmd = GITHUB_TOKEN
-    ? `gh api -H "Accept: application/vnd.github+json" ${endpoint}`
-    : `gh api ${endpoint}`;
-  return execSync(cmd, { encoding: "utf-8" }).trim();
+  try {
+    const cmd = `gh api -H "Accept: application/vnd.github+json" ${endpoint}`;
+    return execSync(cmd, { encoding: "utf-8", timeout: 15000 }).trim();
+  } catch (err) {
+    return null;
+  }
 }
 
 function ghRepo(repo, endpoint) {
@@ -28,121 +28,114 @@ function ghRepo(repo, endpoint) {
 
 function systemctlStatus(service) {
   try {
-    return execSync(`systemctl is-active ${service}`, {
-      encoding: "utf-8",
-    }).trim();
+    return execSync(`systemctl is-active ${service}`, { encoding: "utf-8", timeout: 5000 }).trim();
   } catch {
     return "inactive";
   }
 }
 
-function formatIssue(issue) {
-  const labels = issue.labels.map((l) => `[${l.name}]`).join(" ");
-  return `#${issue.number} ${issue.title}\n  ${labels || "no labels"}\n  Updated: ${new Date(issue.updated_at).toLocaleDateString()}`;
+function formatPR(pr) {
+  const labels = pr.labels?.map((l) => `[${l.name}]`).join(" ") || "";
+  return `#${pr.number} ${pr.title}\n  ${labels || "no labels"}\n  ${pr.user?.login || "unknown"} • ${new Date(pr.updated_at).toLocaleDateString()}`;
 }
 
-function formatPR(pr) {
-  const labels = pr.labels.map((l) => `[${l.name}]`).join(" ");
-  return `#${pr.number} ${pr.title}\n  ${labels || "no labels"}\n  ${pr.user.login} • ${new Date(pr.updated_at).toLocaleDateString()}`;
+function isBlocker(pr) {
+  const blocked = ["blocked", "blocker", "priority: high", "failing", "deploy", "schema", "billing", "migration", "approval"];
+  const labels = (pr.labels || []).map((l) => l.name.toLowerCase());
+  const title = (pr.title || "").toLowerCase();
+  const body = (pr.body || "").toLowerCase();
+  return blocked.some((b) => labels.includes(b) || title.includes(b) || body.includes(b));
 }
 
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(
-    msg.chat.id,
-    "ASDEV Status Bot\n\nCommands:\n/status - Full status report\n/prs - List open PRs\n/blockers - Show blockers\n/last - Last Issue #45 comment"
-  );
+  bot.sendMessage(msg.chat.id, [
+    "ASDEV Status Bot",
+    "",
+    "/status - Full status report",
+    "/prs - List open PRs",
+    "/blockers - Show blockers",
+    "/last - Last Issue #45 comment",
+  ].join("\n"));
 });
 
 bot.onText(/\/status/, async (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Fetching status...");
+  const sections = [];
 
   try {
-    const issue45 = JSON.parse(ghRepo(ALIREZASAFAEISYSTEMS_REPO, "issues/45"));
-    const auditPRs = JSON.parse(ghRepo(AUDIT_REPO, "pulls?state=open"));
-    const brandPRs = JSON.parse(ghRepo(BRAND_REPO, "pulls?state=open"));
+    const issue = JSON.parse(ghRepo(ASDEV_SYSTEMS_REPO, `issues/${COMMAND_CENTER_ISSUE}`) || "{}");
+    if (issue.title) {
+      sections.push(`📋 Issue #${COMMAND_CENTER_ISSUE}: ${issue.title}`);
+      sections.push(`  State: ${issue.state}`);
+    }
+  } catch { sections.push("📋 Issue #45: unavailable"); }
 
-    const vpsStatus = systemctlStatus("nginx");
+  try {
+    const asdevPRs = JSON.parse(ghRepo(ASDEV_SYSTEMS_REPO, "pulls?state=open") || "[]");
+    sections.push(`🔀 alirezasafaeisystems: ${asdevPRs.length} open`);
+  } catch { sections.push("🔀 alirezasafaeisystems: unavailable"); }
 
-    const lines = [
-      "📊 ASDEV Status Report",
-      "",
-      `Issue #45: ${issue45.title}`,
-      `  State: ${issue45.state}`,
-      `  Labels: ${issue45.labels.map((l) => l.name).join(", ") || "none"}`,
-      "",
-      `Audit PRs: ${auditPRs.length} open`,
-      auditPRs.map((pr) => `  #${pr.number} ${pr.title}`).join("\n"),
-      "",
-      `Brand PRs: ${brandPRs.length} open`,
-      brandPRs.map((pr) => `  #${pr.number} ${pr.title}`).join("\n"),
-      "",
-      `VPS Nginx: ${vpsStatus}`,
-    ];
+  try {
+    const auditPRs = JSON.parse(ghRepo(AUDITSYSTEMS_REPO, "pulls?state=open") || "[]");
+    sections.push(`🔀 auditsystems: ${auditPRs.length} open`);
+  } catch { sections.push("🔀 auditsystems: unavailable"); }
 
-    bot.sendMessage(chatId, lines.join("\n"));
-  } catch (err) {
-    bot.sendMessage(chatId, `Error: ${err.message}`);
-  }
+  try {
+    const timerStatus = systemctlStatus("asdev-agent-loop.timer");
+    sections.push(`⏱️ Timer: ${timerStatus}`);
+  } catch { sections.push("⏱️ Timer: unknown"); }
+
+  try {
+    const botStatus = systemctlStatus("asdev-bot.service");
+    sections.push(`🤖 Bot: ${botStatus}`);
+  } catch { sections.push("🤖 Bot: unknown"); }
+
+  bot.sendMessage(chatId, ["📊 ASDEV Status Report", "", ...sections].join("\n"));
 });
 
 bot.onText(/\/prs/, async (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Fetching PRs...");
+  const lines = ["🔀 Open Pull Requests", ""];
 
   try {
-    const auditPRs = JSON.parse(ghRepo(AUDIT_REPO, "pulls?state=open"));
-    const brandPRs = JSON.parse(ghRepo(BRAND_REPO, "pulls?state=open"));
+    const asdevPRs = JSON.parse(ghRepo(ASDEV_SYSTEMS_REPO, "pulls?state=open") || "[]");
+    lines.push(`${ASDEV_SYSTEMS_REPO} (${asdevPRs.length}):`);
+    lines.push(...asdevPRs.map((pr) => formatPR(pr)));
+  } catch { lines.push(`${ASDEV_SYSTEMS_REPO}: unavailable`); }
 
-    const lines = [
-      "🔀 Open Pull Requests",
-      "",
-      `${AUDIT_REPO} (${auditPRs.length}):`,
-      auditPRs.map((pr) => formatPR(pr)).join("\n"),
-      "",
-      `${BRAND_REPO} (${brandPRs.length}):`,
-      brandPRs.map((pr) => formatPR(pr)).join("\n"),
-    ];
+  lines.push("");
 
-    bot.sendMessage(chatId, lines.join("\n"));
-  } catch (err) {
-    bot.sendMessage(chatId, `Error: ${err.message}`);
-  }
+  try {
+    const auditPRs = JSON.parse(ghRepo(AUDITSYSTEMS_REPO, "pulls?state=open") || "[]");
+    lines.push(`${AUDITSYSTEMS_REPO} (${auditPRs.length}):`);
+    lines.push(...auditPRs.map((pr) => formatPR(pr)));
+  } catch { lines.push(`${AUDITSYSTEMS_REPO}: unavailable`); }
+
+  if (lines.length === 2) lines.push("No open PRs.");
+  bot.sendMessage(chatId, lines.join("\n"));
 });
 
 bot.onText(/\/blockers/, async (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Fetching blockers...");
+  const blocked = [];
 
   try {
-    const auditPRs = JSON.parse(ghRepo(AUDIT_REPO, "pulls?state=open"));
-    const brandPRs = JSON.parse(ghRepo(BRAND_REPO, "pulls?state=open"));
+    const asdevPRs = JSON.parse(ghRepo(ASDEV_SYSTEMS_REPO, "pulls?state=open") || "[]");
+    blocked.push(...asdevPRs.filter(isBlocker));
+  } catch {}
 
-    const blocked = [
-      ...auditPRs.filter(
-        (pr) =>
-          pr.labels.some((l) => l.name === "blocked") ||
-          pr.labels.some((l) => l.name === "priority: high")
-      ),
-      ...brandPRs.filter(
-        (pr) =>
-          pr.labels.some((l) => l.name === "blocked") ||
-          pr.labels.some((l) => l.name === "priority: high")
-      ),
-    ];
+  try {
+    const auditPRs = JSON.parse(ghRepo(AUDITSYSTEMS_REPO, "pulls?state=open") || "[]");
+    blocked.push(...auditPRs.filter(isBlocker));
+  } catch {}
 
-    if (blocked.length === 0) {
-      bot.sendMessage(chatId, "No blockers found");
-    } else {
-      const lines = [
-        "🚨 Blocked / High Priority PRs",
-        "",
-        blocked.map((pr) => formatPR(pr)).join("\n"),
-      ];
-      bot.sendMessage(chatId, lines.join("\n"));
-    }
-  } catch (err) {
-    bot.sendMessage(chatId, `Error: ${err.message}`);
+  if (blocked.length === 0) {
+    bot.sendMessage(chatId, "No active blockers found.");
+  } else {
+    bot.sendMessage(chatId, ["🚨 Blocked / High Priority PRs", "", ...blocked.map((pr) => formatPR(pr))].join("\n"));
   }
 });
 
@@ -151,23 +144,26 @@ bot.onText(/\/last/, async (msg) => {
   bot.sendMessage(chatId, "Fetching Issue #45...");
 
   try {
-    const comments = JSON.parse(
-      ghRepo(ALIREZASAFAEISYSTEMS_REPO, "issues/45/comments?per_page=1")
-    );
-
-    if (comments.length === 0) {
-      bot.sendMessage(chatId, "No comments on Issue #45");
-    } else {
-      const comment = comments[0];
-      const lines = [
-        `💬 Latest on Issue #45`,
-        `By: ${comment.user.login}`,
-        `At: ${new Date(comment.created_at).toLocaleString()}`,
-        "",
-        comment.body.slice(0, 2000),
-      ];
-      bot.sendMessage(chatId, lines.join("\n"));
+    const commentsRaw = ghRepo(ASDEV_SYSTEMS_REPO, `issues/${COMMAND_CENTER_ISSUE}/comments?per_page=100`);
+    if (!commentsRaw) {
+      bot.sendMessage(chatId, "Could not fetch comments.");
+      return;
     }
+    const comments = JSON.parse(commentsRaw);
+    if (!comments.length) {
+      bot.sendMessage(chatId, "No comments on Issue #45");
+      return;
+    }
+    const sorted = comments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const latest = sorted[0];
+    const body = latest.body.length > 2000 ? latest.body.slice(0, 2000) + "..." : latest.body;
+    bot.sendMessage(chatId, [
+      `💬 Latest on Issue #${COMMAND_CENTER_ISSUE}`,
+      `By: ${latest.user.login}`,
+      `At: ${new Date(latest.created_at).toLocaleString()}`,
+      "",
+      body,
+    ].join("\n"));
   } catch (err) {
     bot.sendMessage(chatId, `Error: ${err.message}`);
   }
