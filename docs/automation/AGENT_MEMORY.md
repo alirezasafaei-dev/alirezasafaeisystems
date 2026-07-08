@@ -144,3 +144,12 @@ Format:
 - Staging re-verified: ready/health 200, PID alive, prod current absent
 - Safe work remaining without production phrase is limited
 - Next: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+
+## [2026-07-08T21:15:44Z] Production prep loop (no live prod)
+
+- Staging re-verified LIVE_OK (ready/health 200)
+- Production dry-run preflight/deploy/rollback PASS
+- production-execution-plan.md + port-3000 conflict documented
+- asdev-remote-status.sh for redacted IRAN_PROD checks
+- CI still infra-failed; local router PASS
+- Stopped at production phrase gate

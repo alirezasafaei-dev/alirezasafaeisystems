@@ -1,18 +1,36 @@
 # CRITICAL_SITE Staging Execution Plan
 
 **Site:** CRITICAL_SITE (`persiantoolbox.ir` / registry `persiantoolbox`)  
-**Last Updated:** 2026-07-08  
-**Live deploy status:** NOT EXECUTED — requires owner phrase
+**Last Updated:** 2026-07-08T21:14:00Z  
+**Live deploy status:** **EXECUTED — LIVE_OK**
 
 ---
 
-## Gate
+## Gate used
 
 ```text
 APPROVE_PHASE_2_STAGING_DEPLOY
 ```
 
-Without this exact phrase, only dry-run/check modes are allowed.
+---
+
+## Live result (current)
+
+| Field | Value |
+|-------|-------|
+| Release | `20260708T210149Z-fcc7192` |
+| Product commit | `fcc7192af26a5713e31d4ec078365f9507c8108a` |
+| Base | `/srv/asdev/sites/persiantoolbox-staging` |
+| Runtime | node standalone `127.0.0.1:3000` |
+| ready / health | **200 / 200** (re-verified) |
+| Production current | **not present** |
+
+Read-only recheck:
+
+```bash
+ASDEV_VPS_ENV_FILE=/path/to/private.env.vps \
+  bash scripts/ops/asdev-remote-status.sh
+```
 
 ---
 
@@ -20,68 +38,35 @@ Without this exact phrase, only dry-run/check modes are allowed.
 
 | Fact | Detail |
 |------|--------|
-| Product repo | Separate: `alirezasafaei-dev/persiantoolbox` (public) |
-| Mother repo | `alirezasafaei-dev/alirezasafaeisystems` (registry + deploy engine) |
-| Registry staging base | `/srv/asdev/sites/persiantoolbox-staging` (IRAN_PROD) |
-| Registry prod base | `/srv/asdev/sites/persiantoolbox` (IRAN_PROD) |
-| Local source layout | `sites/live/persiantoolbox` (prepared, gitignored) |
+| Product repo | `alirezasafaei-dev/persiantoolbox` (public) |
+| Mother repo | `alirezasafaei-dev/alirezasafaeisystems` |
+| Staging base | `/srv/asdev/sites/persiantoolbox-staging` |
+| Prod base | `/srv/asdev/sites/persiantoolbox` |
+| Local source | `sites/live/persiantoolbox` (gitignored checkout) |
 
 ---
 
-## Phase 0 — Owner PC / AUTOMATION_HOST prep (no IRAN_PROD mutation)
+## How staging was executed (reference)
 
-```bash
-cd /home/dev13/ASDEV
-git checkout main && git pull --ff-only
+1. SSH from AUTOMATION_HOST/OWNER_PC to IRAN_PROD  
+2. Create `/srv/asdev` layout (staging + shared parent)  
+3. Add 2G swap (OOM mitigation)  
+4. Platform at `/home/asdev/asdev-platform` + product clone  
+5. Build on IRAN_PROD with heap 3072, HUSKY=0, ignore-scripts install  
+6. Symlink + start standalone + healthcheck  
 
-# Prepare CRITICAL_SITE source (local only)
-bash scripts/deploy/asdev-prepare-site-source.sh --site persiantoolbox --dry-run
-bash scripts/deploy/asdev-prepare-site-source.sh --site persiantoolbox --apply
-
-# Local CI Router equivalent (when GHA is red)
-bash scripts/ops/run-ci-router-local.sh origin/main
-
-# Dry-runs (approval-free)
-COMMIT="$(git -C sites/live/persiantoolbox rev-parse HEAD)"
-bash scripts/ops/validate-registry-schema.sh
-bash scripts/deploy/asdev-preflight.sh --site persiantoolbox --environment staging --commit "$COMMIT" --dry-run
-bash scripts/deploy/asdev-deploy.sh --site persiantoolbox --environment staging --commit "$COMMIT" --dry-run
-bash scripts/deploy/asdev-healthcheck.sh --site persiantoolbox --environment staging --commit "$COMMIT" --dry-run
-bash scripts/deploy/asdev-rollback.sh --site persiantoolbox --environment staging --commit "$COMMIT" --dry-run
-bash scripts/ops/check-critical-site-protection.sh
-```
+Details: `docs/reports/critical-site-staging-deploy-latest.md`
 
 ---
 
-## Phase 1 — Live staging (ONLY after phrase)
+## Redeploy staging (same approval phrase)
 
-**Execute on the host that can write IRAN_PROD staging paths** (typically AUTOMATION_HOST with approved remote path, or on IRAN_PROD itself). This plan does **not** grant that access.
-
-```bash
-# Exact command template — do not run until phrase granted
-COMMIT="<persiantoolbox-repo-sha>"
-
-./scripts/deploy/asdev-preflight.sh \
-  --site persiantoolbox \
-  --environment staging \
-  --commit "$COMMIT"
-
-./scripts/deploy/asdev-deploy.sh \
-  --site persiantoolbox \
-  --environment staging \
-  --commit "$COMMIT" \
-  --approve-phrase APPROVE_PHASE_2_STAGING_DEPLOY
-
-./scripts/deploy/asdev-healthcheck.sh \
-  --site persiantoolbox \
-  --environment staging \
-  --commit "$COMMIT"
-```
-
-### Rollback (staging)
+Only if intentionally refreshing staging:
 
 ```bash
-./scripts/deploy/asdev-rollback.sh \
+# on IRAN_PROD with PATH including node/pnpm
+COMMIT=<sha>
+bash scripts/deploy/asdev-deploy.sh \
   --site persiantoolbox \
   --environment staging \
   --commit "$COMMIT" \
@@ -90,30 +75,24 @@ COMMIT="<persiantoolbox-repo-sha>"
 
 ---
 
-## Success criteria (staging)
+## Rollback staging
 
-1. `current` symlink under staging base points to new release id  
-2. Healthcheck local-port `/api/ready` returns success  
-3. `release.meta` present in release dir  
-4. `previous-release` pointer recorded when prior release existed  
-5. No production symlink touched  
-
----
-
-## Explicitly forbidden in this plan
-
-- Production deploy  
-- nginx reload / pm2 production restart without separate approval  
-- Database migration  
-- DNS / SSL changes  
-- Deleting releases  
+```bash
+bash scripts/deploy/asdev-rollback.sh \
+  --site persiantoolbox \
+  --environment staging \
+  --commit <audit-sha> \
+  --approve-phrase APPROVE_PHASE_2_STAGING_DEPLOY
+```
 
 ---
 
-## After successful staging
+## Next
 
-Next production gate (separate):
+See `docs/ops/production-execution-plan.md`.
 
 ```text
 APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 ```
+
+**Port conflict warning:** staging holds port 3000; production registry also uses 3000 on same host — resolve before production start.
