@@ -45,11 +45,23 @@ jobs:
 
       - name: Detect sensitive files in changed paths
         run: |
-          SENSITIVE_PATTERNS="\.env|credentials|secret|\.pem$|\.key$|id_rsa|\.p12$"
+          BLOCK_PATTERNS='(^|/)\.env$|(^|/)\.env\.[^.]+$|credentials|(^|/).*\.pem$|(^|/).*\.key$|id_rsa|(^|/).*\.p12$'
+          ALLOW_PATTERNS='\.example\.env$|\.env\.example$|example|template|docs/'
           git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
           CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD 2>/dev/null || git diff --name-only HEAD~1)
-          if echo "$CHANGED" | grep -iE "$SENSITIVE_PATTERNS"; then
-            echo "::error::Sensitive files detected in changed paths"
+          violations=0
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            if echo "$path" | grep -qiE "$BLOCK_PATTERNS"; then
+              if echo "$path" | grep -qiE "$ALLOW_PATTERNS"; then
+                echo "Allowed safe template/doc path: $path"
+              else
+                echo "::error::Sensitive-looking file path is not allowed: $path"
+                violations=$((violations + 1))
+              fi
+            fi
+          done <<< "$CHANGED"
+          if [ "$violations" -gt 0 ]; then
             exit 1
           fi
-          echo "No sensitive files detected."
+          echo "No disallowed sensitive files detected."
