@@ -1,0 +1,92 @@
+# ASDEV CRITICAL_SITE production edge template
+# Site: persiantoolbox.ir
+# Upstream: 127.0.0.1:3100 (registry prod_port)
+#
+# DO NOT install/reload without:
+#   APPROVE_CRITICAL_SITE_PUBLIC_EDGE
+#
+# Install (after approval):
+#   sudo cp ops/nginx/critical-site-production-3100.conf.template \
+#     /etc/nginx/sites-available/persiantoolbox-production.conf
+#   # adjust ssl paths if needed, then:
+#   sudo ln -sfn /etc/nginx/sites-available/persiantoolbox-production.conf \
+#     /etc/nginx/sites-enabled/persiantoolbox-production.conf
+#   sudo nginx -t && sudo systemctl reload nginx
+
+upstream asdev_persiantoolbox_production {
+  server 127.0.0.1:3100;
+  keepalive 32;
+}
+
+# HTTP: ACME + redirect
+server {
+  listen 80;
+  listen [::]:80;
+  server_name persiantoolbox.ir www.persiantoolbox.ir;
+
+  # Uncomment when snippet exists on host:
+  # include /etc/nginx/snippets/letsencrypt-acme.conf;
+
+  location ^~ /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+    default_type "text/plain";
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+# HTTPS
+server {
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+  server_name persiantoolbox.ir www.persiantoolbox.ir;
+
+  # Paths managed by certbot — do not commit private keys
+  ssl_certificate     /etc/letsencrypt/live/persiantoolbox.ir/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/persiantoolbox.ir/privkey.pem;
+  # include /etc/letsencrypt/options-ssl-nginx.conf;
+  # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+  # Enable HSTS only after stable HTTPS verification
+  # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header X-Frame-Options "DENY" always;
+  add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+  gzip on;
+  gzip_comp_level 5;
+  gzip_min_length 1024;
+  gzip_types text/plain text/css application/json application/javascript text/xml application/xml image/svg+xml;
+
+  location / {
+    proxy_pass http://asdev_persiantoolbox_production;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_read_timeout 60s;
+    proxy_send_timeout 60s;
+  }
+
+  location = /api/ready {
+    proxy_pass http://asdev_persiantoolbox_production;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    access_log off;
+  }
+
+  location = /api/health {
+    proxy_pass http://asdev_persiantoolbox_production;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    access_log off;
+  }
+}

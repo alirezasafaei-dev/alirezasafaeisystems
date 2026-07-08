@@ -1,8 +1,8 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-08T22:16:19Z
-**Status:** PRODUCTION_APP_LAYER_LIVE
-**Source of Truth:** GitHub main
+**Last Updated:** 2026-07-08T22:40:00Z  
+**Status:** CONTROL_PLANE_V1 · PROD_APP_STABLE · EDGE_OFF  
+**Machine queue:** `control-plane/queue/queue.json`
 
 ---
 
@@ -10,39 +10,32 @@
 
 | Layer | State |
 |-------|-------|
-| Production app | LIVE `20260708T221124Z-fcc7192` on `127.0.0.1:3100` ready/health 200 |
-| Staging | LIVE `20260708T210149Z-fcc7192` on legacy `:3000` ready 200 |
-| Public edge | NOT configured |
+| AUTOMATION_HOST | Control plane v1 · DEGRADED_NON_BLOCKING |
+| Production app | STABLE `:3100` fcc7192 |
+| Staging | LIVE legacy `:3000` |
+| Public edge | OFF |
+| JSON queue | seeded + CLIs |
 
 ---
 
-## Queue
+## Queue (human)
 
-### 1. ASDEV-PUBLIC-EDGE (next)
-- **Title:** nginx → SSL → DNS public launch
-- **Status:** PENDING — requires separate owner approval
-- **Not granted in last phrase**
+### Done
+- ASDEV control plane transform v1  
+- Prod app-layer + stabilization  
 
-### 2. ASDEV-SECRETS-SHARED
-- Place production env under shared with safe perms
-- **Status:** residual for full features
+### Pending gated
+1. Public edge — `APPROVE_CRITICAL_SITE_PUBLIC_EDGE`  
+2. Live monitoring timers — `APPROVE_MONITORING_LIVE_TIMERS`  
+3. Migrations — `APPROVE_CRITICAL_SITE_MIGRATION`  
 
-### 3. ASDEV-STAGING-REBIND
-- Rebind staging :3000 → :3200
-- **Status:** OPTIONAL
-
----
-
-## Completed
-
-| ID | Result |
-|----|--------|
-| ASDEV-PROD-APP-LAYER | DONE — SUCCESS |
-| ASDEV-PROD-PREFLIGHT | DONE |
-| ASDEV-RC-FREEZE | DONE |
+### Safe next
+- Merge PRs (#73 ops loop if open, control-plane PR)  
+- Daily `automation-health-check.sh`  
+- Keep memory/queue aligned  
 
 ---
 
-## NEXT
+## NEXT_AUTONOMOUS_ACTION
 
-Public edge phase (not auto-approved).
+Operate via control-plane queue; stop only on approval phrases or real blockers.
