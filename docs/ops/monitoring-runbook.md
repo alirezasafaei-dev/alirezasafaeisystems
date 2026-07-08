@@ -23,8 +23,11 @@ No IRAN_PROD mutation. No nginx/pm2 restarts. No DNS/SSL changes.
 | Script | Purpose | Mode |
 |--------|---------|------|
 | `scripts/monitoring/check-prod-app-layer.sh` | Loopback prod ready/health (`:3100`) | read-only HTTP |
+| `scripts/monitoring/check-prod-stability-sample.sh` | Multi-sample latency/stability | read-only HTTP |
 | `scripts/monitoring/check-deploy-status.sh` | current symlink, meta, pid | local read-only |
+| `scripts/monitoring/report-backup-freshness.sh` | Human-readable backup freshness | read-only |
 | `scripts/monitoring/check-critical-site-http.sh` | Public HTTP root/ready/health | read-only HTTP |
+| `scripts/ops/staging-rebind-preflight.sh` | Ports/health before 3000→3200 | read-only |
 | `scripts/monitoring/check-automation-host-readiness.sh` | Tooling + repo + resource checks | local read-only |
 | `scripts/monitoring/check-disk-local.sh` | Disk used% thresholds | local read-only |
 | `scripts/monitoring/check-backup-freshness.sh` | Newest backup age | local read-only |

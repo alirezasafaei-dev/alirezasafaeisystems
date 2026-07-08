@@ -41,9 +41,17 @@ This rebind is **optional**. Production app-layer does not depend on it.
 4. Platform scripts synced under `/home/asdev/asdev-platform`  
 5. Owner accepts brief staging unavailability  
 
+**Read-only preflight script** (never stops staging):
+
+```bash
+bash scripts/ops/staging-rebind-preflight.sh
+# on IRAN after sync:
+bash /home/asdev/asdev-platform/scripts/ops/staging-rebind-preflight.sh
+```
+
 Approval: **not** the production phrase. Prefer explicit ops note or  
 `APPROVE_CRITICAL_SITE_STAGING_REBIND` if owner wants a hard gate.  
-Without that phrase, agents **plan only** (this document).
+Without that phrase, agents **plan only** (this document + preflight).
 
 ---
 
