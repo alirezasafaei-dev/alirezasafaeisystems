@@ -51,13 +51,13 @@ Required:
   --commit <sha>             Git commit SHA to deploy
 
 Optional:
-  --dry-run                  Preview changes without applying
-  --check                    Run validation only
-  --approve-phrase <phrase>  Approval phrase for gate
+  --dry-run                  Preview changes without applying. Requires no approval phrase.
+  --check                    Run validation only. Requires no approval phrase.
+  --approve-phrase <phrase>  Required for live staging/production execution
   -h, --help                 Show this help
 
 Examples:
-  $(basename "$0") --site auditsystems --environment staging --commit abc1234
+  $(basename "$0") --site auditsystems --environment staging --commit abc1234 --dry-run
   $(basename "$0") --site persiantoolbox --environment production --commit def5678 --dry-run
   $(basename "$0") --site auditsystems --environment staging --commit abc1234 --check
 EOF
@@ -91,36 +91,23 @@ get_field() {
     registry_field "$SITE_NAME" "$2"
 }
 
-require_approval() {
-    local env="$1" protected="$2"
-    if [[ "$APPROVE_PHRASE" != "" ]]; then return 0; fi
-    if [[ "$env" == "production" ]]; then
-        if [[ "$protected" == "true" ]]; then
-            error "Production deploy to protected site requires --approve-phrase APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
-        else
-            error "Production deploy requires --approve-phrase APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
-        fi
-    fi
-    if [[ "$env" == "staging" ]]; then
-        error "Staging deploy requires --approve-phrase APPROVE_PHASE_2_STAGING_DEPLOY"
-    fi
-}
-
 validate_approve_phrase() {
-    local env="$1" protected="$2"
-    if [[ "$APPROVE_PHRASE" == "" ]]; then
-        if [[ "$DRY_RUN" == "false" ]]; then
-            warn "No --approve-phrase provided; defaulting to dry-run mode"
-            DRY_RUN=true
-        fi
+    local env="$1"
+
+    # Dry-run and check mode must always be approval-free.
+    if [[ "$DRY_RUN" == "true" || "$CHECK_MODE" == "true" ]]; then
         return 0
     fi
+
+    if [[ -z "$APPROVE_PHRASE" ]]; then
+        error "Live $env deploy requires --approve-phrase. Use --dry-run or --check for approval-free validation."
+    fi
+
     if [[ "$env" == "production" ]]; then
         if [[ "$APPROVE_PHRASE" != "APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY" ]]; then
             error "Invalid approval phrase for production. Expected: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
         fi
-    fi
-    if [[ "$env" == "staging" ]]; then
+    elif [[ "$env" == "staging" ]]; then
         if [[ "$APPROVE_PHRASE" != "APPROVE_PHASE_2_STAGING_DEPLOY" ]]; then
             error "Invalid approval phrase for staging. Expected: APPROVE_PHASE_2_STAGING_DEPLOY"
         fi
@@ -134,7 +121,7 @@ run_build_command_id() {
         node-npm-build) npm ci && npm run build ;;
         static-copy) echo "static copy only" ;;
         no-build|-|"") echo "no build configured" ;;
-        *) fail "Unknown build_command_id: $cmd_id" ;;
+        *) error "Unknown build_command_id: $cmd_id" ;;
     esac
 }
 
@@ -262,7 +249,7 @@ deploy_site_artifact() {
             warn "Post-activation healthcheck failed for $site — rolling back symlink"
             local previous_release
             previous_release=$(find "${deploy_base}/releases" -maxdepth 1 -mindepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | awk '{print $2}' || true)
-            if [[ -n "$previous_release" ]] && [[ -d "$previous_release" ]]; then
+            if [[ -n "$previous_release" && -d "$previous_release" ]]; then
                 ln -sfn "$previous_release" "$current_link"
                 ok "Rolled back symlink to $previous_release"
             else
@@ -306,7 +293,6 @@ main() {
     fi
 
     validate_approve_phrase "$ENVIRONMENT" "$protected"
-    require_approval "$ENVIRONMENT" "$protected"
 
     local change_type
     change_type=$(detect_changes "$(get_field "$SITE_NAME" "$COL_REPO_PATH")" "$COMMIT")
