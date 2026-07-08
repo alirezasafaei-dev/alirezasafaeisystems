@@ -127,3 +127,12 @@ Format:
 - Removed eval from backup-onsite / restore-drill-onsite
 - Local CI Router PASS; GHA still infra-failed (empty steps)
 - Live staging still gated: APPROVE_PHASE_2_STAGING_DEPLOY
+
+## [2026-07-08 21:06 UTC] CRITICAL_SITE staging LIVE_OK
+
+- Owner granted APPROVE_PHASE_2_STAGING_DEPLOY
+- Staging release 20260708T210149Z-fcc7192 on IRAN_PROD
+- /api/ready and /api/health HTTP 200 on 127.0.0.1:3000
+- Production current not created/touched
+- Added 2G swap for build OOM mitigation
+- Next: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY

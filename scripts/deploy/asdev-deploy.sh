@@ -118,9 +118,19 @@ validate_approve_phrase() {
 
 run_build_command_id() {
     local cmd_id="$1"
+    # Avoid husky/git hooks in release trees; allow larger heap on small hosts.
+    export HUSKY="${HUSKY:-0}"
+    export NEXT_TELEMETRY_DISABLED="${NEXT_TELEMETRY_DISABLED:-1}"
+    if [[ -z "${NODE_OPTIONS:-}" ]]; then
+        export NODE_OPTIONS="--max-old-space-size=3072"
+    fi
     case "$cmd_id" in
-        node-pnpm-build) pnpm install --frozen-lockfile && pnpm run build ;;
-        node-npm-build) npm ci && npm run build ;;
+        node-pnpm-build)
+            # Full deps needed for Next build; ignore lifecycle scripts then run build.
+            pnpm install --frozen-lockfile --ignore-scripts
+            pnpm run build
+            ;;
+        node-npm-build) npm ci --ignore-scripts && npm run build ;;
         static-copy) echo "static copy only" ;;
         no-build|-|"") echo "no build configured" ;;
         *) error "Unknown build_command_id: $cmd_id" ;;
@@ -275,10 +285,14 @@ EOF
     hc_mode=$(get_field "$site" "$COL_HC_MODE")
     hc_port=$(get_field "$site" "$COL_HC_PORT")
     hc_path=$(get_field "$site" "$COL_HC_PATH")
+
+    # Start runtime after activation (required for post-activation healthcheck).
+    start_runtime "$site" "$environment" "$deploy_base" "$release_dir" "$start_cmd_id" "$hc_port" "$process_names"
+
     if [[ "$hc_mode" == "local-port" && -n "$hc_port" && "$hc_port" != "-" ]]; then
         log "Running post-activation healthcheck: http://127.0.0.1:${hc_port}${hc_path}"
         local hc_ok=false
-        for attempt in $(seq 1 20); do
+        for attempt in $(seq 1 30); do
             if curl -fsS --connect-timeout 5 "http://127.0.0.1:${hc_port}${hc_path}" >/dev/null 2>&1; then
                 hc_ok=true
                 break
@@ -287,6 +301,7 @@ EOF
         done
         if [[ "$hc_ok" == "false" ]]; then
             warn "Post-activation healthcheck failed for $site — rolling back symlink"
+            stop_runtime "$deploy_base"
             local previous_release=""
             if [[ -f "$previous_pointer" ]]; then
                 previous_release=$(tr -d '[:space:]' < "$previous_pointer")
@@ -308,6 +323,76 @@ EOF
         warn "No local-port healthcheck configured — skipping healthcheck"
     fi
     ok "Deployed $site $release_id (post-activation healthcheck passed)"
+}
+
+stop_runtime() {
+    local deploy_base="$1"
+    local pid_file="${deploy_base}/asdev-runtime.pid"
+    if [[ -f "$pid_file" ]]; then
+        local pid
+        pid=$(tr -d '[:space:]' < "$pid_file" || true)
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            kill -9 "$pid" 2>/dev/null || true
+            log "Stopped runtime pid $pid"
+        fi
+        rm -f "$pid_file"
+    fi
+}
+
+start_runtime() {
+    local site="$1" environment="$2" deploy_base="$3" release_dir="$4" start_cmd_id="$5" hc_port="$6" process_names="$7"
+    local pid_file="${deploy_base}/asdev-runtime.pid"
+    local log_file="${deploy_base}/asdev-runtime.log"
+
+    case "$start_cmd_id" in
+        node-standalone|"")
+            ;;
+        *)
+            warn "Unknown start_command_id '$start_cmd_id' — skipping runtime start"
+            return 0
+            ;;
+    esac
+
+    stop_runtime "$deploy_base"
+
+    local server_js=""
+    if [[ -f "${release_dir}/.next/standalone/server.js" ]]; then
+        server_js="${release_dir}/.next/standalone/server.js"
+        # Next standalone expects static/public alongside server bundle.
+        mkdir -p "${release_dir}/.next/standalone/.next"
+        if [[ -d "${release_dir}/.next/static" ]]; then
+            rm -rf "${release_dir}/.next/standalone/.next/static"
+            cp -a "${release_dir}/.next/static" "${release_dir}/.next/standalone/.next/static"
+        fi
+        if [[ -d "${release_dir}/public" ]]; then
+            rm -rf "${release_dir}/.next/standalone/public"
+            cp -a "${release_dir}/public" "${release_dir}/.next/standalone/public"
+        fi
+    elif [[ -f "${release_dir}/server.js" ]]; then
+        server_js="${release_dir}/server.js"
+    else
+        warn "No standalone server.js found under $release_dir — healthcheck may fail"
+        return 0
+    fi
+
+    local port="${hc_port:-3000}"
+    log "Starting node-standalone for $site ($environment) on 127.0.0.1:${port}"
+    (
+        cd "$(dirname "$server_js")"
+        export PORT="$port"
+        export HOSTNAME="127.0.0.1"
+        export NODE_ENV="production"
+        nohup node "$(basename "$server_js")" >>"$log_file" 2>&1 &
+        echo $! >"$pid_file"
+    )
+    sleep 2
+    if [[ -f "$pid_file" ]] && kill -0 "$(tr -d '[:space:]' < "$pid_file")" 2>/dev/null; then
+        ok "Runtime started pid=$(tr -d '[:space:]' < "$pid_file") process_hint=${process_names:-$site}"
+    else
+        warn "Runtime pid not active after start — see $log_file"
+    fi
 }
 
 main() {

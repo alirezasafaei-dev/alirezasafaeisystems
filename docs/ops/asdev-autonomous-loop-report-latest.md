@@ -1,74 +1,64 @@
-# گزارش حلقه خودمختار ASDEV — آخرین وضعیت
+# گزارش حلقه خودمختار ASDEV — پس از Staging
 
-**تاریخ:** 2026-07-08T20:22:00Z  
-**شاخه:** `ops/autonomous-loop-staging-readiness-20260708`  
-**PR:** #72
+**تاریخ:** 2026-07-08T21:06:00Z  
+**Approval:** `APPROVE_PHASE_2_STAGING_DEPLOY`  
+**شاخه:** `ops/autonomous-loop-staging-readiness-20260708` (PR #72)
 
 ---
 
-## ۱. کارهای انجام‌شده (حلقه ۲)
+## ۱. انجام‌شده
 
-- کشف: CRITICAL_SITE در ریپوی جدا `persiantoolbox` است
-- `asdev-prepare-site-source.sh` + `site-source-map.tsv` + common resolver
-- clone محلی `sites/live/persiantoolbox` (gitignore، commit نمی‌شود)
-- preflight/deploy dry-run با source **ready**
-- `staging-execution-plan.md` با دستورات دقیق
-- CI Router محلی + رفع false positive dangerous-patterns + root path bug
-- حذف `eval` از backup/restore-drill
+- Live staging CRITICAL_SITE روی IRAN_PROD **موفق**
+- Release: `20260708T210149Z-fcc7192`
+- Health: `/api/ready` و `/api/health` → 200
+- Production current: **دست‌نخورده**
+- Swap 2G روی IRAN_PROD برای بیلد
+- سخت‌سازی build helper (HUSKY/heap)
 
 ## ۲. GitHub
 
-- PR #72 به‌روز می‌شود (همین branch)
-- بدون spam rerun workflow
+- PR #72 با گزارش staging + patch deploy به‌روز می‌شود
 
 ## ۳. OWNER_PC
 
-- source CRITICAL_SITE آماده محلی
-- `/srv/asdev` ندارد (expected)
+- بیلد محلی artifact موفق بود (backup path)
+- آپلود حجیم OWNER→IRAN به‌خاطر timeout شبکه رد شد؛ بیلد روی IRAN انجام شد
 
-## ۴. AUTOMATION_HOST
+## ۴. IRAN_PROD / AUTOMATION path
 
-- بدون mutation جدید
-- DEGRADED_NON_BLOCKING
+- مسیرهای `/srv/asdev/sites/persiantoolbox-staging` ایجاد و فعال
+- runtime staging روی پورت محلی 3000
 
 ## ۵. عمداً انجام نشد
 
-- live staging / production
-- IRAN_PROD mutation
-- merge اجباری PR بدون owner
-- timer مانیتورینگ زنده
+- production deploy
+- nginx / DNS / SSL
+- migration
 
 ## ۶. Validation
 
 | Check | Result |
 |-------|--------|
-| prepare-site-source apply | PASS |
-| preflight dry-run (PT SHA) | PASS (4 warnings: no /srv paths) |
-| deploy dry-run source=ready | PASS |
-| dangerous-patterns | PASS (0) |
-| ci-router-local | PASS |
-| bash -n new/changed scripts | PASS |
+| Staging ready | 200 |
+| Staging health | 200 |
+| Prod current | absent |
+| release.meta | present |
 
 ## ۷. Classification
 
 | Domain | Class |
 |--------|-------|
-| AUTOMATION_HOST | DEGRADED_NON_BLOCKING |
-| CRITICAL_SITE staging | READY_WITH_WARNINGS (source ready; IRAN path + phrase) |
-| CI | INFRA_DEGRADED; local router PASS |
-| Queue | clean; primary blocker is staging phrase |
+| CRITICAL_SITE staging | **LIVE_OK** |
+| Production | untouched |
+| Next | production gate |
 
-## ۸. Open PRs
+## ۸. Blockers remaining
 
-- #72 — mission branch
+- Production requires separate phrase
+- Optional: public staging vhost / edge
 
-## ۹. Blockers
-
-1. `APPROVE_PHASE_2_STAGING_DEPLOY`
-2. Host with IRAN_PROD staging base write access
-
-## ۱۰. Next approval phrase
+## ۹. Next approval phrase
 
 ```
-APPROVE_PHASE_2_STAGING_DEPLOY
+APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 ```

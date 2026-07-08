@@ -1,75 +1,50 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-08T20:22:00Z
+**Last Updated:** 2026-07-08 21:06 UTC
 **Status:** Active
-**Source of Truth:** GitHub (alirezasafaei-dev/alirezasafaeisystems)
+**Source of Truth:** GitHub
 
 ---
 
-## Queue Rules
+## Current Queue
 
-- Valid modes only: read-only, docs-only, test-only, product-branch, automation-script
-- No combined modes
-- Current phase first; no stale backup-wait blockers
+### 1. ASDEV-PROD-GATE
+- **Title:** CRITICAL_SITE production deploy (blocked)
+- **Mode:** read-only until approval
+- **Approval:** owner (`APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`)
+- **Status:** BLOCKED
+- **Precondition:** Staging LIVE_OK (`20260708T210149Z-fcc7192`, ready/health 200)
 
----
-
-## Current Queue (Priority Order)
-
-### 1. ASDEV-STAGING-GATE
-- **Title:** Wait for owner staging deploy approval (CRITICAL_SITE)
-- **Mode:** read-only
-- **Risk:** high
-- **Approval:** owner (`APPROVE_PHASE_2_STAGING_DEPLOY`)
-- **Status:** BLOCKED — local prep complete; live deploy gated
-- **Done Definition:** Live staging executed after exact phrase
-
-### 2. ASDEV-STAGING-IRAN-PATH
-- **Title:** Confirm IRAN_PROD staging base path exists (read-only) before live deploy
-- **Mode:** read-only
-- **Risk:** medium
-- **Approval:** auto for read-only remote check when access available
-- **Status:** PENDING — `/srv/asdev` not on OWNER_PC
-- **Stop Gates:** No mutation on IRAN_PROD
+### 2. ASDEV-STAGING-EDGE (optional)
+- **Title:** Optional nginx/public staging vhost for CRITICAL_SITE
+- **Mode:** automation-script
+- **Approval:** owner (not granted in master loop for nginx)
+- **Status:** PENDING — local-port staging works without edge
 
 ### 3. ASDEV-CI-INFRA
-- **Title:** Re-check GitHub Actions when infra recovers
+- **Title:** GitHub Actions infra recovery sample
 - **Mode:** read-only
-- **Risk:** low
-- **Status:** PENDING — GHA still empty-steps failures; **local CI Router PASS**
-- **Validation:** `scripts/ops/run-ci-router-local.sh origin/main`
+- **Status:** PENDING — non-blocking
 
 ### 4. ASDEV-MONITOR-LIVE
-- **Title:** Optional live monitoring timers
-- **Mode:** automation-script
-- **Approval:** owner (`APPROVE_MONITORING_LIVE_TIMERS`)
+- **Approval:** `APPROVE_MONITORING_LIVE_TIMERS`
 - **Status:** BLOCKED
-
-### 5. ASDEV-QUARANTINE-LIVE
-- **Title:** Non-critical quarantine live (not approved)
-- **Mode:** docs-only until approval
-- **Status:** BLOCKED — plan only
 
 ---
 
-## Completed (this autonomous loop)
+## Completed
 
 | ID | Result |
 |----|--------|
-| ASDEV-STAGING-SOURCE | DONE — PT cloned to `sites/live/persiantoolbox` (gitignored), source ready |
-| ASDEV-STAGING-PLAN | DONE — `docs/ops/staging-execution-plan.md` |
-| ASDEV-CI-ROUTER-LOCAL | DONE — local router + false-positive fixes |
-| ASDEV-DEPLOY-EVAL-HARDEN | DONE — removed eval from backup/restore-drill |
-| ASDEV-MONITOR-FOUNDATION | DONE (prior cycle) |
-| ASDEV-STAGING-PREFLIGHT | DONE — READY_WITH_WARNINGS |
+| ASDEV-STAGING-GATE | DONE — live staging SUCCESS |
+| ASDEV-STAGING-SOURCE | DONE |
+| ASDEV-STAGING-PREFLIGHT | DONE |
+| ASDEV-DEPLOY-RUNTIME-START | DONE (node-standalone) |
 
 ---
 
-## Queue Stats
+## NEXT_GATE
 
-| Metric | Value |
-|---|---|
-| Active tasks | 5 |
-| Blocked | 3 |
-| Pending | 2 |
-| Safe work remaining without staging phrase | limited (IRAN path read-only if access; docs) |
+```
+APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+```
