@@ -136,3 +136,11 @@ Format:
 - Production current not created/touched
 - Added 2G swap for build OOM mitigation
 - Next: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+
+## [2026-07-08 21:11 UTC] Document + AUTOMATION_HOST recheck
+
+- Mission worklog written (docs/reports/asdev-mission-worklog-20260708.md)
+- AUTOMATION_HOST still DEGRADED_NON_BLOCKING; runner false-positive fixed
+- Staging re-verified: ready/health 200, PID alive, prod current absent
+- Safe work remaining without production phrase is limited
+- Next: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY

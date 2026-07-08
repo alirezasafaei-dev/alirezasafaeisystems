@@ -182,7 +182,8 @@ main() {
   check_pm2_docker
 
   if [[ "$DRY_RUN" != "true" && "$CHECK_MODE" != "true" ]]; then
-    if pgrep -af 'Runner.Listener|actions.runner' >/dev/null 2>&1; then
+    # Use exact process name — pgrep -af on a pattern can match this script's argv (false positive).
+    if pgrep -x 'Runner.Listener' >/dev/null 2>&1; then
       ok "GitHub Actions runner process present"
     else
       warn "No GitHub Actions self-hosted runner (not required for local executor path)"
