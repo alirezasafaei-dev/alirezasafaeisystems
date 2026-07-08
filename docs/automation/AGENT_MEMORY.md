@@ -257,3 +257,22 @@ APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 
 ### Not done
 production deploy, nginx, DNS, SSL, migration
+
+## [2026-07-08T22:16:19Z] PRODUCTION APP-LAYER LIVE
+
+### Deployed
+- Phrase: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+- Scope: application layer only 127.0.0.1:3100
+- Release: 20260708T221124Z-fcc7192
+- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
+- ready/health: 200/200
+- PID alive
+- Staging untouched (still 200 on :3000)
+- nginx/DNS/SSL: not touched
+
+### Rollback
+- First production release — no previous-release pointer
+- Recovery: redeploy same SHA or stop pid
+
+### Next
+Public edge phase needs separate approval
