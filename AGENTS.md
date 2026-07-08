@@ -1,7 +1,19 @@
 # Agent Governance — ASDEV (AlirezaSafaeiSystems Mother Repo)
 
-**Last Updated**: 2026-07-06
+**Last Updated**: 2026-07-08
 **Status**: Active
+
+## Autonomous Productivity Mode (mandatory)
+
+Agents must **not** stop after finishing a task list when safe high-value work remains.
+
+- Read: `docs/governance/AUTONOMOUS_PRODUCTIVITY_MODE.md`
+- Gates only: `docs/governance/APPROVAL_GATES.md`
+- Permanent memory: `docs/automation/ASDEV_MEMORY.md`
+- Workspace: `/home/dev13/ASDEV` (not legacy my-project path)
+
+Stop only for real approval gates, security risk, or zero safe work.
+
 
 ---
 
@@ -30,7 +42,7 @@ If none apply, reject the task or move it to `docs/strategy/FROZEN_BACKLOG.md`.
 ## Agent Guidelines
 
 ### Agent Working Directory
-- **Base Path**: `/home/dev13/my-project/sites/live/alirezasafaeisystems`
+- **Base Path**: `/home/dev13/ASDEV`
 - **Allowed Directories**: `src/`, `scripts/`, `prisma/`, `docs/`, `e2e/`
 - **Restricted Directories**: `.git/`, `node_modules/`, `.next/`, `dist/`
 

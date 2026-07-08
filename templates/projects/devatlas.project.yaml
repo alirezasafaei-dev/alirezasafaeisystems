@@ -1,0 +1,17 @@
+id: devatlas
+name: devatlas
+owner: platform
+status: source_missing_on_automation_host
+critical: false
+source:
+  path: sites/live/devatlas
+  vcs: git
+  note: not checked out on AUTOMATION_HOST; registry row exists
+deploy:
+  registry_site: devatlas
+ownership:
+  code: alirezasafaei-dev
+  ops: AUTOMATION_HOST
+  runtime: IRAN_PROD
+rollback:
+  mode: symlink-previous

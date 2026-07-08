@@ -3,9 +3,16 @@
 
 # Protected paths.
 /.github/workflows/ @alirezasafaei-dev
+/.github/CODEOWNERS @alirezasafaei-dev
 /deploy/ @alirezasafaei-dev
 /scripts/deploy/ @alirezasafaei-dev
 /scripts/ops/ @alirezasafaei-dev
+/scripts/control-plane/ @alirezasafaei-dev
+/scripts/monitoring/ @alirezasafaei-dev
+/control-plane/ @alirezasafaei-dev
 /docs/automation/ @alirezasafaei-dev
+/docs/governance/ @alirezasafaei-dev
 /docs/roadmaps/ @alirezasafaei-dev
 /docs/reports/ @alirezasafaei-dev
+/docs/ops/ @alirezasafaei-dev
+/ops/nginx/ @alirezasafaei-dev

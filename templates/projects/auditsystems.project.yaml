@@ -1,0 +1,17 @@
+id: auditsystems
+name: auditsystems
+owner: platform
+status: source_missing_on_automation_host
+critical: false
+source:
+  path: sites/live/auditsystems
+  vcs: git
+  note: not checked out on AUTOMATION_HOST; registry row exists
+deploy:
+  registry_site: auditsystems
+ownership:
+  code: alirezasafaei-dev
+  ops: AUTOMATION_HOST
+  runtime: IRAN_PROD
+rollback:
+  mode: symlink-previous

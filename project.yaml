@@ -1,0 +1,33 @@
+# Mother repo / portfolio platform product (registry: alirezasafaeisystems)
+id: alirezasafaeisystems
+name: AlirezaSafaeiSystems
+owner: platform
+status: monorepo_platform
+critical: false
+
+source:
+  path: .
+  vcs: git
+
+deploy:
+  registry_site: alirezasafaeisystems
+  prod_port: 3001
+  staging_port: 3101
+  health: /api/ready
+  strategy: symlink
+  runtime: node-standalone
+
+ownership:
+  code: alirezasafaei-dev
+  ops: AUTOMATION_HOST
+  runtime: IRAN_PROD
+
+docs:
+  readme: README.md
+
+checks:
+  health: /api/ready
+
+rollback:
+  mode: symlink-previous
+  notes: platform also hosts ASDEV control plane docs/scripts
