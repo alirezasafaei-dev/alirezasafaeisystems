@@ -1,0 +1,9 @@
+logs/**
+!logs/.gitkeep
+state/**
+!state/.gitkeep
+health/last-health.json
+reports/*
+!reports/.gitkeep
+backups/*
+!backups/.gitkeep

@@ -1,116 +1,112 @@
 # Agent Memory — ASDEV
 
-**Format:** Point-in-time agent state.  
-**Source of Truth:** GitHub (`alirezasafaei-dev/alirezasafaeisystems`)  
-**Workspace:** `/home/dev13/ASDEV`
+**Read this first** before any agent work.  
+**SoT:** GitHub `alirezasafaei-dev/alirezasafaeisystems`  
+**Workspace:** `/home/dev13/ASDEV`  
+**Updated:** 2026-07-08T22:40:00Z
 
 ---
 
-## Architecture
+## Current architecture
 
 ```
-GitHub main (SoT) ──► /home/dev13/ASDEV (OWNER_PC)
-                              │
-                              ▼ rsync platform scripts
-                     IRAN_PROD:/home/asdev/asdev-platform
-                              │
-              ┌───────────────┴────────────────┐
-              ▼                                ▼
-   production /srv/asdev/sites/          staging …/persiantoolbox-staging
-   persiantoolbox  :3100                 legacy :3000 (registry wants 3200)
+GitHub (SoT)
+    │
+AUTOMATION_HOST (hostname asdev · OWNER_PC colocated)
+    ├── /home/dev13/ASDEV  control-plane/ + scripts + docs
+    ├── Hermes gateway + OpenClaw gateway (user processes)
+    └── SSH → IRAN_PROD
+              ├── production persiantoolbox :3100  LIVE
+              └── staging :3000 (legacy) LIVE
 ```
+
+Control plane contract: `docs/architecture/automation-control-plane.md`  
+Agent registry: `docs/automation/AGENT_REGISTRY.md`  
+Machine queue: `control-plane/queue/queue.json`
 
 ---
 
-## Production application state (live)
+## Current state
 
-| Field | Value |
+| Layer | State |
 |-------|-------|
-| Status | **STABLE** app-layer |
-| Release | `20260708T221124Z-fcc7192` |
-| Frozen product | **`fcc7192af26a5713e31d4ec078365f9507c8108a`** |
-| Bind | `127.0.0.1:3100` |
-| PID | 72355 alive (`next-server`) |
-| ready / health | **200 / 200** · ~12–14ms |
-| Runtime log errors | none |
-| Host | disk 27% · mem avail ~3.1G · load ~0 |
-| Public edge | **OFF** |
-| Stability report | `docs/reports/critical-site-stability-report.md` |
+| AUTOMATION_HOST | **DEGRADED_NON_BLOCKING** · usable control plane |
+| Health score | ~7/10 |
+| CRITICAL_SITE prod app | **STABLE** `20260708T221124Z-fcc7192` pin **fcc7192** `:3100` |
+| Public edge | OFF |
+| PM2 | idle (0) |
+| Docker | 1 healthy running; 5 exited legacy |
+| Control plane tree | **created** |
+| JSON task queue | **seeded** |
 
 ---
 
-## Frozen release
+## Completed work (recent)
 
-| Layer | Pin |
-|-------|-----|
-| Product | `persiantoolbox@fcc7192af26a5713e31d4ec078365f9507c8108a` |
-| Production release id | `20260708T221124Z-fcc7192` |
-| Staging release id | `20260708T210149Z-fcc7192` (same product pin) |
-| previous_release | **empty** (first production deploy) |
+- CRITICAL_SITE staging + production app-layer  
+- Post-prod stabilization reports  
+- IRAN script sync + meta backup cron  
+- **Control plane transform v1:** audit, architecture, registry, queue, loop engine, GitHub model, health script, container inventory, PM2 policy, roadmaps  
 
 ---
 
-## Completed phases
+## Known issues
 
-1. Staging live (PHASE_2 phrase)  
-2. RC freeze + production preflight  
-3. Production **app-layer** deploy (`APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`)  
-4. Post-deploy validation + ops loop v1 docs/scripts  
-5. IRAN platform sync + daily **meta** backup cron (03:15 UTC)  
-6. **Post-production stabilization loop** (this entry): stability report, deploy validation, backup workflows, staging rebind preflight script, memory refresh  
-
----
-
-## Remaining approval gates (hard stops)
-
-| Phrase | Unlocks |
-|--------|---------|
-| `APPROVE_CRITICAL_SITE_PUBLIC_EDGE` | nginx → SSL → DNS → public launch |
-| `APPROVE_MONITORING_LIVE_TIMERS` | install live probe timers (beyond existing backup cron) |
-| `APPROVE_CRITICAL_SITE_MIGRATION` | database migrations |
-| `APPROVE_CRITICAL_SITE_STAGING_REBIND` (optional) | staging 3000→3200 live rebind |
-
-**Do not:** enable nginx, change DNS, enable SSL, run migrations, enable live timers without phrases.  
-**Existing meta backup cron is not a monitoring live timer** — do not alter it in stabilization loops unless asked.
+- Hermes/OpenClaw not under PM2 policy  
+- Desktop colocation resource contention  
+- GHA TLS flakiness  
+- Staging still on :3000  
+- First prod has no previous_release  
+- Meta backups only on IRAN  
 
 ---
 
-## Decisions
+## Active projects
 
-| Date | Decision |
-|------|----------|
-| 2026-07-08 | First prod = app layer only (Option A) |
-| 2026-07-08 | Ports: prod 3100 / staging registry 3200 |
-| 2026-07-08 | Remote build on IRAN for product pin |
-| 2026-07-08 | One PR per major phase (PR #73 ops loop) |
-| 2026-07-08 | Stabilize before public exposure |
+1. ASDEV control plane (this)  
+2. CRITICAL_SITE production edge (gated)  
+3. Site-standard multi-site rollout  
 
 ---
 
-## Blockers / residuals
+## Next actions
 
-- Public edge waiting approval  
-- No symlink rollback history until second prod release  
-- Meta backups only (no encrypted shared env / DB dump yet)  
-- Staging still on legacy :3000 (plan + preflight only)  
-- Shared secrets placement for full product features  
+1. Merge control-plane PR  
+2. Use `queue-list` / `loop-once` in sessions  
+3. Stop for: `APPROVE_CRITICAL_SITE_PUBLIC_EDGE` · `APPROVE_MONITORING_LIVE_TIMERS` · `APPROVE_CRITICAL_SITE_MIGRATION`  
 
 ---
 
-## Next autonomous (safe)
+## Important decisions
 
-1. Land / keep PR #73 updated with stabilization docs  
-2. Optional: second observation window / report refresh  
-3. Do **not** rebind staging or open edge without phrase  
+| Decision | Rationale |
+|----------|-----------|
+| GitHub = only SoT | No tribal host state |
+| AUTOMATION_HOST = orchestration not runtime | CRITICAL_SITE stays on IRAN |
+| JSON queue + markdown queue | Machine + human |
+| One PR per major phase | Avoid micro-PR thrash |
+| No blind docker/pm2 delete | Safety |
+| App-layer prod before edge | Blast radius |
+
+---
+
+## Approval gates (hard stop)
+
+```
+APPROVE_CRITICAL_SITE_PUBLIC_EDGE
+APPROVE_MONITORING_LIVE_TIMERS
+APPROVE_CRITICAL_SITE_MIGRATION
+APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY  (redeploy)
+APPROVE_PHASE_2_STAGING_DEPLOY
+```
 
 ---
 
 ## Memory log
 
-### [2026-07-08 22:30 UTC] Post-production stabilization loop
+### [2026-07-08 22:40 UTC] Control plane transform v1
 
-- Read-only IRAN observation → **STABLE**  
-- Deploy system validation PASS; product pin **fcc7192** confirmed  
-- Backup verification workflow + restore checklist + freshness report  
-- Scripts: stability sample, backup freshness report, staging rebind preflight (no stop)  
-- Gates unchanged: PUBLIC_EDGE · MONITORING_LIVE_TIMERS · MIGRATION  
+- Full AUTOMATION_HOST audit → score ~7/10 DEGRADED_NON_BLOCKING  
+- Created control-plane tree, queue system, agent registry, health check  
+- Container inventory: keep microcatalog postgres; archive halo-secret*  
+- No production mutation; no live timer install  
