@@ -20,14 +20,13 @@
 
 ## Queue
 
-### 1. ASDEV-OPS-LOOP-PR (active)
-- Batch: reports, public-edge plan, monitoring, DR, agent OS, site template, roadmaps  
-- **Status:** IN_PROGRESS → PR
+### 1. ASDEV-OPS-LOOP-PR
+- Batch PR #73  
+- **Status:** OPEN (follow-up commit: IRAN sync + backup cron + staging rebind plan)
 
 ### 2. ASDEV-BACKUP-ONSITE
-- Parameterize backup/restore for `/srv/asdev/sites/persiantoolbox`  
-- Restore drill report  
-- **Status:** NEXT (safe, no edge)
+- Meta backup helper + first restore drill + **daily cron 03:15 UTC** on IRAN  
+- **Status:** DONE (meta-only; secrets not included)
 
 ### 3. ASDEV-PUBLIC-EDGE
 - nginx → 3100, SSL, DNS, public launch  
