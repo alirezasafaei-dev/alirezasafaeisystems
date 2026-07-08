@@ -1,8 +1,25 @@
 # Active Autonomous Queue — ASDEV Audit
 
-**Last Updated:** 2026-07-07
+**Last Updated:** 2026-07-08
 **Status:** Active
 **Loop Command:** `./scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 3`
+
+---
+
+## Temporary Backup-Wait Directive
+
+Phase 1 second backup may be running on OWNER_PC. Until the latest restore drill confirms CRITICAL_SITE disaster-recovery readiness, agents must prioritize ASDEV-BW tasks only.
+
+Hard blockers for ASDEV-BW tasks:
+
+- no server access
+- no backup/restore execution
+- no deploy/install/build/restart/reload/symlink/migration/firewall/fail2ban work
+- no deletion
+- no sensitive material in reports or commits
+- no merge without owner review
+
+Full task spec: `docs/automation/BACKUP_WAIT_PARALLEL_AGENT_TASKS_20260708.md`
 
 ---
 
@@ -17,6 +34,10 @@
 ---
 
 ## Pending Tasks
+
+- [ ] ID: ASDEV-BW01 | Repo safety audit and guardrails | Repo: alirezasafaeisystems | Mode: docs-only+automation-script | Risk: low | Approval: auto | Validation: bash-n if checker is created | Stop Gates: sensitive material, destructive command, server access | Done: PR open with docs and safe checker
+- [ ] ID: ASDEV-BW02 | Phase 2 staging deploy prep docs only | Repo: alirezasafaeisystems | Mode: docs-only+automation-script | Risk: low | Approval: auto | Validation: bash-n if templates are created | Stop Gates: real deploy/server access/install/build/restart/reload/symlink/migration/firewall | Done: PR open with Phase 2 docs and dry-run templates
+- [ ] ID: ASDEV-BW03 | Monitoring and alerting prep only | Repo: alirezasafaeisystems | Mode: docs-only+automation-script | Risk: low | Approval: auto | Validation: bash-n if templates are created | Stop Gates: live timer/server access/restart/reload/deploy/backup mutation | Done: PR open with monitoring docs and safe templates
 
 - [ ] ID: A-Q01 | Split PR #12 mega-branch into focused PRs | Repo: auditsystems | Mode: product-branch | Risk: medium | Approval: owner | Validation: typecheck+lint+test | Stop Gates: merge conflicts, test failures | Done: 7 focused PRs open, PR #12 marked superseded
 - [ ] ID: A-Q02 | Create PR-A: retry+analytics focused | Repo: auditsystems | Mode: product-branch | Risk: low | Approval: auto | Validation: typecheck+lint+test | Stop Gates: test failure | Done: PR open with retry+analytics only
@@ -43,7 +64,7 @@
 
 ## Completed Tasks
 
-(None yet — this is the initial queue)
+(None yet — backup-wait tasks added on 2026-07-08)
 
 ---
 
@@ -51,8 +72,8 @@
 
 | Metric | Value |
 |---|---|
-| Total tasks | 20 |
-| Pending | 20 |
+| Total tasks | 23 |
+| Pending | 23 |
 | In-progress | 0 |
 | Completed | 0 |
 | Failed | 0 |
