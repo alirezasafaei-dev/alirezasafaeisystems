@@ -1,74 +1,60 @@
 # TODAY — ASDEV Immediate Priorities
 
-**Date:** 2026-07-08
+**Date:** 2026-07-08  
 **Source of Truth:** GitHub
 
 ---
 
-## PR Review/Merge Order
+## Done this cycle
 
-| Priority | Task | Repo | Status | Action |
-|---|---|---|---|---|
-| 1 | ASDEV-BW01: Repo safety audit | alirezasafaeisystems | Pending | Create PR with docs and safe checker |
-| 2 | ASDEV-BW02: Phase 2 staging deploy prep | alirezasafaeisystems | Pending | Create PR with Phase 2 docs |
-| 3 | ASDEV-BW03: Monitoring prep | alirezasafaeisystems | Pending | Create PR with monitoring docs |
-| 4 | A-Q01: Split PR #12 | auditsystems | Pending | Break mega-branch into focused PRs |
-
----
-
-## Blocked Items
-
-| Item | Blocker | Resolution |
-|---|---|---|
-| A-Q05: deploy workflow quarantine | Requires owner approval | Wait for owner review |
-| A-Q06: schema features quarantine | Requires owner approval | Wait for owner review |
-| Backup-wait tasks | Second backup may be running | Complete backup drill, then proceed |
-| Deploy to IRAN_PROD | No owner approval | Request owner approval |
+| Item | Status |
+|------|--------|
+| OWNER_PC sync main | Done |
+| AUTOMATION_HOST re-audit | DEGRADED_NON_BLOCKING |
+| Deploy engine bugfix + hardening | Done (mission PR) |
+| CRITICAL_SITE staging preflight dry-run | READY_WITH_WARNINGS |
+| Monitoring foundation scripts | Done |
+| Queue + agent memory refresh | Done |
 
 ---
 
-## Exact Next Actions
+## Now / next
 
-1. **Execute ASDEV-BW01** — repo safety audit and guardrails
-   - Create docs and safe checker script
-   - Open PR for review
-   - No server access, no destructive operations
-
-2. **Execute ASDEV-BW02** — Phase 2 staging deploy prep
-   - Create documentation and dry-run templates
-   - Open PR for review
-   - No real deploy, no server access
-
-3. **Execute ASDEV-BW03** — monitoring and alerting prep
-   - Create monitoring docs and safe templates
-   - Open PR for review
-   - No live timers, no server access
-
-4. **Update AGENT_MEMORY.md** — record today's decisions and state
-5. **Post status to Issue #45** — command center visibility
+| Priority | Task | Status | Gate |
+|----------|------|--------|------|
+| 1 | Merge mission PR (deploy fix + reports + monitoring) | In progress | Owner review |
+| 2 | Resolve CRITICAL_SITE source/artifact for staging executor | Pending | None (prep) |
+| 3 | Live CRITICAL_SITE staging deploy | Blocked | `APPROVE_PHASE_2_STAGING_DEPLOY` |
+| 4 | CI re-sample when GHA healthy | Pending | No spam reruns |
+| 5 | Live monitoring timers | Blocked | `APPROVE_MONITORING_LIVE_TIMERS` |
 
 ---
 
-## Deep Research Report
+## Explicitly not today
 
-- Reference: `docs/reports/asdev-production-grade-deep-research-20260708.md`
+- Production deploy
+- IRAN_PROD nginx/pm2 mutation
+- Live non-critical quarantine
+- Database migration
+- DNS/SSL changes
 
 ---
 
-## Validation Commands
+## Validation (local, before merge)
 
 ```bash
-# Before any PR
-pnpm lint
-pnpm type-check
-pnpm test
-pnpm build
+bash -n scripts/deploy/asdev-*.sh scripts/monitoring/*.sh
+bash scripts/ops/validate-registry-schema.sh
+bash scripts/ops/check-dangerous-patterns.sh
+bash scripts/deploy/asdev-preflight.sh --site persiantoolbox --environment staging --commit "$(git rev-parse HEAD)" --dry-run
+bash scripts/deploy/asdev-deploy.sh --site persiantoolbox --environment staging --commit "$(git rev-parse HEAD)" --dry-run
+bash scripts/deploy/asdev-rollback.sh --site persiantoolbox --environment staging --commit "$(git rev-parse HEAD)" --dry-run
 ```
 
 ---
 
-## Stop Conditions
+## NEXT_GATE
 
-- If any backup-wait blocker is triggered, halt and report
-- If owner approval is required, do not proceed without it
-- If validation fails, fix before proceeding
+```
+APPROVE_PHASE_2_STAGING_DEPLOY
+```

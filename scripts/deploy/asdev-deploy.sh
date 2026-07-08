@@ -189,15 +189,25 @@ deploy_site_artifact() {
     release_id="$(date -u +%Y%m%dT%H%M%SZ)-${commit:0:7}"
     local release_dir="${deploy_base}/releases/${release_id}"
     local current_link="${deploy_base}/current"
+    local previous_pointer="${deploy_base}/previous-release"
+    local current_release=""
+    if [[ -L "$current_link" ]]; then
+        current_release=$(basename "$(readlink -f "$current_link" 2>/dev/null || true)" 2>/dev/null || true)
+    fi
 
     log "Site: $site | Environment: $environment | Commit: $commit"
     log "Release: $release_id"
     log "Deploy base: $deploy_base"
+    log "Previous release: ${current_release:-none}"
 
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would create release dir: $release_dir"
+        log "[DRY RUN] Would write release metadata (release.meta)"
         log "[DRY RUN] Would sync site-scoped source from: $src_dir"
         log "[DRY RUN] Would run build_command_id: $build_cmd_id"
+        if [[ -n "$current_release" ]]; then
+            log "[DRY RUN] Would record previous-release pointer: $current_release"
+        fi
         log "[DRY RUN] Would symlink current -> $release_dir"
         log "[DRY RUN] Would run post-activation healthcheck"
         log "[DRY RUN] Would rollback symlink if healthcheck fails"
@@ -223,9 +233,28 @@ deploy_site_artifact() {
         error "No source or artifact found for $site"
     fi
 
+    # Release metadata for audit trail and safer rollback selection.
+    cat > "${release_dir}/release.meta" <<EOF
+site=${site}
+environment=${environment}
+commit=${commit}
+release_id=${release_id}
+created_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+runtime=${runtime}
+build_command_id=${build_cmd_id}
+start_command_id=${start_cmd_id}
+previous_release=${current_release:-}
+EOF
+
     if [[ -n "$build_cmd_id" && "$build_cmd_id" != "-" ]]; then
         log "Running build_command_id: $build_cmd_id"
         (cd "$release_dir" && run_build_command_id "$build_cmd_id")
+    fi
+
+    # Record previous release before symlink switch.
+    if [[ -n "$current_release" ]]; then
+        printf '%s\n' "$current_release" > "$previous_pointer"
+        log "Recorded previous-release: $current_release"
     fi
 
     ln -sfn "$release_dir" "$current_link"
@@ -247,10 +276,17 @@ deploy_site_artifact() {
         done
         if [[ "$hc_ok" == "false" ]]; then
             warn "Post-activation healthcheck failed for $site — rolling back symlink"
-            local previous_release
-            previous_release=$(find "${deploy_base}/releases" -maxdepth 1 -mindepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | awk '{print $2}' || true)
-            if [[ -n "$previous_release" && -d "$previous_release" ]]; then
-                ln -sfn "$previous_release" "$current_link"
+            local previous_release=""
+            if [[ -f "$previous_pointer" ]]; then
+                previous_release=$(tr -d '[:space:]' < "$previous_pointer")
+            fi
+            if [[ -z "$previous_release" ]]; then
+                previous_release=$(find "${deploy_base}/releases" -maxdepth 1 -mindepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | awk '{print $2}' || true)
+                previous_release=$(basename "${previous_release:-}")
+            fi
+            local previous_dir="${deploy_base}/releases/${previous_release}"
+            if [[ -n "$previous_release" && -d "$previous_dir" ]]; then
+                ln -sfn "$previous_dir" "$current_link"
                 ok "Rolled back symlink to $previous_release"
             else
                 warn "No previous release found for rollback — symlink left pointing to failed release"

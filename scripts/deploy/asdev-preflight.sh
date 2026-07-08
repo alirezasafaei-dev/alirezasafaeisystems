@@ -73,7 +73,7 @@ registry_field() {
     awk -F'\t' -v site="$site" -v col="$field" '$1 == site {print $col}' "$REGISTRY"
 }
 
-get_field() { registry_field "$SITE_NAME" "$2"; }
+get_field() { registry_field "$SITE_NAME" "$1"; }
 
 validate_args() {
     [[ -z "$SITE_NAME" ]] && { error "Missing required --site"; return 1; }
@@ -178,22 +178,32 @@ check_healthcheck_endpoint() {
 
 check_disk_space() {
     log "Checking disk space..."
-    local deploy_base
+    local deploy_base check_path
     if [[ "$ENVIRONMENT" == "production" ]]; then
         deploy_base=$(get_field "$COL_PROD_BASE")
     else
         deploy_base=$(get_field "$COL_STAGING_BASE")
     fi
+    # Prefer deploy_base when present; otherwise fall back to existing parents.
+    if [[ -n "$deploy_base" && -d "$deploy_base" ]]; then
+        check_path="$deploy_base"
+    elif [[ -n "$deploy_base" && -d "$(dirname "$deploy_base")" ]]; then
+        check_path="$(dirname "$deploy_base")"
+        warn "Deploy base missing; checking parent path disk space"
+    else
+        check_path="/"
+        warn "Deploy base unavailable; checking root filesystem disk space"
+    fi
     local avail_kb
-    avail_kb=$(df -k "$deploy_base" 2>/dev/null | tail -1 | awk '{print $4}' || echo "0")
+    avail_kb=$(df -k "$check_path" 2>/dev/null | tail -1 | awk '{print $4}' || echo "0")
     local avail_mb=$((avail_kb / 1024))
     if [[ $avail_mb -lt 512 ]]; then
-        error "Less than 512MB disk space available (${avail_mb}MB)"
+        error "Less than 512MB disk space available (${avail_mb}MB) on $check_path"
         return 1
     elif [[ $avail_mb -lt 1024 ]]; then
-        warn "Low disk space: ${avail_mb}MB available"
+        warn "Low disk space: ${avail_mb}MB available on $check_path"
     else
-        ok "Disk space: ${avail_mb}MB available"
+        ok "Disk space: ${avail_mb}MB available on $check_path"
     fi
 }
 

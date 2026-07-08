@@ -77,7 +77,7 @@ registry_field() {
     awk -F'\t' -v site="$site" -v col="$field" '$1 == site {print $col}' "$REGISTRY"
 }
 
-get_field() { registry_field "$SITE_NAME" "$2"; }
+get_field() { registry_field "$SITE_NAME" "$1"; }
 
 validate_args() {
     [[ -z "$SITE_NAME" ]] && error "Missing required --site"
