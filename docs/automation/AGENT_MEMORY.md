@@ -218,3 +218,22 @@ APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 
 ### Status
 READY_FOR_PRODUCTION_FREEZE
+
+## [2026-07-08T21:45:37Z] RELEASE CANDIDATE FROZEN (corrected)
+
+### Frozen pins
+- Platform: GitHub main after PR #72 merge (see docs/reports/critical-site-release-freeze-latest.md for exact SHA)
+- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
+- Staging: 20260708T210149Z-fcc7192 (ready/health 200)
+
+### Actions
+- PR #72 merged (local validation PASS; GHA infra red)
+- OWNER_PC main synced
+- IRAN_PROD platform ops synced + RELEASE_CANDIDATE.pin
+- No production deploy
+
+### Gate
+APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+
+### Status
+READY_FOR_PRODUCTION_FREEZE

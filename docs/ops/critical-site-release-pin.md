@@ -1,6 +1,7 @@
 # CRITICAL_SITE Release Candidate Pin
 
 **Last Updated:** 2026-07-08  
+**Status:** FROZEN
 
 ---
 
@@ -12,42 +13,46 @@
 | Pin SHA | `fcc7192af26a5713e31d4ec078365f9507c8108a` |
 | Short | `fcc7192` |
 | Staging release id | `20260708T210149Z-fcc7192` |
-| Staging health | ready/health **200** (re-verified RC audit) |
+| Staging health | ready/health **200** |
 
 **Production must use the same product SHA** unless owner explicitly chooses a newer commit and re-validates staging first.
 
 ---
 
-## Platform / deploy engine pin
+## Platform pin (mother repo)
 
 | Field | Value |
 |-------|-------|
 | Mother repo | `alirezasafaei-dev/alirezasafaeisystems` |
-| Release candidate branch | `ops/autonomous-loop-staging-readiness-20260708` |
-| PR | #72 |
-| GitHub `main` at audit | `eaddee4` (PR **not merged** yet) |
+| Branch | `main` |
+| PR | #72 **MERGED** |
+| Frozen tip | See `docs/reports/critical-site-release-freeze-latest.md` (current main) |
 
-**Frozen:** PR #72 merged. Platform main = `5aff1df`. IRAN_PROD platform checkout synced (no prod deploy).
-
----
-
-## Artifact strategy
-
-1. Prefer **build on IRAN_PROD** from product pin (proven path; heap 3072 + swap)  
-2. Alternative: build on OWNER_PC and transfer slim standalone (network often unreliable)  
-3. Release id format: `YYYYMMDDTHHMMSSZ-<7charsha>`  
+IRAN_PROD platform checkout: `/home/asdev/asdev-platform` (ops surface synced; no production deploy).
 
 ---
 
-## How to pin at execute time
+## Reproducible pair
+
+```
+ASDEV platform (main tip)
++
+CRITICAL_SITE product fcc7192
+=
+production release candidate
+```
+
+---
+
+## Execute production (after owner phrase only)
 
 ```bash
 PRODUCT_COMMIT=fcc7192af26a5713e31d4ec078365f9507c8108a
-# verify still matches staging meta on host if desired
-# then:
 bash scripts/deploy/asdev-deploy.sh \
   --site persiantoolbox \
   --environment production \
   --commit "$PRODUCT_COMMIT" \
   --approve-phrase APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 ```
+
+Runtime port: **3100**
