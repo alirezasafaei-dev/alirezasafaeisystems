@@ -66,3 +66,13 @@ rollback:
 bash scripts/ops/validate-project-yaml.sh --root sites/live/persiantoolbox
 bash scripts/ops/audit-sites-standard.sh
 ```
+
+## Note on monorepo layout
+
+`sites/live/*` may be gitignored on AUTOMATION_HOST checkouts. Canonical examples live under:
+
+- `templates/site-standard/project.yaml.example`
+- `templates/projects/*.project.yaml`
+- root `project.yaml` for the mother platform product
+
+Product repos may still carry their own `project.yaml` when not ignored.
