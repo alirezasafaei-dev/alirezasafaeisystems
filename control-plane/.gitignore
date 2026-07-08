@@ -7,3 +7,5 @@ reports/*
 !reports/.gitkeep
 backups/*
 !backups/.gitkeep
+history/*.jsonl
+state/heartbeats/
