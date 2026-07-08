@@ -1,0 +1,5 @@
+project	local_path	server_base_dir	production_port	staging_port	public_url	public_health	pm2_app_type	pm2_names	env_source
+persiantoolbox	sites/live/persiantoolbox	/home/ubuntu/persiantoolbox	3000	3001	https://persiantoolbox.ir/	/api/health	single	persiantoolbox	production.env
+alirezasafaeisystems	sites/live/alirezasafaeisystems	/var/www/my-portfolio	3002	3003	https://alirezasafaeisystems.ir/	/api/ready	single	my-portfolio-production|my-portfolio-staging	production.env
+auditsystems	sites/live/auditsystems	/var/www/asdev-audit-ir	3010	3011	https://audit.alirezasafaeisystems.ir/	/api/ready	web+worker	asdev-audit-ir-production-web|asdev-audit-ir-production-worker|asdev-audit-ir-staging-web|asdev-audit-ir-staging-worker	production.env
+devatlas	sites/live/devatlas	/var/www/devatlas	3020	3022	-	-	web+api	devatlas-production-web|devatlas-production-api|devatlas-staging-web|devatlas-staging-api	.env.production
