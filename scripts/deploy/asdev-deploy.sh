@@ -2,7 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+# shellcheck source=lib/asdev-common.sh
+source "${SCRIPT_DIR}/lib/asdev-common.sh"
+PROJECT_ROOT="$(asdev_project_root_from "$SCRIPT_DIR")"
 REGISTRY="$PROJECT_ROOT/deploy/registry.tsv"
 
 RED='\033[0;31m'
@@ -126,13 +128,15 @@ run_build_command_id() {
 }
 
 detect_changes() {
-    local repo_path="$1" commit="$2"
-    local src_dir="${PROJECT_ROOT}/${repo_path}"
+    local site="$1" repo_path="$2" commit="$3"
+    local src_dir
+    src_dir="$(asdev_resolve_site_src "$PROJECT_ROOT" "$site" "$repo_path")"
     if [[ ! -d "$src_dir" ]]; then
         warn "Repo path not found locally: $src_dir — skipping change detection"
         echo "unknown"
         return
     fi
+    # Mother-repo site may use ASDEV commit; external site may not contain it.
     if ! git -C "$src_dir" rev-parse --verify "$commit" >/dev/null 2>&1; then
         warn "Commit $commit not found in $src_dir — skipping change detection"
         echo "unknown"
@@ -184,7 +188,10 @@ deploy_site_artifact() {
     runtime=$(get_field "$site" "$COL_RUNTIME")
     process_names=$(get_field "$site" "$COL_PROCESS_NAMES")
 
-    local src_dir="${PROJECT_ROOT}/${repo_path}"
+    local src_dir
+    src_dir="$(asdev_resolve_site_src "$PROJECT_ROOT" "$site" "$repo_path")"
+    local src_status
+    src_status="$(asdev_site_src_status "$src_dir")"
     local release_id
     release_id="$(date -u +%Y%m%dT%H%M%SZ)-${commit:0:7}"
     local release_dir="${deploy_base}/releases/${release_id}"
@@ -198,12 +205,16 @@ deploy_site_artifact() {
     log "Site: $site | Environment: $environment | Commit: $commit"
     log "Release: $release_id"
     log "Deploy base: $deploy_base"
+    log "Source: $src_dir (status=$src_status)"
     log "Previous release: ${current_release:-none}"
 
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would create release dir: $release_dir"
         log "[DRY RUN] Would write release metadata (release.meta)"
         log "[DRY RUN] Would sync site-scoped source from: $src_dir"
+        if [[ "$src_status" != "ready" ]]; then
+            warn "[DRY RUN] Source not ready — run: scripts/deploy/asdev-prepare-site-source.sh --site $site --apply"
+        fi
         log "[DRY RUN] Would run build_command_id: $build_cmd_id"
         if [[ -n "$current_release" ]]; then
             log "[DRY RUN] Would record previous-release pointer: $current_release"
@@ -230,7 +241,7 @@ deploy_site_artifact() {
         mkdir -p "$release_dir"
         rsync -a --delete "${PROJECT_ROOT}/${artifact_path}/" "$release_dir/"
     else
-        error "No source or artifact found for $site"
+        error "No source or artifact found for $site (tried $src_dir). Run asdev-prepare-site-source.sh --site $site --apply"
     fi
 
     # Release metadata for audit trail and safer rollback selection.
@@ -320,8 +331,12 @@ main() {
 
     if [[ "$CHECK_MODE" == "true" ]]; then
         log "Check mode — validating $SITE_NAME ($ENVIRONMENT, commit $COMMIT)"
-        local change_type
-        change_type=$(detect_changes "$(get_field "$SITE_NAME" "$COL_REPO_PATH")" "$COMMIT")
+        local change_type repo_path src_dir src_status
+        repo_path=$(get_field "$SITE_NAME" "$COL_REPO_PATH")
+        src_dir="$(asdev_resolve_site_src "$PROJECT_ROOT" "$SITE_NAME" "$repo_path")"
+        src_status="$(asdev_site_src_status "$src_dir")"
+        change_type=$(detect_changes "$SITE_NAME" "$repo_path" "$COMMIT")
+        log "Source: $src_dir (status=$src_status)"
         log "Change type: $change_type"
         log "Protected: $protected"
         ok "Validation complete — no changes applied"
@@ -331,7 +346,7 @@ main() {
     validate_approve_phrase "$ENVIRONMENT" "$protected"
 
     local change_type
-    change_type=$(detect_changes "$(get_field "$SITE_NAME" "$COL_REPO_PATH")" "$COMMIT")
+    change_type=$(detect_changes "$SITE_NAME" "$(get_field "$SITE_NAME" "$COL_REPO_PATH")" "$COMMIT")
     log "Change type: $change_type"
 
     deploy_site_artifact "$SITE_NAME" "$COMMIT" "$ENVIRONMENT"

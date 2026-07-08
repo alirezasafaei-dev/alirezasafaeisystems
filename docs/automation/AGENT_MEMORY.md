@@ -117,3 +117,13 @@ Format:
 - Refreshed queue, roadmaps, reports
 - Stopped at staging live gate
 - Next: APPROVE_PHASE_2_STAGING_DEPLOY
+
+## [2026-07-08 20:22 UTC] Loop-2: staging source + CI router local
+
+- Prepared CRITICAL_SITE source via asdev-prepare-site-source (public repo clone, gitignored)
+- Source status ready; preflight/deploy dry-run use product SHA fcc7192
+- Added staging-execution-plan.md and site-source-map.tsv
+- Fixed check-dangerous-patterns false positives + wrong PROJECT_ROOT
+- Removed eval from backup-onsite / restore-drill-onsite
+- Local CI Router PASS; GHA still infra-failed (empty steps)
+- Live staging still gated: APPROVE_PHASE_2_STAGING_DEPLOY

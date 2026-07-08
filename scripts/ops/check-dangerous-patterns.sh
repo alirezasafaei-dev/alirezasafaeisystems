@@ -15,7 +15,8 @@ error() { echo -e "${RED}[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR:${NC} $1"; ((PAT
 ok()    { echo -e "${GREEN}[$(date -u +%Y-%m-%dT%H:%M:%SZ)] OK:${NC} $1"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# scripts/ops -> repo root (not scripts/)
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 usage() {
     cat <<EOF
@@ -36,9 +37,35 @@ Options:
 EOF
 }
 
+# Ignore detection-only lines (regex allowlists / pattern arrays), not live commands.
+is_detection_only_line() {
+    local line="$1"
+    # Quoted regex fragments used by protection checkers themselves.
+    if echo "$line" | grep -qE "dangerous_patterns|\\\\s\\+|\\[\\]|grep -[a-zA-Z]*E|'[a-z]+\\\\s"; then
+        return 0
+    fi
+    # Message / log strings describing forbidden ops.
+    if echo "$line" | grep -qiE 'echo|log_|printf|warn|error|USAGE|pattern'; then
+        return 0
+    fi
+    return 1
+}
+
+filter_actionable_matches() {
+    # stdin: grep -n output; stdout: actionable lines only
+    local line
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        if is_detection_only_line "$line"; then
+            continue
+        fi
+        printf '%s\n' "$line"
+    done
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --project-root) PROJECT_ROOT="$2"; shift 2 ;;
+        --project-root) PROJECT_ROOT="$(cd "$2" && pwd)"; shift 2 ;;
         -h|--help)      usage; exit 0 ;;
         *)              echo "Unknown option: $1" >&2; usage; exit 1 ;;
     esac
@@ -49,7 +76,10 @@ log "Checking for dangerous patterns in $PROJECT_ROOT"
 if [[ -d "$PROJECT_ROOT/scripts/deploy" ]]; then
     log "--- Checking deploy scripts for eval ---"
     while IFS= read -r file; do
-        if grep -n 'eval ' "$file" 2>/dev/null | grep -v '^\s*#' | grep -v 'echo.*eval' | grep -v '"eval' | grep -v "'eval"; then
+        # Only flag real eval invocations, not comments/docs.
+        matches=$(grep -nE '(^|[^[:alnum:]_])eval[[:space:]]' "$file" 2>/dev/null | grep -vE '^\s*#|echo|printf|USAGE|documentation' || true)
+        if [[ -n "$matches" ]]; then
+            printf '%s\n' "$matches"
             error "eval found in deploy script: $file"
         fi
     done < <(find "$PROJECT_ROOT/scripts/deploy" -name '*.sh' -type f)
@@ -62,7 +92,9 @@ if [[ -d "$PROJECT_ROOT/scripts/ops" ]]; then
         local_name=$(basename "$file")
         case "$local_name" in
             protect-*|check-critical-site-protection*|generate-quarantine-plan*)
-                if grep -n 'rm -rf' "$file" 2>/dev/null | grep -v '^\s*#' | grep -v 'echo.*rm -rf'; then
+                matches=$(grep -n 'rm -rf' "$file" 2>/dev/null | filter_actionable_matches || true)
+                if [[ -n "$matches" ]]; then
+                    printf '%s\n' "$matches"
                     error "rm -rf found in protection script: $file"
                 fi
                 ;;
@@ -74,7 +106,9 @@ if [[ -d "$PROJECT_ROOT/scripts/ops" ]]; then
         local_name=$(basename "$file")
         case "$local_name" in
             protect-*|check-critical-site-protection*)
-                if grep -nE 'pm2\s+(stop|restart|delete)' "$file" 2>/dev/null | grep -v '^\s*#'; then
+                matches=$(grep -nE 'pm2[[:space:]]+(stop|restart|delete)' "$file" 2>/dev/null | filter_actionable_matches || true)
+                if [[ -n "$matches" ]]; then
+                    printf '%s\n' "$matches"
                     error "pm2 stop/restart/delete found in protection script: $file"
                 fi
                 ;;
@@ -86,7 +120,10 @@ if [[ -d "$PROJECT_ROOT/scripts/ops" ]]; then
         local_name=$(basename "$file")
         case "$local_name" in
             protect-*|check-critical-site-protection*)
-                if grep -n 'nginx.*reload\|nginx.*-s\s+reload' "$file" 2>/dev/null | grep -v '^\s*#'; then
+                # Flag live invocations only (not regex allowlist strings).
+                matches=$(grep -nE '(^|[^[:alnum:]_])(sudo[[:space:]]+)?nginx([[:space:]]+-s[[:space:]]+reload|[[:space:]]+reload|[[:space:]]+restart)' "$file" 2>/dev/null | filter_actionable_matches || true)
+                if [[ -n "$matches" ]]; then
+                    printf '%s\n' "$matches"
                     error "nginx reload found in protection script: $file"
                 fi
                 ;;
@@ -98,7 +135,9 @@ if [[ -d "$PROJECT_ROOT/scripts/ops" ]]; then
         local_name=$(basename "$file")
         case "$local_name" in
             protect-*|check-critical-site-protection*|generate-quarantine-plan*)
-                if grep -n 'ln -sfn\|ln -snf' "$file" 2>/dev/null | grep -v '^\s*#'; then
+                matches=$(grep -nE 'ln[[:space:]]+(-sfn|-snf|-sf)' "$file" 2>/dev/null | filter_actionable_matches || true)
+                if [[ -n "$matches" ]]; then
+                    printf '%s\n' "$matches"
                     error "Direct symlink switch found in non-deploy script: $file"
                 fi
                 ;;

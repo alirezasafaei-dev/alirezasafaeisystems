@@ -1,0 +1,5 @@
+site_id	git_url	default_branch	notes
+persiantoolbox	https://github.com/alirezasafaei-dev/persiantoolbox.git	main	CRITICAL_SITE separate public repo
+alirezasafaeisystems	.	main	Mother repo root is the app (no separate clone)
+auditsystems	https://github.com/alirezasafaei-dev/auditsystems.git	main	Separate private product repo
+devatlas	https://github.com/alirezasafaei-dev/devatlas.git	main	Separate private product repo

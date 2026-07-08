@@ -2,7 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+# shellcheck source=lib/asdev-common.sh
+source "${SCRIPT_DIR}/lib/asdev-common.sh"
+PROJECT_ROOT="$(asdev_project_root_from "$SCRIPT_DIR")"
 REGISTRY="$PROJECT_ROOT/deploy/registry.tsv"
 
 RED='\033[0;31m'
@@ -95,14 +97,23 @@ check_registry() {
 
 check_repo_path() {
     log "Checking repo path..."
-    local repo_path
+    local repo_path full_path status
     repo_path=$(get_field "$COL_REPO_PATH")
-    local full_path="${PROJECT_ROOT}/${repo_path}"
-    if [[ -d "$full_path" ]]; then
-        ok "Repo path exists: $repo_path"
-    else
-        warn "Repo path not found locally: $repo_path (artifact-only deploy)"
-    fi
+    full_path="$(asdev_resolve_site_src "$PROJECT_ROOT" "$SITE_NAME" "$repo_path")"
+    status="$(asdev_site_src_status "$full_path")"
+    case "$status" in
+        ready)
+            ok "Source ready: $full_path"
+            ;;
+        partial)
+            warn "Source partial (no package.json): $full_path"
+            warn "Run: scripts/deploy/asdev-prepare-site-source.sh --site $SITE_NAME --apply"
+            ;;
+        *)
+            warn "Source missing: $full_path"
+            warn "Run: scripts/deploy/asdev-prepare-site-source.sh --site $SITE_NAME --apply"
+            ;;
+    esac
 }
 
 check_deploy_base() {
@@ -133,13 +144,14 @@ check_shared_path() {
 
 check_commit() {
     log "Checking commit $COMMIT..."
-    local repo_path
+    local repo_path full_path
     repo_path=$(get_field "$COL_REPO_PATH")
-    local full_path="${PROJECT_ROOT}/${repo_path}"
+    full_path="$(asdev_resolve_site_src "$PROJECT_ROOT" "$SITE_NAME" "$repo_path")"
     if [[ -d "$full_path" ]] && git -C "$full_path" rev-parse --verify "$COMMIT" >/dev/null 2>&1; then
-        ok "Commit $COMMIT found in $repo_path"
+        ok "Commit $COMMIT found in $full_path"
     else
-        warn "Commit $COMMIT not found in $repo_path (will use artifact if available)"
+        # External product repos use their own SHAs; ASDEV commit is audit trail only.
+        warn "Commit $COMMIT not in site source (expected for external repos; audit trail only)"
     fi
 }
 

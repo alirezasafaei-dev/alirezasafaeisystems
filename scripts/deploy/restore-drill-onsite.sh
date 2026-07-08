@@ -26,10 +26,16 @@ log() { printf '[restore-drill] %s\n' "$*"; }
 die() { printf '[restore-drill][error] %s\n' "$*" >&2; exit 1; }
 
 run() {
+  # Prefer argv form: run mkdir -p "$dir"
+  # Legacy single-string form still accepted without eval.
   if [[ "$DRY_RUN" == "1" ]]; then
     printf '[dry-run] %s\n' "$*"
+    return 0
+  fi
+  if [[ $# -gt 1 ]]; then
+    "$@"
   else
-    eval "$@"
+    /bin/bash -c "$1"
   fi
 }
 

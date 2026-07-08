@@ -1,6 +1,6 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-08T20:15:00Z
+**Last Updated:** 2026-07-08T20:22:00Z
 **Status:** Active
 **Source of Truth:** GitHub (alirezasafaei-dev/alirezasafaeisystems)
 
@@ -8,12 +8,9 @@
 
 ## Queue Rules
 
-- Each task has: ID, Title, Repo, Mode, Risk, Approval, Validation, Stop Gates, Done Definition
-- Valid modes: read-only, docs-only, test-only, product-branch, automation-script
-- No combined modes (e.g., docs-only+automation-script is invalid)
-- Risk: low, medium, high
-- Approval: auto (no approval needed), owner (requires owner approval)
-- Stop gates: conditions that halt execution
+- Valid modes only: read-only, docs-only, test-only, product-branch, automation-script
+- No combined modes
+- Current phase first; no stale backup-wait blockers
 
 ---
 
@@ -21,79 +18,50 @@
 
 ### 1. ASDEV-STAGING-GATE
 - **Title:** Wait for owner staging deploy approval (CRITICAL_SITE)
-- **Repo:** alirezasafaeisystems
 - **Mode:** read-only
 - **Risk:** high
 - **Approval:** owner (`APPROVE_PHASE_2_STAGING_DEPLOY`)
-- **Validation:** Live staging not started until phrase present
-- **Stop Gates:** Any production path; any deploy without phrase
-- **Done Definition:** Owner grants phrase; staging deploy executed under Phase 2 plan
-- **Status:** BLOCKED — preflight dry-run complete (`READY_WITH_WARNINGS`)
+- **Status:** BLOCKED — local prep complete; live deploy gated
+- **Done Definition:** Live staging executed after exact phrase
 
-### 2. ASDEV-STAGING-SOURCE
-- **Title:** Ensure CRITICAL_SITE source/artifact available on executor path for staging
-- **Repo:** alirezasafaeisystems
-- **Mode:** automation-script
+### 2. ASDEV-STAGING-IRAN-PATH
+- **Title:** Confirm IRAN_PROD staging base path exists (read-only) before live deploy
+- **Mode:** read-only
 - **Risk:** medium
-- **Approval:** auto (prep only; no live deploy)
-- **Validation:** `sites/live/persiantoolbox` or artifact path resolvable on deploy host
-- **Stop Gates:** No IRAN_PROD mutation without staging approval
-- **Done Definition:** Documented path + dry-run deploy can see source/artifact
-- **Status:** PENDING — missing local `sites/live/persiantoolbox` on OWNER_PC
+- **Approval:** auto for read-only remote check when access available
+- **Status:** PENDING — `/srv/asdev` not on OWNER_PC
+- **Stop Gates:** No mutation on IRAN_PROD
 
 ### 3. ASDEV-CI-INFRA
-- **Title:** Re-check GitHub Actions when infra recovers (no rerun spam)
-- **Repo:** alirezasafaeisystems
+- **Title:** Re-check GitHub Actions when infra recovers
 - **Mode:** read-only
 - **Risk:** low
-- **Approval:** auto
-- **Validation:** One status sample; classify INFRA vs code
-- **Stop Gates:** No tight polling; no mass reruns
-- **Done Definition:** CI Router green once or remaining infra blocker documented
-- **Status:** PENDING — currently `INFRA_DEGRADED_NON_BLOCKING`
+- **Status:** PENDING — GHA still empty-steps failures; **local CI Router PASS**
+- **Validation:** `scripts/ops/run-ci-router-local.sh origin/main`
 
 ### 4. ASDEV-MONITOR-LIVE
-- **Title:** Optional live monitoring timers (after separate approval)
-- **Repo:** alirezasafaeisystems
+- **Title:** Optional live monitoring timers
 - **Mode:** automation-script
-- **Risk:** medium
 - **Approval:** owner (`APPROVE_MONITORING_LIVE_TIMERS`)
-- **Validation:** Foundation scripts already present; install timers only after phrase
-- **Stop Gates:** No IRAN_PROD install without approval
-- **Done Definition:** Timers installed on AUTOMATION_HOST only
-- **Status:** BLOCKED — foundation ready; live install not approved
+- **Status:** BLOCKED
 
-### 5. ASDEV-QUARANTINE-PLAN
-- **Title:** Non-critical quarantine plan (inventory → allowlist)
-- **Repo:** alirezasafaeisystems
-- **Mode:** docs-only
-- **Risk:** low
-- **Approval:** auto for planning; live needs separate phrase
-- **Validation:** CRITICAL_SITE never in allowlist
-- **Stop Gates:** No live quarantine / delete / nginx
-- **Done Definition:** Current plan report kept fresh
-- **Status:** DONE (plan refresh this cycle) — live still forbidden
+### 5. ASDEV-QUARANTINE-LIVE
+- **Title:** Non-critical quarantine live (not approved)
+- **Mode:** docs-only until approval
+- **Status:** BLOCKED — plan only
 
 ---
 
-## Completed This Cycle
+## Completed (this autonomous loop)
 
 | ID | Result |
 |----|--------|
-| ASDEV-AUTOHOST-READONLY | DONE — DEGRADED_NON_BLOCKING |
+| ASDEV-STAGING-SOURCE | DONE — PT cloned to `sites/live/persiantoolbox` (gitignored), source ready |
+| ASDEV-STAGING-PLAN | DONE — `docs/ops/staging-execution-plan.md` |
+| ASDEV-CI-ROUTER-LOCAL | DONE — local router + false-positive fixes |
+| ASDEV-DEPLOY-EVAL-HARDEN | DONE — removed eval from backup/restore-drill |
+| ASDEV-MONITOR-FOUNDATION | DONE (prior cycle) |
 | ASDEV-STAGING-PREFLIGHT | DONE — READY_WITH_WARNINGS |
-| ASDEV-DEPLOY-HARDEN | DONE — get_field fix + release.meta + previous-release |
-| ASDEV-MONITOR-FOUNDATION | DONE — scripts + runbook + policy |
-| ASDEV-QUEUE-MEMORY | DONE — this file + AGENT_MEMORY |
-
----
-
-## Archived / Superseded
-
-- ASDEV-P71-CI (PR #71 merged; remaining failures are infra-class)
-- ASDEV-AUTOHOST-READONLY (approval granted and executed)
-- Backup-wait BW01–BW03 backlog — superseded by platform loop
-- See `docs/automation/QUEUE_ARCHIVE_20260708.md` for older items
 
 ---
 
@@ -101,8 +69,7 @@
 
 | Metric | Value |
 |---|---|
-| Total tasks | 5 |
+| Active tasks | 5 |
+| Blocked | 3 |
 | Pending | 2 |
-| In-progress | 0 |
-| Completed (cycle) | 5 |
-| Blocked | 2 |
+| Safe work remaining without staging phrase | limited (IRAN path read-only if access; docs) |

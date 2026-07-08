@@ -72,13 +72,15 @@ Network path from OWNER_PC to CRITICAL_SITE is partial; treat as **observation**
 
 ## Classification
 
-**READY_WITH_WARNINGS**
+**READY_WITH_WARNINGS** (improved: source now ready locally)
 
 Deploy engine + registry + protection dry-runs are green after bugfixes.  
+Local CRITICAL_SITE source prepared via `asdev-prepare-site-source.sh` (`status=ready`).
+
 Live staging still needs:
 
-1. Site source or artifact available on executor path
-2. IRAN_PROD staging paths
+1. ~~Site source or artifact available on executor path~~ → **DONE on OWNER_PC**
+2. IRAN_PROD staging paths / execution host with `/srv/asdev/...`
 3. Owner phrase below
 
 ---
