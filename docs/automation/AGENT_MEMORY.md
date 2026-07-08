@@ -199,3 +199,22 @@ PASS_WITH_WARNINGS — no production mutation performed
 - PR not on main
 - Staging not on 3200 (optional)
 - First prod has no previous release for rollback
+
+## [2026-07-08T21:44:19Z] RELEASE CANDIDATE FROZEN
+
+### Frozen pins
+- Platform main: 5aff1dfed17dcf0672b3022564b321660b297580 (PR #72 merged)
+- Product: fcc7192af26a5713e31d4ec078365f9507c8108a
+- Staging release: 20260708T210149Z-fcc7192 (ready/health 200)
+
+### Actions completed
+- PR #72 reviewed (local validation PASS; GHA infra red → admin merge)
+- OWNER_PC main ff-only synced to 5aff1df
+- IRAN_PROD /home/asdev/asdev-platform ops surface synced + RELEASE_CANDIDATE.pin
+- No production deploy
+
+### Current gate
+APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
+
+### Status
+READY_FOR_PRODUCTION_FREEZE

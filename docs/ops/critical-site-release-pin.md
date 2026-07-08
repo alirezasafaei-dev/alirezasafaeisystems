@@ -27,7 +27,7 @@
 | PR | #72 |
 | GitHub `main` at audit | `eaddee4` (PR **not merged** yet) |
 
-**Owner pre-step before production phrase:** merge PR #72 to `main`, then sync IRAN_PROD platform checkout to that main (or known SHA).
+**Frozen:** PR #72 merged. Platform main = `5aff1df`. IRAN_PROD platform checkout synced (no prod deploy).
 
 ---
 

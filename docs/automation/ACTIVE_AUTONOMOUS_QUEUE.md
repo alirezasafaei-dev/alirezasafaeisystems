@@ -1,43 +1,32 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-08T21:38:40Z
-**Status:** Active
-**Source of Truth:** GitHub
+**Last Updated:** 2026-07-08T21:44:19Z
+**Status:** Active — RELEASE FROZEN
+**Source of Truth:** GitHub main @ `5aff1df`
 
 ---
 
-## Current Queue
+## Frozen pair
 
-### 1. ASDEV-MERGE-RC
-- **Title:** Owner merge PR #72 to main (release candidate)
-- **Mode:** docs-only (owner action)
-- **Status:** PENDING_OWNER
-- **Blocks clean main-based prod**
+| Layer | Pin |
+|-------|-----|
+| Platform | `5aff1df` (main, PR #72 merged) |
+| Product | `fcc7192af26a5713e31d4ec078365f9507c8108a` |
+| Staging evidence | `20260708T210149Z-fcc7192` ready/health 200 |
 
-### 2. ASDEV-PROD-GATE
+---
+
+## Queue
+
+### 1. ASDEV-PROD-GATE
 - **Title:** CRITICAL_SITE production deploy
 - **Approval:** `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY`
-- **Status:** READY_FOR_APPROVAL (engineering)
-- **Pin:** product `fcc7192…` / staging release `20260708T210149Z-fcc7192`
+- **Status:** READY — only remaining gate
+- **Status note:** Freeze complete; no production mutation yet
 
-### 3. ASDEV-STAGING-REBIND (optional)
+### 2. ASDEV-STAGING-REBIND (optional post-prod)
 - **Title:** Rebind staging :3000 → :3200
-- **Approval:** `APPROVE_PHASE_2_STAGING_DEPLOY`
-- **Status:** OPTIONAL — does not block prod :3100
-
-### 4. ASDEV-EDGE-NGINX (optional)
-- **Status:** DOCUMENTED — not applied
-
----
-
-## Completed
-
-| ID | Result |
-|----|--------|
-| ASDEV-FINAL-RC-AUDIT | DONE |
-| ASDEV-HARDENING-GATE | DONE |
-| ASDEV-STAGING-LIVE | LIVE_OK |
-| ASDEV-CUTOVER-SIM | PASS (dry-run) |
+- **Status:** OPTIONAL
 
 ---
 
@@ -46,5 +35,3 @@
 ```
 APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
 ```
-
-(after merge PR #72 recommended)
