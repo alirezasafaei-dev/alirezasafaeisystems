@@ -60,4 +60,6 @@
 
 ## NEXT_AUTONOMOUS_ACTION
 
-After this PR: implement ASDEV onsite backup + restore drill (still no public edge).
+Merge PR #73 when ready. Stop for public edge / live timers / migration phrases.
+Safe residual: secrets placement design; second prod release later for rollback history.
+| ASDEV-STABILIZATION | DONE — STABLE |
