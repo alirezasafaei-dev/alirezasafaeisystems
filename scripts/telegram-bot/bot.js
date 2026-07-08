@@ -58,7 +58,7 @@ bot.onText(/\/status/, async (msg) => {
   bot.sendMessage(chatId, "Fetching status...");
 
   try {
-    const issue45 = JSON.parse(ghRepo(AUDIT_REPO, "issues/45"));
+    const issue45 = JSON.parse(ghRepo(ALIREZASAFAEISYSTEMS_REPO, "issues/45"));
     const auditPRs = JSON.parse(ghRepo(AUDIT_REPO, "pulls?state=open"));
     const brandPRs = JSON.parse(ghRepo(BRAND_REPO, "pulls?state=open"));
 
@@ -152,7 +152,7 @@ bot.onText(/\/last/, async (msg) => {
 
   try {
     const comments = JSON.parse(
-      ghRepo(AUDIT_REPO, "issues/45/comments?per_page=1")
+      ghRepo(ALIREZASAFAEISYSTEMS_REPO, "issues/45/comments?per_page=1")
     );
 
     if (comments.length === 0) {
