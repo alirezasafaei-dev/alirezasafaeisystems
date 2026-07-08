@@ -98,3 +98,8 @@ IRAN_PROD
 
 - Enabled continuous improvement operating mode  
 - Governance pack, project standards, deploy history tools, observability foundation, security audit  
+
+### 2026-07-08 — IRAN history evidence
+
+- Release history: single prod release fcc7192
+- Rollback rehearse: NO_ROLLBACK_TARGET confirmed on host
