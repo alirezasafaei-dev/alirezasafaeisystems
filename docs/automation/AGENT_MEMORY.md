@@ -1,97 +1,30 @@
-# Agent Memory — ASDEV
+# Agent Memory — Session Working Copy
 
-**Read this first.**  
-**SoT:** GitHub `main` @ post-PR#74  
-**Workspace:** `/home/dev13/ASDEV`  
-**Updated:** 2026-07-08T22:42:00Z
+**Updated:** 2026-07-08T23:40:00Z  
+**Read first:** `docs/memory/ASDEV_CURRENT_STATE.md` then `docs/automation/ASDEV_MEMORY.md`
 
 ---
 
-## Current architecture
+## Mode
 
-```
-GitHub main (SoT) ── merged PR #74 (ops loop + control plane)
-        │
-AUTOMATION_HOST (/home/dev13/ASDEV)
-  control-plane/ · scripts/control-plane · agent-command-center
-  Hermes + OpenClaw gateways (user processes)
-        │ SSH
-IRAN_PROD
-  prod :3100 LIVE  release 20260708T221124Z-fcc7192  pin fcc7192
-  staging :3000 LIVE  (legacy bind; registry wants 3200)
-  meta backup cron 03:15 UTC
-```
+Autonomous Productivity **ON** · OS Build Loop v2  
 
----
+## State
 
-## Current state
+- CRITICAL_SITE app-layer STABLE `:3100` fcc7192 · edge OFF  
+- Control plane + OS docs expanding on main via PR  
+- Do **not** fall back to pure hygiene; build factory  
 
-| Item | State |
-|------|-------|
-| main | **a77dbd3+** (PR #74 merged) |
-| Prod app-layer | **STABLE** ready/health 200 · ~8–24ms |
-| Public edge | **OFF** — waiting phrase |
-| AUTOMATION_HOST | DEGRADED_NON_BLOCKING · control plane live |
-| Queue | gated edge/timers/migration + new rollback task |
-| Backup | FRESH meta on IRAN |
+## Gates
 
----
+PUBLIC_EDGE · MONITORING_LIVE_TIMERS · MIGRATION · PRODUCTION_DEPLOY  
 
-## Completed (this mission arc)
+## This session
 
-1. Staging live  
-2. Production app-layer cutover  
-3. Stabilization + IRAN backup cron  
-4. Control plane transform  
-5. **PR #74 merged to main**  
-6. Post-merge: IRAN re-sync, daily runbook, queue archive tool  
+- Built docs/memory, governance pack, PROJECT_REGISTRY, UNIVERSAL_DEPLOYMENT_MODEL  
+- Observability + security baseline + roadmap/  
+- CP: heartbeat, stale detect, retry, execution history  
 
----
+## Next
 
-## Known issues / residuals
-
-- No previous_release (first prod)  
-- Staging on :3000  
-- Meta-only backups  
-- Shared secrets residual  
-- Hermes/OpenClaw outside PM2  
-- Desktop colocation  
-
----
-
-## Next actions
-
-**Safe:** daily runbook, health check, queue hygiene, docs.  
-**Gated:** public edge · live timers · migration · optional second prod deploy for rollback history.
-
----
-
-## Approval gates
-
-```
-APPROVE_CRITICAL_SITE_PUBLIC_EDGE
-APPROVE_MONITORING_LIVE_TIMERS
-APPROVE_CRITICAL_SITE_MIGRATION
-APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY
-APPROVE_PHASE_2_STAGING_DEPLOY
-APPROVE_CRITICAL_SITE_STAGING_REBIND   # optional
-```
-
----
-
-## Decisions
-
-| Decision | Why |
-|----------|-----|
-| Merge #74 without waiting | Owner authorized autonomous necessary ops; SoT must advance |
-| No edge without phrase | Blast radius |
-| Keep staging running | No unplanned downtime |
-| Batch PRs | Anti micro-task thrash |
-
----
-
-### [2026-07-08 22:42 UTC] Post-merge ops loop
-
-- Merged control plane to main  
-- IRAN scripts re-synced; STABILITY_SAMPLE_PASS; DEPLOY_OK; backup FRESH; cron intact  
-- Added daily runbook + queue-archive-done  
+Merge OS v2 → continue standardizing multi-site factory (safe)  

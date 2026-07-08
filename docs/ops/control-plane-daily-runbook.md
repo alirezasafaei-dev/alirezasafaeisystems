@@ -12,8 +12,15 @@
 cd /home/dev13/ASDEV
 git pull --ff-only origin main
 
-# 1) Host self-health
+# 0) Memory + roadmap (SoT orientation)
+#    docs/memory/ASDEV_CURRENT_STATE.md
+#    roadmap/TODAY.md
+
+# 1) Heartbeat + host self-health
+export ASDEV_AGENT_ID=automation-host-agent
+bash scripts/control-plane/agent-heartbeat.sh
 bash scripts/ops/automation-health-check.sh
+bash scripts/control-plane/detect-stale-tasks.sh
 
 # 2) Task queue
 bash scripts/control-plane/queue-list.sh

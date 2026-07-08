@@ -103,3 +103,8 @@ IRAN_PROD
 
 - Release history: single prod release fcc7192
 - Rollback rehearse: NO_ROLLBACK_TARGET confirmed on host
+
+### 2026-07-08 — OS Build Loop v2
+
+- Added docs/memory/*, docs/deployment/UNIVERSAL_DEPLOYMENT_MODEL, docs/observability/*, docs/security/security-baseline, roadmap/, control-plane maturity scripts
+- Focus: factory OS not site handwork
