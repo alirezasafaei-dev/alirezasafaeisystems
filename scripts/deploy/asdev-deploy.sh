@@ -27,15 +27,17 @@ COL_ARTIFACT_PATH=6
 COL_PROD_BASE=7
 COL_STAGING_BASE=8
 COL_SHARED_PATH=9
-COL_HC_URL_ALIAS=10
-COL_HC_PATH=11
-COL_RUNTIME=12
-COL_PROCESS_NAMES=13
-COL_BUILD_CMD=14
-COL_START_CMD=15
-COL_ENV_ALIAS=16
-COL_DEPLOY_STRATEGY=17
-COL_ROLLBACK_STRATEGY=18
+COL_HC_MODE=10
+COL_HC_HOST_ALIAS=11
+COL_HC_PORT=12
+COL_HC_PATH=13
+COL_RUNTIME=14
+COL_PROCESS_NAMES=15
+COL_BUILD_CMD_ID=16
+COL_START_CMD_ID=17
+COL_ENV_ALIAS=18
+COL_DEPLOY_STRATEGY=19
+COL_ROLLBACK_STRATEGY=20
 
 usage() {
     cat <<EOF
@@ -114,11 +116,26 @@ validate_approve_phrase() {
         return 0
     fi
     if [[ "$env" == "production" ]]; then
-        [[ "$APPROVE_PHRASE" != "APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY" ]] && error "Invalid approval phrase for production. Expected: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
+        if [[ "$APPROVE_PHRASE" != "APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY" ]]; then
+            error "Invalid approval phrase for production. Expected: APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY"
+        fi
     fi
     if [[ "$env" == "staging" ]]; then
-        [[ "$APPROVE_PHRASE" != "APPROVE_PHASE_2_STAGING_DEPLOY" ]] && error "Invalid approval phrase for staging. Expected: APPROVE_PHASE_2_STAGING_DEPLOY"
+        if [[ "$APPROVE_PHRASE" != "APPROVE_PHASE_2_STAGING_DEPLOY" ]]; then
+            error "Invalid approval phrase for staging. Expected: APPROVE_PHASE_2_STAGING_DEPLOY"
+        fi
     fi
+}
+
+run_build_command_id() {
+    local cmd_id="$1"
+    case "$cmd_id" in
+        node-pnpm-build) pnpm install --frozen-lockfile && pnpm run build ;;
+        node-npm-build) npm ci && npm run build ;;
+        static-copy) echo "static copy only" ;;
+        no-build|-|"") echo "no build configured" ;;
+        *) fail "Unknown build_command_id: $cmd_id" ;;
+    esac
 }
 
 detect_changes() {
@@ -165,7 +182,7 @@ detect_changes() {
 
 deploy_site_artifact() {
     local site="$1" commit="$2" environment="$3"
-    local repo_path artifact_path deploy_base shared_path build_cmd start_cmd env_alias runtime process_names
+    local repo_path artifact_path deploy_base shared_path build_cmd_id start_cmd_id env_alias runtime process_names
     repo_path=$(get_field "$site" "$COL_REPO_PATH")
     artifact_path=$(get_field "$site" "$COL_ARTIFACT_PATH")
     if [[ "$environment" == "production" ]]; then
@@ -174,8 +191,8 @@ deploy_site_artifact() {
         deploy_base=$(get_field "$site" "$COL_STAGING_BASE")
     fi
     shared_path=$(get_field "$site" "$COL_SHARED_PATH")
-    build_cmd=$(get_field "$site" "$COL_BUILD_CMD")
-    start_cmd=$(get_field "$site" "$COL_START_CMD")
+    build_cmd_id=$(get_field "$site" "$COL_BUILD_CMD_ID")
+    start_cmd_id=$(get_field "$site" "$COL_START_CMD_ID")
     env_alias=$(get_field "$site" "$COL_ENV_ALIAS")
     runtime=$(get_field "$site" "$COL_RUNTIME")
     process_names=$(get_field "$site" "$COL_PROCESS_NAMES")
@@ -193,8 +210,10 @@ deploy_site_artifact() {
     if [[ "$DRY_RUN" == "true" ]]; then
         log "[DRY RUN] Would create release dir: $release_dir"
         log "[DRY RUN] Would sync site-scoped source from: $src_dir"
-        log "[DRY RUN] Would run build: $build_cmd"
+        log "[DRY RUN] Would run build_command_id: $build_cmd_id"
         log "[DRY RUN] Would symlink current -> $release_dir"
+        log "[DRY RUN] Would run post-activation healthcheck"
+        log "[DRY RUN] Would rollback symlink if healthcheck fails"
         return 0
     fi
 
@@ -217,28 +236,44 @@ deploy_site_artifact() {
         error "No source or artifact found for $site"
     fi
 
-    if [[ -n "$build_cmd" && "$build_cmd" != "-" ]]; then
-        log "Running build: $build_cmd"
-        (cd "$release_dir" && eval "$build_cmd")
+    if [[ -n "$build_cmd_id" && "$build_cmd_id" != "-" ]]; then
+        log "Running build_command_id: $build_cmd_id"
+        (cd "$release_dir" && run_build_command_id "$build_cmd_id")
     fi
 
-    local hc_url_alias hc_path
-    hc_url_alias=$(get_field "$site" "$COL_HC_URL_ALIAS")
-    hc_path=$(get_field "$site" "$COL_HC_PATH")
-    log "Running healthcheck: ${hc_url_alias}${hc_path}"
-    local hc_ok=false
-    for attempt in $(seq 1 20); do
-        if curl -fsS --connect-timeout 5 "http://127.0.0.1:${hc_url_alias}${hc_path}" >/dev/null 2>&1; then
-            hc_ok=true
-            break
-        fi
-        sleep 2
-    done
-    if [[ "$hc_ok" == "false" ]]; then
-        error "Healthcheck failed for $site at ${hc_url_alias}${hc_path} — current NOT modified"
-    fi
     ln -sfn "$release_dir" "$current_link"
-    ok "Deployed $site $release_id (healthcheck passed)"
+    log "Symlink switched: $current_link -> $release_dir"
+
+    local hc_mode hc_port hc_path
+    hc_mode=$(get_field "$site" "$COL_HC_MODE")
+    hc_port=$(get_field "$site" "$COL_HC_PORT")
+    hc_path=$(get_field "$site" "$COL_HC_PATH")
+    if [[ "$hc_mode" == "local-port" && -n "$hc_port" && "$hc_port" != "-" ]]; then
+        log "Running post-activation healthcheck: http://127.0.0.1:${hc_port}${hc_path}"
+        local hc_ok=false
+        for attempt in $(seq 1 20); do
+            if curl -fsS --connect-timeout 5 "http://127.0.0.1:${hc_port}${hc_path}" >/dev/null 2>&1; then
+                hc_ok=true
+                break
+            fi
+            sleep 2
+        done
+        if [[ "$hc_ok" == "false" ]]; then
+            warn "Post-activation healthcheck failed for $site — rolling back symlink"
+            local previous_release
+            previous_release=$(find "${deploy_base}/releases" -maxdepth 1 -mindepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | awk '{print $2}' || true)
+            if [[ -n "$previous_release" ]] && [[ -d "$previous_release" ]]; then
+                ln -sfn "$previous_release" "$current_link"
+                ok "Rolled back symlink to $previous_release"
+            else
+                warn "No previous release found for rollback — symlink left pointing to failed release"
+            fi
+            error "Post-activation healthcheck failed for $site at port $hc_port"
+        fi
+    else
+        warn "No local-port healthcheck configured — skipping healthcheck"
+    fi
+    ok "Deployed $site $release_id (post-activation healthcheck passed)"
 }
 
 main() {

@@ -26,15 +26,17 @@ COL_ARTIFACT_PATH=6
 COL_PROD_BASE=7
 COL_STAGING_BASE=8
 COL_SHARED_PATH=9
-COL_HC_URL_ALIAS=10
-COL_HC_PATH=11
-COL_RUNTIME=12
-COL_PROCESS_NAMES=13
-COL_BUILD_CMD=14
-COL_START_CMD=15
-COL_ENV_ALIAS=16
-COL_DEPLOY_STRATEGY=17
-COL_ROLLBACK_STRATEGY=18
+COL_HC_MODE=10
+COL_HC_HOST_ALIAS=11
+COL_HC_PORT=12
+COL_HC_PATH=13
+COL_RUNTIME=14
+COL_PROCESS_NAMES=15
+COL_BUILD_CMD_ID=16
+COL_START_CMD_ID=17
+COL_ENV_ALIAS=18
+COL_DEPLOY_STRATEGY=19
+COL_ROLLBACK_STRATEGY=20
 
 ERRORS=0
 WARNINGS=0
@@ -143,25 +145,34 @@ check_commit() {
 
 check_healthcheck_endpoint() {
     log "Checking healthcheck endpoint..."
-    local hc_url_alias hc_path
-    hc_url_alias=$(get_field "$COL_HC_URL_ALIAS")
+    local hc_mode hc_port hc_path
+    hc_mode=$(get_field "$COL_HC_MODE")
+    hc_port=$(get_field "$COL_HC_PORT")
     hc_path=$(get_field "$COL_HC_PATH")
-    if [[ -z "$hc_url_alias" || "$hc_url_alias" == "-" ]]; then
-        warn "No healthcheck URL alias configured"
+    if [[ "$hc_mode" == "none" ]]; then
+        warn "Healthcheck mode is 'none' — no endpoint to check"
         return 0
     fi
-    if command -v curl >/dev/null 2>&1; then
-        local http_code
-        http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "http://127.0.0.1:${hc_url_alias}${hc_path}" 2>/dev/null || echo "000")
-        if [[ "$http_code" == "000" ]]; then
-            warn "Healthcheck endpoint not reachable (expected if not deployed)"
-        elif [[ "$http_code" -ge 200 && "$http_code" -lt 400 ]]; then
-            ok "Healthcheck endpoint reachable (HTTP $http_code)"
+    if [[ "$hc_mode" == "local-port" ]]; then
+        if [[ -z "$hc_port" || "$hc_port" == "-" ]]; then
+            warn "local-port mode but no healthcheck_port configured"
+            return 0
+        fi
+        if command -v curl >/dev/null 2>&1; then
+            local http_code
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "http://127.0.0.1:${hc_port}${hc_path}" 2>/dev/null || echo "000")
+            if [[ "$http_code" == "000" ]]; then
+                warn "Healthcheck endpoint not reachable (expected if not deployed)"
+            elif [[ "$http_code" -ge 200 && "$http_code" -lt 400 ]]; then
+                ok "Healthcheck endpoint reachable (HTTP $http_code)"
+            else
+                warn "Healthcheck endpoint returned HTTP $http_code"
+            fi
         else
-            warn "Healthcheck endpoint returned HTTP $http_code"
+            warn "curl not available — skipping endpoint check"
         fi
     else
-        warn "curl not available — skipping endpoint check"
+        warn "Healthcheck mode '$hc_mode' — skipping endpoint check"
     fi
 }
 

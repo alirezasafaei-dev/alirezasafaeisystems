@@ -1,0 +1,52 @@
+name: CI Router
+
+on:
+  pull_request:
+    branches: ["*"]
+
+permissions:
+  contents: read
+
+jobs:
+  safe-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Syntax-check shell scripts
+        run: |
+          scripts=$(find . -name '*.sh' -not -path './.git/*')
+          if [ -n "$scripts" ]; then
+            echo "Checking shell script syntax..."
+            echo "$scripts" | while read -r f; do
+              echo "  bash -n $f"
+              bash -n "$f"
+            done
+          fi
+
+      - name: Validate registry schema
+        run: |
+          if [ -x ./scripts/ops/validate-registry-schema.sh ]; then
+            ./scripts/ops/validate-registry-schema.sh
+          else
+            echo "validate-registry-schema.sh not found or not executable, skipping"
+          fi
+
+      - name: Check dangerous patterns in protection scripts
+        run: |
+          if [ -x ./scripts/ops/check-dangerous-patterns.sh ]; then
+            ./scripts/ops/check-dangerous-patterns.sh
+          else
+            echo "check-dangerous-patterns.sh not found or not executable, skipping"
+          fi
+
+      - name: Detect sensitive files in changed paths
+        run: |
+          SENSITIVE_PATTERNS="\.env|credentials|secret|\.pem$|\.key$|id_rsa|\.p12$"
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || git diff --name-only HEAD~1)
+          if echo "$CHANGED" | grep -iE "$SENSITIVE_PATTERNS"; then
+            echo "::error::Sensitive files detected in changed paths"
+            exit 1
+          fi
+          echo "No sensitive files detected."

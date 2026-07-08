@@ -30,9 +30,10 @@ This document defines the standard deployment process for all ASDEV sites. All d
 ### 2.2 Deployment Phase
 1. **Deployment Execution** (`asdev-deploy.sh`)
    - Sync site-scoped source or artifact to release directory
-   - Run build command from registry
-   - Run healthcheck before modifying current symlink
-   - Update symlink only after healthcheck passes
+   - Run build command ID from registry
+   - Switch `current` symlink to new release (post-activation)
+   - Run healthcheck AFTER symlink switch (post-activation)
+   - Roll back symlink to previous release if healthcheck fails
    - Record deployment metadata
 
 2. **Health Verification** (`asdev-healthcheck.sh`)
@@ -146,8 +147,18 @@ Every deployment must record:
 - Verify static asset availability
 - Validate application responses
 
-### 8.2 Failure Handling
-- Deploy script blocks current symlink update if healthcheck fails
+### 8.2 Healthcheck Model (Post-Activation)
+The deploy script uses a **post-activation healthcheck** model:
+1. Build and prepare the release directory
+2. Switch `current` symlink to the new release (activation)
+3. Run healthcheck against the live endpoint
+4. If healthcheck fails → automatically roll back the symlink to the previous known-good release
+5. If no previous release exists → warn and leave symlink pointing to failed release
+
+This ensures the healthcheck validates the actual production traffic path, not just the build artifact.
+
+### 8.3 Failure Handling
+- Deploy script rolls back `current` symlink to previous release if post-activation healthcheck fails
 - Manual rollback available via `asdev-rollback.sh`
 - Log failure details for investigation
 

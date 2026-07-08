@@ -91,6 +91,12 @@
 
 ---
 
+## Deep Research Report
+
+- Reference: `docs/reports/asdev-production-grade-deep-research-20260708.md`
+
+---
+
 ## Success Criteria
 
 By end of 7 days:

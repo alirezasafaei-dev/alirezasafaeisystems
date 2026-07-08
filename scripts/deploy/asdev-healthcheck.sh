@@ -29,15 +29,17 @@ COL_ARTIFACT_PATH=6
 COL_PROD_BASE=7
 COL_STAGING_BASE=8
 COL_SHARED_PATH=9
-COL_HC_URL_ALIAS=10
-COL_HC_PATH=11
-COL_RUNTIME=12
-COL_PROCESS_NAMES=13
-COL_BUILD_CMD=14
-COL_START_CMD=15
-COL_ENV_ALIAS=16
-COL_DEPLOY_STRATEGY=17
-COL_ROLLBACK_STRATEGY=18
+COL_HC_MODE=10
+COL_HC_HOST_ALIAS=11
+COL_HC_PORT=12
+COL_HC_PATH=13
+COL_RUNTIME=14
+COL_PROCESS_NAMES=15
+COL_BUILD_CMD_ID=16
+COL_START_CMD_ID=17
+COL_ENV_ALIAS=18
+COL_DEPLOY_STRATEGY=19
+COL_ROLLBACK_STRATEGY=20
 
 usage() {
     cat <<EOF
@@ -74,7 +76,7 @@ registry_field() {
     awk -F'\t' -v site="$site" -v col="$field" '$1 == site {print $col}' "$REGISTRY"
 }
 
-get_field() { registry_field "$SITE_NAME" "$2"; }
+get_field() { registry_field "$SITE_NAME" "$1"; }
 
 validate_args() {
     [[ -z "$SITE_NAME" ]] && { error "Missing required --site"; return 1; }
@@ -154,8 +156,10 @@ run_healthcheck() {
     echo "  COMMIT: $COMMIT"
     echo "========================================"
     echo ""
-    local hc_url_alias hc_path deploy_base process_names
-    hc_url_alias=$(get_field "$COL_HC_URL_ALIAS")
+    local hc_mode hc_host_alias hc_port hc_path deploy_base process_names
+    hc_mode=$(get_field "$COL_HC_MODE")
+    hc_host_alias=$(get_field "$COL_HC_HOST_ALIAS")
+    hc_port=$(get_field "$COL_HC_PORT")
     hc_path=$(get_field "$COL_HC_PATH")
     process_names=$(get_field "$COL_PROCESS_NAMES")
     if [[ "$ENVIRONMENT" == "production" ]]; then
@@ -168,12 +172,33 @@ run_healthcheck() {
     if [[ -n "$process_names" && "$process_names" != "-" ]]; then
         check_process_running "$process_names" || all_ok=false
     fi
-    if [[ -n "$hc_url_alias" && "$hc_url_alias" != "-" ]]; then
-        local full_url="http://127.0.0.1:${hc_url_alias}${hc_path}"
-        check_http "$full_url" "Health endpoint" || all_ok=false
-    else
-        warn "No healthcheck URL configured — skipping HTTP check"
-    fi
+    case "$hc_mode" in
+        local-port)
+            if [[ -n "$hc_port" && "$hc_port" != "-" ]]; then
+                local full_url="http://127.0.0.1:${hc_port}${hc_path}"
+                check_http "$full_url" "Health endpoint (local-port)" || all_ok=false
+            else
+                warn "local-port mode but no healthcheck_port configured — skipping HTTP check"
+            fi
+            ;;
+        public-url)
+            if [[ -n "$hc_host_alias" && "$hc_host_alias" != "-" ]]; then
+                local full_url="https://${hc_host_alias}${hc_path}"
+                check_http "$full_url" "Health endpoint (public-url)" || all_ok=false
+            else
+                warn "public-url mode but no healthcheck_host_alias configured — skipping HTTP check"
+            fi
+            ;;
+        command)
+            warn "Healthcheck mode is 'command' — manual health check required"
+            ;;
+        none)
+            warn "Healthcheck mode is 'none' — skipping health check"
+            ;;
+        *)
+            warn "Unknown healthcheck mode: $hc_mode — skipping HTTP check"
+            ;;
+    esac
     echo ""
     echo "========================================"
     if [[ "$all_ok" == "true" ]]; then
@@ -204,10 +229,13 @@ main() {
     validate_args || exit 1
     if [[ "$CHECK_MODE" == "true" ]]; then
         log "Check mode — validating healthcheck config for $SITE_NAME"
-        local hc_url_alias hc_path
-        hc_url_alias=$(get_field "$COL_HC_URL_ALIAS")
+        local hc_mode hc_port hc_path
+        hc_mode=$(get_field "$COL_HC_MODE")
+        hc_port=$(get_field "$COL_HC_PORT")
         hc_path=$(get_field "$COL_HC_PATH")
-        log "Healthcheck endpoint: ${hc_url_alias}${hc_path}"
+        log "Healthcheck mode: $hc_mode"
+        log "Healthcheck port: $hc_port"
+        log "Healthcheck path: $hc_path"
         ok "Validation complete — no checks executed"
         exit 0
     fi

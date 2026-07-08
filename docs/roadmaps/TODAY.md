@@ -49,6 +49,12 @@
 
 ---
 
+## Deep Research Report
+
+- Reference: `docs/reports/asdev-production-grade-deep-research-20260708.md`
+
+---
+
 ## Validation Commands
 
 ```bash

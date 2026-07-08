@@ -168,23 +168,62 @@ Each backup includes a `.meta` file with:
 
 Location: `deploy/registry.tsv`
 
-Columns (18, tab-separated):
+Columns (20, tab-separated):
 ```
-site_id  display_name  priority  protected  repo_path  artifact_path  prod_base  staging_base  shared_path  healthcheck_url_alias  healthcheck_path  runtime  process_names  build_command  start_command  env_file_alias  deploy_strategy  rollback_strategy
-```
-
-Example rows:
-```
-persiantoolbox     PersianToolbox     1  true   sites/live/persiantoolbox     ...  /srv/asdev/sites/persiantoolbox      ...  node  persiantoolbox      pnpm run build  node .next/standalone/server.js  [REDACTED]  symlink  symlink
-alirezasafaeisystems  AlirezaSafaeiSystems  2  false  sites/live/alirezasafaeisystems  ...  /srv/asdev/sites/alirezasafaeisystems  ...  node  alirezasafaeisystems-production|alirezasafaeisystems-staging  pnpm run build  node .next/standalone/server.js  [REDACTED]  symlink  symlink
+site_id  display_name  priority  protected  repo_path  artifact_path  prod_base  staging_base  shared_path  healthcheck_mode  healthcheck_host_alias  healthcheck_port  healthcheck_path  runtime  process_names  build_command_id  start_command_id  env_file_alias  deploy_strategy  rollback_strategy
 ```
 
-Rules:
+### 7.1 Column Definitions
+
+| # | Column | Description |
+|---|--------|-------------|
+| 1 | `site_id` | Unique site identifier |
+| 2 | `display_name` | Human-readable site name |
+| 3 | `priority` | Numeric priority (1=highest) |
+| 4 | `protected` | `true` or `false` — CRITICAL_SITE must be `true` |
+| 5 | `repo_path` | Path to source repo relative to project root |
+| 6 | `artifact_path` | Path to pre-built artifact (fallback if repo not available) |
+| 7 | `prod_base` | Production deploy base path |
+| 8 | `staging_base` | Staging deploy base path |
+| 9 | `shared_path` | Shared resources path (persists across releases) |
+| 10 | `healthcheck_mode` | Healthcheck mode: `local-port`, `http`, or `-` (skip) |
+| 11 | `healthcheck_host_alias` | Host alias for healthcheck (e.g. `persiantoolbox.example.com`) |
+| 12 | `healthcheck_port` | Local port for `local-port` mode healthcheck |
+| 13 | `healthcheck_path` | HTTP path for healthcheck (e.g. `/api/ready`) |
+| 14 | `runtime` | Runtime type: `node`, `python`, etc. |
+| 15 | `process_names` | PM2 process names (pipe-separated for multi-process) |
+| 16 | `build_command_id` | Build command ID (see §7.2) |
+| 17 | `start_command_id` | Start command ID (see §7.3) |
+| 18 | `env_file_alias` | Environment file alias |
+| 19 | `deploy_strategy` | Always `symlink` |
+| 20 | `rollback_strategy` | Always `symlink` |
+
+### 7.2 Build Command IDs
+
+| ID | Equivalent Command |
+|----|-------------------|
+| `node-pnpm-build` | `pnpm install --frozen-lockfile && pnpm run build` |
+| `node-npm-build` | `npm ci && npm run build` |
+| `static-copy` | No build — static copy only |
+| `no-build` / `-` / (empty) | No build step |
+
+### 7.3 Start Command IDs
+
+| ID | Equivalent Command |
+|----|-------------------|
+| `node-standalone` | `node .next/standalone/server.js` |
+| `node-nextstart` | `pnpm run start` |
+| `python-gunicorn` | `gunicorn app:app` |
+| `static-serve` | `npx serve -s .` |
+| `no-start` / `-` / (empty) | No start step |
+
+### 7.4 Registry Rules
 - `protected` must be `true` or `false` (not "critical" or "normal")
 - CRITICAL_SITE (persiantoolbox.ir) must have `protected=true`
 - No raw IPs or real secret paths — use aliases and placeholders only
 - `process_names` are pipe-separated within a single column
 - `deploy_strategy` and `rollback_strategy` are always `symlink`
+- Use command IDs (§7.2, §7.3) — never raw shell commands in registry rows
 
 ---
 

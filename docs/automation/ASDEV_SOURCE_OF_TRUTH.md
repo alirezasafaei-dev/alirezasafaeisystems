@@ -25,6 +25,7 @@ No planning, goal state, operating rules, agent memory, or deployment standards 
 | **Task State** | ACTIVE_AUTONOMOUS_QUEUE.md — current task queue |
 | **Deployment Standards** | Deploy policy, validation requirements, rollback procedures |
 | **Project Structure** | ASDEV_TREE.md, PROJECT_REGISTRY.md |
+| **Deep Research** | docs/reports/asdev-production-grade-deep-research-20260708.md |
 
 ---
 

@@ -131,6 +131,12 @@ APPROVE_IRAN_PROD_QUARANTINE_NON_CRITICAL
 
 ---
 
+## گزارش تحقیق عمیق
+
+- مرجع: `docs/reports/asdev-production-grade-deep-research-20260708.md`
+
+---
+
 ## خلاصه
 
 - ✅ هیچ PR خطرناکی باقی نمانده
