@@ -34,23 +34,24 @@ done
 
 # ---- 1b. MCP HEALTH ----
 log "--- MCP Health ---"
-MCP_CODE=$(timeout 5 curl -sN -D - -o /dev/null "http://127.0.0.1:8000/sse" 2>/dev/null | grep -oE 'HTTP/[0-9.]+ [0-9]{3}' | head -1 | grep -oE '[0-9]{3}' || echo "000")
+MCP_CODE=$(timeout 5 curl -sN -D - -o /dev/null "http://127.0.0.1:8000/sse" 2>/dev/null | grep -oE 'HTTP/[0-9.]+ [0-9]{3}' | head -1 | grep -oE '[0-9]{3}' | tr -d '[:space:]' || echo "000")
 if [ "${MCP_CODE}" = "200" ]; then
   log "  OK /sse: HTTP ${MCP_CODE}"
 else
   log "  ! /sse: HTTP ${MCP_CODE}"
 fi
-for svc_proc in "asdev-chatgpt-mcp:uvicorn" "asdev-chatgpt-caddy:caddy run"; do
-  svc="${svc_proc%%:*}"
-  proc="${svc_proc##*:}"
-  PID_COUNT=$(pgrep -c -f "${proc}" 2>/dev/null || echo 0)
-  PID_COUNT=${PID_COUNT:-0}
-  if [ "${PID_COUNT}" -gt 0 ] 2>/dev/null; then
-    log "  OK ${svc}: running"
-  else
-    log "  ! ${svc}: not running"
-  fi
-done
+# Check MCP server by port
+if ss -tlnp 2>/dev/null | grep -q ":8000"; then
+  log "  OK asdev-chatgpt-mcp: listening on :8000"
+else
+  log "  ! asdev-chatgpt-mcp: port 8000 not listening"
+fi
+# Check Caddy by port
+if ss -tlnp 2>/dev/null | grep -q ":443"; then
+  log "  OK asdev-chatgpt-caddy: listening on :443"
+else
+  log "  ! asdev-chatgpt-caddy: port 443 not listening"
+fi
 
 # ---- 2. COMMIT PENDING WORK ----
 log "--- Commit Pending Work ---"
