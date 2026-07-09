@@ -1,6 +1,6 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-09T19:08:00Z
+**Updated:** 2026-07-09T20:05:00Z
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
@@ -51,6 +51,8 @@
 | Hardening commit | `ba07235` (robust memory timestamp + JSON queue safe-task seeding) |
 | Hermes Telegram | ✅ Operational — bot @asdev_systems_bot connected to @asdevsystems channel |
 | Hermes proxy | SOCKS5 tunnel via local xray (127.0.0.1:10808) — systemd user service auto-restart |
+| OpenClaw gateway | ✅ Active — MCP gateway on port 18789, Telegram disabled |
+| OpenClaw bot | 🗑️ Removed — duplicate service (same as openclaw-gateway), caused Telegram polling conflict |
 
 ## Gated (not running)
 
@@ -77,6 +79,9 @@ Quality note: Product-side quality packs advance trust/report depth on github ma
 | Admin dashboard: full lead detail dialog, search, filter, live stats | ✅ |
 | Services page: added Technical Audit as first offer + audit CTA section | ✅ |
 | Created Dialog UI component (shadcn/ui pattern via @radix-ui/react-dialog) | ✅ |
+| Server: removed duplicate openclaw-bot.service (was duplicate of openclaw-gateway) | ✅ |
+| Server: disabled OpenClaw Telegram polling via empty TELEGRAM_BOT_TOKEN drop-in | ✅ |
+| Server: verified Hermes sends messages despite cosmetic conflict warnings | ✅ |
 
 ## MCP SERVER (ASDEV GitHub Assistant)
 
