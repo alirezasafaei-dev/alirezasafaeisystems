@@ -5,6 +5,14 @@
 
 ---
 
+## Multi-agent (OWNER_PC)
+
+**Updated:** 2026-07-09T00:57:41Z  
+**Orchestrator:** Grok · AUTO LOOP ON · complete work first / deploy last  
+**Assistants active pattern:** `mimo` + `opencode` (non-interactive worktrees)  
+**Policy:** `docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md`  
+**Product pin advanced:** `persiantoolbox@d0ae88f` (inspect scrub for PM2; deploy still last)
+
 ## Platform
 
 | Item | Value |
