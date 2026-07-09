@@ -1,7 +1,7 @@
 # Hermes Approval Gateway — Design
 
-**Status:** Design only (not deployed)
-**Date:** 2026-07-06
+**Status:** ✅ Deployed (Telegram operational)
+**Date:** 2026-07-09
 **Purpose:** Owner approval/deny via Telegram or email
 
 ---
@@ -10,7 +10,7 @@
 
 | Channel | Configured | Health |
 |---|---|---|
-| Telegram | ✅ Yes | ⚠️ Connection failing (network) |
+| Telegram | ✅ Yes | ✅ Operational |
 | Email | ✅ Yes | Not tested |
 | GitHub PR comments | ✅ Yes | Working |
 

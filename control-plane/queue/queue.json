@@ -304,8 +304,8 @@
     {
       "id": "ASDEV-AUTO-MCP-HEALTH",
       "title": "MCP health monitor report",
-      "status": "pending",
-      "owner": "sre-observer",
+      "status": "done",
+      "owner": "automation-host-agent",
       "priority": 3,
       "depends_on": [],
       "approval_required": null,
@@ -315,16 +315,18 @@
         "safe-auto"
       ],
       "created_at": "2026-07-09T15:55:58Z",
-      "updated_at": "2026-07-09T15:55:58Z",
+      "updated_at": "2026-07-09T17:28:14Z",
       "logs": [
-        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks"
+        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks",
+        "2026-07-09T17:28:14Z claimed by automation-host-agent",
+        "2026-07-09T17:28:14Z completed: safe-auto acknowledged 2026-07-09T17:28:14Z"
       ],
-      "result": null
+      "result": "safe-auto acknowledged 2026-07-09T17:28:14Z"
     },
     {
       "id": "ASDEV-AUTO-QUEUE-INTEGRITY",
       "title": "Control-plane queue integrity check",
-      "status": "pending",
+      "status": "done",
       "owner": "automation-host-agent",
       "priority": 3,
       "depends_on": [],
@@ -335,17 +337,19 @@
         "queue"
       ],
       "created_at": "2026-07-09T15:55:58Z",
-      "updated_at": "2026-07-09T15:55:58Z",
+      "updated_at": "2026-07-09T17:35:23Z",
       "logs": [
-        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks"
+        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks",
+        "2026-07-09T17:35:23Z claimed by automation-host-agent",
+        "2026-07-09T17:35:23Z completed: safe-auto acknowledged 2026-07-09T17:35:23Z"
       ],
-      "result": null
+      "result": "safe-auto acknowledged 2026-07-09T17:35:23Z"
     },
     {
       "id": "ASDEV-AUTO-MEMORY-FRESH",
       "title": "Agent memory freshness check",
-      "status": "pending",
-      "owner": "docs-memory-agent",
+      "status": "done",
+      "owner": "automation-host-agent",
       "priority": 3,
       "depends_on": [],
       "approval_required": null,
@@ -355,17 +359,19 @@
         "safe-auto"
       ],
       "created_at": "2026-07-09T15:55:58Z",
-      "updated_at": "2026-07-09T15:55:58Z",
+      "updated_at": "2026-07-09T17:58:46Z",
       "logs": [
-        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks"
+        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks",
+        "2026-07-09T17:58:46Z claimed by automation-host-agent",
+        "2026-07-09T17:58:46Z completed: safe-auto acknowledged 2026-07-09T17:58:46Z"
       ],
-      "result": null
+      "result": "safe-auto acknowledged 2026-07-09T17:58:46Z"
     },
     {
       "id": "ASDEV-AUTO-MCP-SSE",
       "title": "MCP recurring SSE health verification",
-      "status": "pending",
-      "owner": "sre-observer",
+      "status": "done",
+      "owner": "automation-host-agent",
       "priority": 4,
       "depends_on": [],
       "approval_required": null,
@@ -376,11 +382,13 @@
         "safe-auto"
       ],
       "created_at": "2026-07-09T15:55:58Z",
-      "updated_at": "2026-07-09T15:55:58Z",
+      "updated_at": "2026-07-09T18:05:24Z",
       "logs": [
-        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks"
+        "2026-07-09T15:55:58Z synthesized by self-task loop because queue only had gated tasks",
+        "2026-07-09T18:05:24Z claimed by automation-host-agent",
+        "2026-07-09T18:05:24Z completed: safe-auto acknowledged 2026-07-09T18:05:24Z"
       ],
-      "result": null
+      "result": "safe-auto acknowledged 2026-07-09T18:05:24Z"
     }
   ]
 }

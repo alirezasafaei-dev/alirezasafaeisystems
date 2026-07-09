@@ -49,6 +49,8 @@
 | Node | bot.js running (Issue #45 command bus) |
 | Last loop commit | `b6c960c` (self-task.sh enhanced with MCP health, queue seeding, port checks) |
 | Hardening commit | `ba07235` (robust memory timestamp + JSON queue safe-task seeding) |
+| Hermes Telegram | ✅ Operational — bot @asdev_systems_bot connected to @asdevsystems channel |
+| Hermes proxy | SOCKS5 tunnel via local xray (127.0.0.1:10808) — systemd user service auto-restart |
 
 ## Gated (not running)
 
