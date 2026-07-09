@@ -20,8 +20,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 function getOffers(lang: 'fa' | 'en') {
+  const auditHref = 'https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=services&utm_campaign=asdev_audit'
   if (lang === 'en') {
     return [
+      {
+        title: 'Technical Audit & Production Readiness',
+        summary: 'Systematic assessment of your web platform: security, performance, SEO, infrastructure, and deployment maturity.',
+        deliverable: 'Structured audit report with prioritized findings and remediation roadmap',
+        href: auditHref,
+        external: true,
+      },
       {
         title: 'Technical Review + Quick Fix Sprint',
         summary: 'Focused diagnosis plus agreed fixes for live websites and web systems.',
@@ -57,6 +65,13 @@ function getOffers(lang: 'fa' | 'en') {
   }
 
   return [
+    {
+      title: 'Audit فنی و آمادگی تولید',
+      summary: 'ارزیابی سیستماتیک پلتفرم وب شما: امنیت، عملکرد، SEO، زیرساخت و بلوغ استقرار.',
+      deliverable: 'گزارش ساختاریافته Audit با یافته‌های اولویت‌بندی‌شده و نقشه رفع',
+      href: 'https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=services&utm_campaign=asdev_audit',
+      external: true,
+    },
     {
       title: 'بررسی فنی + اسپرینت رفع سریع',
       summary: 'تشخیص متمرکز + رفع موارد توافق‌شده برای سایت‌ها و سیستم‌های زنده.',
@@ -176,9 +191,20 @@ export default async function ServicesPage() {
                 <span className="font-medium">{copy.deliverableLabel}</span> {offer.deliverable}
               </div>
               {offer.href ? (
-                <Link href={withLocale(offer.href)} className="inline-flex text-sm font-medium text-primary underline">
-                  {lang === 'en' ? 'View focused offer' : 'مشاهده پیشنهاد متمرکز'}
-                </Link>
+                'external' in offer && offer.external ? (
+                  <a
+                    href={offer.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex text-sm font-medium text-primary underline"
+                  >
+                    {lang === 'en' ? 'View focused offer' : 'مشاهده پیشنهاد متمرکز'}
+                  </a>
+                ) : (
+                  <Link href={withLocale(offer.href)} className="inline-flex text-sm font-medium text-primary underline">
+                    {lang === 'en' ? 'View focused offer' : 'مشاهده پیشنهاد متمرکز'}
+                  </Link>
+                )
               ) : null}
             </article>
           ))}
@@ -193,6 +219,25 @@ export default async function ServicesPage() {
             <Link href={withLocale('/case-studies')} className="underline">{copy.proofLink}</Link>
             {copy.proofLineSuffix}
           </p>
+        </div>
+
+        <div className="rounded-xl border bg-card p-6 space-y-3">
+          <h2 className="text-xl font-semibold">
+            {lang === 'en' ? 'Not sure where to start?' : 'مطمئن نیستید از کجا شروع کنید؟'}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {lang === 'en'
+              ? 'Start with a free technical audit. Submit your URL and get a structured assessment of your platform\'s security, performance, and maturity.'
+              : 'با یک Audit فنی رایگان شروع کنید. آدرس سایت خود را ارسال کنید و یک ارزیابی ساختاریافته از امنیت، عملکرد و بلوغ پلتفرم خود دریافت کنید.'}
+          </p>
+          <a
+            href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=services&utm_campaign=asdev_audit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            {lang === 'en' ? 'Start Free Audit' : 'شروع Audit رایگان'}
+          </a>
         </div>
       </section>
     </main>
