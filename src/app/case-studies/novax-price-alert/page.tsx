@@ -82,6 +82,10 @@ export default async function NovaxPriceAlertPage() {
         ? 'Explicit contracts and staged UX + atomic hardening in critical paths delivered trust without over-engineering. Co-deploy discipline (rsync excludes, dedicated PM2/ports) allowed safe addition of new production asset.'
         : 'قراردادهای صریح و UX مرحله‌ای + hardening اتمیک در مسیرهای حیاتی اعتماد ایجاد کرد بدون over-engineering. دیسیپلین co-deploy (rsync excludes، PM2/پورت اختصاصی) امکان افزودن asset production جدید را به صورت ایمن فراهم کرد.',
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
+    ctaAudit: lang === 'en' ? 'Start Free Audit' : 'شروع Audit رایگان',
+    ctaAuditDesc: lang === 'en'
+      ? 'Want a similar assessment for your site? Start with a free audit.'
+      : 'ارزیابی مشابهی برای سایت خود می‌خواهید؟ با یک Audit رایگان شروع کنید.',
   }
 
   const pageUrl = `${siteUrl}/${lang}/case-studies/novax-price-alert`
@@ -171,6 +175,19 @@ export default async function NovaxPriceAlertPage() {
       <section className="mt-10">
         <h2 className="text-xl font-semibold">{copy.hLessons}</h2>
         <p className="mt-3 text-muted-foreground">{copy.pLessons}</p>
+      </section>
+
+      <section className="rounded-xl border bg-card p-6 space-y-3 card-hover text-center mt-10">
+        <h2 className="text-xl font-semibold">{copy.ctaAudit}</h2>
+        <p className="text-sm text-muted-foreground">{copy.ctaAuditDesc}</p>
+        <a
+          href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=case_study&utm_campaign=asdev_audit"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          {copy.ctaAudit}
+        </a>
       </section>
 
       <div className="mt-10">

@@ -69,6 +69,10 @@ export default async function PortfolioCaseStudyPage() {
         ? 'Admin dashboards for Leads/Messages, health endpoint, and a full quality gate that runs before deployment.'
         : 'ادمین پنل برای Lead/Messages، health endpoint، و گیت کیفیت سراسری قبل از deploy.',
     back: lang === 'en' ? 'Back to case studies' : 'بازگشت به مطالعات موردی',
+    ctaAudit: lang === 'en' ? 'Start Free Audit' : 'شروع Audit رایگان',
+    ctaAuditDesc: lang === 'en'
+      ? 'Want a similar assessment for your site? Start with a free audit.'
+      : 'ارزیابی مشابهی برای سایت خود می‌خواهید؟ با یک Audit رایگان شروع کنید.',
   }
 
   const pageUrl = `${siteUrl}/${lang}/case-studies/alirezasafaeidev-portfolio`
@@ -136,6 +140,19 @@ export default async function PortfolioCaseStudyPage() {
             <h3 className="font-semibold">{copy.hProof}</h3>
             <p className="text-sm text-muted-foreground">{copy.pProof}</p>
           </div>
+        </section>
+
+        <section className="rounded-xl border bg-card p-6 space-y-3 card-hover text-center">
+          <h2 className="text-xl font-semibold">{copy.ctaAudit}</h2>
+          <p className="text-sm text-muted-foreground">{copy.ctaAuditDesc}</p>
+          <a
+            href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=case_study&utm_campaign=asdev_audit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            {copy.ctaAudit}
+          </a>
         </section>
 
         <footer>

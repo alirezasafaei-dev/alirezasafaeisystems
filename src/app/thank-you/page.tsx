@@ -27,6 +27,7 @@ export default async function ThankYouPage() {
       : 'درخواست شما ثبت شد. در مرحله بعد، بررسی اولیه انجام می‌شود و سپس برای هماهنگی Discovery با شما تماس می‌گیریم.'
   const ctaCases = lang === 'en' ? 'View Case Studies' : 'مشاهده مطالعات موردی'
   const ctaHome = lang === 'en' ? 'Back Home' : 'بازگشت به خانه'
+  const ctaAudit = lang === 'en' ? 'Start Free Audit' : 'شروع Audit رایگان'
   const nextStepsTitle = lang === 'en' ? 'What Happens Next' : 'گام‌های بعدی'
   const nextSteps =
     lang === 'en'
@@ -49,10 +50,18 @@ export default async function ThankYouPage() {
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
+          <a
+            href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=thank_you&utm_campaign=asdev_audit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground shine-effect"
+          >
+            {ctaAudit}
+          </a>
           <Link href={withLocale('/case-studies')} className="rounded-md border px-4 py-2 text-sm card-hover">
             {ctaCases}
           </Link>
-          <Link href={withLocale('/')} className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground shine-effect">
+          <Link href={withLocale('/')} className="rounded-md border px-4 py-2 text-sm card-hover">
             {ctaHome}
           </Link>
         </div>

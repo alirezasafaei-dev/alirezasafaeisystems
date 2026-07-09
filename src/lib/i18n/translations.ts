@@ -15,6 +15,7 @@ export const translations = {
       blog: 'Blog',
       testimonials: 'Testimonials',
       contact: 'Contact',
+      auditReadiness: 'Audit Readiness',
     },
     ui: {
       changeLanguage: 'Change language',
@@ -116,6 +117,7 @@ export const translations = {
       quickCaseStudies: 'Case Studies',
       quickBrand: 'About Me',
       quickContact: 'Contact',
+      quickAudit: 'Audit Readiness',
       location: 'Tehran — on-site/remote collaboration across Iran',
       designedBy: 'Designed and developed by',
     },
@@ -134,6 +136,7 @@ export const translations = {
       blog: 'بلاگ',
       testimonials: 'نظرات',
       contact: 'تماس',
+      auditReadiness: 'آمادگی برای Audit',
     },
     ui: {
       changeLanguage: 'تغییر زبان',
@@ -235,6 +238,7 @@ export const translations = {
       quickCaseStudies: 'مطالعات موردی',
       quickBrand: 'درباره من',
       quickContact: 'تماس',
+      quickAudit: 'آمادگی برای Audit',
       location: 'تهران — همکاری حضوری/ریموت در سراسر ایران',
       designedBy: 'طراحی و توسعه توسط',
     },

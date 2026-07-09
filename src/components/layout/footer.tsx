@@ -12,6 +12,7 @@ const quickLinks = [
   { key: 'quickHome', href: '/' },
   { key: 'quickServices', href: '/services' },
   { key: 'quickCaseStudies', href: '/case-studies' },
+  { key: 'quickAudit', href: '/audit-readiness' },
   { key: 'quickBrand', href: '/about-brand' },
   { key: 'quickContact', href: '/qualification' },
 ]

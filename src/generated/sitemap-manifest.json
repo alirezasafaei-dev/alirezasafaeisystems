@@ -88,5 +88,11 @@
     "lastModified": "2026-06-15T16:48:55-04:00",
     "priority": 0.8,
     "changeFrequency": "monthly"
+  },
+  {
+    "route": "/fa/audit-readiness",
+    "lastModified": "2026-07-09T00:00:00-04:00",
+    "priority": 0.85,
+    "changeFrequency": "weekly"
   }
 ]

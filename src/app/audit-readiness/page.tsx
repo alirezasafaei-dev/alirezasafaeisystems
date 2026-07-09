@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { brand } from '@/lib/brand'
 import { getSiteUrl } from '@/lib/site-config'
 import { getRequestLanguage } from '@/lib/i18n/server'
 
@@ -22,7 +20,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AuditReadinessPage() {
   const lang = await getRequestLanguage()
-  const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
 
   const copy = {
     eyebrow: lang === 'en' ? 'Free Checklist' : 'چک‌لیست رایگان',
@@ -70,18 +67,22 @@ export default async function AuditReadinessPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        <Link
-          href={withLocale('/audit')}
+        <a
+          href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=audit_readiness&utm_campaign=asdev_audit"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           {copy.cta}
-        </Link>
-        <Link
-          href={withLocale('/sample-report')}
+        </a>
+        <a
+          href="https://audit.alirezasafaeisystems.ir/sample-report?utm_source=portfolio&utm_medium=audit_readiness&utm_campaign=asdev_audit"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center justify-center rounded-md border border-border px-6 py-3 text-sm font-semibold hover:bg-muted transition-colors"
         >
           {copy.sampleReport}
-        </Link>
+        </a>
       </div>
     </main>
   )
