@@ -1,6 +1,6 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-09T00:50:00Z  
+**Updated:** 2026-07-09T14:00:00Z  
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
@@ -59,6 +59,23 @@
 **ASDEV Engineering Operating System** (governance, memory, registry, deploy model, observability prep) — not daily hygiene thrash.
 
 **Quality note:** Product-side quality packs advance trust/report depth on github main; public score remains ~7.5 until edge is live and measured. Do not claim 10/10 or public prod edge deploy until edge + depth + uptime are proven.
+
+## MCP SERVER (ASDEV GitHub Assistant)
+
+| Item | Value |
+|------|-------|
+| Status | ✅ Operational |
+| Commit | `d261bdd` (on `main`) |
+| Endpoint | `https://mcp.alirezasafaeisystems.ir/sse/` |
+| TLS | Let's Encrypt (auto via Caddy) |
+| Runtime | systemd (`asdev-chatgpt-mcp` + `asdev-chatgpt-caddy`) |
+| Host | `asdev@91.107.153.223` (asdevserve) |
+| Tools | 6 read-only (list_repositories, get_repository_summary, search_code, read_file, list_issues, list_pull_requests) |
+| Auth | None (private testing) |
+| ChatGPT | Connected, app built, tools/list verified |
+| PR #89 | Closed — superseded by `d261bdd` |
+| Next risk | Add OAuth for production use |
+| Docs | `docs/ops/CHATGPT_MCP_CONNECTOR.md` |
 
 ## AUTOMATION_HOST runtime (2026-07-09T03:25:00Z)
 

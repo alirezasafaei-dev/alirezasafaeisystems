@@ -3,7 +3,7 @@
 **Canonical long-lived memory for all agents.**  
 **Update after every major phase.**  
 **SoT:** GitHub `main`  
-**Updated:** 2026-07-09T03:25:00Z
+**Updated:** 2026-07-09T14:00:00Z
 
 ---
 
@@ -33,6 +33,7 @@
 | Productivity mode | **ENABLED** |
 | Agent loop timer | **ACTIVE** — 30m interval, tested OK |
 | AUTOMATION_HOST | **OPERATIONAL** — control-plane deployed, linger enabled |
+| **MCP Server** | **OPERATIONAL** — `https://mcp.alirezasafaeisystems.ir/sse/` · commit `d261bdd` · ChatGPT connected |
 
 ---
 
@@ -44,6 +45,7 @@
 4. Stabilization + backup foundation  
 5. Control plane transform  
 6. Governance + project.yaml standard + OS productivity batch  
+7. **MCP Server deployment** — `tools/asdev-chatgpt-mcp/` (6 read-only tools), systemd + Caddy + Let's Encrypt + `header_up Host` fix, public endpoint `https://mcp.alirezasafaeisystems.ir/sse/`, ChatGPT connected and verified.  
 
 ---
 
@@ -55,6 +57,7 @@
 - Desktop + automation colocation  
 - Hermes/OpenClaw outside PM2  
 - Shared secrets residual for full product features  
+- MCP lacks OAuth (none for private testing — must add before production/team use)  
 
 ---
 
@@ -110,3 +113,15 @@ IRAN_PROD
 
 - Added docs/memory/*, docs/deployment/UNIVERSAL_DEPLOYMENT_MODEL, docs/observability/*, docs/security/security-baseline, roadmap/, control-plane maturity scripts
 - Focus: factory OS not site handwork
+
+### 2026-07-09 — MCP Server (ASDEV GitHub Assistant)
+
+- Deployed read-only MCP server with 6 tools (list_repositories, get_repository_summary, search_code, read_file, list_issues, list_pull_requests)
+- Production endpoint: `https://mcp.alirezasafaeisystems.ir/sse/`
+- Architecture: Python FastMCP → systemd → Caddy → Let's Encrypt (no Docker)
+- Fixed MCP library DNS rebinding protection (Caddy `header_up Host {upstream_hostport}`)
+- Opened UFW ports 80/443
+- Committed `d261bdd` on `main`; PR #89 closed as superseded
+- ChatGPT connected, tools/list verified
+- Docs: `docs/ops/CHATGPT_MCP_CONNECTOR.md`
+- Known risk: OAuth missing
