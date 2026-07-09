@@ -1,0 +1,28 @@
+[Unit]
+Description=ASDEV ChatGPT MCP Server
+Documentation=https://github.com/alirezasafaei-dev/alirezasafaeisystems/tree/main/tools/asdev-chatgpt-mcp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=asdev
+Group=asdev
+WorkingDirectory=/home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp
+EnvironmentFile=/home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp/.env
+Environment=PYTHONPATH=.venv/lib/python3.12/site-packages
+ExecStart=/usr/bin/python3 /home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp/server.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,35 @@
+# Caddy reverse-proxy examples for ASDEV ChatGPT MCP Server
+# ==========================================================
+#
+# There are two deployment modes:
+#   A) Standard (sudo) — Caddy binds port 443 directly (recommended)
+#   B) Non-root        — Caddy binds a high port (8443), no TLS
+#
+# ── Mode A: Full HTTPS on port 443 ──────────────────────────
+# Requires: sudo setcap cap_net_bind_service=+ep /usr/bin/caddy
+#           or sudo apt install caddy
+#
+# mcp.alirezasafaeisystems.ir {
+#     reverse_proxy /sse* 127.0.0.1:8000 {
+#         header_up Host {upstream_hostport}
+#         flush_interval 0
+#     }
+#     reverse_proxy /messages* 127.0.0.1:8000 {
+#         header_up Host {upstream_hostport}
+#     }
+# }
+
+# ── Mode B: HTTP only on port 8443 (development) ───────────
+# No TLS — suitable for internal testing only.
+# ChatGPT requires HTTPS, so mode A is needed for production.
+
+{
+    auto_https off
+}
+
+http://:8443 {
+    reverse_proxy /sse* 127.0.0.1:8000 {
+        flush_interval 0
+    }
+    reverse_proxy /messages* 127.0.0.1:8000
+}
