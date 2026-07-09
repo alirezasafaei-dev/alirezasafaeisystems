@@ -4,6 +4,16 @@ Read-only MCP server scaffold for connecting ChatGPT Developer Mode to the ASDEV
 
 This belongs in the ASDEV mother repository because this repository is the canonical parent brand, governance, and agent-rules source for ASDEV.
 
+## Target server
+
+Deploy this service directly on the automation server without Docker:
+
+```text
+SSH: asdev@91.107.153.223
+Domain: mcp.alirezasafaeisystems.ir
+Public endpoint: https://mcp.alirezasafaeisystems.ir/sse/
+```
+
 ## Initial scope
 
 The first release is intentionally read-only:
@@ -29,17 +39,17 @@ Authentication: None for private testing; OAuth later for production/team use
 Server URL: https://mcp.alirezasafaeisystems.ir/sse/
 ```
 
-The exact endpoint depends on the MCP transport you run. This scaffold runs FastMCP with SSE transport and exposes `/sse/`.
+This scaffold runs FastMCP with SSE transport and exposes `/sse/`.
 
 ## Domain vs IP
 
-Recommended:
+Recommended and selected:
 
 ```text
 https://mcp.alirezasafaeisystems.ir/sse/
 ```
 
-Do not use a raw IP for the final ChatGPT connector. Use a domain/subdomain with a valid public TLS certificate.
+Do not use a raw IP for the final ChatGPT connector. Use the configured subdomain with a valid public TLS certificate.
 
 A raw IP is acceptable only for very short internal testing when it is still reachable over valid HTTPS. Plain HTTP is not acceptable for production connector usage.
 
@@ -71,38 +81,70 @@ Use a minimum-permission GitHub token. Never commit `.env`.
 
 ```bash
 cd tools/asdev-chatgpt-mcp
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 python server.py
 ```
 
 The service listens on port `8000`.
 
-## Docker run
+## Server deployment without Docker
+
+Recommended layout on the automation server:
+
+```text
+/home/asdev/apps/asdev-chatgpt-mcp
+```
+
+Deployment flow:
 
 ```bash
+ssh asdev@91.107.153.223
+mkdir -p ~/apps
+cd ~/apps
+
+# clone if missing, otherwise pull/update the existing repo
+if [ ! -d alirezasafaeisystems ]; then
+  git clone git@github.com:alirezasafaei-dev/alirezasafaeisystems.git
+fi
+cd alirezasafaeisystems
+git fetch origin
+git checkout feat/asdev-chatgpt-mcp
+git pull --ff-only origin feat/asdev-chatgpt-mcp
+
 cd tools/asdev-chatgpt-mcp
-cp .env.example .env
-# edit .env
-docker compose up -d --build
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+cp -n .env.example .env
+nano .env
 ```
 
-## VPS deployment outline
+Run manually for smoke testing:
 
-1. Create DNS record:
-
-```text
-mcp.alirezasafaeisystems.ir A YOUR_SERVER_IP
+```bash
+source .venv/bin/activate
+python server.py
 ```
 
-2. Deploy the container.
-3. Put Caddy or Nginx in front of it.
-4. Enable HTTPS.
-5. Put this URL into ChatGPT:
+After smoke testing, install a systemd service using `deploy/systemd/asdev-chatgpt-mcp.service.example`.
+
+## Reverse proxy
+
+Expose the local service through Nginx or Caddy:
 
 ```text
-https://mcp.alirezasafaeisystems.ir/sse/
+127.0.0.1:8000 → https://mcp.alirezasafaeisystems.ir/sse/
+```
+
+Example configs live under:
+
+```text
+tools/asdev-chatgpt-mcp/deploy/nginx/
+tools/asdev-chatgpt-mcp/deploy/caddy/
 ```
 
 ## Hardening plan
