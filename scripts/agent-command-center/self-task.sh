@@ -11,8 +11,9 @@ log() { echo "[$(date -u +%H:%M:%S)] $*"; }
 
 # Check if queue has pending tasks
 if [ -f "$QUEUE_FILE" ]; then
-  PENDING=$(grep -c "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || echo "0")
-  if [ "$PENDING" -gt 0 ]; then
+  PENDING=$(grep -c "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || true)
+  PENDING=${PENDING:-0}
+  if [ "$PENDING" -gt 0 ] 2>/dev/null; then
     log "Queue has ${PENDING} pending tasks — skipping self-tasking"
     exit 0
   fi
