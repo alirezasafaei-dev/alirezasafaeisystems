@@ -23,7 +23,8 @@ log "Commit: ${COMMIT_HASH}"
 log "--- Health Check ---"
 HEALTH_OK=true
 for site in "persiantoolbox.ir" "alirezasafaeisystems.ir" "audit.alirezasafaeisystems.ir"; do
-  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${site}/" 2>/dev/null || echo "000")
+  STATUS=$( (timeout 10 curl -s -o /dev/null -w "%{http_code}" "https://${site}/" 2>/dev/null || true) | grep -oE '^[0-9]{3}' | tr -d '[:space:]')
+  STATUS="${STATUS:-000}"
   if [ "$STATUS" != "200" ]; then
     log "  ! ${site}: HTTP ${STATUS}"
     HEALTH_OK=false
@@ -34,7 +35,8 @@ done
 
 # ---- 1b. MCP HEALTH ----
 log "--- MCP Health ---"
-MCP_CODE=$(timeout 5 curl -sN -D - -o /dev/null "http://127.0.0.1:8000/sse" 2>/dev/null | grep -oE 'HTTP/[0-9.]+ [0-9]{3}' | head -1 | grep -oE '[0-9]{3}' | tr -d '[:space:]' || echo "000")
+MCP_CODE=$( (timeout 5 curl -sN -D - -o /dev/null "http://127.0.0.1:8000/sse" 2>/dev/null || true) | grep -oE 'HTTP/[0-9.]+ [0-9]{3}' | head -1 | grep -oE '[0-9]{3}' | tr -d '[:space:]')
+MCP_CODE="${MCP_CODE:-000}"
 if [ "${MCP_CODE}" = "200" ]; then
   log "  OK /sse: HTTP ${MCP_CODE}"
 else
