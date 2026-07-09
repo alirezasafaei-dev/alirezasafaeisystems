@@ -1149,3 +1149,35 @@ unknown
 [0;36m[15:01:10][0m Jobs skipped: 0
 [0;36m[15:01:10][0m Consecutive failures: 0
 [0;32m[OK][0m Loop completed successfully
+
+[0;34m═══ ASDEV Autonomous Execution Loop ═══[0m
+[0;36m[15:55:58][0m Timestamp: 2026-07-09T15:55:58Z
+[0;36m[15:55:58][0m Dry-run: false
+[0;36m[15:55:58][0m Max jobs: 2
+[0;36m[15:55:58][0m Once: false
+[0;36m[15:55:58][0m Issue: 45
+[0;36m[15:55:58][0m Simulate-offline: false
+[0;36m[15:55:58][0m Root: /home/asdev/repos/alirezasafaeisystems
+[0;36m[15:55:58][0m Queue: /home/asdev/repos/alirezasafaeisystems/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md
+[0;36m[15:55:58][0m Allowed modes: read-only,docs-only,automation-script
+[0;36m[15:55:58][0m Block product validation: true
+
+[0;32m[OK][0m Network OK
+
+[0;34m═══ Processing Queue ═══[0m
+[0;36m[15:55:58][0m Pending tasks: 0
+0
+
+[0;34m═══ Queue Empty — Self-Tasking ═══[0m
+[0;36m[15:55:58][0m Running self-task selector...
+[15:55:58] === ASDEV Autonomous Worker ===
+[15:55:58] Commit: e1bccf8
+[15:55:58] --- Health Check ---
+[15:55:59]   OK persiantoolbox.ir: HTTP 200
+[15:55:59]   OK alirezasafaeisystems.ir: HTTP 200
+[15:56:00]   OK audit.alirezasafaeisystems.ir: HTTP 200
+[15:56:00] --- MCP Health ---
+[15:56:05]   OK /sse: HTTP 200
+[15:56:05]   OK asdev-chatgpt-mcp: listening on :8000
+[15:56:05]   OK asdev-chatgpt-caddy: listening on :443
+[15:56:05] --- Commit Pending Work ---
