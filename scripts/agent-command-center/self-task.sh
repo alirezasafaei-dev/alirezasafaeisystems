@@ -106,10 +106,10 @@ if [ -f "$QUEUE_FILE" ]; then
     fi
   fi
 
-  # QUEUE_ONLY_GATED detection
-  if [ "$PENDING" -gt 0 ] && [ "$GATED" -ge "$PENDING" ] 2>/dev/null; then
-    log "QUEUE_ONLY_GATED_SYNTHESIZED_SAFE_TASK: all pending tasks are gated"
-    # SEED SAFE TASKS if none exist
+  # QUEUE_ONLY_GATED detection — also fires if table-format gated tasks exist with zero safe pending
+  HAS_GATED_TABLE=$(grep -c "APPROVE_" "$QUEUE_FILE" 2>/dev/null || echo 0)
+  if [ "$PENDING" -eq 0 ] && [ "$HAS_GATED_TABLE" -gt 0 ] 2>/dev/null; then
+    log "QUEUE_ONLY_GATED_SYNTHESIZED_SAFE_TASK: only gated tasks in queue"
     if ! grep -q "ASDEV-AUTO-MCP-HEALTH" "$QUEUE_FILE" 2>/dev/null; then
       cat >> "$QUEUE_FILE" << 'SEEDEOF'
 
