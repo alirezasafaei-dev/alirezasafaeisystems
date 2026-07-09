@@ -1489,3 +1489,58 @@ JSON_QUEUE_NO_SEED safe_pending=4 gated_pending=6
 [17:46:05]   OK asdev-chatgpt-mcp: listening on :8000
 [17:46:05]   OK asdev-chatgpt-caddy: listening on :443
 [17:46:05] --- Commit Pending Work ---
+[main 9376063] chore(auto): autonomous loop auto-commit [skip ci]
+ 3 files changed, 32 insertions(+)
+ mode change 100644 => 100755 scripts/ops/check-critical-site-protection.sh
+ mode change 100644 => 100755 scripts/ops/protect-critical-site.sh
+[17:46:05]   OK committed
+[17:46:05] --- Sync to GitHub ---
+[17:46:05]   1 commits ahead - pushing
+[17:46:07]   OK Pushed
+[17:46:07] --- Queue Status ---
+[17:46:07]   Markdown queue — Pending: 0, Gated: 4, Done: 0
+[17:46:07] QUEUE_ONLY_GATED_SYNTHESIZED_SAFE_TASK: markdown queue only has gated tasks
+JSON_QUEUE_NO_SEED safe_pending=4 gated_pending=6
+[17:46:07] --- Update Memory ---
+[17:46:07]   OK Memory timestamp updated
+[17:46:07] === Worker cycle complete ===
+[0;32m[OK][0m Self-task completed
+
+[0;34m═══ Loop Summary ═══[0m
+[0;36m[17:46:07][0m Jobs executed: 0
+[0;36m[17:46:07][0m Jobs failed: 0
+[0;36m[17:46:07][0m Jobs skipped: 0
+[0;36m[17:46:07][0m Consecutive failures: 0
+[0;32m[OK][0m Loop completed successfully
+
+[0;34m═══ ASDEV Autonomous Execution Loop ═══[0m
+[0;36m[17:56:19][0m Timestamp: 2026-07-09T17:56:19Z
+[0;36m[17:56:19][0m Dry-run: false
+[0;36m[17:56:19][0m Max jobs: 2
+[0;36m[17:56:19][0m Once: false
+[0;36m[17:56:19][0m Issue: 45
+[0;36m[17:56:19][0m Simulate-offline: false
+[0;36m[17:56:19][0m Root: /home/asdev/repos/alirezasafaeisystems
+[0;36m[17:56:19][0m Queue: /home/asdev/repos/alirezasafaeisystems/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md
+[0;36m[17:56:19][0m Allowed modes: read-only,docs-only,automation-script
+[0;36m[17:56:19][0m Block product validation: true
+
+[0;32m[OK][0m Network OK
+
+[0;34m═══ Processing Queue ═══[0m
+[0;36m[17:56:20][0m Pending tasks: 0
+0
+
+[0;34m═══ Queue Empty — Self-Tasking ═══[0m
+[0;36m[17:56:20][0m Running self-task selector...
+[17:56:20] === ASDEV Autonomous Worker ===
+[17:56:20] Commit: 9376063
+[17:56:20] --- Health Check ---
+[17:56:21]   OK persiantoolbox.ir: HTTP 200
+[17:56:21]   OK alirezasafaeisystems.ir: HTTP 200
+[17:56:22]   OK audit.alirezasafaeisystems.ir: HTTP 200
+[17:56:22] --- MCP Health ---
+[17:56:27]   OK /sse: HTTP 200
+[17:56:27]   OK asdev-chatgpt-mcp: listening on :8000
+[17:56:27]   OK asdev-chatgpt-caddy: listening on :443
+[17:56:27] --- Commit Pending Work ---
