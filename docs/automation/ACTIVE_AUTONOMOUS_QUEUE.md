@@ -1,7 +1,7 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-09T01:20:00Z  
-**Status: AUTOMATION_HOST FULL PASS · 10min LOOP · TCP ACTIVE · MCP LIVE
+**Last Updated:** 2026-07-09T15:25:00Z  
+**Status:** AUTOMATION_HOST FULL PASS · 10min LOOP · TCP ACTIVE · MCP LIVE
 
 ## Runtime
 - Host: `asdev` (local AUTOMATION_HOST)
@@ -14,6 +14,13 @@
 - loop-once safe-auto drain
 - multi-agent mimo/opencode under Grok
 - product quality pre-deploy
+
+## Safe next cycles
+- [ ] MCP health monitor report | ID: ASDEV-AUTO-MCP-HEALTH | Mode: read-only | Priority: 3
+- [ ] Control-plane queue integrity check | ID: ASDEV-AUTO-QUEUE-INTEGRITY | Mode: automation-script | Priority: 3
+- [ ] Agent memory freshness check | ID: ASDEV-AUTO-MEMORY-FRESH | Mode: docs-only | Priority: 3
+- [ ] MCP recurring health verify | ID: ASDEV-AUTO-MCP-SSE | Mode: read-only | Priority: 4
+- [ ] OpenClaw gateway diagnostic only | ID: ASDEV-AUTO-OPENCLAW-DIAG | Mode: read-only | Priority: 5
 
 ## Gated pending
 | Phrase | Theme |
