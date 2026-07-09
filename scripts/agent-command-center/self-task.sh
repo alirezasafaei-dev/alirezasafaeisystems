@@ -5,6 +5,7 @@ set -euo pipefail
 
 ASDEV_ROOT="${ASDEV_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 QUEUE_FILE="${ASDEV_QUEUE_FILE:-${ASDEV_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md}"
+JSON_QUEUE_FILE="${ASDEV_JSON_QUEUE_FILE:-${ASDEV_ROOT}/control-plane/queue/queue.json}"
 STATE_FILE="${ASDEV_ROOT}/.state/asdev-agent-loop/worker-state.json"
 LOG_DIR="${ASDEV_ROOT}/ops/automation-logs"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -92,7 +93,7 @@ if [ -f "$QUEUE_FILE" ]; then
   DONE=$(grep -c "^- \[x\]" "$QUEUE_FILE" 2>/dev/null || true)
   GATED=$(grep -c "APPROVE_" "$QUEUE_FILE" 2>/dev/null || true)
   PENDING=${PENDING:-0}; DONE=${DONE:-0}; GATED=${GATED:-0}
-  log "  Pending: ${PENDING}, Gated: ${GATED}, Done: ${DONE}"
+  log "  Markdown queue — Pending: ${PENDING}, Gated: ${GATED}, Done: ${DONE}"
 
   # ARCHIVE DONE ITEMS
   if [ "$DONE" -gt 0 ]; then
@@ -109,7 +110,7 @@ if [ -f "$QUEUE_FILE" ]; then
   # QUEUE_ONLY_GATED detection — also fires if table-format gated tasks exist with zero safe pending
   HAS_GATED_TABLE=$(grep -c "APPROVE_" "$QUEUE_FILE" 2>/dev/null || echo 0)
   if [ "$PENDING" -eq 0 ] && [ "$HAS_GATED_TABLE" -gt 0 ] 2>/dev/null; then
-    log "QUEUE_ONLY_GATED_SYNTHESIZED_SAFE_TASK: only gated tasks in queue"
+    log "QUEUE_ONLY_GATED_SYNTHESIZED_SAFE_TASK: markdown queue only has gated tasks"
     if ! grep -q "ASDEV-AUTO-MCP-HEALTH" "$QUEUE_FILE" 2>/dev/null; then
       cat >> "$QUEUE_FILE" << 'SEEDEOF'
 
@@ -119,35 +120,127 @@ if [ -f "$QUEUE_FILE" ]; then
 - [ ] Agent memory freshness check | ID: ASDEV-AUTO-MEMORY-FRESH | Mode: docs-only | Priority: 3
 - [ ] MCP recurring health verify | ID: ASDEV-AUTO-MCP-SSE | Mode: read-only | Priority: 4
 SEEDEOF
-      log "  Seeded 4 safe tasks into queue"
+      log "  Seeded 4 safe tasks into markdown queue"
     fi
   fi
+fi
+
+# JSON queue is the queue used by scripts/control-plane/loop-once.sh. Seed it too.
+if [ -f "$JSON_QUEUE_FILE" ] && command -v python3 >/dev/null 2>&1; then
+  export JSON_QUEUE_FILE TIMESTAMP
+  python3 << 'PY'
+import json
+import os
+from pathlib import Path
+
+path = Path(os.environ["JSON_QUEUE_FILE"])
+now = os.environ["TIMESTAMP"]
+
+data = json.loads(path.read_text())
+tasks = data.get("tasks", [])
+safe_pending = [
+    t for t in tasks
+    if t.get("status") in {"pending", "approved"} and not t.get("approval_required")
+]
+gated_pending = [
+    t for t in tasks
+    if t.get("status") in {"pending", "approved"} and t.get("approval_required")
+]
+
+seed = [
+    {
+        "id": "ASDEV-AUTO-MCP-HEALTH",
+        "title": "MCP health monitor report",
+        "status": "pending",
+        "owner": "sre-observer",
+        "priority": 3,
+        "depends_on": [],
+        "approval_required": None,
+        "tags": ["mcp", "read-only", "safe-auto"],
+        "created_at": now,
+        "updated_at": now,
+        "logs": [f"{now} synthesized by self-task loop because queue only had gated tasks"],
+        "result": None,
+    },
+    {
+        "id": "ASDEV-AUTO-QUEUE-INTEGRITY",
+        "title": "Control-plane queue integrity check",
+        "status": "pending",
+        "owner": "automation-host-agent",
+        "priority": 3,
+        "depends_on": [],
+        "approval_required": None,
+        "tags": ["control-plane", "safe-auto", "queue"],
+        "created_at": now,
+        "updated_at": now,
+        "logs": [f"{now} synthesized by self-task loop because queue only had gated tasks"],
+        "result": None,
+    },
+    {
+        "id": "ASDEV-AUTO-MEMORY-FRESH",
+        "title": "Agent memory freshness check",
+        "status": "pending",
+        "owner": "docs-memory-agent",
+        "priority": 3,
+        "depends_on": [],
+        "approval_required": None,
+        "tags": ["docs", "memory", "safe-auto"],
+        "created_at": now,
+        "updated_at": now,
+        "logs": [f"{now} synthesized by self-task loop because queue only had gated tasks"],
+        "result": None,
+    },
+    {
+        "id": "ASDEV-AUTO-MCP-SSE",
+        "title": "MCP recurring SSE health verification",
+        "status": "pending",
+        "owner": "sre-observer",
+        "priority": 4,
+        "depends_on": [],
+        "approval_required": None,
+        "tags": ["mcp", "sse", "read-only", "safe-auto"],
+        "created_at": now,
+        "updated_at": now,
+        "logs": [f"{now} synthesized by self-task loop because queue only had gated tasks"],
+        "result": None,
+    },
+]
+
+existing = {t.get("id") for t in tasks}
+if not safe_pending and gated_pending:
+    added = [item for item in seed if item["id"] not in existing]
+    if added:
+        data["tasks"] = tasks + added
+        data["updated_at"] = now
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+        print(f"JSON_QUEUE_SEEDED_SAFE_TASKS={len(added)}")
+    else:
+        print("JSON_QUEUE_SAFE_TASKS_ALREADY_PRESENT")
+else:
+    print(f"JSON_QUEUE_NO_SEED safe_pending={len(safe_pending)} gated_pending={len(gated_pending)}")
+PY
 fi
 
 # ---- 5. UPDATE MEMORY ----
 log "--- Update Memory ---"
 MEMORY_FILE="${ASDEV_ROOT}/docs/memory/ASDEV_CURRENT_STATE.md"
 if [ -f "$MEMORY_FILE" ]; then
-  sed -i "s/^\*\*Updated:.*/\*\*Updated: ${TIMESTAMP}Z  /" "$MEMORY_FILE" 2>/dev/null || true
-  sed -i "s/ \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}Z\)  /\1Z  /g" "$MEMORY_FILE" 2>/dev/null || true
+  # Fix the canonical top-level Updated line without producing malformed Markdown or double-Z timestamps.
+  sed -i -E "0,/^\*\*Updated:/s|^\*\*Updated:.*|**Updated:** ${TIMESTAMP}  |" "$MEMORY_FILE" 2>/dev/null || true
+  # Also repair older malformed secondary Updated lines such as '**Updated: ...ZZ'.
+  sed -i -E "s|^\*\*Updated: .*$|**Updated:** ${TIMESTAMP}  |" "$MEMORY_FILE" 2>/dev/null || true
   log "  OK Memory timestamp updated"
 fi
 
 # ---- 6. SAVE STATE ----
-cat > "$STATE_FILE" << 'SAVEEOF'
+cat > "$STATE_FILE" << SAVEEOF
 {
-  "last_run_at": "TIMEPLACEHOLDER",
-  "last_commit": "COMMITPLACEHOLDER",
-  "mcp_code": "MCPPLACEHOLDER",
-  "health_ok": false,
+  "last_run_at": "${TIMESTAMP}",
+  "last_commit": "${COMMIT_HASH}",
+  "mcp_code": "${MCP_CODE}",
+  "health_ok": ${HEALTH_OK},
   "status": "completed"
 }
 SAVEEOF
-
-# Replace placeholders with actual values
-sed -i "s/TIMEPLACEHOLDER/${TIMESTAMP}/" "$STATE_FILE" 2>/dev/null || true
-sed -i "s/COMMITPLACEHOLDER/${COMMIT_HASH}/" "$STATE_FILE" 2>/dev/null || true
-sed -i "s/MCPPLACEHOLDER/${MCP_CODE}/" "$STATE_FILE" 2>/dev/null || true
-sed -i "s/false/${HEALTH_OK}/" "$STATE_FILE" 2>/dev/null || true
 
 log "=== Worker cycle complete ==="
