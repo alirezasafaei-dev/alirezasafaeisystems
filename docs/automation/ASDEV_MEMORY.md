@@ -38,6 +38,7 @@
 
 1. Deploy engine + registry + port isolation  
 2. Staging live CRITICAL_SITE  
+2b. Autonomous Loop Governance policy in GitHub SoT (2026-07-09)  
 3. Production app-layer cutover  
 4. Stabilization + backup foundation  
 5. Control plane transform  
