@@ -4,6 +4,12 @@ Append-only. Newest first.
 
 ---
 
+## 2026-07-09 — Autonomous Loop Governance installed in GitHub
+
+- **Decision:** Official policy path `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md`; AGENTS.md + control-plane README + agent rules point here.  
+- **Why:** Chat-only loop instructions caused stop-after-task behavior.  
+- **Effect:** Agents must continue safe high-ROI work after every completion.
+
 ## 2026-07-09 — No 10/10 claim without public edge
 
 - **Decision:** Continue product quality on GitHub; do **not** declare 10/10 or public deploy complete until edge+uptime+depth proven.

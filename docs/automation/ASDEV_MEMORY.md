@@ -3,7 +3,7 @@
 **Canonical long-lived memory for all agents.**  
 **Update after every major phase.**  
 **SoT:** GitHub `main`  
-**Updated:** 2026-07-08T23:00:00Z
+**Updated:** 2026-07-09T00:50:00Z
 
 ---
 
@@ -12,11 +12,12 @@
 | Decision | Detail |
 |----------|--------|
 | GitHub = only SoT | Host is execution |
-| CRITICAL_SITE first prod = app-layer only | Public edge gated separately |
-| Ports | prod 3100 / staging 3200 (staging live may still be 3000) |
-| AUTOMATION_HOST = control plane | Not public runtime |
+| **Autonomous Loop Policy** | `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md` (mandatory) |
+| CRITICAL_SITE first ASDEV app-layer | IRAN `:3100`; public live is separate VPS |
+| Ports (registry) | prod 3100 / staging 3200 (public uses 3000/3003 blue-green) |
+| AUTOMATION_HOST = control plane | Orchestration; not public product runtime |
 | Autonomous Productivity Mode | Continue safe work; stop only on real gates |
-| Minimal approval gates | edge, migration, prod deploy, staging deploy, live timers, destructive |
+| Minimal approval gates | edge, migration, prod deploy, staging, live timers, destructive |
 
 ---
 
@@ -24,12 +25,11 @@
 
 | Component | State |
 |-----------|-------|
-| Platform main | evolving via ops PRs |
-| CRITICAL_SITE prod | LIVE `20260708T221124Z-fcc7192` pin **fcc7192** on `:3100` |
-| CRITICAL_SITE staging | LIVE on legacy `:3000` |
-| Public edge | OFF (template ready) |
-| Control plane | `control-plane/` + scripts live |
-| Meta backup IRAN | daily 03:15 UTC |
+| Platform main | + loop policy PR (this install) |
+| Public CRITICAL_SITE | LIVE green:3003 · release `37ba347` (ubuntu VPS) |
+| ASDEV IRAN app-layer | `:3100` separate from public DNS |
+| Control plane | scripts + queue + health live |
+| Loop governance | **INSTALLED** 2026-07-09 |
 | Productivity mode | **ENABLED** |
 
 ---

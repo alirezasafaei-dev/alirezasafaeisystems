@@ -12,11 +12,13 @@ All planning, goals, rules, memory, and task state live in GitHub. Never store a
 ## Rule 2: Read Before Work
 
 Before any task, read in order:
-1. ASDEV.md
-2. docs/automation/ASDEV_SOURCE_OF_TRUTH.md
-3. docs/automation/AGENT_MEMORY.md
-4. docs/strategy/FOCUS_POLICY.md
-5. docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md
+1. `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md` (**loop governance — mandatory**)
+2. ASDEV.md
+3. docs/automation/ASDEV_SOURCE_OF_TRUTH.md
+4. docs/memory/ASDEV_CURRENT_STATE.md
+5. docs/automation/AGENT_MEMORY.md
+6. docs/strategy/FOCUS_POLICY.md
+7. docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md / control-plane/queue/queue.json
 
 ## Rule 3: Focus Alignment
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Single control-plane loop iteration (bounded — not infinite).
+# Policy: docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md
 # 1 read state 2 claim task 3 execute only if SAFE tag 4 report 5 memory hint
 # Does NOT run production mutations.
 set -euo pipefail

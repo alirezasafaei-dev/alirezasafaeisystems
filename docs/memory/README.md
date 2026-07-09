@@ -2,12 +2,16 @@
 
 Permanent, structured memory for agents and humans.
 
-| File | Role |
-|------|------|
-| [ASDEV_CURRENT_STATE.md](./ASDEV_CURRENT_STATE.md) | Live snapshot (update often) |
-| [ARCHITECTURE_MEMORY.md](./ARCHITECTURE_MEMORY.md) | Stable architecture map |
-| [DECISION_LOG.md](./DECISION_LOG.md) | Dated decisions + rationale |
-| [ACTIVE_ROADMAP.md](./ACTIVE_ROADMAP.md) | What we are building next |
+| File | Role | Alias |
+|------|------|-------|
+| [ASDEV_CURRENT_STATE.md](./ASDEV_CURRENT_STATE.md) | Live snapshot | CURRENT_STATE |
+| [ARCHITECTURE_MEMORY.md](./ARCHITECTURE_MEMORY.md) | Stable architecture map | — |
+| [DECISION_LOG.md](./DECISION_LOG.md) | Dated decisions + rationale | DECISIONS |
+| [ACTIVE_ROADMAP.md](./ACTIVE_ROADMAP.md) | Near-term roadmap | ROADMAP |
+| [INCIDENTS.md](./INCIDENTS.md) | Outages / SEV log | — |
+| [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) | Cross-session handoff | — |
+
+**Loop policy:** `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md`
 
 Also:
 

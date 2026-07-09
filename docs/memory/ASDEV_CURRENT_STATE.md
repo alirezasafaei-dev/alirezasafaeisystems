@@ -1,8 +1,7 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-08T23:55:00Z  
-**Mode:** Autonomous Productivity · Product quality loop
-**Updated:** 2026-07-09T00:15:35Z
+**Updated:** 2026-07-09T00:50:00Z  
+**Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
 
@@ -13,18 +12,18 @@
 | SoT | GitHub `main` |
 | Workspace | `/home/dev13/ASDEV` |
 | Control plane | `control-plane/` live |
+| Loop policy | `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md` |
 | Productivity mode | ENABLED |
 
 ## CRITICAL_SITE (`persiantoolbox`)
 
 | Item | Value |
 |------|-------|
-| Prod app-layer | LIVE on IRAN `:3100` pin family fcc7192 · **product GitHub main advanced** (`0c16bec` quality+SEO factory) — redeploy gated |
-| Product score | ~7.5/10 est. · **not 10/10** until public edge + CWV + verified reviews |
-| Staging | LIVE legacy `:3000` · same pin |
-| Public edge | **OFF** (not claimed live; no public nginx/SSL edge yet) |
-| Product quality | Packs on product GitHub `main` at `bc1068c` + **upcoming SEO factory** work |
-| Score trajectory | **~7.5 / 10** — not 10/10 until public edge + depth + uptime are proven |
+| Public product | LIVE on **public VPS** (ubuntu · nginx · PM2 **green:3003**) release `37ba347` |
+| ASDEV IRAN app-layer | Separate host `:3100` (not DNS public) |
+| Product GitHub | advanced (`9c8b626`+ quality/SEO/blog packs) — may be **ahead** of live `37ba347` |
+| Product score | ~7.5–8.0/10 est. · **not 10/10** |
+| Staging | public staging + ASDEV legacy paths |
 | Rollback history | none (first prod) |
 | Meta backup | IRAN daily 03:15 UTC · FRESH |
 
