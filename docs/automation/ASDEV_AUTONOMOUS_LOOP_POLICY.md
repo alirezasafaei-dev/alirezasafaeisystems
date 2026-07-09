@@ -8,6 +8,7 @@
 - `docs/governance/AUTONOMOUS_PRODUCTIVITY_MODE.md` (mode)  
 - `docs/governance/APPROVAL_GATES.md` (hard gates)  
 - `docs/architecture/automation-control-plane.md` (architecture)  
+- `docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md` (mimo + opencode on OWNER_PC)  
 - `AGENTS.md` (entry governance)
 
 ---

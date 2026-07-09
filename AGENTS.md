@@ -15,6 +15,7 @@ Also read:
 
 - Mode: [`docs/governance/AUTONOMOUS_PRODUCTIVITY_MODE.md`](docs/governance/AUTONOMOUS_PRODUCTIVITY_MODE.md)
 - Gates: [`docs/governance/APPROVAL_GATES.md`](docs/governance/APPROVAL_GATES.md)
+- Multi-agent (OWNER_PC): [`docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md`](docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md) — prefer **mimo** + **opencode** as first assistants
 - Memory: [`docs/memory/ASDEV_CURRENT_STATE.md`](docs/memory/ASDEV_CURRENT_STATE.md) · [`docs/automation/ASDEV_MEMORY.md`](docs/automation/ASDEV_MEMORY.md)
 - Workspace: `/home/dev13/ASDEV` (not legacy my-project path)
 
