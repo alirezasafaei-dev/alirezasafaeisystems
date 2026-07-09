@@ -57,8 +57,10 @@ fi
 # 4. ARCHIVE COMPLETED QUEUE ITEMS
 log "--- Archive Queue ---"
 if [ -f "$QUEUE_FILE" ]; then
-  DONE_COUNT=$(grep -c "^\- \[x\]" "$QUEUE_FILE" 2>/dev/null || echo "0")
-  PENDING_COUNT=$(grep -c "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || echo "0")
+  DONE_COUNT=$(grep -c "^\- \[x\]" "$QUEUE_FILE" 2>/dev/null || true)
+  DONE_COUNT=${DONE_COUNT:-0}
+  PENDING_COUNT=$(grep -c "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || true)
+  PENDING_COUNT=${PENDING_COUNT:-0}
   log "  Queue: ${PENDING_COUNT} pending, ${DONE_COUNT} done"
   
   if [ "$DONE_COUNT" -gt 0 ]; then
