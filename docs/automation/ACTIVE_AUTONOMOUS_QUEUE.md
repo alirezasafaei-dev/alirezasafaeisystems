@@ -1,14 +1,14 @@
 # Active Autonomous Queue — ASDEV
 
 **Last Updated:** 2026-07-09T01:20:00Z  
-**Status:** AUTOMATION_HOST FULL PASS · TIMERS ON · TELEGRAM VIA PROXY · GATED REMAIN  
+**Status: AUTOMATION_HOST FULL PASS · 10min LOOP · TCP ACTIVE · MCP LIVE
 
 ## Runtime
 - Host: `asdev` (local AUTOMATION_HOST)
 - Hermes: active + TELEGRAM_PROXY socks5h://127.0.0.1:10808
 - OpenClaw: active, Telegram disabled (bot conflict)
-- Timers: asdev-agent-loop 30m · health 1h
-- Hermes cron: asdev-control-plane-loop every 30m
+- Timers: asdev-agent-loop 10min · health 1h
+- Hermes cron: asdev-control-plane-loop every 10min
 
 ## Safe continuous
 - loop-once safe-auto drain
