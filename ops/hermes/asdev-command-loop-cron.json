@@ -1,13 +1,19 @@
 {
   "name": "asdev-command-loop",
-  "description": "ASDEV autonomous execution loop — checks Issue #45, executes approved tasks",
+  "description": "ASDEV safe control-plane loop-once every 30m",
   "schedule": "*/30 * * * *",
-  "command": "/home/dev13/my-project/scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 2",
+  "command": "/home/dev13/ASDEV/scripts/control-plane/loop-once.sh",
   "enabled": true,
   "env": {
-    "HOME": "/home/dev13"
+    "HOME": "/home/dev13",
+    "ASDEV_ROOT": "/home/dev13/ASDEV",
+    "TELEGRAM_PROXY": "socks5h://127.0.0.1:10808",
+    "HTTPS_PROXY": "socks5h://127.0.0.1:10808",
+    "HTTP_PROXY": "socks5h://127.0.0.1:10808",
+    "ALL_PROXY": "socks5h://127.0.0.1:10808",
+    "NO_PROXY": "localhost,127.0.0.1,::1"
   },
   "timeout": 600,
   "retries": 1,
-  "log": "/home/dev13/my-project/ops/automation-logs/cron.log"
+  "log": "/home/dev13/ASDEV/ops/automation-logs/hermes-cron-loop.log"
 }

@@ -56,3 +56,13 @@
 **ASDEV Engineering Operating System** (governance, memory, registry, deploy model, observability prep) — not daily hygiene thrash.
 
 **Quality note:** Product-side quality packs advance trust/report depth on github main; public score remains ~7.5 until edge is live and measured. Do not claim 10/10 or public prod edge deploy until edge + depth + uptime are proven.
+
+## AUTOMATION_HOST runtime (2026-07-09T01:20:38Z)
+
+- Classification: OPERATIONAL_WITH_RESIDUALS (Telegram proxy fixed; dual-poll resolved)
+- Hermes gateway: active · TELEGRAM_PROXY via xray :10808
+- OpenClaw: active · telegram.enabled=false (same bot as Hermes)
+- Timers: asdev-agent-loop 30m · control-plane health 1h
+- Hermes cron: asdev-control-plane-loop every 30m
+- Report: docs/ops/AUTOMATION_HOST_FULL_PASS_20260709.md
+

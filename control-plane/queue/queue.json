@@ -181,7 +181,7 @@
     {
       "id": "ASDEV-20260709-003",
       "title": "Verified reviews collection process",
-      "status": "approved",
+      "status": "done",
       "owner": "automation-host-agent",
       "priority": 3,
       "depends_on": [],
@@ -191,17 +191,18 @@
         "safe-auto"
       ],
       "created_at": "2026-07-09T00:15:13Z",
-      "updated_at": "2026-07-09T00:15:13Z",
+      "updated_at": "2026-07-09T01:20:11Z",
       "logs": [
-        "2026-07-09T00:15:13Z created"
+        "2026-07-09T00:15:13Z created",
+        "2026-07-09T01:20:11Z completed: docs delivered 2026-07-09 runtime pack"
       ],
-      "result": null
+      "result": "docs delivered 2026-07-09 runtime pack"
     },
     {
       "id": "ASDEV-20260709-004",
       "title": "Edge prep checklist only (no reload)",
-      "status": "approved",
-      "owner": "sre-observer",
+      "status": "done",
+      "owner": "automation-host-agent",
       "priority": 2,
       "depends_on": [],
       "approval_required": null,
@@ -211,16 +212,18 @@
         "edge-prep"
       ],
       "created_at": "2026-07-09T00:15:35Z",
-      "updated_at": "2026-07-09T00:15:35Z",
+      "updated_at": "2026-07-09T01:19:35Z",
       "logs": [
-        "2026-07-09T00:15:35Z created"
+        "2026-07-09T00:15:35Z created",
+        "2026-07-09T01:19:35Z claimed by automation-host-agent",
+        "2026-07-09T01:19:35Z completed: safe-auto acknowledged 2026-07-09T01:19:34Z"
       ],
-      "result": null
+      "result": "safe-auto acknowledged 2026-07-09T01:19:34Z"
     },
     {
       "id": "ASDEV-20260709-005",
       "title": "Verified reviews collection process",
-      "status": "approved",
+      "status": "done",
       "owner": "docs-memory-agent",
       "priority": 3,
       "depends_on": [],
@@ -230,11 +233,12 @@
         "safe-auto"
       ],
       "created_at": "2026-07-09T00:15:35Z",
-      "updated_at": "2026-07-09T00:15:35Z",
+      "updated_at": "2026-07-09T01:20:11Z",
       "logs": [
-        "2026-07-09T00:15:35Z created"
+        "2026-07-09T00:15:35Z created",
+        "2026-07-09T01:20:11Z completed: docs delivered 2026-07-09 runtime pack"
       ],
-      "result": null
+      "result": "docs delivered 2026-07-09 runtime pack"
     },
     {
       "id": "ASDEV-20260709-006",
@@ -254,6 +258,48 @@
         "2026-07-09T00:15:35Z created"
       ],
       "result": null
+    },
+    {
+      "id": "ASDEV-20260709-007",
+      "title": "Continue mission A control-plane maturity",
+      "status": "done",
+      "owner": "automation-host-agent",
+      "priority": 2,
+      "depends_on": [],
+      "approval_required": null,
+      "tags": [
+        "control-plane",
+        "safe-auto"
+      ],
+      "created_at": "2026-07-09T00:48:01Z",
+      "updated_at": "2026-07-09T01:20:11Z",
+      "logs": [
+        "2026-07-09T00:48:01Z created",
+        "2026-07-09T01:20:11Z completed: docs delivered 2026-07-09 runtime pack"
+      ],
+      "result": "docs delivered 2026-07-09 runtime pack"
+    },
+    {
+      "id": "ASDEV-20260709-008",
+      "title": "Daily control-plane health + heartbeat",
+      "status": "done",
+      "owner": "automation-host-agent",
+      "priority": 4,
+      "depends_on": [],
+      "approval_required": null,
+      "tags": [
+        "safe-auto",
+        "control-plane",
+        "hygiene"
+      ],
+      "created_at": "2026-07-09T01:20:11Z",
+      "updated_at": "2026-07-09T01:20:11Z",
+      "logs": [
+        "2026-07-09T01:20:11Z created",
+        "2026-07-09T01:20:11Z claimed by automation-host-agent",
+        "2026-07-09T01:20:11Z completed: safe-auto acknowledged 2026-07-09T01:20:11Z"
+      ],
+      "result": "safe-auto acknowledged 2026-07-09T01:20:11Z"
     }
   ]
 }

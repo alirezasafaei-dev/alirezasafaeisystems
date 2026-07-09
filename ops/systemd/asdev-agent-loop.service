@@ -1,18 +1,26 @@
 [Unit]
-Description=ASDEV Autonomous Agent Loop
+Description=ASDEV Autonomous Agent Loop (safe modes only)
 After=default.target network-online.target
 Wants=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/home/dev13/my-project/sites/live/alirezasafaeisystems
+WorkingDirectory=/home/dev13/ASDEV
 Environment=HOME=/home/dev13
-Environment=PATH=/home/dev13/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin
+Environment=ASDEV_ROOT=/home/dev13/ASDEV
+Environment=PATH=/home/dev13/.local/bin:/home/dev13/.npm-global/bin:/home/dev13/.opencode/bin:/usr/local/bin:/usr/bin:/bin
 Environment=ASDEV_COMMAND_ISSUE=45
 Environment=ASDEV_MAX_JOBS=2
-Environment=ASDEV_AGENT_LOG_DIR=/tmp/asdev-agent-loop/logs
-ExecStart=/usr/bin/env bash -lc '/home/dev13/my-project/scripts/agent-command-center/run-autonomous-loop.sh --issue 45 --max-jobs 2'
-TimeoutStartSec=1800
+Environment=ASDEV_AGENT_LOG_DIR=/home/dev13/ASDEV/ops/automation-logs
+Environment=ASDEV_AGENT_STATE_DIR=/home/dev13/ASDEV/.state/asdev-agent-loop
+Environment=ASDEV_ALLOWED_MODES=read-only,docs-only,automation-script
+Environment=HTTPS_PROXY=socks5h://127.0.0.1:10808
+Environment=HTTP_PROXY=socks5h://127.0.0.1:10808
+Environment=ALL_PROXY=socks5h://127.0.0.1:10808
+Environment=NO_PROXY=localhost,127.0.0.1,::1
+# Prefer control-plane loop-once (safe-auto tags only); fallback ACC dry-safe
+ExecStart=/usr/bin/env bash -lc '/home/dev13/ASDEV/scripts/control-plane/loop-once.sh; /home/dev13/ASDEV/scripts/control-plane/agent-heartbeat.sh || true'
+TimeoutStartSec=900
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=asdev-agent-loop

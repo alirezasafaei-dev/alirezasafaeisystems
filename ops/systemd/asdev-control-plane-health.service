@@ -1,0 +1,12 @@
+[Unit]
+Description=ASDEV control-plane health snapshot
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev13/ASDEV
+Environment=ASDEV_ROOT=/home/dev13/ASDEV
+Environment=HOME=/home/dev13
+Environment=PATH=/home/dev13/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env bash -lc 'if [[ -x /home/dev13/ASDEV/scripts/ops/automation-health-check.sh ]]; then bash /home/dev13/ASDEV/scripts/ops/automation-health-check.sh; fi; bash /home/dev13/ASDEV/scripts/control-plane/queue-list.sh || true'
+SyslogIdentifier=asdev-cp-health

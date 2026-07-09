@@ -1,0 +1,11 @@
+[Unit]
+Description=ASDEV control-plane health timer (hourly)
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1h
+Persistent=true
+Unit=asdev-control-plane-health.service
+
+[Install]
+WantedBy=timers.target
