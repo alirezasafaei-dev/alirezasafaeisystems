@@ -79,3 +79,19 @@ Quality note: Product-side quality packs advance trust/report depth on github ma
 | PR #89 | Closed — superseded by `d261bdd` |
 | Next risk | Add OAuth for production use |
 | Docs | `docs/ops/CHATGPT_MCP_CONNECTOR.md` |
+
+## NOVAX AUDIT (Cloudflare Worker Bot)
+
+| Item | Value |
+|------|-------|
+| Status | ✅ Deployed & merged to `main` |
+| Commit | `216534d` |
+| Branch | `audit/novax-bot-payments-analytics-deploy` → `main` |
+| Worker URL | `https://novax-telegram-relay.asdevelooper.workers.dev` |
+| /health | `{"status":"ok","service":"telegram-bot","alert_storage":"d1"}` |
+| Telegram bot | @novax_price_bot — webhook set with `secret_token`, 0 pending |
+| KV fix | Update dedup moved to in-memory (Set + 120s TTL) to avoid free-tier 1000 writes/day limit |
+| Key features | Group payment leakage fix, receipt/admin notification, analytics foundation, admin stats, mini-app tracking, D1 alert storage |
+| Audit report | `docs/audit/NOVAX_PRODUCTION_READINESS_AUDIT_2026-07-09.md` |
+| Deploy decision | `docs/ops/NOVAX_DEPLOYMENT_DECISION_2026-07-09.md` |
+| Repo | `https://github.com/alirezasafaei-dev/novax-price-alert.git` |
