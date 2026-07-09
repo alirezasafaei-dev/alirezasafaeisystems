@@ -34,7 +34,7 @@ done
 
 # ---- 1b. MCP HEALTH ----
 log "--- MCP Health ---"
-MCP_CODE=$(timeout 5 curl -s -D - -o /dev/null "${MCP_ENDPOINT}" 2>/dev/null | grep -oE 'HTTP/[0-9.]+ [0-9]{3}' | head -1 | grep -oE '[0-9]{3}' || echo "000")
+MCP_CODE=$(timeout 5 curl -sN -D - -o /dev/null "http://127.0.0.1:8000/sse" 2>/dev/null | grep -oE 'HTTP/[0-9.]+ [0-9]{3}' | head -1 | grep -oE '[0-9]{3}' || echo "000")
 if [ "${MCP_CODE}" = "200" ]; then
   log "  OK /sse: HTTP ${MCP_CODE}"
 else
