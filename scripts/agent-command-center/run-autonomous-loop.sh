@@ -253,6 +253,22 @@ else
   warn "No queue file found at ${ASDEV_QUEUE_FILE}"
 fi
 
+# Self-tasking: when queue is empty, select highest-value safe next task
+if [ "$JOBS_EXECUTED" -eq 0 ] && [ "$JOBS_FAILED" -eq 0 ]; then
+  section "Queue Empty — Self-Tasking"
+  SELF_TASK_SCRIPT="${SCRIPT_DIR}/self-task.sh"
+  if [ -f "$SELF_TASK_SCRIPT" ]; then
+    log "Running self-task selector..."
+    if bash "$SELF_TASK_SCRIPT"; then
+      ok "Self-task completed"
+    else
+      warn "Self-task failed or skipped"
+    fi
+  else
+    warn "Self-task script not found at ${SELF_TASK_SCRIPT}"
+  fi
+fi
+
 section "Loop Summary"
 log "Jobs executed: ${JOBS_EXECUTED}"
 log "Jobs failed: ${JOBS_FAILED}"
