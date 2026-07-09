@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-08T23:38:36Z",
+  "updated_at": "2026-07-09T00:15:13Z",
   "tasks": [
     {
       "id": "ASDEV-20260708-002",
@@ -138,6 +138,122 @@
         "2026-07-08T23:38:36Z completed OS v2 pack"
       ],
       "result": "memory+registry+deploy model+obs+security+roadmap+cp maturity"
+    },
+    {
+      "id": "ASDEV-20260709-001",
+      "title": "Edge prep checklist only (no reload)",
+      "status": "done",
+      "owner": "automation-host-agent",
+      "priority": 2,
+      "depends_on": [],
+      "approval_required": null,
+      "tags": [
+        "docs",
+        "safe-auto",
+        "edge-prep"
+      ],
+      "created_at": "2026-07-09T00:15:13Z",
+      "updated_at": "2026-07-09T00:15:35Z",
+      "logs": [
+        "2026-07-09T00:15:13Z created",
+        "2026-07-09T00:15:35Z completed: docs/ops/public-edge-prep-checklist.md landed"
+      ],
+      "result": "docs/ops/public-edge-prep-checklist.md landed"
+    },
+    {
+      "id": "ASDEV-20260709-002",
+      "title": "CWV measurement after public edge",
+      "status": "pending",
+      "owner": "automation-host-agent",
+      "priority": 3,
+      "depends_on": [],
+      "approval_required": "APPROVE_CRITICAL_SITE_PUBLIC_EDGE",
+      "tags": [
+        "gated"
+      ],
+      "created_at": "2026-07-09T00:15:13Z",
+      "updated_at": "2026-07-09T00:15:13Z",
+      "logs": [
+        "2026-07-09T00:15:13Z created"
+      ],
+      "result": null
+    },
+    {
+      "id": "ASDEV-20260709-003",
+      "title": "Verified reviews collection process",
+      "status": "approved",
+      "owner": "automation-host-agent",
+      "priority": 3,
+      "depends_on": [],
+      "approval_required": null,
+      "tags": [
+        "product",
+        "safe-auto"
+      ],
+      "created_at": "2026-07-09T00:15:13Z",
+      "updated_at": "2026-07-09T00:15:13Z",
+      "logs": [
+        "2026-07-09T00:15:13Z created"
+      ],
+      "result": null
+    },
+    {
+      "id": "ASDEV-20260709-004",
+      "title": "Edge prep checklist only (no reload)",
+      "status": "approved",
+      "owner": "sre-observer",
+      "priority": 2,
+      "depends_on": [],
+      "approval_required": null,
+      "tags": [
+        "docs",
+        "safe-auto",
+        "edge-prep"
+      ],
+      "created_at": "2026-07-09T00:15:35Z",
+      "updated_at": "2026-07-09T00:15:35Z",
+      "logs": [
+        "2026-07-09T00:15:35Z created"
+      ],
+      "result": null
+    },
+    {
+      "id": "ASDEV-20260709-005",
+      "title": "Verified reviews collection process",
+      "status": "approved",
+      "owner": "docs-memory-agent",
+      "priority": 3,
+      "depends_on": [],
+      "approval_required": null,
+      "tags": [
+        "product",
+        "safe-auto"
+      ],
+      "created_at": "2026-07-09T00:15:35Z",
+      "updated_at": "2026-07-09T00:15:35Z",
+      "logs": [
+        "2026-07-09T00:15:35Z created"
+      ],
+      "result": null
+    },
+    {
+      "id": "ASDEV-20260709-006",
+      "title": "CWV after public edge",
+      "status": "pending",
+      "owner": "sre-observer",
+      "priority": 3,
+      "depends_on": [],
+      "approval_required": "APPROVE_CRITICAL_SITE_PUBLIC_EDGE",
+      "tags": [
+        "gated",
+        "monitoring"
+      ],
+      "created_at": "2026-07-09T00:15:35Z",
+      "updated_at": "2026-07-09T00:15:35Z",
+      "logs": [
+        "2026-07-09T00:15:35Z created"
+      ],
+      "result": null
     }
   ]
 }

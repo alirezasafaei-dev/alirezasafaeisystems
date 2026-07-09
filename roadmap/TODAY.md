@@ -1,20 +1,15 @@
 # TODAY — Control Center
 
-**Date:** 2026-07-08  
-**Focus:** ASDEV Operating System Build (not site handwork)
+**Focus:** Product quality toward 8–10 · OS already on main
 
-## Done today (arc)
-
-- Control plane + productivity mode  
-- OS foundation PR #76  
-- OS Build Loop v2 (this)
+## Done
+- OS v2 on main
+- Product quality pack + SEO content factory (persiantoolbox `0c16bec`)
+- Edge prep checklist (no apply)
 
 ## Now
+- Safe product depth / a11y
+- Wait phrases for public edge / timers / prod redeploy
 
-- Land OS v2 (memory, registry, deploy model, observability, security, roadmap/)  
-- Continue safe OS maturity  
-
-## Not today
-
-- Public edge without phrase  
-- Live timers without phrase  
+## Not 10/10 yet
+Public edge OFF · IRAN app-layer only · no verified reviews at scale

@@ -4,6 +4,18 @@ Append-only. Newest first.
 
 ---
 
+## 2026-07-09 — No 10/10 claim without public edge
+
+- **Decision:** Continue product quality on GitHub; do **not** declare 10/10 or public deploy complete until edge+uptime+depth proven.
+- **Why:** External audit 502 + honest scoring; app-layer alone is not public quality.
+- **Product commits:** `bc1068c`, `0c16bec` on persiantoolbox main.
+
+## 2026-07-08 — No 10/10 or public-edge claim until proven
+
+- **Decision:** Do **not** claim 10/10 product/site quality or production **public** deploy (edge live) until **public edge + depth + uptime** are proven.  
+- **Why:** App-layer prod on `:3100` + product quality packs (`bc1068c` + SEO factory) improve the product, but public edge is still OFF; score trajectory is ~7.5 not 10.  
+- **Not doing yet:** Marketing 10/10 claims, edge cutover, or treating app-layer-only as full public launch.
+
 ## 2026-07-08 — OS Build Loop v2
 
 - **Decision:** Build ASDEV Engineering Operating Model before more site handwork.  
