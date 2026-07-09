@@ -1,6 +1,6 @@
 # ASDEV Current State
 
-**Updated: 2026-07-09T15:06:25ZZ  
+**Updated:** 2026-07-09T15:10:00Z  
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
@@ -39,13 +39,15 @@
 
 | Item | Value |
 |------|-------|
-| Class | OPERATIONAL (control-plane synced, agent-loop active) |
+| Class | OPERATIONAL — **zero-touch autonomous loop active** |
 | Control plane | `~/asdev-platform/control-plane/` — scripts synced from repo |
-| Agent loop | `asdev-agent-loop.timer` — enabled, 30m interval, running |
+| Agent loop | `asdev-agent-loop.timer` — enabled, **10min interval**, active |
+| Loop behavior | Self-feeding: health check → MCP check → auto-commit → auto-push → queue seed when only gated tasks remain |
 | Linger | enabled (user systemd persistent) |
 | Repo clone | `~/repos/alirezasafaeisystems` — main, up to date |
 | Cron | `asdev-meta-backup.sh` daily 03:15 UTC |
 | Node | bot.js running (Issue #45 command bus) |
+| Last loop commit | `b6c960c` (self-task.sh enhanced with MCP health, queue seeding, port checks) |
 
 ## Gated (not running)
 
@@ -77,14 +79,5 @@
 | Next risk | Add OAuth for production use |
 | Docs | `docs/ops/CHATGPT_MCP_CONNECTOR.md` |
 
-## AUTOMATION_HOST runtime (2026-07-09T03:25:00Z)
 
-- Classification: OPERATIONAL (control-plane scripts deployed, agent-loop tested)
-- Control plane scripts: synced from GitHub repo (12 control-plane + 22 agent-command-center)
-- Agent loop: `asdev-agent-loop.service` — ran successfully, 0 pending tasks
-- Timer: `asdev-agent-loop.timer` — enabled, active, 30m interval
-- Linger: enabled for persistent user systemd
-- Node process: bot.js (Issue #45 command bus)
-- Cron: asdev-meta-backup.sh daily 03:15 UTC
-- Note: Hermes/OpenClaw not confirmed running (may need separate activation)
 
