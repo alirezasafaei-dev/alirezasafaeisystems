@@ -2,20 +2,24 @@
 
 ## Decision
 
-Run a dedicated read-only MCP server for ChatGPT Developer Mode under the ASDEV mother repository.
+Run a dedicated read-only MCP server for ChatGPT Developer Mode under the ASDEV mother repository, deployed directly on the ASDEV automation server without Docker.
 
-Recommended public endpoint:
+Target:
 
 ```text
-https://mcp.alirezasafaeisystems.ir/sse/
+SSH user/host: asdev@91.107.153.223
+Domain: mcp.alirezasafaeisystems.ir
+Public endpoint: https://mcp.alirezasafaeisystems.ir/sse/
+Implementation path: tools/asdev-chatgpt-mcp/
 ```
 
 ## Why domain instead of raw IP
 
-Use a domain/subdomain for the final connector because:
+Use the configured subdomain for the final connector because:
 
-- HTTPS certificate management is standard and renewable.
-- The service can move to another server without changing the ChatGPT app configuration strategy.
+- The ChatGPT connector expects a public HTTPS MCP endpoint.
+- TLS certificate management is standard and renewable on a domain.
+- The service can move to another server without changing the public connector identity.
 - OAuth, reverse proxy rules, rate limiting, and logs are cleaner.
 - It separates the MCP service from the main production website and audit product.
 
@@ -31,38 +35,42 @@ Authentication: None for private testing; OAuth later for production/team use
 Server URL: https://mcp.alirezasafaeisystems.ir/sse/
 ```
 
-## Current implementation path
-
-```text
-tools/asdev-chatgpt-mcp/
-```
-
 ## First release constraints
 
 - Read-only only.
 - No GitHub writes.
-- No deploy actions.
+- No deploy actions exposed as MCP tools.
 - No secret exposure.
 - Repositories restricted by `ALLOWED_REPOS`.
 - GitHub token stored only on the server in `.env`.
+- No Docker for the first deployment.
 
-## Deployment checklist
+## Non-Docker deployment checklist
 
-1. Create DNS record:
+1. Confirm DNS:
 
 ```text
-mcp.alirezasafaeisystems.ir A SERVER_IP
+mcp.alirezasafaeisystems.ir A 91.107.153.223
 ```
 
-2. SSH into the server.
-3. Clone or pull the repo branch.
-4. Configure `.env`.
-5. Run Docker Compose.
-6. Configure Caddy or Nginx.
-7. Enable HTTPS.
-8. Test endpoint reachability.
-9. Add the endpoint in ChatGPT Developer Mode.
-10. Review discovered tools before enabling the app.
+2. SSH into the automation server:
+
+```bash
+ssh asdev@91.107.153.223
+```
+
+3. Clone or update the mother repo under `/home/asdev/apps/alirezasafaeisystems`.
+4. Checkout the MCP branch or merge it after review.
+5. Create a Python virtual environment in `tools/asdev-chatgpt-mcp/.venv`.
+6. Install dependencies from `requirements.txt`.
+7. Create `.env` from `.env.example` and configure `GITHUB_TOKEN`.
+8. Run `python server.py` for a manual smoke test.
+9. Install the systemd service from `deploy/systemd/asdev-chatgpt-mcp.service.example`.
+10. Configure Caddy or Nginx to reverse-proxy `mcp.alirezasafaeisystems.ir` to `127.0.0.1:8000`.
+11. Enable HTTPS.
+12. Test `https://mcp.alirezasafaeisystems.ir/sse/`.
+13. Add the endpoint in ChatGPT Developer Mode.
+14. Review discovered tools before enabling the app.
 
 ## Future hardening
 
@@ -72,4 +80,4 @@ mcp.alirezasafaeisystems.ir A SERVER_IP
 - Per-tool allow policy.
 - Read-only token scopes.
 - Separate deployment user.
-- Container resource limits.
+- Systemd sandboxing and resource limits.
