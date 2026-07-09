@@ -1,0 +1,10 @@
+services:
+  asdev-chatgpt-mcp:
+    build: .
+    image: asdev-chatgpt-mcp:latest
+    container_name: asdev-chatgpt-mcp
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8000:8000"
