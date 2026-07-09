@@ -35,14 +35,19 @@ done
 # ---- 1b. MCP HEALTH ----
 log "--- MCP Health ---"
 MCP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "${MCP_ENDPOINT}" 2>/dev/null || echo "000")
-if [ "$MCP_CODE" = "200" ]; then
+MCP_CODE=$(echo "${MCP_CODE}" | grep -oE '^[0-9]+' || echo "000")
+if [ "${MCP_CODE}" = "200" ]; then
   log "  OK /sse: HTTP ${MCP_CODE}"
 else
   log "  ! /sse: HTTP ${MCP_CODE}"
 fi
 for svc in asdev-chatgpt-mcp asdev-chatgpt-caddy; do
-  S=$(systemctl --user is-active "$svc" 2>/dev/null || echo "unknown")
-  log "  ${svc}: ${S}"
+  PID_COUNT=$(pgrep -f "${svc}" 2>/dev/null | wc -l || echo "0")
+  if [ "${PID_COUNT}" -gt 0 ]; then
+    log "  OK ${svc}: running (${PID_COUNT} pids)"
+  else
+    log "  ! ${svc}: not running"
+  fi
 done
 
 # ---- 2. COMMIT PENDING WORK ----
