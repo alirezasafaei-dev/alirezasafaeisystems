@@ -1,0 +1,20 @@
+[Unit]
+Description=ASDEV ChatGPT MCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=asdev
+Group=asdev
+WorkingDirectory=/home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp
+EnvironmentFile=/home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp/.env
+ExecStart=/home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp/.venv/bin/python /home/asdev/apps/alirezasafaeisystems/tools/asdev-chatgpt-mcp/server.py
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target
