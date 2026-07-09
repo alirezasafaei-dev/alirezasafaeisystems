@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ASDEV Real Autonomous Worker - does actual valuable work
+# Enhanced: MCP health, queue seeding, safe-task synthesis
 set -euo pipefail
 
 ASDEV_ROOT="${ASDEV_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
@@ -14,83 +15,129 @@ log() { echo "[$(date -u +%H:%M:%S)] $*"; }
 
 log "=== ASDEV Autonomous Worker ==="
 
-# 1. HEALTH CHECK - always run
+MCP_ENDPOINT="https://mcp.alirezasafaeisystems.ir/sse"
+COMMIT_HASH=$(cd "$ASDEV_ROOT" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+log "Commit: ${COMMIT_HASH}"
+
+# ---- 1. HEALTH CHECK ----
 log "--- Health Check ---"
 HEALTH_OK=true
 for site in "persiantoolbox.ir" "alirezasafaeisystems.ir" "audit.alirezasafaeisystems.ir"; do
   STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${site}/" 2>/dev/null || echo "000")
   if [ "$STATUS" != "200" ]; then
-    log "  ⚠️ ${site}: HTTP ${STATUS}"
+    log "  ! ${site}: HTTP ${STATUS}"
     HEALTH_OK=false
   else
-    log "  ✅ ${site}: HTTP ${STATUS}"
+    log "  OK ${site}: HTTP ${STATUS}"
   fi
 done
 
-# 2. COMMIT PENDING WORK - if any repo has uncommitted changes
+# ---- 1b. MCP HEALTH ----
+log "--- MCP Health ---"
+MCP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "${MCP_ENDPOINT}" 2>/dev/null || echo "000")
+if [ "$MCP_CODE" = "200" ]; then
+  log "  OK /sse: HTTP ${MCP_CODE}"
+else
+  log "  ! /sse: HTTP ${MCP_CODE}"
+fi
+for svc in asdev-chatgpt-mcp asdev-chatgpt-caddy; do
+  S=$(systemctl --user is-active "$svc" 2>/dev/null || echo "unknown")
+  log "  ${svc}: ${S}"
+done
+
+# ---- 2. COMMIT PENDING WORK ----
 log "--- Commit Pending Work ---"
-for repo_dir in "${ASDEV_ROOT}/sites/live/persiantoolbox" "${ASDEV_ROOT}"; do
+for repo_dir in "${ASDEV_ROOT}"; do
   if [ -d "$repo_dir/.git" ]; then
     CHANGES=$(cd "$repo_dir" && git status --short 2>/dev/null | wc -l)
     if [ "$CHANGES" -gt 0 ]; then
-      REPO_NAME=$(basename "$repo_dir")
-      log "  ${REPO_NAME}: ${CHANGES} uncommitted changes"
       cd "$repo_dir"
       git add -A 2>/dev/null || true
       git diff --cached --quiet 2>/dev/null || {
         git commit --no-verify -m "chore(auto): autonomous loop auto-commit [skip ci]" 2>/dev/null || true
-        log "  ✅ ${REPO_NAME}: committed"
+        log "  OK committed"
       }
     fi
   fi
 done
 
-# 3. SYNC TO SERVER - push if ahead
-log "--- Sync to Remote ---"
+# ---- 3. SYNC TO GITHUB ----
+log "--- Sync to GitHub ---"
 cd "$ASDEV_ROOT"
+BEHIND=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+if [ "$BEHIND" -gt 0 ]; then
+  log "  Remote ahead by ${BEHIND} - rebasing"
+  git pull --rebase 2>/dev/null || true
+fi
 AHEAD=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
 if [ "$AHEAD" -gt 0 ]; then
-  log "  Main repo ${AHEAD} commits ahead - pushing"
-  git push origin main 2>/dev/null && log "  ✅ Pushed" || log "  ⚠️ Push failed"
+  log "  ${AHEAD} commits ahead - pushing"
+  git push origin main 2>/dev/null && log "  OK Pushed" || log "  ! Push failed"
 fi
 
-# 4. ARCHIVE COMPLETED QUEUE ITEMS
-log "--- Archive Queue ---"
+# ---- 4. QUEUE INTEGRITY ----
+log "--- Queue Status ---"
 if [ -f "$QUEUE_FILE" ]; then
-  DONE_COUNT=$(grep -c "^\- \[x\]" "$QUEUE_FILE" 2>/dev/null || true)
-  DONE_COUNT=${DONE_COUNT:-0}
-  PENDING_COUNT=$(grep -c "^\- \[ \]" "$QUEUE_FILE" 2>/dev/null || true)
-  PENDING_COUNT=${PENDING_COUNT:-0}
-  log "  Queue: ${PENDING_COUNT} pending, ${DONE_COUNT} done"
-  
-  if [ "$DONE_COUNT" -gt 0 ]; then
+  PENDING=$(grep -c "^- \[ \]" "$QUEUE_FILE" 2>/dev/null || true)
+  DONE=$(grep -c "^- \[x\]" "$QUEUE_FILE" 2>/dev/null || true)
+  GATED=$(grep -c "APPROVE_" "$QUEUE_FILE" 2>/dev/null || true)
+  PENDING=${PENDING:-0}; DONE=${DONE:-0}; GATED=${GATED:-0}
+  log "  Pending: ${PENDING}, Gated: ${GATED}, Done: ${DONE}"
+
+  # ARCHIVE DONE ITEMS
+  if [ "$DONE" -gt 0 ]; then
     ARCHIVE_DIR="${ASDEV_ROOT}/docs/automation/queue-archive"
     mkdir -p "$ARCHIVE_DIR"
     ARCHIVE_FILE="${ARCHIVE_DIR}/archive-$(date -u +%Y%m%d).md"
     if [ ! -f "$ARCHIVE_FILE" ]; then
-      echo "# Queue Archive $(date -u +%Y-%m-%d)" > "$ARCHIVE_FILE"
-      echo "" >> "$ARCHIVE_FILE"
-      grep "^\- \[x\]" "$QUEUE_FILE" >> "$ARCHIVE_FILE" 2>/dev/null || true
-      log "  ✅ Archived ${DONE_COUNT} completed tasks"
+      echo "# Queue Archive $(date -u +%Y%m%d)" > "$ARCHIVE_FILE"
+      grep "^- \[x\]" "$QUEUE_FILE" >> "$ARCHIVE_FILE" 2>/dev/null || true
+      log "  Archived ${DONE} completed tasks"
+    fi
+  fi
+
+  # QUEUE_ONLY_GATED detection
+  if [ "$PENDING" -gt 0 ] && [ "$GATED" -ge "$PENDING" ] 2>/dev/null; then
+    log "QUEUE_ONLY_GATED_SYNTHESIZED_SAFE_TASK: all pending tasks are gated"
+    # SEED SAFE TASKS if none exist
+    if ! grep -q "ASDEV-AUTO-MCP-HEALTH" "$QUEUE_FILE" 2>/dev/null; then
+      cat >> "$QUEUE_FILE" << 'SEEDEOF'
+
+## Next safe cycles
+- [ ] MCP health monitor report | ID: ASDEV-AUTO-MCP-HEALTH | Mode: read-only | Priority: 3
+- [ ] Control-plane queue integrity check | ID: ASDEV-AUTO-QUEUE-INTEGRITY | Mode: automation-script | Priority: 3
+- [ ] Agent memory freshness check | ID: ASDEV-AUTO-MEMORY-FRESH | Mode: docs-only | Priority: 3
+- [ ] MCP recurring health verify | ID: ASDEV-AUTO-MCP-SSE | Mode: read-only | Priority: 4
+SEEDEOF
+      log "  Seeded 4 safe tasks into queue"
     fi
   fi
 fi
 
-# 5. UPDATE MEMORY
+# ---- 5. UPDATE MEMORY ----
 log "--- Update Memory ---"
 MEMORY_FILE="${ASDEV_ROOT}/docs/memory/ASDEV_CURRENT_STATE.md"
 if [ -f "$MEMORY_FILE" ]; then
-  sed -i "s/\\*\\*Updated:.*\\*\\*/\\*\\*Updated: ${TIMESTAMP}\\*\\*/" "$MEMORY_FILE" 2>/dev/null || true
-  log "  ✅ Memory timestamp updated"
+  sed -i "s/^\*\*Updated:.*/\*\*Updated: ${TIMESTAMP}Z  /" "$MEMORY_FILE" 2>/dev/null || true
+  sed -i "s/ \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}Z\)  /\1Z  /g" "$MEMORY_FILE" 2>/dev/null || true
+  log "  OK Memory timestamp updated"
 fi
 
-# 6. SAVE STATE
-cat > "$STATE_FILE" <<EOF
+# ---- 6. SAVE STATE ----
+cat > "$STATE_FILE" << 'SAVEEOF'
 {
-  "last_run_at": "${TIMESTAMP}",
-  "health_ok": ${HEALTH_OK},
+  "last_run_at": "TIMEPLACEHOLDER",
+  "last_commit": "COMMITPLACEHOLDER",
+  "mcp_code": "MCPPLACEHOLDER",
+  "health_ok": false,
   "status": "completed"
 }
-EOF
+SAVEEOF
+
+# Replace placeholders with actual values
+sed -i "s/TIMEPLACEHOLDER/${TIMESTAMP}/" "$STATE_FILE" 2>/dev/null || true
+sed -i "s/COMMITPLACEHOLDER/${COMMIT_HASH}/" "$STATE_FILE" 2>/dev/null || true
+sed -i "s/MCPPLACEHOLDER/${MCP_CODE}/" "$STATE_FILE" 2>/dev/null || true
+sed -i "s/false/${HEALTH_OK}/" "$STATE_FILE" 2>/dev/null || true
 
 log "=== Worker cycle complete ==="
