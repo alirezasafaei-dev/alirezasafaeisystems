@@ -1,0 +1,11 @@
+[Unit]
+Description=ASDEV disk probe every 15 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=15min
+Persistent=true
+Unit=asdev-monitor-disk.service
+
+[Install]
+WantedBy=timers.target

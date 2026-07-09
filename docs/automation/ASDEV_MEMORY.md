@@ -3,7 +3,7 @@
 **Canonical long-lived memory for all agents.**  
 **Update after every major phase.**  
 **SoT:** GitHub `main`  
-**Updated:** 2026-07-09T00:50:00Z
+**Updated:** 2026-07-09T03:25:00Z
 
 ---
 
@@ -28,9 +28,11 @@
 | Platform main | + loop policy PR (this install) |
 | Public CRITICAL_SITE | LIVE green:3003 · release `37ba347` (ubuntu VPS) |
 | ASDEV IRAN app-layer | `:3100` separate from public DNS |
-| Control plane | scripts + queue + health live |
+| Control plane | scripts + queue + health live — **synced to AUTOMATION_HOST** |
 | Loop governance | **INSTALLED** 2026-07-09 |
 | Productivity mode | **ENABLED** |
+| Agent loop timer | **ACTIVE** — 30m interval, tested OK |
+| AUTOMATION_HOST | **OPERATIONAL** — control-plane deployed, linger enabled |
 
 ---
 

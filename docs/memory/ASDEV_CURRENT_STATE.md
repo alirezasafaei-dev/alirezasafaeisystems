@@ -39,10 +39,13 @@
 
 | Item | Value |
 |------|-------|
-| Class | DEGRADED_NON_BLOCKING |
-| Gateways | Hermes + OpenClaw running (outside PM2) |
-| PM2 | idle |
-| Docker | 1 healthy + exited legacy inventory |
+| Class | OPERATIONAL (control-plane synced, agent-loop active) |
+| Control plane | `~/asdev-platform/control-plane/` — scripts synced from repo |
+| Agent loop | `asdev-agent-loop.timer` — enabled, 30m interval, running |
+| Linger | enabled (user systemd persistent) |
+| Repo clone | `~/repos/alirezasafaeisystems` — main, up to date |
+| Cron | `asdev-meta-backup.sh` daily 03:15 UTC |
+| Node | bot.js running (Issue #45 command bus) |
 
 ## Gated (not running)
 
@@ -57,12 +60,14 @@
 
 **Quality note:** Product-side quality packs advance trust/report depth on github main; public score remains ~7.5 until edge is live and measured. Do not claim 10/10 or public prod edge deploy until edge + depth + uptime are proven.
 
-## AUTOMATION_HOST runtime (2026-07-09T01:20:38Z)
+## AUTOMATION_HOST runtime (2026-07-09T03:25:00Z)
 
-- Classification: OPERATIONAL_WITH_RESIDUALS (Telegram proxy fixed; dual-poll resolved)
-- Hermes gateway: active · TELEGRAM_PROXY via xray :10808
-- OpenClaw: active · telegram.enabled=false (same bot as Hermes)
-- Timers: asdev-agent-loop 30m · control-plane health 1h
-- Hermes cron: asdev-control-plane-loop every 30m
-- Report: docs/ops/AUTOMATION_HOST_FULL_PASS_20260709.md
+- Classification: OPERATIONAL (control-plane scripts deployed, agent-loop tested)
+- Control plane scripts: synced from GitHub repo (12 control-plane + 22 agent-command-center)
+- Agent loop: `asdev-agent-loop.service` — ran successfully, 0 pending tasks
+- Timer: `asdev-agent-loop.timer` — enabled, active, 30m interval
+- Linger: enabled for persistent user systemd
+- Node process: bot.js (Issue #45 command bus)
+- Cron: asdev-meta-backup.sh daily 03:15 UTC
+- Note: Hermes/OpenClaw not confirmed running (may need separate activation)
 

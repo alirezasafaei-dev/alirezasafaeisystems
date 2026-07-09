@@ -1,0 +1,10 @@
+[Unit]
+Description=ASDEV public VPS app-layer probe via SSH
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev13/ASDEV
+Environment=ASDEV_ROOT=/home/dev13/ASDEV
+Environment=HOME=/home/dev13
+ExecStart=/usr/bin/env bash -lc 'mkdir -p /home/dev13/ASDEV/control-plane/logs/monitoring; /home/dev13/ASDEV/scripts/monitoring/check-public-vps-app-layer.sh >>/home/dev13/ASDEV/control-plane/logs/monitoring/public-vps-app-$(date -u +%Y%m%d).log 2>&1'
+SyslogIdentifier=asdev-mon-vps-app

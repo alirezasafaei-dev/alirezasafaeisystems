@@ -1,0 +1,11 @@
+[Unit]
+Description=ASDEV public HTTP probe every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=asdev-monitor-public-http.service
+
+[Install]
+WantedBy=timers.target

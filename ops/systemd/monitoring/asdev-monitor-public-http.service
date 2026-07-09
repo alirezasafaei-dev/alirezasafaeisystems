@@ -1,0 +1,16 @@
+[Unit]
+Description=ASDEV monitor CRITICAL_SITE public HTTP
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev13/ASDEV
+Environment=ASDEV_ROOT=/home/dev13/ASDEV
+Environment=HOME=/home/dev13
+Environment=CRITICAL_SITE_URL=https://persiantoolbox.ir
+Environment=HTTP_TIMEOUT_SECS=15
+# Bypass local proxy for public site checks (site is public, proxy can break TLS path)
+Environment=NO_PROXY=localhost,127.0.0.1,persiantoolbox.ir,www.persiantoolbox.ir,.persiantoolbox.ir
+Environment=no_proxy=localhost,127.0.0.1,persiantoolbox.ir,www.persiantoolbox.ir,.persiantoolbox.ir
+ExecStart=/usr/bin/env bash -lc 'mkdir -p /home/dev13/ASDEV/control-plane/logs/monitoring; /home/dev13/ASDEV/scripts/monitoring/check-critical-site-http.sh >>/home/dev13/ASDEV/control-plane/logs/monitoring/public-http-$(date -u +%Y%m%d).log 2>&1'
+SyslogIdentifier=asdev-mon-public

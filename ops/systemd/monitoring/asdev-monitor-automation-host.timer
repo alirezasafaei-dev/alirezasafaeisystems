@@ -1,0 +1,11 @@
+[Unit]
+Description=ASDEV automation host readiness every 15 minutes
+
+[Timer]
+OnBootSec=4min
+OnUnitActiveSec=15min
+Persistent=true
+Unit=asdev-monitor-automation-host.service
+
+[Install]
+WantedBy=timers.target

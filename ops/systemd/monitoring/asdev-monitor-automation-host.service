@@ -1,0 +1,9 @@
+[Unit]
+Description=ASDEV automation host readiness probe
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev13/ASDEV
+Environment=ASDEV_ROOT=/home/dev13/ASDEV
+ExecStart=/usr/bin/env bash -lc 'mkdir -p /home/dev13/ASDEV/control-plane/logs/monitoring; /home/dev13/ASDEV/scripts/monitoring/check-automation-host-readiness.sh >>/home/dev13/ASDEV/control-plane/logs/monitoring/automation-host-$(date -u +%Y%m%d).log 2>&1'
+SyslogIdentifier=asdev-mon-host

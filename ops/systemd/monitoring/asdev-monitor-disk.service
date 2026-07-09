@@ -1,0 +1,9 @@
+[Unit]
+Description=ASDEV disk usage probe
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev13/ASDEV
+Environment=ASDEV_ROOT=/home/dev13/ASDEV
+ExecStart=/usr/bin/env bash -lc 'mkdir -p /home/dev13/ASDEV/control-plane/logs/monitoring; /home/dev13/ASDEV/scripts/monitoring/check-disk-local.sh >>/home/dev13/ASDEV/control-plane/logs/monitoring/disk-$(date -u +%Y%m%d).log 2>&1'
+SyslogIdentifier=asdev-mon-disk

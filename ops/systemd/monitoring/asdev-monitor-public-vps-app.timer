@@ -1,0 +1,11 @@
+[Unit]
+Description=ASDEV public VPS app-layer probe every 2 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2min
+Persistent=true
+Unit=asdev-monitor-public-vps-app.service
+
+[Install]
+WantedBy=timers.target
