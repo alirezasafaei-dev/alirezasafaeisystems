@@ -2,7 +2,10 @@
 
 Runtime + contract for AUTOMATION_HOST orchestration.
 
-See: `docs/architecture/automation-control-plane.md`
+**Governance (mandatory):**  
+[`docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md`](../docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md)
+
+Architecture: `docs/architecture/automation-control-plane.md`
 
 ```
 agents/      agent profiles
