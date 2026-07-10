@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Single control-plane loop iteration (bounded — not infinite).
 # Policy: docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md
-# 1 read state 2 claim task 3 execute only if SAFE tag 4 report 5 memory hint
+# 1 supervisor gate 2 read state 3 claim task 4 execute only if SAFE tag 5 report
 # Does NOT run production mutations.
-set -euo pipefail
+set -Euo pipefail
 ROOT="${ASDEV_ROOT:-/home/dev13/ASDEV}"
 CP="$ROOT/control-plane"
 LOG="$CP/logs/loop-$(date -u +%Y%m%d).log"
@@ -13,7 +13,23 @@ TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 log() { echo "[$TS] $*" | tee -a "$LOG"; }
 
 log "loop-once start"
-# health
+
+# Pre-loop gate: run supervisor health check
+SUPERVISOR_SCRIPT="$ROOT/scripts/control-plane/asdev-supervisor.sh"
+if [[ -x "$SUPERVISOR_SCRIPT" ]]; then
+  log "Running supervisor pre-loop gate..."
+  if bash "$SUPERVISOR_SCRIPT" >>"$LOG" 2>&1; then
+    log "Supervisor: GO"
+  else
+    log "Supervisor: NO_GO — loop skipped"
+    echo "LOOP_BLOCKED SUPERVISOR_NO_GO"
+    exit 1
+  fi
+else
+  log "Supervisor script not found at $SUPERVISOR_SCRIPT — proceeding without gate"
+fi
+
+# Legacy health check (non-blocking)
 if [[ -x "$ROOT/scripts/ops/automation-health-check.sh" ]]; then
   bash "$ROOT/scripts/ops/automation-health-check.sh" >>"$LOG" 2>&1 || true
 fi
