@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 type ScorecardModule = {
   readManual: (path?: string) => Promise<{ status: string; data: Record<string, unknown> }>
-  buildScorecard: (input: { manual: Record<string, unknown>; databaseUrl?: string }) => Promise<Record<string, unknown>>
+  buildScorecard: (input: { manual: Record<string, unknown>; databaseUrl?: string; now?: Date }) => Promise<Record<string, unknown>>
 }
 
 let scorecard: ScorecardModule
@@ -66,12 +66,30 @@ describe('revenue scorecard', () => {
     await expect(scorecard.readManual(invalidFile)).rejects.toMatchObject({ reason: 'SCHEMA_INVALID' })
   })
 
-  it('uses not_available instead of fake values when DATABASE_URL is absent', async () => {
-    const report = await scorecard.buildScorecard({ manual: {}, databaseUrl: undefined })
+  it('rejects an invalid week_start', async () => {
+    const invalidFile = join(tempDir, 'invalid-week.json')
+    writeFileSync(invalidFile, JSON.stringify({ week_start: '2026-02-30' }), 'utf8')
+
+    await expect(scorecard.readManual(invalidFile)).rejects.toMatchObject({ reason: 'SCHEMA_INVALID' })
+  })
+
+  it('uses the current UTC week and not_available values when DATABASE_URL is absent', async () => {
+    const report = await scorecard.buildScorecard({
+      manual: {},
+      databaseUrl: undefined,
+      now: new Date('2026-07-10T12:00:00Z'),
+    })
 
     expect(report.database).toBe('not_configured')
+    expect(report.reporting_period).toMatchObject({
+      start: '2026-07-06T00:00:00.000Z',
+      end_exclusive: '2026-07-13T00:00:00.000Z',
+      timezone: 'UTC',
+      source: 'current_utc_week',
+    })
     expect(metric(report.qualified_prospects).actual).toBe('not_available')
     expect(metric(report.delivery_time).actual).toBe('not_available')
+    expect(productAnalytics(report).status).toBe('not_available')
   })
 
   it('calculates zero-call conversion truthfully', async () => {
@@ -129,28 +147,64 @@ describe('revenue scorecard', () => {
     expect(metric(report.delivery_time).target).toBe(72)
   })
 
-  it('reads qualified prospects and source attribution from a valid DATABASE_URL', async () => {
+  it('filters database metrics and product analytics to the selected week', async () => {
     const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
+    const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } })
+    const emails = ['qualified@example.com', 'new@example.com', 'old-qualified@example.com']
+    const sessions = ['scorecard-current-converted', 'scorecard-current-open', 'scorecard-old']
+
     await prisma.lead.createMany({
       data: [
-        leadFixture({ email: 'qualified@example.com', status: 'qualified', source: 'audit_hero' }),
-        leadFixture({ email: 'new@example.com', status: 'new', source: 'case_study' }),
+        leadFixture({ email: emails[0], status: 'qualified', source: 'audit_hero', createdAt: new Date('2026-07-07T10:00:00Z') }),
+        leadFixture({ email: emails[1], status: 'new', source: 'case_study', createdAt: new Date('2026-07-08T10:00:00Z') }),
+        leadFixture({ email: emails[2], status: 'qualified', source: 'legacy', createdAt: new Date('2026-06-30T10:00:00Z') }),
+      ],
+    })
+    await prisma.analyticsEvent.createMany({
+      data: [
+        { site: 'portfolio', event: 'audit_cta_click', createdAt: new Date('2026-07-07T11:00:00Z') },
+        { site: 'portfolio', event: 'audit_cta_click', createdAt: new Date('2026-07-08T11:00:00Z') },
+        { site: 'portfolio', event: 'old_event', createdAt: new Date('2026-06-30T11:00:00Z') },
+      ],
+    })
+    await prisma.funnelConversion.createMany({
+      data: [
+        { sessionId: sessions[0], entryPoint: 'portfolio', converted: true, createdAt: new Date('2026-07-07T12:00:00Z') },
+        { sessionId: sessions[1], entryPoint: 'portfolio', converted: false, createdAt: new Date('2026-07-08T12:00:00Z') },
+        { sessionId: sessions[2], entryPoint: 'portfolio', converted: true, createdAt: new Date('2026-06-30T12:00:00Z') },
       ],
     })
 
-    const report = await scorecard.buildScorecard({ manual: {}, databaseUrl })
-    await prisma.lead.deleteMany({ where: { email: { in: ['qualified@example.com', 'new@example.com'] } } })
+    const report = await scorecard.buildScorecard({
+      manual: { week_start: '2026-07-06' },
+      databaseUrl,
+      now: new Date('2026-07-10T12:00:00Z'),
+    })
+
+    await prisma.lead.deleteMany({ where: { email: { in: emails } } })
+    await prisma.analyticsEvent.deleteMany({ where: { event: { in: ['audit_cta_click', 'old_event'] } } })
+    await prisma.funnelConversion.deleteMany({ where: { sessionId: { in: sessions } } })
     await prisma.$disconnect()
 
     expect(report.database).toBe('connected')
+    expect(report.reporting_period).toMatchObject({
+      start: '2026-07-06T00:00:00.000Z',
+      end_exclusive: '2026-07-13T00:00:00.000Z',
+      source: 'manual.week_start',
+    })
     expect(metric(report.qualified_prospects).actual).toBe(1)
-    expect(report.system_status_counts).toMatchObject({ qualified: 1, new: 1 })
-    expect(report.lead_source).toMatchObject({ audit_hero: 1, case_study: 1 })
+    expect(report.system_status_counts).toEqual({ qualified: 1, new: 1 })
+    expect(report.lead_source).toEqual({ audit_hero: 1, case_study: 1 })
+    expect(productAnalytics(report)).toMatchObject({
+      status: 'connected',
+      events_by_name: { audit_cta_click: 2 },
+      funnel_sessions: 2,
+      converted_sessions: 1,
+    })
   })
 })
 
-function leadFixture(overrides: { email: string; status: 'new' | 'qualified'; source: string }) {
+function leadFixture(overrides: { email: string; status: 'new' | 'qualified'; source: string; createdAt: Date }) {
   return {
     status: overrides.status,
     source: overrides.source,
@@ -164,9 +218,19 @@ function leadFixture(overrides: { email: string; status: 'new' | 'qualified'; so
     timeline: 'this_month',
     budgetRange: 'pilot',
     preferredContact: 'email',
+    createdAt: overrides.createdAt,
   }
 }
 
 function metric(value: unknown) {
   return value as { actual: number | string; target: number; blocker: string }
+}
+
+function productAnalytics(report: Record<string, unknown>) {
+  return report.product_analytics as {
+    status: string
+    events_by_name: Record<string, number>
+    funnel_sessions: number | string
+    converted_sessions: number | string
+  }
 }
