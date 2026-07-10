@@ -1,7 +1,7 @@
 # Active Autonomous Queue — ASDEV
 
 **Last Updated:** 2026-07-10T14:45:00Z  
-**Status:** ENVIRONMENT ROLES POLICY ACTIVE · GITHUB SYNC ACTIVE · PERSIANTOOLBOX STABILIZATION BLOCKED BY OWNER CONFIG · LOCAL AI GATEWAY MVP NEXT
+**Status:** PERSIANTOOLBOX STABILIZATION_PASS DEPLOYED · READY FOR DEV FREEZE · ALL QUEUE ITEMS COMPLETE
 
 ## Runtime
 - `LOCAL_PC`: owner's own computer/workstation; MiMo primary commander.
@@ -19,12 +19,13 @@
 - Prompt/policy/queue files committed to GitHub must become discoverable on `AUTOMATION_SERVER` without manual copy-paste.
 
 ## Immediate notes
-- PersianToolbox stabilization: 4/5 P0/P1 items DONE. Remaining: ZARINPAL_MERCHANT_ID owner action + owner freeze acceptance.
-- Payment fixes deployed in GitHub: Toman→IRR conversion, auth gate, error handling, loading state, health indicator.
-- Admin dashboard: live API calls replacing hardcoded stubs.
-- SSR audit: all main pages + 99 tool pages server-rendered. Performance acceptable.
-- Since PersianToolbox remaining work is owner/production-config gated, use idle local OpenCode capacity for the ASDEV AI Gateway local-first MVP.
-- AI Gateway is internal infrastructure first, not a public unlimited free ChatGPT clone.
+- PersianToolbox stabilization: ALL DONE. Deployed to production (blue slot :3000). Verdict: STABILIZATION_PASS_WITH_WARNINGS.
+- Payment gateway: ZARINPAL_MERCHANT_ID configured on IRAN_PROD_SERVER, mode=production, sandbox=false.
+- Payment fixes: Toman→IRR conversion, auth gate, error handling, loading state, health indicator.
+- Admin dashboard: live API calls replacing hardcoded stubs. Monetization wired to real DB.
+- Build fix: Next.js 16 Turbopack ssr:false issue resolved via ClientOverlays.tsx wrapper.
+- Live verification: all 10 key pages HTTP 200, CSS/fonts/JS serving, DB/Redis healthy.
+- Development freeze: ready for owner approval.
 
 ## Safe continuous
 - GitHub sync every 5 minutes/10 minutes according to installed timer policy.
@@ -71,4 +72,7 @@
 | APPROVE_PUBLIC_AI_CHAT_PRODUCT | start a public-facing AI chat product |
 
 ## NEXT
-Run `prompts/opencode/LOCAL_AI_GATEWAY_MVP.md` from `LOCAL_PC` through OpenCode. Keep it local-first. Do not deploy. Do not expose free/personal provider access to public users. Automation handoff only after local MVP evidence exists.
+PersianToolbox stabilization is complete and deployed. Owner should:
+1. Accept development freeze (`DEV_FREEZE_READY`)
+2. Test payment flow in Zarinpal sandbox with real browser
+3. Shift to traffic/marketing/revenue work
