@@ -2,16 +2,16 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T16:07:58Z |
-| Finished | 2026-07-10T16:07:59Z |
-| Environment | AUTOMATION_SERVER |
+| Started | 2026-07-10T16:25:14Z |
+| Finished | 2026-07-10T16:25:15Z |
+| Environment | UNKNOWN |
 | Hostname | asdevserve |
 | User | asdev |
 | Repo | /home/asdev/repos/alirezasafaeisystems |
 | Branch | main |
-| Local HEAD | a778192 |
-| Origin HEAD | a778192 |
-| Dirty count | 3 |
+| Local HEAD | 215425f |
+| Origin HEAD | 215425f |
+| Dirty count | 1 |
 | Ahead | 0 |
 | Behind | 0 |
 | Diverged | no |
@@ -30,6 +30,7 @@
 - Queue JSON valid
 
 ## Warnings
+- ASDEV_ENVIRONMENT not set
 - Safe paths staged but nothing changed
 
 ## Blockers
