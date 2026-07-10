@@ -2,13 +2,13 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T17:35:03Z |
-| Finished | 2026-07-10T17:35:04Z |
+| Started | 2026-07-10T17:40:59Z |
+| Finished | 2026-07-10T17:41:00Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | GO |
-| Passed | 13 |
-| Warnings | 1 |
+| Passed | 12 |
+| Warnings | 2 |
 | Failed | 0 |
 | Auto-healed | 0 |
 
@@ -17,7 +17,7 @@
 - PASS [GIT-006] Remote origin reachable
 - PASS [GIT-008] No divergence (ahead=0 behind=0)
 - PASS [GIT-009] Already up to date
-- PASS [SVC-asdev-github-sync] Timer active
+- WARN [SVC-asdev-github-sync] Timer not found
 - PASS [SVC-asdev-agent-loop] Timer active
 - PASS [SVC-asdev-health-monitor] Timer active
 - PASS [SVC-asdev-mcp-monitor] Timer active
