@@ -2,22 +2,22 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T16:31:02Z |
-| Finished | 2026-07-10T16:31:04Z |
-| Environment | UNKNOWN |
+| Started | 2026-07-10T16:31:05Z |
+| Finished | 2026-07-10T16:31:07Z |
+| Environment | AUTOMATION_SERVER |
 | Hostname | asdevserve |
 | User | asdev |
 | Repo | /home/asdev/repos/alirezasafaeisystems |
 | Branch | main |
-| Local HEAD | 1100d75 |
-| Origin HEAD | 1100d75 |
-| Dirty count | 0 |
+| Local HEAD | 55e212a |
+| Origin HEAD | 55e212a |
+| Dirty count | 1 |
 | Ahead | 0 |
 | Behind | 0 |
 | Diverged | no |
 | Prompt files | 6 |
 | Queue JSON valid | yes |
-| Status | warning |
+| Status | ok |
 
 ## Actions
 - Auto-committed safe state on main
@@ -32,7 +32,7 @@
 - Queue JSON valid
 
 ## Warnings
-- ASDEV_ENVIRONMENT not set
+- none
 
 ## Blockers
 - none
