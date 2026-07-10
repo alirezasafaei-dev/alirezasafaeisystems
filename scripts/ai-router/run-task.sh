@@ -66,13 +66,22 @@ parse_args() {
 parse_args "$@"
 
 if [ -z "$TASK_CLASS" ] || [ -z "$TASK_FILE" ]; then
+  echo "Error: Missing arguments. Expected: <task-class> <task-file>" >&2
   usage
   exit 2
 fi
 
+# Resolve relative path to task file
 if [ ! -f "$TASK_FILE" ]; then
-  echo "Error: Task file not found: $TASK_FILE" >&2
-  exit 2
+  resolved="$ROOT_DIR/$TASK_FILE"
+  if [ -f "$resolved" ]; then
+    TASK_FILE="$resolved"
+  else
+    echo "Error: Task file not found: $TASK_FILE" >&2
+    echo "  (resolved: $resolved)" >&2
+    echo "  Usage: $(basename "$0") [--dry-run|--execute] <task-class> <task-file>" >&2
+    exit 2
+  fi
 fi
 
 # ---------------------------------------------------------------------------

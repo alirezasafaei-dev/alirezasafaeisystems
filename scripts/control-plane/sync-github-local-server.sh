@@ -148,7 +148,18 @@ auto_commit_safe() {
     add_warning "Dirty files exist but none classified as safe"
     return 1
   fi
-  git add docs/reports/ reports/ docs/memory/ docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md control-plane/queue/queue.json ops/automation-logs/*.summary.md 2>/dev/null || true
+  local add_targets=()
+  for p in docs/reports/ reports/ docs/memory/ docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md control-plane/queue/queue.json; do
+    [ -e "$p" ] && add_targets+=("$p")
+  done
+  for f in ops/automation-logs/*.summary.md; do
+    [ -f "$f" ] && add_targets+=("$f")
+  done
+  if [ "${#add_targets[@]}" -eq 0 ]; then
+    add_warning "No safe paths to add"
+    return 0
+  fi
+  git add "${add_targets[@]}" 2>/dev/null || true
   if git diff --cached --quiet; then
     add_warning "Safe paths staged but nothing changed"
     return 0
