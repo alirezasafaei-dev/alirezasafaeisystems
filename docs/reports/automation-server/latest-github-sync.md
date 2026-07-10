@@ -2,22 +2,22 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T12:22:58Z |
-| Finished | 2026-07-10T12:22:59Z |
+| Started | 2026-07-10T12:34:58Z |
+| Finished | 2026-07-10T12:34:59Z |
 | Environment | AUTOMATION_SERVER |
 | Hostname | asdevserve |
 | User | asdev |
 | Repo | /home/asdev/repos/alirezasafaeisystems |
 | Branch | main |
-| Local HEAD | b7b478d |
-| Origin HEAD | b7b478d |
-| Dirty count | 3 |
+| Local HEAD | b119615 |
+| Origin HEAD | b119615 |
+| Dirty count | 2 |
 | Ahead | 0 |
 | Behind | 0 |
 | Diverged | no |
 | Prompt files | 4 |
 | Queue JSON valid | yes |
-| Status | blocked |
+| Status | warning |
 
 ## Actions
 - Fetched origin/main
@@ -30,7 +30,7 @@
 - Queue JSON is valid
 
 ## Warnings
-- none
+- Dirty files existed but nothing safe was staged
 
 ## Blockers
-- Dirty repo contains unsafe or unknown changes; not pulling with rebase and not resetting
+- none
