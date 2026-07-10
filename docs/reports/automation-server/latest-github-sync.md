@@ -2,26 +2,25 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T14:15:58Z |
-| Finished | 2026-07-10T14:15:59Z |
+| Started | 2026-07-10T14:26:58Z |
+| Finished | 2026-07-10T14:26:59Z |
 | Environment | AUTOMATION_SERVER |
 | Hostname | asdevserve |
 | User | asdev |
 | Repo | /home/asdev/repos/alirezasafaeisystems |
 | Branch | main |
-| Local HEAD | 2fbf541 |
-| Origin HEAD | 2fbf541 |
+| Local HEAD | 6de254f |
+| Origin HEAD | f69589b |
 | Dirty count | 2 |
 | Ahead | 0 |
-| Behind | 0 |
+| Behind | 1 |
 | Diverged | no |
 | Prompt files | 5 |
 | Queue JSON valid | yes |
-| Status | warning |
+| Status | blocked |
 
 ## Actions
 - Fetched origin/main
-- Repo not behind origin/main
 - Found docs/governance/ENVIRONMENT_ROLES_AND_SYNC_POLICY.md
 - Found docs/ops/GITHUB_LOCAL_SERVER_SYNC.md
 - Found docs/governance/POST_DEPLOY_LIVE_VERIFICATION_POLICY.md
@@ -33,4 +32,4 @@
 - Dirty files existed but nothing safe was staged
 
 ## Blockers
-- none
+- Remote ahead by 1 but repo is dirty; pull skipped
