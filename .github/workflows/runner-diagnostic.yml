@@ -1,0 +1,27 @@
+name: runner-diagnostic
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/runner-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runner:
+    name: Minimal ubuntu-latest scheduling check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Confirm runner started
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "runner_started=true"
+          echo "repository=${GITHUB_REPOSITORY}"
+          echo "event=${GITHUB_EVENT_NAME}"
+          echo "sha=${GITHUB_SHA}"
+          uname -a
+          date -u +"timestamp=%Y-%m-%dT%H:%M:%SZ"
