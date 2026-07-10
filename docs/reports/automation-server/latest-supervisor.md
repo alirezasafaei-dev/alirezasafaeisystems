@@ -2,8 +2,8 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T18:20:53Z |
-| Finished | 2026-07-10T18:20:58Z |
+| Started | 2026-07-10T18:24:19Z |
+| Finished | 2026-07-10T18:24:23Z |
 | Environment | UNKNOWN |
 | Hostname | asdevserve |
 | Verdict | GO |
@@ -26,12 +26,12 @@
 - PASS [SVC-asdev-supervisor.timer] Timer active
 - PASS [SVC-asdev-bot.service] Service running
 - PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
-- PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [SVC-asdev-agent-loop.service] Service transitioning (state=activating)
 - PASS [SVC-asdev-health-monitor.service] Oneshot service completed successfully (inactive, result=success)
-- PASS [SVC-asdev-mcp-monitor.service] Oneshot service completed successfully (inactive, result=success)
-- PASS [MCP-001] MCP endpoint healthy (HTTP UNKNOWN, verdict=UNKNOWN)
+- PASS [SVC-asdev-mcp-monitor.service] Service transitioning (state=activating)
+- PASS [MCP-001] MCP endpoint healthy (HTTP 307, verdict=PASS)
 - PASS [SYS-001] Disk usage: 36%
-- PASS [SYS-002] Memory usage: 41%
+- PASS [SYS-002] Memory usage: 40%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
 
