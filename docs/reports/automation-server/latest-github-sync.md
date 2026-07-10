@@ -2,22 +2,22 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T15:55:58Z |
-| Finished | 2026-07-10T15:55:59Z |
+| Started | 2026-07-10T16:07:58Z |
+| Finished | 2026-07-10T16:07:59Z |
 | Environment | AUTOMATION_SERVER |
 | Hostname | asdevserve |
 | User | asdev |
 | Repo | /home/asdev/repos/alirezasafaeisystems |
 | Branch | main |
-| Local HEAD | ff1f48e |
-| Origin HEAD | ff1f48e |
-| Dirty count | 4 |
+| Local HEAD | a778192 |
+| Origin HEAD | a778192 |
+| Dirty count | 3 |
 | Ahead | 0 |
 | Behind | 0 |
 | Diverged | no |
 | Prompt files | 6 |
 | Queue JSON valid | yes |
-| Status | blocked |
+| Status | warning |
 
 ## Actions
 - Fetched origin/main
@@ -30,7 +30,7 @@
 - Queue JSON valid
 
 ## Warnings
-- none
+- Safe paths staged but nothing changed
 
 ## Blockers
-- Unsafe dirty paths (1) — refusing auto-commit
+- none
