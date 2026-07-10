@@ -21,7 +21,7 @@ MAX_REDIRECTS="${ASDEV_MCP_MAX_REDIRECTS:-5}"
 mkdir -p "$STATE_DIR" "$REPORT_DIR"
 
 ts() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
-log() { echo "[$(ts)] $*"; }
+log() { echo "[$(ts)] $*" >&2; }
 
 # ---------------------------------------------------------------------------
 # Redact sensitive content from URLs for reports
