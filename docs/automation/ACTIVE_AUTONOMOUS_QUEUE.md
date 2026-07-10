@@ -1,7 +1,7 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-09T20:15:00Z  
-**Status:** AUTOMATION_HOST FULL PASS · 10min LOOP · TCP ACTIVE · MCP LIVE · POST-PERSIANTOOLBOX VERIFICATION NEEDED
+**Last Updated:** 2026-07-10T05:30:00Z  
+**Status:** AUTOMATION_HOST FULL PASS · 10min LOOP · TCP ACTIVE · MCP LIVE · POST-DEPLOY LIVE VERIFICATION POLICY ACTIVE
 
 ## Runtime
 - Host: `asdev` (local AUTOMATION_HOST)
@@ -9,6 +9,11 @@
 - OpenClaw: active, Telegram disabled (bot conflict)
 - Timers: asdev-agent-loop 10min · health 1h
 - Hermes cron: asdev-control-plane-loop every 10min
+
+## Mandatory policy
+- `docs/governance/POST_DEPLOY_LIVE_VERIFICATION_POLICY.md`
+- Deployment is not done until the real live public site/service has passed real browser verification and operational checks.
+- Agents must refactor deploy scripts so final success cannot be printed before live verification passes.
 
 ## Safe continuous
 - loop-once safe-auto drain
@@ -23,6 +28,11 @@
 - [x] OpenClaw gateway diagnostic only | ID: ASDEV-AUTO-OPENCLAW-DIAG | Mode: read-only | Priority: 5
 
 ## Safe next cycles
+- [ ] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 1
+- [ ] Refactor PersianToolbox deploy scripts for real browser post-deploy checks | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-PTB | Mode: docs-only/automation-script | Priority: 1
+- [ ] Refactor AuditSystems deploy scripts for post-deploy live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-AUDIT | Mode: docs-only/automation-script | Priority: 1
+- [ ] Refactor Novax deploy docs/scripts for Worker + Telegram post-deploy verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-NOVAX | Mode: docs-only/automation-script | Priority: 2
+- [ ] Add live-verification report template and wrapper conventions to deployment docs | ID: ASDEV-AUTO-LIVE-VERIFY-TEMPLATE | Mode: docs-only | Priority: 2
 - [ ] PersianToolbox post-batch independent verification | ID: ASDEV-AUTO-PTB-VERIFY-20260709 | Mode: read-only/docs-only | Priority: 2
 - [ ] PersianToolbox deploy readiness evidence report | ID: ASDEV-AUTO-PTB-DEPLOY-READINESS-20260709 | Mode: docs-only | Priority: 2
 - [ ] Compare PersianToolbox GitHub HEAD vs public live release | ID: ASDEV-AUTO-PTB-DRIFT-20260709 | Mode: read-only | Priority: 3
@@ -36,6 +46,7 @@
 | APPROVE_MONITORING_LIVE_TIMERS | live probes |
 | APPROVE_CRITICAL_SITE_MIGRATION | DB |
 | APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY | PersianToolbox public deploy/cutover |
+| APPROVE_CRITICAL_SITE_ROLLBACK | rollback public production release |
 
 ## NEXT
-Verify PersianToolbox latest quality batch and deployment readiness. Deploy remains last and gated; no production cutover without exact approval phrase.
+Automation agents must read the post-deploy live verification policy and refactor deployment scripts/docs so no deployment can be called successful without real live browser verification. Deploy and rollback remain gated; no production mutation without exact approval phrase.
