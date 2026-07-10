@@ -159,6 +159,30 @@ auto_commit_safe() {
     add_warning "No safe paths to add"
     return 0
   fi
+
+  # Check commit throttle — skip if no semantic change or throttled
+  local throttle_script="$REPO_DIR/scripts/control-plane/commit-throttle.sh"
+  if [ -x "$throttle_script" ]; then
+    local throttle_decision
+    throttle_decision=$(bash "$throttle_script" 2>/dev/null | tail -1)
+    case "$throttle_decision" in
+      SKIP_NO_CHANGE)
+        add_action "Auto-commit skipped: no semantic change"
+        return 0
+        ;;
+      SKIP_THROTTLED)
+        add_action "Auto-commit skipped: throttled (max 1/hour)"
+        return 0
+        ;;
+      COMMIT_URGENT|COMMIT_STATE_CHANGE)
+        # Proceed with commit
+        ;;
+      *)
+        # Unknown decision, proceed with commit (safe default)
+        ;;
+    esac
+  fi
+
   git add "${add_targets[@]}" 2>/dev/null || true
   if git diff --cached --quiet; then
     add_warning "Safe paths staged but nothing changed"
@@ -192,13 +216,37 @@ sync_from_origin() {
   [ "${ahead:-0}" -gt 0 ] && [ "${behind:-0}" -gt 0 ] && diverged="yes"
 
   if [ "$diverged" = "yes" ]; then
-    add_warning "Diverged: ahead=$ahead behind=$behind. Creating recovery branch, then resetting to origin/$REMOTE_BRANCH."
+    # Phase 3: Classify divergence before acting
+    local has_code=false
+    local has_generated=false
+    local divergent_files
+    divergent_files=$(git diff --name-only "$REMOTE_NAME/$REMOTE_BRANCH"...HEAD 2>/dev/null || true)
+    while IFS= read -r file; do
+      [ -z "$file" ] && continue
+      case "$file" in
+        docs/reports/*|reports/*|docs/memory/*|docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md|control-plane/queue/queue.json)
+          has_generated=true ;;
+        ops/automation-logs/*.summary.md)
+          has_generated=true ;;
+        *)
+          has_code=true ;;
+      esac
+    done <<< "$divergent_files"
+
+    if [ "$has_code" = true ]; then
+      # Code-bearing divergence: NO_GO, never auto-reset
+      add_blocker "Code-bearing divergence detected: ahead=$ahead behind=$behind. Files: $(echo "$divergent_files" | tr '\n' ' '). NO_GO — manual resolution required."
+      return 1
+    fi
+
+    # Generated-only divergence: safe to reconcile with recovery branch
+    add_warning "Generated-only divergence: ahead=$ahead behind=$behind. Creating recovery branch, then resetting."
     local recovery_branch="recovery/auto-divergence-$(date -u +%Y%m%d)"
     if git branch -f "$recovery_branch" HEAD 2>/dev/null; then
       add_action "Divergence recovery branch: $recovery_branch"
     fi
     if git reset --hard "$REMOTE_NAME/$REMOTE_BRANCH"; then
-      add_action "Reset to $REMOTE_NAME/$REMOTE_BRANCH (divergence resolved)"
+      add_action "Reset to $REMOTE_NAME/$REMOTE_BRANCH (generated-only divergence resolved)"
     else
       add_blocker "Could not reset to $REMOTE_NAME/$REMOTE_BRANCH"
       return 1
