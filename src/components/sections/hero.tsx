@@ -63,14 +63,14 @@ export function Hero() {
           title: 'Stabilize your web system before the next incident',
           description:
             'I review architecture, release flow, and production dependencies to reduce operational risk and improve delivery confidence.',
-          primaryCta: 'Start Discovery',
+          primaryCta: 'Request Audit Assessment',
         }
       }
       return {
         title: 'Alireza Safaei | Web Systems Engineer',
         description:
           'From system design to production delivery. I help teams build stable, independent, and measurable web systems.',
-        primaryCta: 'Request Project Assessment',
+        primaryCta: 'Request Audit Assessment',
       }
     }
 
@@ -79,7 +79,7 @@ export function Hero() {
         title: 'قبل از بحران بعدی، سیستم وب را پایدار کنید',
         description:
           'معماری، جریان انتشار و وابستگی های تولید را بازبینی می کنم تا ریسک عملیاتی کاهش پیدا کند و تحویل قابل اتکا بماند.',
-        primaryCta: 'شروع جلسه Discovery',
+        primaryCta: 'درخواست ارزیابی Audit',
       }
     }
 
@@ -87,7 +87,7 @@ export function Hero() {
       title: 'علیرضا صفایی | مهندس سیستم های وب',
       description:
         'بررسی فنی سایت + رفع مهم‌ترین ایرادهایی که روی اعتماد، سرعت، لید یا لانچ اثر می‌گذارند — در اسپرینت ثابت و کوتاه. از معماری و بومی‌سازی زیرساخت تا تحویل آماده تولید با شواهد قبل/بعد و گیت‌های کیفیت واقعی.',
-      primaryCta: 'درخواست ارزیابی پروژه',
+      primaryCta: 'درخواست ارزیابی Audit',
     }
   }, [language, variant])
 
@@ -126,9 +126,9 @@ export function Hero() {
         key: 'audit',
         title: 'اول می خواهم وضعیت سایت را دقیق بررسی کنم + سریع فیکس کنم',
         detail: 'از Audit Systems گزارش عملی بگیرید و مهم‌ترین ایرادها را در اسپرینت ثابت ۵-۷ روزه برطرف کنید (با before/after واقعی).',
-        href: '/offers/Audit-QuickFix-Offer-OnePage.pdf',
+        href: withLocale('/qualification?source=portfolio&placement=hero_intent&offer=request_assessment', language),
         external: false,
-        cta: 'دریافت اسکوپ یک‌صفحه‌ای بررسی فنی + Quick Fix',
+        cta: 'درخواست ارزیابی Audit',
       },
       toolbox: {
         key: 'toolbox',
@@ -142,9 +142,9 @@ export function Hero() {
         key: 'execution',
         title: 'برای اجرا و توسعه مستقیم کمک می خواهم',
         detail: 'فرم Qualification را باز کنید یا مستقیم اسکوپ ثابت Quick Fix Sprint را درخواست کنید (دانلود PDF) تا مسیر دقیق و سریع مشخص شود.',
-        href: withLocale('/qualification', language),
+        href: withLocale('/qualification?source=portfolio&placement=hero_execution&offer=request_assessment', language),
         external: false,
-        cta: 'شروع Qualification',
+        cta: 'درخواست ارزیابی',
       },
     }
     const routesEn: Record<IntentRoute['key'], IntentRoute> = {
@@ -152,9 +152,9 @@ export function Hero() {
         key: 'audit',
         title: 'I need a technical audit + quick fixes first',
         detail: 'Get a practical report from Audit Systems and fix the highest-impact issues in a fixed 5-7 day sprint (with real before/after).',
-        href: '/offers/Audit-QuickFix-Offer-OnePage.pdf',
+        href: withLocale('/qualification?source=portfolio&placement=hero_intent&offer=request_assessment', language),
         external: false,
-        cta: 'Get the one-page Audit + Quick Fix scope',
+        cta: 'Request Audit assessment',
       },
       toolbox: {
         key: 'toolbox',
@@ -168,9 +168,9 @@ export function Hero() {
         key: 'execution',
         title: 'I need direct execution support',
         detail: 'Start qualification or request the fixed-scope Quick Fix Sprint directly (PDF available) for a clear, fast path.',
-        href: withLocale('/qualification', language),
+        href: withLocale('/qualification?source=portfolio&placement=hero_execution&offer=request_assessment', language),
         external: false,
-        cta: 'Start Qualification',
+        cta: 'Request Assessment',
       },
     }
 
@@ -300,7 +300,7 @@ export function Hero() {
                   className="mt-3 inline-flex rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
                   href={withLocale('/qualification', language)}
                 >
-                  {language === 'en' ? 'Start Qualification' : 'شروع بررسی'}
+                  {language === 'en' ? 'Request Assessment' : 'شروع بررسی'}
                 </a>
               </article>
               <article className="rounded-lg border border-border/60 bg-background/75 p-4 text-sm">

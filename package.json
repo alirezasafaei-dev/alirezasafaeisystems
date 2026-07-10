@@ -67,7 +67,8 @@
     "scan:external": "bash scripts/offline-external-scan.sh",
     "audit:high": "bash scripts/audit-high-critical.sh",
     "scan:secrets": "bash scripts/scan-secrets.sh",
-    "ops:maintain": "bash scripts/codex/run-repetitive-ops.sh"
+    "ops:maintain": "bash scripts/codex/run-repetitive-ops.sh",
+    "revenue:scorecard": "node scripts/revenue-scorecard.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",

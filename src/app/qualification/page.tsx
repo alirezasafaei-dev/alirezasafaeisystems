@@ -11,10 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const isEn = lang === 'en'
   const canonicalPath = lang === 'fa' ? '/qualification' : `/${lang}/qualification`
   return {
-    title: isEn ? 'Request Review + Quick Fix' : 'درخواست بررسی + رفع سریع',
+    title: isEn ? 'Request ASDEV Audit Assessment' : 'درخواست ارزیابی ASDEV Audit',
     description: isEn
-      ? 'Send your live website and current issue to request a focused technical review and quick fix sprint.'
-      : 'آدرس سایت و مشکل فعلی را بفرستید تا بررسی فنی متمرکز و اسپرینت رفع سریع شروع شود.',
+      ? 'Send your live website and current issue to request a scoped ASDEV Audit assessment.'
+      : 'آدرس سایت و مشکل فعلی را بفرستید تا درخواست ارزیابی ASDEV Audit ثبت شود.',
     alternates: {
       canonical: canonicalPath,
       languages: {
@@ -28,22 +28,22 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function QualificationPage() {
   const lang = await getRequestLanguage()
   const withLocale = (path: string) => (lang === 'fa' ? path : `/${lang}${path}`)
-  const title = lang === 'en' ? 'Request Technical Review + Quick Fix' : 'درخواست بررسی فنی + رفع سریع'
+  const title = lang === 'en' ? 'Request ASDEV Audit Assessment' : 'درخواست ارزیابی ASDEV Audit'
   const desc =
     lang === 'en'
-      ? 'Send the live URL, the main visible issue, and your preferred contact channel. The first response focuses on whether a small paid sprint can create a useful result quickly.'
-      : 'آدرس سایت زنده، مشکل اصلی و راه ارتباطی را بفرستید. پاسخ اولیه مشخص می‌کند آیا یک اسپرینت کوچک و پولی می‌تواند سریع نتیجه قابل استفاده بسازد یا نه.'
+      ? 'Send the live URL, the main visible issue, and your preferred contact channel. The first response qualifies whether Entry Audit, Full Technical Audit, Audit + Implementation, or Monthly Monitoring fits.'
+      : 'آدرس سایت زنده، مشکل اصلی و راه ارتباطی را بفرستید. پاسخ اولیه مشخص می‌کند Entry Audit، Full Technical Audit، Audit + Implementation یا Monthly Monitoring مناسب است یا نه.'
   const trust =
     lang === 'en'
-      ? ['Fixed-scope starter', 'Initial response within one business day', 'Before/after evidence when fixes are delivered']
-      : ['شروع با دامنه محدود', 'پاسخ اولیه حداکثر تا یک روز کاری', 'تحویل شواهد قبل/بعد در صورت اجرای رفع']
+      ? ['Scoped Audit offer', 'Initial response within one business day', 'No public pricing before owner approval']
+      : ['پیشنهاد Audit با دامنه مشخص', 'پاسخ اولیه حداکثر تا یک روز کاری', 'بدون قیمت عمومی تا تأیید مالک']
   const back = lang === 'en' ? 'Back to home' : 'بازگشت به خانه'
   const auditPrimaryTitle =
     lang === 'en' ? 'Start with ASDEV Audit (recommended)' : 'ابتدا ASDEV Audit (مسیر اصلی)'
   const auditPrimaryDesc =
     lang === 'en'
-      ? 'Review the sample report or run a free assessment on your live URL before requesting custom work.'
-      : 'قبل از درخواست کار اختصاصی، نمونه گزارش را ببینید یا ارزیابی رایگان روی آدرس سایت زنده انجام دهید.'
+      ? 'Review the sample report, then submit one request assessment path with attribution.'
+      : 'نمونه گزارش را ببینید، سپس از یک مسیر واحد درخواست ارزیابی ثبت کنید.'
   const acceptedTitle = lang === 'en' ? 'What we accept' : 'چه درخواست‌هایی پذیرفته می‌شود'
   const notAcceptedTitle = lang === 'en' ? 'What we do not accept' : 'چه درخواست‌هایی پذیرفته نمی‌شود'
   const accepted =
@@ -95,7 +95,7 @@ export default async function QualificationPage() {
           <p className="text-muted-foreground leading-7">{auditPrimaryDesc}</p>
           <div className="flex flex-wrap gap-3">
             <a
-              href="https://audit.alirezasafaeisystems.ir/sample-report?utm_source=portfolio&utm_medium=qualification&utm_campaign=asdev_audit"
+              href="https://audit.alirezasafaeisystems.ir/sample-report?source=portfolio&placement=qualification&offer=sample_report"
               className="inline-flex rounded-full border border-border/70 bg-card/70 px-4 py-2 text-sm font-medium hover:bg-card"
               target="_blank"
               rel="noopener noreferrer"
@@ -103,12 +103,12 @@ export default async function QualificationPage() {
               {lang === 'en' ? 'View sample report' : 'مشاهده نمونه گزارش'}
             </a>
             <a
-              href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=qualification&utm_campaign=asdev_audit"
+              href="https://audit.alirezasafaeisystems.ir/qualification?source=portfolio&placement=qualification&offer=request_assessment"
               className="inline-flex rounded-full border border-border/70 bg-card/70 px-4 py-2 text-sm font-medium hover:bg-card"
               target="_blank"
               rel="noopener noreferrer"
             >
-              {lang === 'en' ? 'Start free assessment' : 'شروع ارزیابی رایگان'}
+              {lang === 'en' ? 'Request assessment' : 'درخواست ارزیابی'}
             </a>
           </div>
         </div>
