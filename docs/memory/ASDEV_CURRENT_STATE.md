@@ -135,21 +135,19 @@ Quality note: Product-side quality packs advance trust/report depth on GitHub ma
 | Item | Value |
 |------|-------|
 | Repo | `alirezasafaei-dev/persiantoolbox` |
-| Latest commits | `a529792` (font cleanup) → `e869a7b` (health indicator) → `51de1b5` (verdict) → `5438c85` (lazy-load) → `78b5005` (admin funnel) → `9592976` (payment fixes) |
-| Verdict | STABILIZATION_WITH_BLOCKERS |
+| Latest commit | `34f41f4` (suppressHydrationWarning) |
+| Verdict | LIVE_VERIFICATION_PASS |
 | Tests | 153/153 files, 1277/1277 tests passing |
 | Typecheck | Passing |
-| SSR audit | All main pages + 99 tool pages server-rendered; only 8 admin pages + 4 overlay components client-rendered |
-| Payment | Zarinpal Toman→IRR fix (amount*10), auth gate before checkout, error field mismatch fixed, loading state added |
-| Payment blocker | ZARINPAL_MERCHANT_ID not configured in production .env — OWNER ACTION REQUIRED |
-| Admin | Funnel stubs replaced with live API calls to /api/admin/funnel |
-| Performance | JS 8.1MB (lazy-loaded tool chunks), CSS 115KB, 3 Vazirmatn woff2 fonts preloaded |
-| A11y | 433 aria-labels, 126 aria-hidden, 98 roles, all images have alt |
-| Consent | Google Consent Mode v2 with accept/reject |
-| Live verification | All key pages HTTP 200, CSS/JS/fonts serving, health endpoint healthy |
-| Health indicator | /api/health now reports paymentGateway.configured status |
-| AUTOMATION_HOST | 4 timers running (github-sync, health-monitor, mcp-monitor, agent-loop) |
-| Freeze readiness | 7/8 checklist items complete; owner acceptance needed |
+| Browser test | 34/34 pages pass (Playwright real browser) |
+| Payment | ZARINPAL_MERCHANT_ID configured, mode=production, sandbox=false |
+| Admin | Funnel stubs replaced with live API, monetization wired to DB |
+| Performance | SSR architecture, JS 8.1MB lazy-loaded, CSS 115KB |
+| A11y | 433 aria-labels, consent v2, popup pressure gated |
+| Deploy fix | Symlink update moved to Step 6 (before nginx reload) |
+| Deploy verify | All JS chunks checked, not just first 5 |
+| Hydration | suppressHydrationWarning added to html tag |
+| AUTOMATION_HOST | 4 timers active, linger enabled |
 
 ## CONVERSION IMPROVEMENTS (2026-07-09)
 

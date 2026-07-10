@@ -1,7 +1,7 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-10T14:45:00Z  
-**Status:** PERSIANTOOLBOX STABILIZATION_PASS DEPLOYED · READY FOR DEV FREEZE · ALL QUEUE ITEMS COMPLETE
+**Last Updated:** 2026-07-10T16:15:00Z  
+**Status:** PERSIANTOOLBOX LIVE_VERIFICATION_PASS · DEPLOYED · DEPLOY-RESILIENT · ALL QUEUE ITEMS COMPLETE
 
 ## Runtime
 - `LOCAL_PC`: owner's own computer/workstation; MiMo primary commander.
@@ -19,12 +19,12 @@
 - Prompt/policy/queue files committed to GitHub must become discoverable on `AUTOMATION_SERVER` without manual copy-paste.
 
 ## Immediate notes
-- PersianToolbox stabilization: ALL DONE. Deployed to production (blue slot :3000). Verdict: STABILIZATION_PASS_WITH_WARNINGS.
-- Payment gateway: ZARINPAL_MERCHANT_ID configured on IRAN_PROD_SERVER, mode=production, sandbox=false.
-- Payment fixes: Toman→IRR conversion, auth gate, error handling, loading state, health indicator.
-- Admin dashboard: live API calls replacing hardcoded stubs. Monetization wired to real DB.
-- Build fix: Next.js 16 Turbopack ssr:false issue resolved via ClientOverlays.tsx wrapper.
-- Live verification: all 10 key pages HTTP 200, CSS/fonts/JS serving, DB/Redis healthy.
+- PersianToolbox: LIVE_VERIFICATION_PASS. 34/34 pages pass in real browser.
+- Deploy fix: symlink update moved to Step 6 (before nginx reload) — prevents stale static files.
+- Deploy verify: all JS chunks checked, not just first 5.
+- Hydration: suppressHydrationWarning added — no more React #418 errors.
+- Payment gateway: ZARINPAL_MERCHANT_ID configured, mode=production, sandbox=false.
+- Admin: live API calls, monetization wired to DB.
 - Development freeze: ready for owner approval.
 
 ## Safe continuous
@@ -72,7 +72,7 @@
 | APPROVE_PUBLIC_AI_CHAT_PRODUCT | start a public-facing AI chat product |
 
 ## NEXT
-PersianToolbox stabilization is complete and deployed. Owner should:
+PersianToolbox is deployed and verified. Owner should:
 1. Accept development freeze (`DEV_FREEZE_READY`)
 2. Test payment flow in Zarinpal sandbox with real browser
 3. Shift to traffic/marketing/revenue work
