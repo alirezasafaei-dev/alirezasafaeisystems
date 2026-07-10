@@ -1,6 +1,6 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-09T20:15:00Z
+**Updated:** 2026-07-10T05:30:00Z
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
@@ -21,6 +21,7 @@
 | Workspace | `/home/dev13/ASDEV` |
 | Control plane | `control-plane/` live |
 | Loop policy | `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md` |
+| Post-deploy live verification policy | `docs/governance/POST_DEPLOY_LIVE_VERIFICATION_POLICY.md` — mandatory for every production deploy |
 | Productivity mode | ENABLED |
 
 ## CRITICAL_SITE (`persiantoolbox`)
@@ -30,7 +31,7 @@
 | Public product | LIVE on public VPS (ubuntu · nginx · PM2 green:3003) release `37ba347` |
 | ASDEV IRAN app-layer | Separate host `:3100` (not DNS public) |
 | Product GitHub | advanced to `72d4209` after MiMo quality/a11y/SEO/ops session — ahead of live `37ba347` |
-| Product score | GitHub quality improved materially; public score is still not 10/10 until deploy, smoke, CWV, uptime evidence, and rollback evidence are verified |
+| Product score | GitHub quality improved materially; public score is still not 10/10 until deploy, smoke, CWV, uptime evidence, rollback evidence, and live browser verification are verified |
 | Staging | public staging + ASDEV legacy paths |
 | Rollback history | rehearsal assets added; real production rollback history still needs verified release cycle |
 | Meta backup | IRAN daily 03:15 UTC · FRESH |
@@ -60,12 +61,23 @@
 - Live monitoring timers  
 - Migrations  
 - Production redeploy  
+- Rollback  
+
+## Mandatory post-deploy rule
+
+| Item | Value |
+|------|-------|
+| Rule | Deployment is not complete until real live public verification passes |
+| Required evidence | real browser desktop + mobile, console errors, network failures, route/tool/journey checks, runtime logs, rollback target |
+| Required verdicts | LIVE_VERIFICATION_PASS / PASS_WITH_WARNINGS / FAIL_ROLLBACK_RECOMMENDED / FAIL_HOTFIX_REQUIRED / DEPLOY_BLOCKED_NOT_VERIFIED |
+| Agent instruction | Refactor deploy scripts so success cannot be printed before live verification passes |
+| Applies to | PersianToolbox, AuditSystems, Novax, ASDEV public sites, MCP/public endpoints where applicable |
 
 ## Active build focus
 
 ASDEV Engineering Operating System (governance, memory, registry, deploy model, observability prep) — not daily hygiene thrash.
 
-Quality note: Product-side quality packs advance trust/report depth on GitHub main; public score must not be called 10/10 until edge/deploy evidence, depth, CWV, uptime, and rollback are proven.
+Quality note: Product-side quality packs advance trust/report depth on GitHub main; public score must not be called 10/10 until edge/deploy evidence, depth, CWV, uptime, rollback, and live browser verification are proven.
 
 ## PERSIANTOOLBOX QUALITY SESSION (2026-07-09)
 
@@ -76,7 +88,7 @@ Quality note: Product-side quality packs advance trust/report depth on GitHub ma
 | Session scope | a11y, SEO/UX, design tokens, blog size, ops runbooks, monitoring, rollback rehearsal, Zarinpal callback fix |
 | Reported validation | typecheck passed; tests reported 153/153 files and 1277/1277 tests |
 | Docs updated | `CHANGELOG.md`, `docs/PRODUCTION_GRADE_ROADMAP_TO_10.md` |
-| Status | GitHub main advanced; public deploy must remain gated until independent deploy-readiness/smoke verification |
+| Status | GitHub main advanced; public deploy must remain gated until independent deploy-readiness/smoke/live-browser verification |
 | Next safe action | independent post-batch verification + deploy readiness report, no production cutover |
 
 ## CONVERSION IMPROVEMENTS (2026-07-09)
