@@ -38,7 +38,7 @@
 ## Safe next cycles
 - [x] Install/enable  on `AUTOMATION_SERVER` | ID: ASDEV-AUTO-GITHUB-SYNC-TIMER-INSTALL | Mode: automation-script | Priority: 0 | Command: `ASDEV_ENVIRONMENT=AUTOMATION_SERVER bash scripts/control-plane/install-github-sync-service.sh`
 - [x] Verify GitHub sync pulls new prompts without manual copy | ID: ASDEV-AUTO-GITHUB-SYNC-PROMPT-DISCOVERY | Mode: read-only/automation-script | Priority: 0
-- [ ] Fix stale Telegram/OpenClaw branch/issue status labels using environment roles policy | ID: ASDEV-AUTO-TELEGRAM-STALE-STATUS-FIX | Mode: automation-script | Priority: 1
+- [x] Fix stale Telegram/OpenClaw branch/issue status labels using environment roles policy | ID: ASDEV-AUTO-TELEGRAM-STALE-STATUS-FIX | Mode: automation-script | Priority: 1
 - [x] URGENT: Verify PersianToolbox MiMo hotfix with real browsers | ID: ASDEV-AUTO-PTB-MIMO-HOTFIX-BROWSER-VERIFY | Mode: read-only/automation-script | Priority: 1 | Prompt: `prompts/opencode/VERIFY_PERSIANTOOLBOX_MIMO_HOTFIX.md`
 - [x] Upgrade PersianToolbox post-deploy verification from curl-only to Playwright-backed live verification | ID: ASDEV-AUTO-PTB-LIVE-VERIFY-PLAYWRIGHT | Mode: automation-script | Priority: 1
 - [x] Integrate PersianToolbox live verification into deploy-blue-green.sh final success gate | ID: ASDEV-AUTO-PTB-DEPLOY-SUCCESS-GATE | Mode: automation-script | Priority: 1
@@ -48,7 +48,7 @@
 - [ ] Add live-verification report template and wrapper conventions to deployment docs | ID: ASDEV-AUTO-LIVE-VERIFY-TEMPLATE | Mode: docs-only | Priority: 2
 - [ ] Compare PersianToolbox GitHub HEAD vs public live release | ID: ASDEV-AUTO-PTB-DRIFT-20260709 | Mode: read-only | Priority: 3
 - [ ] Review MiMo testimonial/trust changes for non-fabrication risk | ID: ASDEV-AUTO-PTB-TRUST-REVIEW-20260709 | Mode: docs-only/read-only | Priority: 3
-- [ ] Re-check Hermes/OpenClaw service split after duplicate bot removal | ID: ASDEV-AUTO-HERMES-OPENCLAW-VERIFY-20260709 | Mode: read-only | Priority: 4
+- [x] Re-check Hermes/OpenClaw service split after duplicate bot removal | ID: ASDEV-AUTO-HERMES-OPENCLAW-VERIFY-20260709 | Mode: read-only | Priority: 4
 
 ## Gated pending
 | Phrase | Theme |
