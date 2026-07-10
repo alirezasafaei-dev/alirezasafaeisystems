@@ -45,6 +45,8 @@ export async function readManual(path) {
 }
 
 function validateManualSchema(data, path) {
+  if (data.week_start !== undefined) validateWeekStart(data.week_start, path)
+
   const metricKeys = ['personalized_outreach', 'positive_responses', 'calls', 'proposals', 'paid_pilots']
   for (const key of metricKeys) {
     if (data[key] !== undefined) validateMetricRow(data[key], key, path)
@@ -59,6 +61,16 @@ function validateManualSchema(data, path) {
     }
   }
   if (data.loss_reason !== undefined && !isPlainObject(data.loss_reason)) {
+    throw new ManualInputError('SCHEMA_INVALID', path)
+  }
+}
+
+function validateWeekStart(value, path) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new ManualInputError('SCHEMA_INVALID', path)
+  }
+  const parsed = new Date(`${value}T00:00:00.000Z`)
+  if (!Number.isFinite(parsed.valueOf()) || parsed.toISOString().slice(0, 10) !== value) {
     throw new ManualInputError('SCHEMA_INVALID', path)
   }
 }
@@ -80,7 +92,9 @@ function validateDeliveryTime(value, path) {
       if (!isPlainObject(delivery) || typeof delivery.started_at !== 'string' || typeof delivery.delivered_at !== 'string') {
         throw new ManualInputError('SCHEMA_INVALID', path)
       }
-      if (!Number.isFinite(Date.parse(delivery.started_at)) || !Number.isFinite(Date.parse(delivery.delivered_at))) {
+      const startedAt = Date.parse(delivery.started_at)
+      const deliveredAt = Date.parse(delivery.delivered_at)
+      if (!Number.isFinite(startedAt) || !Number.isFinite(deliveredAt) || deliveredAt < startedAt) {
         throw new ManualInputError('SCHEMA_INVALID', path)
       }
     }
@@ -111,7 +125,7 @@ function deliveryTimeRow(manual) {
       'not_available',
       targets.delivery_time_hours,
       'AuditSystems delivery timestamps are not available in this repository environment',
-      'run the scorecard with approved AuditSystems delivery export after auditsystems#30 is merged',
+      'run the scorecard with an approved AuditSystems delivery export',
     )
   }
 
@@ -135,7 +149,37 @@ function deliveryTimeRow(manual) {
   )
 }
 
-export async function buildScorecard({ manual, databaseUrl }) {
+export function resolveReportingPeriod(manual, now = new Date()) {
+  let start
+  let source
+
+  if (typeof manual.week_start === 'string') {
+    start = new Date(`${manual.week_start}T00:00:00.000Z`)
+    source = 'manual.week_start'
+  } else {
+    const current = new Date(now)
+    if (!Number.isFinite(current.valueOf())) throw new Error('INVALID_REPORTING_CLOCK')
+    const day = current.getUTCDay()
+    const daysSinceMonday = (day + 6) % 7
+    start = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() - daysSinceMonday))
+    source = 'current_utc_week'
+  }
+
+  const end = new Date(start.valueOf() + 7 * 24 * 60 * 60 * 1000)
+  return {
+    startDate: start,
+    endDate: end,
+    output: {
+      start: start.toISOString(),
+      end_exclusive: end.toISOString(),
+      timezone: 'UTC',
+      source,
+    },
+  }
+}
+
+export async function buildScorecard({ manual, databaseUrl, now = new Date() }) {
+  const period = resolveReportingPeriod(manual, now)
   const calls = manual.calls?.actual ?? 0
   const paidPilots = manual.paid_pilots?.actual ?? 0
   const callToPaid = calls > 0 ? paidPilots / calls : 'not_available'
@@ -144,7 +188,12 @@ export async function buildScorecard({ manual, databaseUrl }) {
     : ''
 
   const base = {
-    generated_at: new Date().toISOString(),
+    generated_at: new Date(now).toISOString(),
+    reporting_period: period.output,
+    data_scope: {
+      manual_metrics: 'Values supplied for the same reporting period.',
+      qualified_prospects: 'Lead records created inside the reporting period and currently marked qualified; the current schema has no qualifiedAt timestamp.',
+    },
     personalized_outreach: manualMetric(manual, 'personalized_outreach', 'owner approval required before outreach', 'prepare prospects privately'),
     positive_responses: manualMetric(manual, 'positive_responses', 'no approved outreach sent', 'send only after owner approval'),
     calls: manualMetric(manual, 'calls', 'no booked calls recorded', 'book from positive responses'),
@@ -166,16 +215,27 @@ export async function buildScorecard({ manual, databaseUrl }) {
       qualified_prospects: row('not_available', targets.qualified_prospects, 'DATABASE_URL not configured in this environment', 'run against approved dev/reporting database'),
       system_status_counts: {},
       lead_source: {},
+      product_analytics: {
+        status: 'not_available',
+        blocker: 'DATABASE_URL not configured in this environment',
+        events_by_name: {},
+        funnel_sessions: 'not_available',
+        converted_sessions: 'not_available',
+      },
     }
   }
 
   const { PrismaClient } = await import('@prisma/client')
-  const prisma = new PrismaClient()
+  const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } })
+  const createdAt = { gte: period.startDate, lt: period.endDate }
   try {
-    const [qualified, statusCounts, leadSources] = await Promise.all([
-      prisma.lead.count({ where: { status: 'qualified' } }),
-      prisma.lead.groupBy({ by: ['status'], _count: { status: true } }),
-      prisma.lead.groupBy({ by: ['source'], _count: { source: true } }),
+    const [qualified, statusCounts, leadSources, analyticsEvents, funnelSessions, convertedSessions] = await Promise.all([
+      prisma.lead.count({ where: { status: 'qualified', createdAt } }),
+      prisma.lead.groupBy({ by: ['status'], where: { createdAt }, _count: { status: true } }),
+      prisma.lead.groupBy({ by: ['source'], where: { createdAt }, _count: { source: true } }),
+      prisma.analyticsEvent.groupBy({ by: ['event'], where: { createdAt }, _count: { event: true } }),
+      prisma.funnelConversion.count({ where: { createdAt } }),
+      prisma.funnelConversion.count({ where: { createdAt, converted: true } }),
     ])
     return {
       ...base,
@@ -183,6 +243,12 @@ export async function buildScorecard({ manual, databaseUrl }) {
       qualified_prospects: row(qualified, targets.qualified_prospects, '', 'review new leads and qualify/disqualify'),
       system_status_counts: Object.fromEntries(statusCounts.map((item) => [item.status, item._count.status])),
       lead_source: Object.fromEntries(leadSources.map((item) => [item.source, item._count.source])),
+      product_analytics: {
+        status: 'connected',
+        events_by_name: Object.fromEntries(analyticsEvents.map((item) => [item.event, item._count.event])),
+        funnel_sessions: funnelSessions,
+        converted_sessions: convertedSessions,
+      },
     }
   } finally {
     await prisma.$disconnect()
