@@ -1,0 +1,13 @@
+[Unit]
+Description=ASDEV GitHub/local/server sync
+Documentation=docs/ops/GITHUB_LOCAL_SERVER_SYNC.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/asdev/repos/alirezasafaeisystems
+Environment=ASDEV_ENVIRONMENT=AUTOMATION_SERVER
+Environment=ASDEV_REPO_DIR=/home/asdev/repos/alirezasafaeisystems
+ExecStart=/usr/bin/env bash /home/asdev/repos/alirezasafaeisystems/scripts/control-plane/sync-github-local-server.sh
+TimeoutStartSec=180
