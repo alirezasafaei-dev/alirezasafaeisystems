@@ -1,20 +1,20 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-10T14:28:58Z  
+**Updated:** 2026-07-10T14:45:00Z  
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
 
 ## Multi-agent (OWNER_PC / LOCAL_PC)
 
-**Updated:** 2026-07-10T08:10:00Z  
+**Updated:** 2026-07-10T14:45:00Z  
 **Canonical name:** `LOCAL_PC` = owner workstation  
 **Orchestrator:** MiMo primary commander on LOCAL_PC  
 **Implementation agent:** OpenCode  
 **Reporting agent:** Hermes  
 **OpenClaw:** gateway/diagnostic only; Telegram polling disabled while Hermes owns Telegram  
 **Policy:** `docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md` + `docs/governance/ENVIRONMENT_ROLES_AND_SYNC_POLICY.md`  
-**Product pin advanced:** `persiantoolbox@72d4209` plus later hotfix commits; deploy/live verification remains gated
+**AI Gateway:** Local-first MVP initiated; OpenCode is first implementation agent
 
 ## Platform
 
@@ -26,18 +26,37 @@
 | Loop policy | `docs/automation/ASDEV_AUTONOMOUS_LOOP_POLICY.md` |
 | Environment roles policy | `docs/governance/ENVIRONMENT_ROLES_AND_SYNC_POLICY.md` — mandatory |
 | GitHub/local/server sync | `docs/ops/GITHUB_LOCAL_SERVER_SYNC.md` + `scripts/control-plane/sync-github-local-server.sh` |
-| Sync timer target | `asdev-github-sync.timer` every 5 minutes on `AUTOMATION_SERVER` |
+| Sync timer target | `asdev-github-sync.timer` every 5 minutes/10 minutes on `AUTOMATION_SERVER` |
 | Post-deploy live verification policy | `docs/governance/POST_DEPLOY_LIVE_VERIFICATION_POLICY.md` — mandatory for every production deploy |
+| AI Gateway policy | `docs/governance/ASDEV_AI_GATEWAY_POLICY.md` — local-first internal infrastructure |
 | Productivity mode | ENABLED |
 
 ## Environment map
 
 | Canonical name | Meaning | Status |
 |------|---------|--------|
-| `LOCAL_PC` | Owner's computer; MiMo command center | Not looped yet; command/orchestration only |
-| `AUTOMATION_SERVER` | External server `asdev@91.107.153.223`; loops, MCP, GitHub sync, agents, reports | Existing loop active; GitHub sync timer rollout required |
+| `LOCAL_PC` | Owner's computer; MiMo command center; OpenCode implementation target | AI Gateway local-first MVP next |
+| `AUTOMATION_SERVER` | External server `asdev@91.107.153.223`; loops, MCP, GitHub sync, agents, reports | Operational; AI Gateway automation rollout not approved yet |
 | `IRAN_PROD_SERVER` | Iran live production deployment server | Strictly gated; no deploy/rollback/reload/migration without exact approval |
 | `GITHUB_MAIN` | GitHub main branch source of truth | Authoritative for prompts/policies/queues/scripts |
+
+## ASDEV AI GATEWAY (LOCAL-FIRST)
+
+| Item | Value |
+|------|-------|
+| Status | Scaffolded on GitHub; local OpenCode MVP pending |
+| Policy | `docs/governance/ASDEV_AI_GATEWAY_POLICY.md` |
+| Registry | `docs/ops/ASDEV_AI_PROVIDER_REGISTRY.md` |
+| Guide | `docs/ops/ASDEV_AI_GATEWAY_LOCAL_MVP.md` |
+| Config example | `config/ai-providers.example.json` |
+| Provider health script | `scripts/ai-router/provider-health.sh` |
+| Task router script | `scripts/ai-router/run-task.sh` |
+| OpenCode prompt | `prompts/opencode/LOCAL_AI_GATEWAY_MVP.md` |
+| Sample tasks | `prompts/ai-router/sample-provider-health.md`, `sample-code-patch.md`, `sample-repo-audit.md` |
+| Principle | Internal router first; no public unlimited free chat product |
+| Providers | MiMo for long-context, OpenCode for patches, DeepSeek for fallback reasoning, Hermes for reporting/provider pool, OpenClaw for diagnostic/gateway only |
+| Automation handoff | Requires local MVP evidence + owner approval `APPROVE_AI_GATEWAY_AUTOMATION_ROLLOUT` |
+| Public product gate | Requires separate owner approval `APPROVE_PUBLIC_AI_CHAT_PRODUCT` after PersianToolbox revenue stabilization |
 
 ## CRITICAL_SITE (`persiantoolbox`)
 
@@ -45,7 +64,7 @@
 |------|-------|
 | Public product | LIVE on public VPS (ubuntu · nginx · PM2 green:3003) release `37ba347` |
 | ASDEV IRAN app-layer | Separate host `:3100` (not DNS public) |
-| Product GitHub | advanced to `72d4209` after MiMo quality/a11y/SEO/ops session — ahead of live `37ba347`; later deploy hotfixes exist in repo |
+| Product GitHub | advanced to `72d4209` after MiMo quality/a11y/SEO/ops session — ahead of live `37ba347`; later stabilization commits exist in repo |
 | Product score | GitHub quality improved materially; public score is still not 10/10 until deploy, smoke, CWV, uptime evidence, rollback evidence, and live browser verification are verified |
 | Staging | public staging + ASDEV legacy paths |
 | Rollback history | rehearsal assets added; real production rollback history still needs verified release cycle |
@@ -55,7 +74,7 @@
 
 | Item | Value |
 |------|-------|
-| Class | OPERATIONAL — zero-touch autonomous loop active, sync hardening in progress |
+| Class | OPERATIONAL — zero-touch autonomous loop active |
 | Control plane | `~/asdev-platform/control-plane/` / repo clone — scripts synced from repo |
 | Agent loop | `asdev-agent-loop.timer` — enabled, 10min interval, active |
 | GitHub sync | `asdev-github-sync.timer` — enabled, 10min interval, active |
@@ -63,7 +82,6 @@
 | Linger | enabled (loginctl enable-linger asdev) |
 | Health monitor | `asdev-health-monitor.timer` — enabled, 5min interval, active |
 | MCP monitor | `asdev-mcp-monitor.timer` — enabled, 10min interval, active |
-| Agent loop | `asdev-agent-loop.timer` — enabled, 10min interval, active |
 | Node | bot.js running (GitHub Issue #45 command bus; must not be mislabeled branch 45) |
 | Hermes Telegram | Operational — default Telegram reporting owner |
 | Hermes proxy | SOCKS5 tunnel via local xray — systemd user service auto-restart |
@@ -77,6 +95,8 @@
 - Production redeploy  
 - Rollback  
 - `IRAN_PROD_SERVER` production mutations  
+- AI Gateway automation rollout  
+- Public AI chat product  
 
 ## Mandatory sync rule
 
@@ -102,7 +122,7 @@
 
 ## Active build focus
 
-ASDEV Engineering Operating System (governance, memory, registry, deploy model, observability prep) — not daily hygiene thrash.
+ASDEV Engineering Operating System plus local-first AI Gateway. PersianToolbox remains in revenue stabilization/freeze stage, not general feature expansion.
 
 Quality note: Product-side quality packs advance trust/report depth on GitHub main; public score must not be called 10/10 until edge/deploy evidence, depth, CWV, uptime, rollback, and live browser verification are proven.
 
@@ -174,4 +194,3 @@ Quality note: Product-side quality packs advance trust/report depth on GitHub ma
 | Key features | Group payment leakage fix, receipt/admin notification, analytics foundation, admin stats, mini-app tracking, D1 alert storage |
 | Audit report | `docs/audit/NOVAX_PRODUCTION_READINESS_AUDIT_2026-07-09.md` |
 | Deploy decision | `docs/ops/NOVAX_DEPLOYMENT_DECISION_2026-07-09.md` |
-| Repo | `alirezasafaei-dev/novax-price-alert` |
