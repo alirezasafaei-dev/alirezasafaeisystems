@@ -1,6 +1,6 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-10T16:15:00Z  
+**Last Updated:** 2026-07-10T16:30:00Z  
 **Status:** PERSIANTOOLBOX LIVE_VERIFICATION_PASS · DEPLOYED · DEPLOY-RESILIENT · ALL QUEUE ITEMS COMPLETE
 
 ## Runtime
@@ -32,6 +32,17 @@
 - loop-once safe-auto drain.
 - multi-agent MiMo/OpenCode under explicit environment naming.
 - product quality pre-deploy.
+
+## Issue #91 — Automation Server Hardening (P0)
+- [x] Detached HEAD resolved on AUTOMATION_SERVER — branch restored to `main`
+- [x] Auto-commits no longer happen on detached HEAD (sync script v2 blocks)
+- [x] Divergence auto-healed with recovery branches (`recovery/auto-*`)
+- [x] Sync script v2 deployed — pre-flight checks: branch, dirty state, divergence, rebase/cherry-pick/merge
+- [x] Supervisor service & timer installed — checks git state, timers, MCP, disk, memory, network, provider health
+- [x] Auto-commit glob bug fixed — `ops/automation-logs/*.summary.md` no longer breaks `git add`
+- [x] run-task.sh argument parsing improved — better error messages, relative path resolution
+- [x] Report files auto-committed and pushed to GitHub by sync timer
+- [x] Recovery commits preserved in `recovery/auto-commits-20260710` and `recovery/auto-divergence-20260710`
 
 ## Completed safe cycles
 - [x] MCP health monitor report | ID: ASDEV-AUTO-MCP-HEALTH | Mode: read-only | Priority: 3

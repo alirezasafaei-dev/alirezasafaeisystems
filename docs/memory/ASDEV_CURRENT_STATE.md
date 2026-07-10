@@ -1,6 +1,6 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-10T15:56:58Z  
+**Updated:** 2026-07-10T16:30:00Z  
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
@@ -79,10 +79,16 @@
 | Item | Value |
 |------|-------|
 | Class | OPERATIONAL — zero-touch autonomous loop active |
-| Control plane | `~/asdev-platform/control-plane/` / repo clone — scripts synced from repo |
+| Repo | `/home/asdev/repos/alirezasafaeisystems` |
+| Branch | `main` (detached HEAD resolved) |
+| Control plane | `scripts/control-plane/` — scripts synced from GitHub |
 | Agent loop | `asdev-agent-loop.timer` — enabled, 10min interval, active |
-| GitHub sync | `asdev-github-sync.timer` — enabled, 10min interval, active |
-| Loop behavior | Self-feeding: health check → MCP check → auto-commit → auto-push → queue seed when only gated tasks remain |
+| GitHub sync | `asdev-github-sync.timer` — enabled, 5min interval, active — hardened v2 script |
+| Supervisor | `asdev-supervisor.timer` — enabled, 5min interval — pre-loop health gate (git/MCP/disk/memory/network) |
+| Auto-commit | Working — report files committed and pushed automatically |
+| Divergence | Auto-healed with recovery branch; protected on `main` only |
+| Detached HEAD | Auto-healed by supervisor; sync script refuses auto-commit on detached HEAD |
+| Sync script | `sync-github-local-server.sh` v2 — checks branch, dirty state, divergence before any action |
 | Linger | enabled (loginctl enable-linger asdev) |
 | Health monitor | `asdev-health-monitor.timer` — enabled, 5min interval, active |
 | MCP monitor | `asdev-mcp-monitor.timer` — enabled, 10min interval, active |
