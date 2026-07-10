@@ -1,7 +1,7 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-10T16:30:00Z  
-**Status:** PERSIANTOOLBOX LIVE_VERIFICATION_PASS · DEPLOYED · DEPLOY-RESILIENT · ALL QUEUE ITEMS COMPLETE
+**Last Updated:** 2026-07-10T17:22:00Z  
+**Status:** PERSIANTOOLBOX LIVE_VERIFICATION_PASS · AUTOMATION HARDENING #91 COMPLETE · FINAL RELIABILITY #94 ACTIVE
 
 ## Runtime
 - `LOCAL_PC`: owner's own computer/workstation; MiMo primary commander.
@@ -26,6 +26,8 @@
 - Payment gateway: ZARINPAL_MERCHANT_ID configured, mode=production, sandbox=false.
 - Admin: live API calls, monetization wired to DB.
 - Development freeze: ready for owner approval.
+- AI Gateway local MVP: PASS on LOCAL_PC; automation rollout remains gated.
+- Issue #94 is the active infrastructure priority before AI Gateway automation rollout.
 
 ## Safe continuous
 - GitHub sync every 5 minutes/10 minutes according to installed timer policy.
@@ -33,16 +35,33 @@
 - multi-agent MiMo/OpenCode under explicit environment naming.
 - product quality pre-deploy.
 
-## Issue #91 — Automation Server Hardening (P0)
+## Issue #91 — Automation Server Hardening (P0) — COMPLETE
 - [x] Detached HEAD resolved on AUTOMATION_SERVER — branch restored to `main`
 - [x] Auto-commits no longer happen on detached HEAD (sync script v2 blocks)
-- [x] Divergence auto-healed with recovery branches (`recovery/auto-*`)
+- [x] Divergence preserved with recovery branches (`recovery/auto-*`)
 - [x] Sync script v2 deployed — pre-flight checks: branch, dirty state, divergence, rebase/cherry-pick/merge
 - [x] Supervisor service & timer installed — checks git state, timers, MCP, disk, memory, network, provider health
 - [x] Auto-commit glob bug fixed — `ops/automation-logs/*.summary.md` no longer breaks `git add`
 - [x] run-task.sh argument parsing improved — better error messages, relative path resolution
 - [x] Report files auto-committed and pushed to GitHub by sync timer
 - [x] Recovery commits preserved in `recovery/auto-commits-20260710` and `recovery/auto-divergence-20260710`
+- [x] GitHub issue #91 closed as completed
+
+## Issue #94 — Final Reliability Hardening (P1) — ACTIVE
+Prompt: `prompts/opencode/AUTOMATION_SERVER_FINAL_RELIABILITY_HARDENING.md`
+
+- [ ] MCP health v2 follows redirects and validates final SSE semantics
+- [ ] HTTP `000` is treated as failure, never PASS
+- [ ] Supervisor v2 performs bounded allowlisted recovery with cooldown and max attempts
+- [ ] Unknown code-bearing Git divergence produces `NO_GO` and is never hard-reset automatically
+- [ ] Generated report commits are throttled by semantic state changes
+- [ ] Timestamp-only commit storms are eliminated
+- [ ] loop-once fails closed on supervisor `NO_GO`
+- [ ] Regression fixtures cover MCP, recovery, Git divergence, and throttling
+- [ ] Reboot drill runbook prepared
+- [ ] Controlled reboot executed only after `APPROVE_AUTOMATION_SERVER_REBOOT_DRILL`
+- [ ] Final report committed under `docs/reports/automation-server/`
+- [ ] AI Gateway automation remains disabled
 
 ## Completed safe cycles
 - [x] MCP health monitor report | ID: ASDEV-AUTO-MCP-HEALTH | Mode: read-only | Priority: 3
@@ -60,13 +79,14 @@
 - [x] P0: PersianToolbox admin dashboard real operational audit/fix | ID: ASDEV-AUTO-PTB-ADMIN-OPS-FIX | Mode: code/test/live-safe | Priority: 0 | Done: funnel stubs replaced with live API
 - [x] P0/P1: PersianToolbox first-load/cold-load performance and SSR/SSG audit/fix | ID: ASDEV-AUTO-PTB-FIRST-LOAD-FIX | Mode: code/test/live-safe | Priority: 1 | Done: SSR audit complete, TTF removed
 - [x] P1: PersianToolbox privacy transparency, analytics/vitals, a11y, popup pressure cleanup | ID: ASDEV-AUTO-PTB-AUDIT-ESSENTIALS | Mode: code/docs/test | Priority: 2 | Done: a11y verified, popup pressure acceptable
+- [x] P0: ASDEV AI Gateway local-first MVP with OpenCode | ID: ASDEV-AUTO-AI-GATEWAY-LOCAL-MVP | Mode: LOCAL_PC/opencode/docs+scripts | Commit: `7f3ac55`
+- [x] P0: AI provider health and registry verification on LOCAL_PC | ID: ASDEV-AUTO-AI-GATEWAY-PROVIDER-HEALTH | Mode: LOCAL_PC/read-only/script
+- [x] P1: AI task router dry-run and safe local execute | ID: ASDEV-AUTO-AI-GATEWAY-TASK-ROUTER | Mode: LOCAL_PC/script
 
 ## Safe next cycles
-- [ ] P0: ASDEV AI Gateway local-first MVP with OpenCode | ID: ASDEV-AUTO-AI-GATEWAY-LOCAL-MVP | Mode: LOCAL_PC/opencode/docs+scripts | Priority: 0 | Prompt: `prompts/opencode/LOCAL_AI_GATEWAY_MVP.md`
-- [ ] P0: AI provider health and registry verification on LOCAL_PC | ID: ASDEV-AUTO-AI-GATEWAY-PROVIDER-HEALTH | Mode: LOCAL_PC/read-only/script | Priority: 0 | Command: `ASDEV_ENVIRONMENT=LOCAL_PC bash scripts/ai-router/provider-health.sh`
-- [ ] P1: AI task router dry-run sample tasks | ID: ASDEV-AUTO-AI-GATEWAY-TASK-ROUTER | Mode: LOCAL_PC/script | Priority: 1 | Command: `ASDEV_ENVIRONMENT=LOCAL_PC bash scripts/ai-router/run-task.sh provider-health prompts/ai-router/sample-provider-health.md`
-- [ ] P1: AI Gateway automation handoff plan to AUTOMATION_SERVER | ID: ASDEV-AUTO-AI-GATEWAY-AUTOMATION-HANDOFF | Mode: docs-only | Priority: 2 | Blocked until local MVP passes
-- [ ] P1: PersianToolbox development freeze and revenue-mode handoff | ID: ASDEV-AUTO-PTB-DEV-FREEZE-REVENUE-HANDOFF | Mode: docs/business-ops | Priority: 2 | Awaiting: ZARINPAL_MERCHANT_ID + owner approval
+- [ ] P1: Automation Server final reliability hardening | ID: ASDEV-AUTO-FINAL-RELIABILITY-HARDENING | Mode: AUTOMATION_SERVER/opencode/scripts+tests | Priority: 0 | Issue: #94 | Prompt: `prompts/opencode/AUTOMATION_SERVER_FINAL_RELIABILITY_HARDENING.md`
+- [ ] P1: AI Gateway automation handoff plan to AUTOMATION_SERVER | ID: ASDEV-AUTO-AI-GATEWAY-AUTOMATION-HANDOFF | Mode: docs-only | Priority: 1 | Blocked until issue #94 passes and owner approves rollout
+- [ ] P1: PersianToolbox development freeze and revenue-mode handoff | ID: ASDEV-AUTO-PTB-DEV-FREEZE-REVENUE-HANDOFF | Mode: docs/business-ops | Priority: 2 | Awaiting owner approval
 - [ ] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 3
 - [ ] Refactor AuditSystems deploy scripts for post-deploy live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-AUDIT | Mode: docs-only/automation-script | Priority: 3
 - [ ] Refactor Novax deploy docs/scripts for Worker + Telegram post-deploy verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-NOVAX | Mode: docs-only/automation-script | Priority: 3
@@ -74,6 +94,7 @@
 ## Gated pending
 | Phrase | Theme |
 |--------|--------|
+| APPROVE_AUTOMATION_SERVER_REBOOT_DRILL | Controlled AUTOMATION_SERVER reboot-resilience test |
 | APPROVE_CRITICAL_SITE_PUBLIC_EDGE | nginx/SSL/DNS + CWV |
 | APPROVE_MONITORING_LIVE_TIMERS | live probes |
 | APPROVE_CRITICAL_SITE_MIGRATION | DB |
@@ -83,7 +104,7 @@
 | APPROVE_PUBLIC_AI_CHAT_PRODUCT | start a public-facing AI chat product |
 
 ## NEXT
-PersianToolbox is deployed and verified. Owner should:
-1. Accept development freeze (`DEV_FREEZE_READY`)
-2. Test payment flow in Zarinpal sandbox with real browser
-3. Shift to traffic/marketing/revenue work
+1. AUTOMATION_SERVER sync discovers issue #94 prompt automatically.
+2. OpenCode executes final reliability hardening on AUTOMATION_SERVER.
+3. Reboot drill remains gated until explicit owner approval.
+4. AI Gateway automation rollout remains disabled until issue #94 passes and owner approval is provided.
