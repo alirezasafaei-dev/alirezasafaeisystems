@@ -2,21 +2,21 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T17:15:59Z |
-| Finished | 2026-07-10T17:16:01Z |
+| Started | 2026-07-10T17:25:03Z |
+| Finished | 2026-07-10T17:25:04Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | GO |
 | Passed | 13 |
 | Warnings | 1 |
 | Failed | 0 |
-| Auto-healed | 1 |
+| Auto-healed | 0 |
 
 ## Checks
 - PASS [GIT-005] On branch: main
 - PASS [GIT-006] Remote origin reachable
-- PASS [GIT-008] No divergence (ahead=0 behind=1)
-- PASS [GIT-009] Fast-forward sync OK
+- PASS [GIT-008] No divergence (ahead=0 behind=0)
+- PASS [GIT-009] Already up to date
 - PASS [SVC-asdev-github-sync] Timer active
 - PASS [SVC-asdev-agent-loop] Timer active
 - PASS [SVC-asdev-health-monitor] Timer active
@@ -27,9 +27,6 @@
 - PASS [SYS-002] Memory usage: 29%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
-
-## Auto-heal actions
-- Fast-forward 1 commits
 
 ## Verdict
 All critical checks passed. Loop may proceed.
