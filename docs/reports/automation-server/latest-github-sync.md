@@ -2,22 +2,22 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T16:25:14Z |
-| Finished | 2026-07-10T16:25:15Z |
+| Started | 2026-07-10T16:26:09Z |
+| Finished | 2026-07-10T16:26:10Z |
 | Environment | UNKNOWN |
 | Hostname | asdevserve |
 | User | asdev |
 | Repo | /home/asdev/repos/alirezasafaeisystems |
 | Branch | main |
-| Local HEAD | 215425f |
-| Origin HEAD | 215425f |
-| Dirty count | 1 |
+| Local HEAD | 5f23ef6 |
+| Origin HEAD | 5f23ef6 |
+| Dirty count | 2 |
 | Ahead | 0 |
 | Behind | 0 |
 | Diverged | no |
 | Prompt files | 6 |
 | Queue JSON valid | yes |
-| Status | warning |
+| Status | blocked |
 
 ## Actions
 - Fetched origin/main
@@ -31,7 +31,6 @@
 
 ## Warnings
 - ASDEV_ENVIRONMENT not set
-- Safe paths staged but nothing changed
 
 ## Blockers
-- none
+- Unsafe dirty paths (1) — refusing auto-commit
