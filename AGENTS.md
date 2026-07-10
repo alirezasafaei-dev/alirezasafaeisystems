@@ -1,6 +1,6 @@
 # Agent Governance — ASDEV (AlirezaSafaeiSystems Mother Repo)
 
-**Last Updated**: 2026-07-08
+**Last Updated**: 2026-07-10
 **Status**: Active
 
 ## Autonomous Loop Governance (mandatory)
@@ -13,6 +13,9 @@ Core rule: **do not stop after a completed task** — select the highest-value *
 
 Also read:
 
+- Environment roles + sync: [`docs/governance/ENVIRONMENT_ROLES_AND_SYNC_POLICY.md`](docs/governance/ENVIRONMENT_ROLES_AND_SYNC_POLICY.md)
+- GitHub/local/server sync: [`docs/ops/GITHUB_LOCAL_SERVER_SYNC.md`](docs/ops/GITHUB_LOCAL_SERVER_SYNC.md)
+- Post-deploy live verification: [`docs/governance/POST_DEPLOY_LIVE_VERIFICATION_POLICY.md`](docs/governance/POST_DEPLOY_LIVE_VERIFICATION_POLICY.md)
 - Mode: [`docs/governance/AUTONOMOUS_PRODUCTIVITY_MODE.md`](docs/governance/AUTONOMOUS_PRODUCTIVITY_MODE.md)
 - Gates: [`docs/governance/APPROVAL_GATES.md`](docs/governance/APPROVAL_GATES.md)
 - Multi-agent (OWNER_PC): [`docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md`](docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md) — prefer **mimo** + **opencode** as first assistants
@@ -21,6 +24,52 @@ Also read:
 
 Stop only for: real approval gates · security risk · honest zero safe work.
 
+---
+
+## Environment naming rule (mandatory)
+
+Agents must use these exact names:
+
+| Name | Meaning |
+|---|---|
+| `LOCAL_PC` | The owner's own computer/workstation. MiMo is the primary commander here. |
+| `AUTOMATION_SERVER` | External automation server, currently `asdev@91.107.153.223`. Always-on loops, GitHub sync, MCP, queue worker, and reporting run here. |
+| `IRAN_PROD_SERVER` | Iran live production/deployment server. Strictly gated. |
+| `GITHUB_MAIN` | GitHub `main` branch and source of truth. |
+
+Agents must not say vague labels like "local", "server", "prod", "branch 45", or "synced" without exact environment/repo/branch/SHA context.
+
+---
+
+## Agent ownership rule (mandatory)
+
+| Agent | Role |
+|---|---|
+| `MiMo` | Primary orchestration agent. |
+| `OpenCode` | Implementation/patch agent. |
+| `Hermes` | Telegram reporting/status/approval gateway. |
+| `OpenClaw` | Gateway/diagnostic only unless explicitly approved otherwise. |
+| `bot.js` | GitHub command bus if still needed. |
+
+Hermes is the default Telegram owner. OpenClaw must not poll Telegram while Hermes is active.
+
+---
+
+## Sync rule (mandatory)
+
+`AUTOMATION_SERVER` must automatically sync GitHub `main` using:
+
+```bash
+scripts/control-plane/sync-github-local-server.sh
+```
+
+and the user systemd timer:
+
+```text
+asdev-github-sync.timer
+```
+
+Prompt/policy/queue files committed to GitHub must become discoverable on `AUTOMATION_SERVER` without owner manual copy-paste.
 
 ---
 
@@ -116,6 +165,9 @@ pnpm build         # Next.js build - must succeed
 - Commit `node_modules` or build artifacts
 - Add comments unless explicitly asked
 - Use `framer-motion` (removed, use CSS animations)
+- Confuse `LOCAL_PC`, `AUTOMATION_SERVER`, and `IRAN_PROD_SERVER`
+- Report deploy success without live verification
+- Report sync success without branch/SHA evidence
 
 ### ALWAYS
 - Use environment variables for configuration
@@ -128,6 +180,7 @@ pnpm build         # Next.js build - must succeed
 - Use the project logger (`src/lib/logger.ts`) not `console.*`
 - Import `withLocale` from `@/lib/locale-utils` (not duplicated)
 - Use `t()` function for user-facing text (not inline ternaries)
+- Report environment, repo, branch, local SHA, origin SHA, and dirty status when discussing sync or automation
 
 ---
 
@@ -238,54 +291,3 @@ src/
 | `tsconfig.json` | TypeScript config (strict mode) |
 | `next.config.ts` | Next.js config (standalone output) |
 | `prisma/schema.prisma` | Database schema (7 models) |
-| `.env.example` | Environment variables template |
-| `vitest.config.ts` | Unit test config |
-| `playwright.config.mjs` | E2E test config |
-| `lighthouserc.json` | Lighthouse CI config |
-| `eslint.config.mjs` | ESLint flat config |
-| `tailwind.config.ts` | Tailwind CSS config |
-| `src/proxy.ts` | Middleware (security, i18n, admin auth) |
-| `src/lib/locale-utils.ts` | Shared locale utilities |
-| `src/lib/api-schemas.ts` | Shared Zod validation schemas |
-| `src/lib/logger.ts` | Structured logging (use this, not console) |
-
----
-
-## Environment Variables
-
-### Required
-- `NEXT_PUBLIC_SITE_URL` - Site URL (https://alirezasafaeisystems.ir)
-- `ADMIN_API_TOKEN` - Admin API authentication
-- `ADMIN_USERNAME` / `ADMIN_PASSWORD` - Admin login
-- `ADMIN_SESSION_SECRET` - Session signing (min 32 chars)
-- `DATABASE_URL` - Database connection string
-
-### Optional
-- `REDIS_REST_URL` / `REDIS_REST_TOKEN` - Redis for distributed rate limiting
-- `LEAD_NOTIFICATION_WEBHOOK_URL` - Slack/Discord webhook
-- `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` - Telegram notifications
-
----
-
-## Troubleshooting
-
-### Build Failures
-```bash
-rm -rf .next && pnpm install && pnpm db:generate && pnpm build
-```
-
-### Test Failures
-```bash
-pnpm test -- --reporter=verbose  # Verbose output
-pnpm test path/to/test.test.ts  # Specific file
-```
-
-### Type Errors
-```bash
-pnpm type-check  # Check all types
-pnpm db:generate  # Regenerate Prisma types
-```
-
----
-
-*This governance document ensures consistent, high-quality contributions while maintaining the production-readiness of the AlirezaSafaeiSystems platform.*
