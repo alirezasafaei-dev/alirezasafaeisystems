@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "environment": "LOCAL_PC",
+  "policy": "docs/governance/ASDEV_AI_GATEWAY_POLICY.md",
+  "providers": [
+    {
+      "id": "mimo",
+      "name": "MiMo",
+      "role": "long-context-planning",
+      "enabled": true,
+      "status": "UNKNOWN_NOT_TESTED",
+      "requires_vpn": "unknown",
+      "invocation": {
+        "type": "manual_or_cli",
+        "command": "mimo"
+      },
+      "limits": {
+        "context_tokens_reported": 1000000,
+        "rate_limit": "unknown"
+      },
+      "notes": "Owner reports large-context usage; verify locally before automation."
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "role": "implementation-agent",
+      "enabled": true,
+      "status": "UNKNOWN_NOT_TESTED",
+      "requires_vpn": false,
+      "invocation": {
+        "type": "cli",
+        "command": "opencode"
+      },
+      "limits": {
+        "rate_limit": "model-dependent"
+      },
+      "notes": "Use first for local MVP implementation."
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "role": "low-cost-reasoning-and-coding-fallback",
+      "enabled": false,
+      "status": "CONFIG_MISSING",
+      "requires_vpn": "unknown",
+      "invocation": {
+        "type": "api_or_manual",
+        "command": null,
+        "env": ["DEEPSEEK_API_KEY"]
+      },
+      "limits": {
+        "rate_limit": "unknown"
+      },
+      "notes": "Do not use unofficial free web access as a public backend."
+    },
+    {
+      "id": "hermes",
+      "name": "Hermes",
+      "role": "reporting-provider-inventory-router",
+      "enabled": true,
+      "status": "UNKNOWN_NOT_TESTED",
+      "requires_vpn": "managed-by-hermes",
+      "invocation": {
+        "type": "service_or_cli",
+        "command": "hermes"
+      },
+      "limits": {
+        "rate_limit": "provider-dependent"
+      },
+      "notes": "Default reporting owner; export provider inventory safely."
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "role": "gateway-diagnostic",
+      "enabled": true,
+      "status": "UNKNOWN_NOT_TESTED",
+      "requires_vpn": "unknown",
+      "invocation": {
+        "type": "service_or_cli",
+        "command": "openclaw"
+      },
+      "limits": {
+        "rate_limit": "unknown"
+      },
+      "notes": "Telegram polling must remain disabled while Hermes owns Telegram."
+    },
+    {
+      "id": "local-small-model",
+      "name": "Local small model",
+      "role": "offline-emergency-fallback",
+      "enabled": false,
+      "status": "DISABLED_BY_POLICY",
+      "requires_vpn": false,
+      "invocation": {
+        "type": "local-model-server",
+        "command": null
+      },
+      "limits": {
+        "quality": "unverified",
+        "hardware": "unknown"
+      },
+      "notes": "Research only after provider-router MVP."
+    }
+  ]
+}
