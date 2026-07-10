@@ -42,7 +42,7 @@
 - [x] URGENT: Verify PersianToolbox MiMo hotfix with real browsers | ID: ASDEV-AUTO-PTB-MIMO-HOTFIX-BROWSER-VERIFY | Mode: read-only/automation-script | Priority: 1 | Prompt: `prompts/opencode/VERIFY_PERSIANTOOLBOX_MIMO_HOTFIX.md`
 - [x] Upgrade PersianToolbox post-deploy verification from curl-only to Playwright-backed live verification | ID: ASDEV-AUTO-PTB-LIVE-VERIFY-PLAYWRIGHT | Mode: automation-script | Priority: 1
 - [x] Integrate PersianToolbox live verification into deploy-blue-green.sh final success gate | ID: ASDEV-AUTO-PTB-DEPLOY-SUCCESS-GATE | Mode: automation-script | Priority: 1
-- [ ] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 2
+- [x] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 2
 - [ ] Refactor AuditSystems deploy scripts for post-deploy live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-AUDIT | Mode: docs-only/automation-script | Priority: 2
 - [ ] Refactor Novax deploy docs/scripts for Worker + Telegram post-deploy verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-NOVAX | Mode: docs-only/automation-script | Priority: 2
 - [ ] Add live-verification report template and wrapper conventions to deployment docs | ID: ASDEV-AUTO-LIVE-VERIFY-TEMPLATE | Mode: docs-only | Priority: 2
