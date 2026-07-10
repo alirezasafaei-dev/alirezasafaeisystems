@@ -1,7 +1,7 @@
 # Active Autonomous Queue — ASDEV
 
-**Last Updated:** 2026-07-10T08:10:00Z  
-**Status:** ENVIRONMENT ROLES POLICY ACTIVE · GITHUB SYNC SERVICE CREATED · AUTOMATION_SERVER SYNC ROLLOUT REQUIRED
+**Last Updated:** 2026-07-10T12:45:00Z  
+**Status:** ENVIRONMENT ROLES POLICY ACTIVE · GITHUB SYNC ACTIVE/ROLLOUT · PERSIANTOOLBOX FINAL REVENUE STABILIZATION REQUIRED
 
 ## Runtime
 - `LOCAL_PC`: owner's own computer/workstation; MiMo primary commander.
@@ -18,9 +18,12 @@
 - Prompt/policy/queue files committed to GitHub must become discoverable on `AUTOMATION_SERVER` without manual copy-paste.
 
 ## Immediate incident note
-- MiMo claims PersianToolbox was fixed by copying missing Next.js JS chunks into standalone build.
-- GitHub contains the JS chunk copy fix and a curl-based post-deploy verification script.
-- The current verification script is useful but not sufficient for the mandatory policy because it is not real-browser verification and does not prove navbar/blog/tool interactions.
+- PersianToolbox still has business-critical stabilization work.
+- Zarinpal checkout still fails/hangs in the user's real flow.
+- Paid purchase must require login/register and must bind payment/subscription/credits to a stable user id.
+- First-load/cold-load performance must be fast and evidence-based.
+- Admin dashboard must be real and operational, not only visually present.
+- After stabilization, PersianToolbox development must freeze and shift to traffic/marketing/revenue work.
 
 ## Safe continuous
 - GitHub sync every 5 minutes after `asdev-github-sync.timer` rollout.
@@ -34,21 +37,22 @@
 - [x] Agent memory freshness check | ID: ASDEV-AUTO-MEMORY-FRESH | Mode: docs-only | Priority: 3
 - [x] MCP recurring health verify | ID: ASDEV-AUTO-MCP-SSE | Mode: read-only | Priority: 4
 - [x] OpenClaw gateway diagnostic only | ID: ASDEV-AUTO-OPENCLAW-DIAG | Mode: read-only | Priority: 5
-
-## Safe next cycles
-- [x] Install/enable  on `AUTOMATION_SERVER` | ID: ASDEV-AUTO-GITHUB-SYNC-TIMER-INSTALL | Mode: automation-script | Priority: 0 | Command: `ASDEV_ENVIRONMENT=AUTOMATION_SERVER bash scripts/control-plane/install-github-sync-service.sh`
+- [x] Install/enable GitHub sync on `AUTOMATION_SERVER` | ID: ASDEV-AUTO-GITHUB-SYNC-TIMER-INSTALL | Mode: automation-script | Priority: 0
 - [x] Verify GitHub sync pulls new prompts without manual copy | ID: ASDEV-AUTO-GITHUB-SYNC-PROMPT-DISCOVERY | Mode: read-only/automation-script | Priority: 0
 - [x] Fix stale Telegram/OpenClaw branch/issue status labels using environment roles policy | ID: ASDEV-AUTO-TELEGRAM-STALE-STATUS-FIX | Mode: automation-script | Priority: 1
-- [x] URGENT: Verify PersianToolbox MiMo hotfix with real browsers | ID: ASDEV-AUTO-PTB-MIMO-HOTFIX-BROWSER-VERIFY | Mode: read-only/automation-script | Priority: 1 | Prompt: `prompts/opencode/VERIFY_PERSIANTOOLBOX_MIMO_HOTFIX.md`
+- [x] Verify PersianToolbox MiMo hotfix with real browsers | ID: ASDEV-AUTO-PTB-MIMO-HOTFIX-BROWSER-VERIFY | Mode: read-only/automation-script | Priority: 1
 - [x] Upgrade PersianToolbox post-deploy verification from curl-only to Playwright-backed live verification | ID: ASDEV-AUTO-PTB-LIVE-VERIFY-PLAYWRIGHT | Mode: automation-script | Priority: 1
 - [x] Integrate PersianToolbox live verification into deploy-blue-green.sh final success gate | ID: ASDEV-AUTO-PTB-DEPLOY-SUCCESS-GATE | Mode: automation-script | Priority: 1
-- [x] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 2
-- [x] Refactor AuditSystems deploy scripts for post-deploy live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-AUDIT | Mode: docs-only/automation-script | Priority: 2
-- [x] Refactor Novax deploy docs/scripts for Worker + Telegram post-deploy verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-NOVAX | Mode: docs-only/automation-script | Priority: 2
-- [x] Add live-verification report template and wrapper conventions to deployment docs | ID: ASDEV-AUTO-LIVE-VERIFY-TEMPLATE | Mode: docs-only | Priority: 2
-- [x] Compare PersianToolbox GitHub HEAD vs public live release | ID: ASDEV-AUTO-PTB-DRIFT-20260709 | Mode: read-only | Priority: 3
-- [x] Review MiMo testimonial/trust changes for non-fabrication risk | ID: ASDEV-AUTO-PTB-TRUST-REVIEW-20260709 | Mode: docs-only/read-only | Priority: 3
-- [x] Re-check Hermes/OpenClaw service split after duplicate bot removal | ID: ASDEV-AUTO-HERMES-OPENCLAW-VERIFY-20260709 | Mode: read-only | Priority: 4
+
+## Safe next cycles
+- [ ] P0: PersianToolbox Zarinpal/payment/login-register stabilization | ID: ASDEV-AUTO-PTB-PAYMENT-STABILIZE | Mode: code/test/live-safe | Priority: 0 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
+- [ ] P0: PersianToolbox admin dashboard real operational audit/fix | ID: ASDEV-AUTO-PTB-ADMIN-OPS-FIX | Mode: code/test/live-safe | Priority: 0 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
+- [ ] P0/P1: PersianToolbox first-load/cold-load performance and SSR/SSG audit/fix | ID: ASDEV-AUTO-PTB-FIRST-LOAD-FIX | Mode: code/test/live-safe | Priority: 1 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
+- [ ] P1: PersianToolbox privacy transparency, analytics/vitals, a11y, popup pressure cleanup | ID: ASDEV-AUTO-PTB-AUDIT-ESSENTIALS | Mode: code/docs/test | Priority: 2 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
+- [ ] P1: PersianToolbox development freeze and revenue-mode handoff | ID: ASDEV-AUTO-PTB-DEV-FREEZE-REVENUE-HANDOFF | Mode: docs/business-ops | Priority: 2 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
+- [ ] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 3
+- [ ] Refactor AuditSystems deploy scripts for post-deploy live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-AUDIT | Mode: docs-only/automation-script | Priority: 3
+- [ ] Refactor Novax deploy docs/scripts for Worker + Telegram post-deploy verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-NOVAX | Mode: docs-only/automation-script | Priority: 3
 
 ## Gated pending
 | Phrase | Theme |
@@ -60,4 +64,4 @@
 | APPROVE_CRITICAL_SITE_ROLLBACK | rollback public production release |
 
 ## NEXT
-First install and verify the GitHub sync timer on `AUTOMATION_SERVER`. Then verify PersianToolbox with real browsers and upgrade deploy verification from curl-only to Playwright-backed. Deploy and rollback remain gated; no production mutation without exact approval phrase.
+Run `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md` from `LOCAL_PC` through MiMo. Fix payment/login-register/admin/first-load first. Do not continue general feature development. Deploy and rollback remain gated; no production mutation without exact approval phrase.
