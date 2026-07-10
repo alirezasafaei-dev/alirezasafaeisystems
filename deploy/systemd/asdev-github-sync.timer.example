@@ -1,0 +1,13 @@
+[Unit]
+Description=Run ASDEV GitHub/local/server sync every 5 minutes
+Documentation=docs/ops/GITHUB_LOCAL_SERVER_SYNC.md
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=5min
+Persistent=true
+RandomizedDelaySec=30s
+Unit=asdev-github-sync.service
+
+[Install]
+WantedBy=timers.target
