@@ -4,5 +4,8 @@
   "positive_responses": { "actual": 0, "target": 8, "blocker": "outreach not approved", "next_action": "send only after owner approval" },
   "calls": { "actual": 0, "target": 5, "blocker": "no outreach/calls yet", "next_action": "book from qualified responses" },
   "proposals": { "actual": 0, "target": 3, "blocker": "no calls yet", "next_action": "use Audit offer package after calls" },
-  "paid_pilots": { "actual": 0, "target": 1, "blocker": "payment/provider activation not approved", "next_action": "record won manually until payment is approved" }
+  "paid_pilots": { "actual": 0, "target": 1, "blocker": "payment/provider activation not approved", "next_action": "record won manually until payment is approved" },
+  "delivery_time": { "deliveries": [], "blocker": "AuditSystems delivery export not attached", "next_action": "add started_at/delivered_at pairs after auditsystems#30 is merged" },
+  "won_lost": { "won": 0, "lost": 0 },
+  "loss_reason": {}
 }
