@@ -295,15 +295,13 @@ REPORT_FILE="$REPORT_DIR/latest-supervisor.md"
 
 # JSON state
 STATE_FILE="$STATE_DIR/latest.json"
-{
-  local_results=()
-  for r in "${RESULTS[@]}"; do
-    IFS=':' read -r status code msg <<< "$r"
-    local_results+=("{\"check\":\"$code\",\"status\":\"$status\",\"message\":\"$msg\"}")
-  done
-  local joined
-  joined=$(IFS=,; echo "${local_results[*]}")
-  cat > "$STATE_FILE" <<JSON
+json_checks=()
+for r in "${RESULTS[@]}"; do
+  IFS=':' read -r status code msg <<< "$r"
+  json_checks+=("{\"check\":\"$code\",\"status\":\"$status\",\"message\":\"$msg\"}")
+done
+joined_checks=$(IFS=,; echo "${json_checks[*]}")
+cat > "$STATE_FILE" <<JSON
 {
   "script": "$SCRIPT_NAME",
   "started_at": "$STARTED_AT",
@@ -315,10 +313,9 @@ STATE_FILE="$STATE_DIR/latest.json"
   "checks_warn": $CHECKS_WARN,
   "checks_failed": $CHECKS_FAILED,
   "auto_healed": ${#HEALED[@]},
-  "checks": [$joined]
+  "checks": [$joined_checks]
 }
 JSON
-}
 
 log "=== Supervisor verdict: $VERDICT (passed=$CHECKS_PASSED warn=$CHECKS_WARN failed=$CHECKS_FAILED healed=${#HEALED[@]}) ==="
 

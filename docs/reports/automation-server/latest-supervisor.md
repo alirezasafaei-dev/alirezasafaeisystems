@@ -2,9 +2,9 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T15:34:49Z |
-| Finished | 2026-07-10T15:34:50Z |
-| Environment | AUTOMATION_SERVER |
+| Started | 2026-07-10T15:55:58Z |
+| Finished | 2026-07-10T15:55:59Z |
+| Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | GO |
 | Passed | 13 |
