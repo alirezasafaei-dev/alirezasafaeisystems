@@ -1,20 +1,20 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-10T14:45:00Z  
+**Updated:** 2026-07-10T14:58:00Z  
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
 
 ## Multi-agent (OWNER_PC / LOCAL_PC)
 
-**Updated:** 2026-07-10T14:45:00Z  
+**Updated:** 2026-07-10T14:58:00Z  
 **Canonical name:** `LOCAL_PC` = owner workstation  
 **Orchestrator:** MiMo primary commander on LOCAL_PC  
 **Implementation agent:** OpenCode  
 **Reporting agent:** Hermes  
 **OpenClaw:** gateway/diagnostic only; Telegram polling disabled while Hermes owns Telegram  
 **Policy:** `docs/automation/MULTI_AGENT_LOCAL_ORCHESTRATION.md` + `docs/governance/ENVIRONMENT_ROLES_AND_SYNC_POLICY.md`  
-**AI Gateway:** Local-first MVP initiated; OpenCode is first implementation agent
+**AI Gateway:** Local-first MVP passed on `LOCAL_PC`; GitHub commit `7f3ac55`; automation rollout remains gated
 
 ## Platform
 
@@ -35,7 +35,7 @@
 
 | Canonical name | Meaning | Status |
 |------|---------|--------|
-| `LOCAL_PC` | Owner's computer; MiMo command center; OpenCode implementation target | AI Gateway local-first MVP next |
+| `LOCAL_PC` | Owner's computer; MiMo command center; OpenCode implementation target | AI Gateway local-first MVP passed |
 | `AUTOMATION_SERVER` | External server `asdev@91.107.153.223`; loops, MCP, GitHub sync, agents, reports | Operational; AI Gateway automation rollout not approved yet |
 | `IRAN_PROD_SERVER` | Iran live production deployment server | Strictly gated; no deploy/rollback/reload/migration without exact approval |
 | `GITHUB_MAIN` | GitHub main branch source of truth | Authoritative for prompts/policies/queues/scripts |
@@ -44,7 +44,8 @@
 
 | Item | Value |
 |------|-------|
-| Status | Scaffolded on GitHub; local OpenCode MVP pending |
+| Status | LOCAL_AI_GATEWAY_MVP_PASS on `LOCAL_PC` |
+| Latest commit | `7f3ac55` — `feat(ai-gateway): local-first MVP — provider health + task router + docs` |
 | Policy | `docs/governance/ASDEV_AI_GATEWAY_POLICY.md` |
 | Registry | `docs/ops/ASDEV_AI_PROVIDER_REGISTRY.md` |
 | Guide | `docs/ops/ASDEV_AI_GATEWAY_LOCAL_MVP.md` |
@@ -53,9 +54,12 @@
 | Task router script | `scripts/ai-router/run-task.sh` |
 | OpenCode prompt | `prompts/opencode/LOCAL_AI_GATEWAY_MVP.md` |
 | Sample tasks | `prompts/ai-router/sample-provider-health.md`, `sample-code-patch.md`, `sample-repo-audit.md` |
-| Principle | Internal router first; no public unlimited free chat product |
-| Providers | MiMo for long-context, OpenCode for patches, DeepSeek for fallback reasoning, Hermes for reporting/provider pool, OpenClaw for diagnostic/gateway only |
-| Automation handoff | Requires local MVP evidence + owner approval `APPROVE_AI_GATEWAY_AUTOMATION_ROLLOUT` |
+| Final report | `docs/reports/ai-router/LOCAL_AI_GATEWAY_MVP_20260710T145439Z.md` |
+| Validation | `bash -n` checks passed; provider-health passed; router dry-run passed; safe local execute passed; unsafe execute refused |
+| Provider status | MiMo/OpenCode/Hermes/OpenClaw available on `LOCAL_PC`; DeepSeek disabled by policy; local small model disabled |
+| Production impact | none; no `IRAN_PROD_SERVER`, no deploy, no automation server mutation |
+| Secrets | no secrets committed; `.state/ai-router/` gitignored |
+| Automation handoff | Requires owner approval `APPROVE_AI_GATEWAY_AUTOMATION_ROLLOUT` |
 | Public product gate | Requires separate owner approval `APPROVE_PUBLIC_AI_CHAT_PRODUCT` after PersianToolbox revenue stabilization |
 
 ## CRITICAL_SITE (`persiantoolbox`)
