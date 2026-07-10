@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-07-10T11:25:58Z",
+  "services": {
+    "hermes": "[11:25:58]   hermes-gateway.service: active
+active",
+    "openclaw": "[11:25:58]   openclaw-gateway.service: active
+active",
+    "bot": "[11:25:58]   asdev-bot.service: active
+active",
+    "agent_loop": "[11:25:58]   asdev-agent-loop.service: inactive
+inactive
+inactive
+inactive",
+    "sync": "[11:25:58]   asdev-github-sync.service: inactive
+inactive
+inactive
+inactive",
+    "mcp": "active"
+  },
+  "ports": {
+    "mcp_local": "200000",
+    "mcp_public": "307"
+  },
+  "sites": {
+    "persiantoolbox": "200",
+    "alirezasafaeisystems": "200",
+    "audit": "200"
+  },
+  "disk_used": "36%"
+}
