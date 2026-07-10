@@ -184,6 +184,10 @@ export function InfrastructureLeadForm() {
       payload.set('preferredContact', formData.preferredContact)
       payload.set('notes', formData.notes)
       payload.set('website', formData.website)
+      const params = new URLSearchParams(window.location.search)
+      payload.set('utmSource', params.get('source') ?? params.get('utm_source') ?? 'portfolio')
+      payload.set('utmMedium', params.get('placement') ?? params.get('utm_medium') ?? 'qualification')
+      payload.set('utmCampaign', params.get('offer') ?? params.get('utm_campaign') ?? 'request_assessment')
       if (attachment) {
         payload.set('attachment', attachment)
       }
