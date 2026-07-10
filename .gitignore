@@ -89,3 +89,4 @@ reports/edge-route/
 reports/postgres-audit/
 .state/asdev-agent-loop/
 worktrees/
+.state/
