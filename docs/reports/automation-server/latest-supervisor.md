@@ -2,29 +2,36 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T18:00:59Z |
-| Finished | 2026-07-10T18:01:00Z |
-| Environment | asdevserve |
+| Started | 2026-07-10T18:20:53Z |
+| Finished | 2026-07-10T18:20:58Z |
+| Environment | UNKNOWN |
 | Hostname | asdevserve |
 | Verdict | GO |
-| Passed | 13 |
-| Warnings | 1 |
+| Passed | 19 |
+| Warnings | 0 |
 | Failed | 0 |
 | Auto-healed | 0 |
+| Skipped (cooldown) | 0 |
+| Skipped (not allowlisted) | 0 |
 
 ## Checks
 - PASS [GIT-005] On branch: main
 - PASS [GIT-006] Remote origin reachable
 - PASS [GIT-008] No divergence (ahead=0 behind=0)
 - PASS [GIT-009] Already up to date
-- PASS [SVC-asdev-github-sync] Timer active
-- PASS [SVC-asdev-agent-loop] Timer active
-- PASS [SVC-asdev-health-monitor] Timer active
-- PASS [SVC-asdev-mcp-monitor] Timer active
-- PASS [SVC-asdev-bot] Service running
-- WARN [MCP-001] MCP endpoint returned HTTP 307
+- PASS [SVC-asdev-github-sync.timer] Timer active
+- PASS [SVC-asdev-agent-loop.timer] Timer active
+- PASS [SVC-asdev-health-monitor.timer] Timer active
+- PASS [SVC-asdev-mcp-monitor.timer] Timer active
+- PASS [SVC-asdev-supervisor.timer] Timer active
+- PASS [SVC-asdev-bot.service] Service running
+- PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [SVC-asdev-health-monitor.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [SVC-asdev-mcp-monitor.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [MCP-001] MCP endpoint healthy (HTTP UNKNOWN, verdict=UNKNOWN)
 - PASS [SYS-001] Disk usage: 36%
-- PASS [SYS-002] Memory usage: 29%
+- PASS [SYS-002] Memory usage: 41%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
 
