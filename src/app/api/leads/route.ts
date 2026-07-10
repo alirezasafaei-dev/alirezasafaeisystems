@@ -86,6 +86,9 @@ export async function POST(request: NextRequest) {
         notes: formString('notes'),
         website: formString('website'),
         attachmentPath: '',
+        utmSource: formString('utmSource'),
+        utmMedium: formString('utmMedium'),
+        utmCampaign: formString('utmCampaign'),
       }
     } else {
       rawPayload = (await request.json()) as Record<string, unknown>
@@ -162,9 +165,9 @@ export async function POST(request: NextRequest) {
         preferredContact: payload.preferredContact,
         notes: payload.notes || undefined,
         attachmentPath: payload.attachmentPath || undefined,
-        utmSource: request.nextUrl.searchParams.get('utm_source') || undefined,
-        utmMedium: request.nextUrl.searchParams.get('utm_medium') || undefined,
-        utmCampaign: request.nextUrl.searchParams.get('utm_campaign') || undefined,
+        utmSource: payload.utmSource || request.nextUrl.searchParams.get('utm_source') || undefined,
+        utmMedium: payload.utmMedium || request.nextUrl.searchParams.get('utm_medium') || undefined,
+        utmCampaign: payload.utmCampaign || request.nextUrl.searchParams.get('utm_campaign') || undefined,
       },
     })
 

@@ -27,7 +27,7 @@ export default async function ThankYouPage() {
       : 'درخواست شما ثبت شد. در مرحله بعد، بررسی اولیه انجام می‌شود و سپس برای هماهنگی Discovery با شما تماس می‌گیریم.'
   const ctaCases = lang === 'en' ? 'View Case Studies' : 'مشاهده مطالعات موردی'
   const ctaHome = lang === 'en' ? 'Back Home' : 'بازگشت به خانه'
-  const ctaAudit = lang === 'en' ? 'Start Free Audit' : 'شروع Audit رایگان'
+  const ctaAudit = lang === 'en' ? 'Request Audit Assessment' : 'درخواست ارزیابی Audit'
   const nextStepsTitle = lang === 'en' ? 'What Happens Next' : 'گام‌های بعدی'
   const nextSteps =
     lang === 'en'
@@ -51,7 +51,7 @@ export default async function ThankYouPage() {
 
         <div className="flex flex-wrap justify-center gap-3">
           <a
-            href="https://audit.alirezasafaeisystems.ir/audit?utm_source=portfolio&utm_medium=thank_you&utm_campaign=asdev_audit"
+            href="https://audit.alirezasafaeisystems.ir/qualification?source=portfolio&placement=thank_you&offer=request_assessment"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground shine-effect"
