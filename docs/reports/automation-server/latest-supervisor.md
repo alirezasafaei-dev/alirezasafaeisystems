@@ -2,13 +2,13 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T17:40:59Z |
-| Finished | 2026-07-10T17:41:00Z |
+| Started | 2026-07-10T17:50:03Z |
+| Finished | 2026-07-10T17:50:05Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | GO |
-| Passed | 12 |
-| Warnings | 2 |
+| Passed | 13 |
+| Warnings | 1 |
 | Failed | 0 |
 | Auto-healed | 0 |
 
@@ -17,14 +17,14 @@
 - PASS [GIT-006] Remote origin reachable
 - PASS [GIT-008] No divergence (ahead=0 behind=0)
 - PASS [GIT-009] Already up to date
-- WARN [SVC-asdev-github-sync] Timer not found
+- PASS [SVC-asdev-github-sync] Timer active
 - PASS [SVC-asdev-agent-loop] Timer active
 - PASS [SVC-asdev-health-monitor] Timer active
 - PASS [SVC-asdev-mcp-monitor] Timer active
 - PASS [SVC-asdev-bot] Service running
 - WARN [MCP-001] MCP endpoint returned HTTP 307
 - PASS [SYS-001] Disk usage: 36%
-- PASS [SYS-002] Memory usage: 46%
+- PASS [SYS-002] Memory usage: 45%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
 
