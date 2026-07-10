@@ -1,31 +1,51 @@
 # ASDEV AI Gateway Local MVP
 
-**Status:** Local-first scaffold  
+**Status:** Local-first MVP — active development  
 **Environment:** `LOCAL_PC`  
 **Policy:** `docs/governance/ASDEV_AI_GATEWAY_POLICY.md`
 
-## Why this exists
+## Why this is internal infrastructure (not a public product)
 
-ASDEV uses several AI agents and providers: MiMo, OpenCode, DeepSeek, Hermes, OpenClaw, and possible local models.
+ASDEV operates multiple AI agents and providers: MiMo, OpenCode, DeepSeek, Hermes, OpenClaw. Without a gateway, provider selection is ad-hoc, health is unknown, and fallback behavior is manual.
 
-The gateway prevents confusion and provider lock-in by recording which provider should handle which task, whether it is available, what limits it has, and what fallback was chosen.
+This AI Gateway is an **internal routing and observability layer** — not a public ChatGPT clone. It records which provider should handle which task, whether it is available, what limits exist, and what fallback was selected.
 
-## Why this is not a public product yet
+A public AI chat product requires:
+- provider terms of service review
+- hard rate limits and cost ceilings
+- abuse prevention
+- privacy/data routing policy
+- admin monitoring
+- monetization or cost control
+- PersianToolbox revenue stabilization first
 
-The uploaded research report suggests a public Persian AI chatbot can be built with open-source stacks and free providers. The implementation risk is not the chat UI; it is provider stability, cost, abuse, rate limits, GPU cost, and terms of service.
+Until those conditions are met, this remains internal infrastructure only.
 
-Therefore this starts as an internal ASDEV infrastructure tool. Public AI chat is deferred until PersianToolbox revenue stabilization and owner approval.
+## Provider roles
+
+| Provider | Role | Notes |
+|---|---|---|
+| MiMo | Long-context planning, repo-level audits | Huge context (~1M tokens); may need VPN from Iran |
+| OpenCode | Code implementation, patching, tests | First local MVP executor on `LOCAL_PC` |
+| DeepSeek | Low-cost reasoning/coding fallback | API adapter not yet implemented; do not treat free web access as stable |
+| Hermes | Reporting, provider inventory, Telegram | Default reporting and provider status layer |
+| OpenClaw | Gateway/diagnostic, MCP support | Diagnostic only; Telegram disabled by policy |
+| Local model | Offline emergency fallback | Research only; not MVP-ready |
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `docs/governance/ASDEV_AI_GATEWAY_POLICY.md` | rules and routing policy |
-| `docs/ops/ASDEV_AI_PROVIDER_REGISTRY.md` | provider registry and task mapping |
-| `config/ai-providers.example.json` | safe example provider config |
-| `scripts/ai-router/provider-health.sh` | provider availability scaffold |
-| `scripts/ai-router/run-task.sh` | task routing scaffold |
-| `prompts/opencode/LOCAL_AI_GATEWAY_MVP.md` | OpenCode implementation prompt |
+| `docs/governance/ASDEV_AI_GATEWAY_POLICY.md` | Rules, routing policy, provider status vocabulary |
+| `docs/ops/ASDEV_AI_PROVIDER_REGISTRY.md` | Provider registry, task mapping, test matrix |
+| `config/ai-providers.example.json` | Safe example provider config (no secrets) |
+| `scripts/ai-router/provider-health.sh` | Provider availability checker |
+| `scripts/ai-router/run-task.sh` | Task router with `--dry-run`/`--execute` support |
+| `prompts/ai-router/sample-repo-audit.md` | Sample repo-audit task |
+| `prompts/ai-router/sample-code-patch.md` | Sample code-patch task |
+| `prompts/ai-router/sample-provider-health.md` | Sample provider-health task |
+| `docs/reports/ai-router/latest-provider-status.md` | Latest health check report |
+| `.state/ai-router/latest.json` | Latest health check state (JSON) |
 
 ## Run provider health
 
@@ -33,65 +53,124 @@ Therefore this starts as an internal ASDEV infrastructure tool. Public AI chat i
 ASDEV_ENVIRONMENT=LOCAL_PC bash scripts/ai-router/provider-health.sh
 ```
 
-Expected outputs:
+The script:
+- reads `config/ai-providers.example.json` (or `config/ai-providers.local.json` if present)
+- checks command availability for MiMo, OpenCode, Hermes, OpenClaw
+- checks DeepSeek as `CONFIG_MISSING` or `CONFIGURED_NOT_CALLED` without calling the API
+- never prints secret environment values
+- writes two outputs:
 
 ```text
-docs/reports/ai-router/latest-provider-status.md
-.state/ai-router/latest.json
+docs/reports/ai-router/latest-provider-status.md   (human-readable)
+.state/ai-router/latest.json                         (machine-readable)
 ```
 
-## Route a task plan
+## Route a task (dry-run)
+
+Default mode is `--dry-run` — shows the routing plan without executing anything.
 
 ```bash
-ASDEV_ENVIRONMENT=LOCAL_PC bash scripts/ai-router/run-task.sh provider-health prompts/ai-router/sample-provider-health.md
+ASDEV_ENVIRONMENT=LOCAL_PC bash scripts/ai-router/run-task.sh --dry-run provider-health prompts/ai-router/sample-provider-health.md
 ```
 
-The scaffold writes a routing plan. It does not auto-execute external providers by default.
-
-## Provider defaults
-
-| Task class | Default provider |
-|---|---|
-| `repo-audit` | MiMo |
-| `code-patch` | OpenCode |
-| `text-reasoning` | DeepSeek |
-| `provider-health` | local script |
-| `report` | Hermes |
-
-Override with:
+Other task classes:
 
 ```bash
-ASDEV_AI_PROVIDER=opencode bash scripts/ai-router/run-task.sh code-patch prompts/ai-router/sample-code-patch.md
+bash scripts/ai-router/run-task.sh --dry-run repo-audit    prompts/ai-router/sample-repo-audit.md
+bash scripts/ai-router/run-task.sh --dry-run code-patch    prompts/ai-router/sample-code-patch.md
+bash scripts/ai-router/run-task.sh --dry-run text-reasoning prompts/ai-router/sample-provider-health.md
+bash scripts/ai-router/run-task.sh --dry-run report        prompts/ai-router/sample-provider-health.md
 ```
 
-## Handoff to automation server
+## Execute a safe local command
 
-Do not install this as an always-on automation service until:
+Only safe local commands (like `provider-health`) can be executed with `--execute`:
 
-- local MVP passes
-- provider health reports are stable
-- fallback behavior is verified
-- secrets handling is proven safe
-- owner approves automation rollout
+```bash
+ASDEV_ENVIRONMENT=LOCAL_PC bash scripts/ai-router/run-task.sh --execute provider-health prompts/ai-router/sample-provider-health.md
+```
 
-Potential future service on `AUTOMATION_SERVER`:
+Unsafe operations (external API calls, agent commands, SSH, production mutations) are refused with an error.
+
+## Override provider selection
+
+```bash
+ASDEV_AI_PROVIDER=opencode bash scripts/ai-router/run-task.sh --dry-run code-patch prompts/ai-router/sample-code-patch.md
+```
+
+Valid overrides: `mimo`, `opencode`, `deepseek`, `hermes`, `openclaw`, `auto`.
+
+## Run OpenCode manually
+
+OpenCode is the implementation agent for this MVP. To use it directly:
+
+```bash
+# From workspace root
+opencode
+```
+
+OpenCode reads prompts from `prompts/opencode/` directory. The current implementation prompt is `prompts/opencode/LOCAL_AI_GATEWAY_MVP.md`.
+
+OpenCode does not require VPN on `LOCAL_PC`.
+
+## Read reports
+
+Reports are written to:
+
+- `docs/reports/ai-router/latest-provider-status.md` — latest provider health status
+- `docs/reports/ai-router/task-<RUN_ID>.md` — individual task routing plan or execution report
+
+JSON state is written to:
+
+- `.state/ai-router/latest.json` — latest health check state
+- `.state/ai-router/task-<RUN_ID>.json` — individual task state
+
+These files contain no secrets, no API keys, no tokens.
+
+## Provider routing defaults
+
+| Task class | Default provider | Fallback |
+|---|---|---|
+| `repo-audit` | MiMo | OpenCode (report mode) |
+| `code-patch` | OpenCode | MiMo (patch plan) |
+| `text-reasoning` | DeepSeek | OpenCode |
+| `provider-health` | local script | Hermes report |
+| `report` | Hermes | local scripts |
+
+The router checks provider availability from the latest health state before selecting. If the preferred provider is unavailable, it records the fallback decision.
+
+## Handoff to AUTOMATION_SERVER
+
+Do not install this on `AUTOMATION_SERVER` until:
+
+1. Local MVP passes all validation tests
+2. Provider health reports are stable and accurate
+3. Fallback behavior is verified with sample tasks
+4. Secrets handling is proven safe (no leaks, no commits)
+5. Owner explicitly approves automation rollout (`APPROVE_AI_GATEWAY_AUTOMATION_ROLLOUT`)
+
+Potential future services on `AUTOMATION_SERVER`:
 
 ```text
 asdev-ai-router.service
 asdev-ai-router.timer
+asdev-provider-health.service
+asdev-provider-health.timer
 ```
 
-## Public product gate
+The router scripts are designed to be environment-aware via `ASDEV_ENVIRONMENT` variable. Running on `AUTOMATION_SERVER` would use `ASDEV_ENVIRONMENT=AUTOMATION_SERVER`.
 
-A public AI chat product needs a separate decision and business model.
+## Why public product is deferred
 
-Minimum requirements:
+A public Persian AI chat product requires:
 
-- provider terms checked
-- rate limits
-- cost cap
-- abuse controls
-- privacy/data routing policy
-- admin monitoring
-- monetization plan
-- PersianToolbox revenue stabilization complete
+- verified provider contract (no personal/free accounts as backend)
+- hard rate limits and abuse prevention
+- cost monitoring and ceiling
+- privacy policy and data routing controls
+- admin dashboard and alerting
+- monetization or sustainable cost model
+- owner approval (`APPROVE_PUBLIC_AI_CHAT_PRODUCT`)
+- PersianToolbox revenue stabilization and freeze acceptance
+
+Until these conditions are met, the AI Gateway is internal infrastructure only.
