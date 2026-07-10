@@ -34,7 +34,7 @@ mkdir -p "$STATE_DIR" "$REPORT_DIR" "$RECOVERY_STATE_DIR"
 
 ts() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 now_epoch() { date +%s; }
-log() { echo "[$(ts)] $*"; }
+log() { echo "[$(ts)] $*" >&2; }
 
 pass() { CHECKS_PASSED=$((CHECKS_PASSED+1)); RESULTS+=("PASS:$1:$2"); }
 warn() { CHECKS_WARN=$((CHECKS_WARN+1)); RESULTS+=("WARN:$1:$2"); }
