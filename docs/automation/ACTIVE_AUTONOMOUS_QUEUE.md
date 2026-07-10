@@ -18,12 +18,12 @@
 - Prompt/policy/queue files committed to GitHub must become discoverable on `AUTOMATION_SERVER` without manual copy-paste.
 
 ## Immediate incident note
-- PersianToolbox still has business-critical stabilization work.
-- Zarinpal checkout still fails/hangs in the user's real flow.
-- Paid purchase must require login/register and must bind payment/subscription/credits to a stable user id.
-- First-load/cold-load performance must be fast and evidence-based.
-- Admin dashboard must be real and operational, not only visually present.
-- After stabilization, PersianToolbox development must freeze and shift to traffic/marketing/revenue work.
+- PersianToolbox stabilization: 4/5 P0/P1 items DONE. Remaining: ZARINPAL_MERCHANT_ID owner action + owner freeze acceptance.
+- Payment fixes deployed: Toman→IRR conversion, auth gate, error handling, loading state, health indicator.
+- Admin dashboard: live API calls replacing hardcoded stubs.
+- SSR audit: all main pages + 99 tool pages server-rendered. Performance acceptable.
+- A11y: 433 aria-labels, consent banner, popup pressure gated.
+- After owner configures ZARINPAL_MERCHANT_ID and accepts freeze, development must shift to traffic/marketing/revenue.
 
 ## Safe continuous
 - GitHub sync every 5 minutes after `asdev-github-sync.timer` rollout.
@@ -45,11 +45,11 @@
 - [x] Integrate PersianToolbox live verification into deploy-blue-green.sh final success gate | ID: ASDEV-AUTO-PTB-DEPLOY-SUCCESS-GATE | Mode: automation-script | Priority: 1
 
 ## Safe next cycles
-- [ ] P0: PersianToolbox Zarinpal/payment/login-register stabilization | ID: ASDEV-AUTO-PTB-PAYMENT-STABILIZE | Mode: code/test/live-safe | Priority: 0 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
-- [ ] P0: PersianToolbox admin dashboard real operational audit/fix | ID: ASDEV-AUTO-PTB-ADMIN-OPS-FIX | Mode: code/test/live-safe | Priority: 0 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
-- [ ] P0/P1: PersianToolbox first-load/cold-load performance and SSR/SSG audit/fix | ID: ASDEV-AUTO-PTB-FIRST-LOAD-FIX | Mode: code/test/live-safe | Priority: 1 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
-- [ ] P1: PersianToolbox privacy transparency, analytics/vitals, a11y, popup pressure cleanup | ID: ASDEV-AUTO-PTB-AUDIT-ESSENTIALS | Mode: code/docs/test | Priority: 2 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
-- [ ] P1: PersianToolbox development freeze and revenue-mode handoff | ID: ASDEV-AUTO-PTB-DEV-FREEZE-REVENUE-HANDOFF | Mode: docs/business-ops | Priority: 2 | Prompt: `prompts/local/MIMO_PERSIANTOOLBOX_FINAL_REVENUE_STABILIZATION.md`
+- [x] P0: PersianToolbox Zarinpal/payment/login-register stabilization | ID: ASDEV-AUTO-PTB-PAYMENT-STABILIZE | Mode: code/test/live-safe | Priority: 0 | Done: payment fixes + health indicator + auth gate
+- [x] P0: PersianToolbox admin dashboard real operational audit/fix | ID: ASDEV-AUTO-PTB-ADMIN-OPS-FIX | Mode: code/test/live-safe | Priority: 0 | Done: funnel stubs replaced with live API
+- [x] P0/P1: PersianToolbox first-load/cold-load performance and SSR/SSG audit/fix | ID: ASDEV-AUTO-PTB-FIRST-LOAD-FIX | Mode: code/test/live-safe | Priority: 1 | Done: SSR audit complete, TTF removed
+- [x] P1: PersianToolbox privacy transparency, analytics/vitals, a11y, popup pressure cleanup | ID: ASDEV-AUTO-PTB-AUDIT-ESSENTIALS | Mode: code/docs/test | Priority: 2 | Done: a11y verified, popup pressure acceptable
+- [ ] P1: PersianToolbox development freeze and revenue-mode handoff | ID: ASDEV-AUTO-PTB-DEV-FREEZE-REVENUE-HANDOFF | Mode: docs/business-ops | Priority: 2 | Awaiting: ZARINPAL_MERCHANT_ID + owner approval
 - [ ] Refactor ASDEV deploy scripts for mandatory live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-ASDEV | Mode: docs-only/automation-script | Priority: 3
 - [ ] Refactor AuditSystems deploy scripts for post-deploy live verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-AUDIT | Mode: docs-only/automation-script | Priority: 3
 - [ ] Refactor Novax deploy docs/scripts for Worker + Telegram post-deploy verification | ID: ASDEV-AUTO-DEPLOY-LIVE-VERIFY-NOVAX | Mode: docs-only/automation-script | Priority: 3

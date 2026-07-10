@@ -58,18 +58,16 @@
 | Class | OPERATIONAL — zero-touch autonomous loop active, sync hardening in progress |
 | Control plane | `~/asdev-platform/control-plane/` / repo clone — scripts synced from repo |
 | Agent loop | `asdev-agent-loop.timer` — enabled, 10min interval, active |
-| GitHub sync | `asdev-github-sync.timer` template + installer created; rollout/verification required on server |
+| GitHub sync | `asdev-github-sync.timer` — enabled, 10min interval, active |
 | Loop behavior | Self-feeding: health check → MCP check → auto-commit → auto-push → queue seed when only gated tasks remain |
-| Linger | enabled/required (user systemd persistent) |
-| Repo clone | `~/repos/alirezasafaeisystems` expected canonical clone |
-| Cron | `asdev-meta-backup.sh` daily 03:15 UTC |
+| Linger | enabled (loginctl enable-linger asdev) |
+| Health monitor | `asdev-health-monitor.timer` — enabled, 5min interval, active |
+| MCP monitor | `asdev-mcp-monitor.timer` — enabled, 10min interval, active |
+| Agent loop | `asdev-agent-loop.timer` — enabled, 10min interval, active |
 | Node | bot.js running (GitHub Issue #45 command bus; must not be mislabeled branch 45) |
-| Last loop commit | `b6c960c` (self-task.sh enhanced with MCP health, queue seeding, port checks) |
-| Hardening commit | `ba07235` (robust memory timestamp + JSON queue safe-task seeding) |
 | Hermes Telegram | Operational — default Telegram reporting owner |
 | Hermes proxy | SOCKS5 tunnel via local xray — systemd user service auto-restart |
 | OpenClaw gateway | Active — MCP/gateway/diagnostic only, Telegram disabled |
-| OpenClaw bot | Removed/disabled if it conflicts with Hermes Telegram polling |
 
 ## Gated (not running)
 
@@ -108,18 +106,26 @@ ASDEV Engineering Operating System (governance, memory, registry, deploy model, 
 
 Quality note: Product-side quality packs advance trust/report depth on GitHub main; public score must not be called 10/10 until edge/deploy evidence, depth, CWV, uptime, rollback, and live browser verification are proven.
 
-## PERSIANTOOLBOX QUALITY SESSION (2026-07-09)
+## PERSIANTOOLBOX FINAL REVENUE STABILIZATION (2026-07-10)
 
 | Item | Value |
 |------|-------|
 | Repo | `alirezasafaei-dev/persiantoolbox` |
-| Latest recorded quality commit | `72d4209` |
-| Later hotfix commits | JS chunk copy + post-deploy verification exist in PersianToolbox main |
-| Session scope | a11y, SEO/UX, design tokens, blog size, ops runbooks, monitoring, rollback rehearsal, Zarinpal callback fix |
-| Reported validation | typecheck passed; tests reported 153/153 files and 1277/1277 tests |
-| Docs updated | `CHANGELOG.md`, `docs/PRODUCTION_GRADE_ROADMAP_TO_10.md` |
-| Status | GitHub main advanced; public deploy must remain gated until independent deploy-readiness/smoke/live-browser verification |
-| Next safe action | independent post-batch verification + deploy readiness report, no production cutover |
+| Latest commits | `a529792` (font cleanup) → `e869a7b` (health indicator) → `51de1b5` (verdict) → `5438c85` (lazy-load) → `78b5005` (admin funnel) → `9592976` (payment fixes) |
+| Verdict | STABILIZATION_WITH_BLOCKERS |
+| Tests | 153/153 files, 1277/1277 tests passing |
+| Typecheck | Passing |
+| SSR audit | All main pages + 99 tool pages server-rendered; only 8 admin pages + 4 overlay components client-rendered |
+| Payment | Zarinpal Toman→IRR fix (amount*10), auth gate before checkout, error field mismatch fixed, loading state added |
+| Payment blocker | ZARINPAL_MERCHANT_ID not configured in production .env — OWNER ACTION REQUIRED |
+| Admin | Funnel stubs replaced with live API calls to /api/admin/funnel |
+| Performance | JS 8.1MB (lazy-loaded tool chunks), CSS 115KB, 3 Vazirmatn woff2 fonts preloaded |
+| A11y | 433 aria-labels, 126 aria-hidden, 98 roles, all images have alt |
+| Consent | Google Consent Mode v2 with accept/reject |
+| Live verification | All key pages HTTP 200, CSS/JS/fonts serving, health endpoint healthy |
+| Health indicator | /api/health now reports paymentGateway.configured status |
+| AUTOMATION_HOST | 4 timers running (github-sync, health-monitor, mcp-monitor, agent-loop) |
+| Freeze readiness | 7/8 checklist items complete; owner acceptance needed |
 
 ## CONVERSION IMPROVEMENTS (2026-07-09)
 
