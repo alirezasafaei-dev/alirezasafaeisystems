@@ -2,8 +2,8 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-10T17:55:58Z |
-| Finished | 2026-07-10T17:55:59Z |
+| Started | 2026-07-10T18:00:59Z |
+| Finished | 2026-07-10T18:01:00Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | GO |
@@ -24,7 +24,7 @@
 - PASS [SVC-asdev-bot] Service running
 - WARN [MCP-001] MCP endpoint returned HTTP 307
 - PASS [SYS-001] Disk usage: 36%
-- PASS [SYS-002] Memory usage: 45%
+- PASS [SYS-002] Memory usage: 29%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
 
