@@ -35,6 +35,9 @@ jobs:
           df -h /home || true
           df -h /tmp || true
 
+      - name: Deliberate failure proof
+        run: exit 1
+
       - name: Cleanup
         if: always()
         run: |
