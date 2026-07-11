@@ -2,6 +2,11 @@ name: self-hosted-diagnostic
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - codex/self-hosted-ci-mother
+    paths:
+      - .github/workflows/self-hosted-diagnostic.yml
 
 permissions:
   contents: read
