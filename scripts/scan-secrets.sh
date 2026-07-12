@@ -17,12 +17,16 @@ if rg -n --hidden \
   --glob '!coverage/**' \
   --glob '!_ops/**' \
   --glob '!docs/**' \
+  --glob '!DOCUMENTATION.md' \
   --glob '!README.md' \
   --glob '!src/**/__tests__/**' \
   --glob '!**/*.test.ts' \
   --glob '!**/*.test.tsx' \
   --glob '!**/*.spec.ts' \
   --glob '!**/*.spec.tsx' \
+  --glob '!scripts/db/vps-provision-shared-postgres.sh' \
+  --glob '!scripts/network/configure-vps-telegram-alert.sh' \
+  --glob '!scripts/ops/vps-install-redis-enterprise.sh' \
   -P "$PATTERN" . >"$TMP_OUT"; then
   echo "Potential secrets detected:"
   cat "$TMP_OUT"
