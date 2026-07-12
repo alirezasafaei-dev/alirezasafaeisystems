@@ -1,0 +1,48 @@
+name: self-hosted-diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/self-hosted-ci-mother
+    paths:
+      - .github/workflows/self-hosted-diagnostic.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: self-hosted-diagnostic-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  diagnostic:
+    runs-on: [self-hosted, linux, x64, asdev-ci]
+    timeout-minutes: 10
+
+    steps:
+      - name: Report runner
+        run: |
+          set -euo pipefail
+          echo "runner_started=true"
+          echo "runner_name=${RUNNER_NAME}"
+          echo "runner_os=${RUNNER_OS}"
+          echo "runner_arch=${RUNNER_ARCH}"
+          echo "pwd=$(pwd)"
+          echo "uname_s=$(uname -s)"
+          echo "uname_m=$(uname -m)"
+          df -h .
+          df -h /home || true
+          df -h /tmp || true
+
+      - name: Cleanup
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -n "${GITHUB_WORKSPACE:-}" ] && [ -d "${GITHUB_WORKSPACE:-}" ]; then
+            find "$GITHUB_WORKSPACE" -mindepth 1 -maxdepth 1 -exec rm -rf {} + || true
+          fi
+          if [ -n "${RUNNER_TEMP:-}" ] && [ -d "${RUNNER_TEMP:-}" ]; then
+            find "$RUNNER_TEMP" -mindepth 1 -maxdepth 1 -exec rm -rf {} + || true
+          fi
+          df -h . || true
