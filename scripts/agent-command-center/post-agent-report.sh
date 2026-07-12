@@ -1,19 +1,34 @@
 #!/usr/bin/env bash
-# ASDEV Agent Command Center — Post agent report to PR #42
-# Usage: ./post-agent-report.sh <report_file>
-# Requires: gh CLI, ASDEV_COMMAND_REPO, ASDEV_COMMAND_PR
+# ASDEV Agent Command Center — Post agent report to PR or Issue
+# Requires: gh CLI, ASDEV_COMMAND_REPO
 set -euo pipefail
 
 REPO="${ASDEV_COMMAND_REPO:-alirezasafaei-dev/alirezasafaeisystems}"
 PR_NUMBER="${ASDEV_COMMAND_PR:-42}"
+ISSUE_NUMBER=""
+
+while [[ $# -gt 1 ]]; do
+  case $1 in
+    --issue) ISSUE_NUMBER="$2"; shift 2 ;;
+    *) break ;;
+  esac
+done
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <report_file>"
+  echo "Usage: $0 [--issue N] <report_file>"
   echo "Example: $0 /tmp/agent-report.md"
+  echo "         $0 --issue 45 /tmp/agent-report.md"
   exit 1
 fi
 
 REPORT_FILE="$1"
+
+TARGET_TYPE="pr"
+TARGET_NUMBER="$PR_NUMBER"
+if [[ -n "$ISSUE_NUMBER" ]]; then
+  TARGET_TYPE="issue"
+  TARGET_NUMBER="$ISSUE_NUMBER"
+fi
 
 if [[ ! -f "$REPORT_FILE" ]]; then
   echo "❌ Report file not found: ${REPORT_FILE}"
@@ -41,9 +56,13 @@ if grep -qiE "(password|secret|api_key|token|sk-)" "$REPORT_FILE"; then
   fi
 fi
 
-# Post to PR
-echo "Posting report to PR #${PR_NUMBER} in ${REPO}..."
-URL=$(gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file "$REPORT_FILE" 2>&1)
+# Post to PR or Issue
+echo "Posting report to ${TARGET_TYPE} #${TARGET_NUMBER} in ${REPO}..."
+if [[ "$TARGET_TYPE" == "issue" ]]; then
+  URL=$(gh issue comment "$TARGET_NUMBER" --repo "$REPO" --body-file "$REPORT_FILE" 2>&1)
+else
+  URL=$(gh pr comment "$TARGET_NUMBER" --repo "$REPO" --body-file "$REPORT_FILE" 2>&1)
+fi
 
 if [[ $? -eq 0 ]]; then
   echo "✅ Report posted: ${URL}"

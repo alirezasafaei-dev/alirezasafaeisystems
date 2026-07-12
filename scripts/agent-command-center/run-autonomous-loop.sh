@@ -172,6 +172,74 @@ execute_job() {
   return 0
 }
 
+ISSUE_REPO="${ASDEV_COMMAND_REPO:-alirezasafaei-dev/alirezasafaeisystems}"
+
+consume_issue_prompt() {
+  local issue="$1"
+  local dry_run="${2:-false}"
+  : "${JOBS_EXECUTED:=0}"
+  : "${CONSECUTIVE_FAILURES:=0}"
+  local monitor_args="--issue $issue"
+  $dry_run && monitor_args="$monitor_args --dry-run"
+
+  local monitor_output
+  monitor_output=$(timeout 30 bash "${SCRIPT_DIR}/monitor-command-thread.sh" $monitor_args 2>&1) || true
+  local status
+  status=$(echo "$monitor_output" | grep "^STATUS:" | awk '{print $2}')
+
+  if [ "$status" != "PROMPT_PENDING" ]; then
+    log "Issue #${issue} status: ${status:-unknown}"
+    return 0
+  fi
+
+  local prompt_id
+  prompt_id=$(echo "$monitor_output" | grep "^PROMPT_COMMENT_ID:" | awk '{print $2}')
+  log "Pending prompt comment ID: ${prompt_id}"
+
+  local output_file
+  output_file=$(mktemp)
+  local task_id="issue-${issue}-prompt-${prompt_id}"
+
+  {
+    echo "=== Issue #${issue} Prompt Processing ==="
+    echo "Comment ID: ${prompt_id}"
+    echo ""
+    if ! $dry_run; then
+      gh api "repos/${ISSUE_REPO}/issues/comments/${prompt_id}" --jq '.body' 2>/dev/null || echo "(could not fetch body)"
+    else
+      echo "[DRY-RUN] Would fetch prompt body for comment ${prompt_id}"
+    fi
+    echo ""
+    echo "=== Execution (read-only safe mode) ==="
+    echo "Mode: read-only"
+    if ! $dry_run; then
+      bash "${SCRIPT_DIR}/agent-safety-gate.sh" "alirezasafaeisystems" "read-only" 2>&1 || echo "Safety gate: blocked (continuing read-only)"
+    else
+      echo "[DRY-RUN] Would run safety gate"
+    fi
+    echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  } > "$output_file"
+
+  local report_args="--dry-run"
+  ! $dry_run && report_args=""
+  bash "${SCRIPT_DIR}/collect-agent-report.sh" "$task_id" "$output_file" $report_args 2>&1 || true
+  report_file="/tmp/asdev-report-${task_id}.md"
+
+  if [ -f "$report_file" ]; then
+    if ! $dry_run; then
+      bash "${SCRIPT_DIR}/post-agent-report.sh" --issue "$issue" "$report_file" 2>&1 || warn "Failed to post report to issue"
+    else
+      ok "[DRY-RUN] Would post report to Issue #${issue}"
+      cat "$report_file"
+    fi
+  fi
+
+  rm -f "$output_file"
+  JOBS_EXECUTED=$((JOBS_EXECUTED + 1))
+  CONSECUTIVE_FAILURES=0
+  ok "Issue #${issue} prompt consumed (comment ${prompt_id})"
+}
+
 section "ASDEV Autonomous Execution Loop"
 log "Timestamp: ${TIMESTAMP}"
 log "Dry-run: ${DRY_RUN}"
@@ -200,6 +268,11 @@ ok "Network OK"
 JOBS_EXECUTED=0
 JOBS_FAILED=0
 JOBS_SKIPPED=0
+
+# Issue prompt consumption (before queue processing)
+if [ -n "$ISSUE" ]; then
+  consume_issue_prompt "$ISSUE" "$DRY_RUN"
+fi
 
 if [ -f "$ASDEV_QUEUE_FILE" ]; then
   section "Processing Queue"

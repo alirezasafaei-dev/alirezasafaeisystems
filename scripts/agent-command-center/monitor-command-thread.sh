@@ -140,6 +140,10 @@ main() {
   if $DRY_RUN; then
     echo "[DRY-RUN] Would fetch comments from ${API_PATH}"
     echo ""
+    echo "STATUS: SIMULATED_DRY_RUN"
+    echo "PROMPT_COMMENT_ID: 9999999999"
+    echo "Action: Dry-run — no real API calls made."
+    exit 0
   fi
 
   local prompt_json report_json prompt_id report_id prompt_at report_at handled
