@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: mother-ci-${{ github.repository }}-${{ github.ref }}
+  group: mother-ci-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -23,10 +23,6 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, x64, asdev-ci]
     timeout-minutes: 60
-
-    env:
-      CI: "true"
-      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
 
     steps:
       - name: Checkout
@@ -66,9 +62,14 @@ jobs:
         run: pnpm run enterprise:gate
 
       - name: Install Playwright Chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
         run: pnpm exec playwright install chromium
 
       - name: Browser smoke
+        env:
+          CI: "true"
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
         run: pnpm exec playwright test e2e/smoke.spec.mjs --config=playwright.config.mjs --reporter=list --workers=1 --retries=1
 
       - name: Cleanup runner workspace
