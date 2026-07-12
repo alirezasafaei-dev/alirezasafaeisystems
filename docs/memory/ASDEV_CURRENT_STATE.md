@@ -1,6 +1,6 @@
 # ASDEV Current State
 
-**Updated:** 2026-07-10T17:12:58Z  
+**Updated:** 2026-07-12T16:35:00Z  
 **Mode:** Autonomous Loop Governance **INSTALLED** (GitHub SoT)
 
 ---
@@ -84,7 +84,7 @@
 | Control plane | `scripts/control-plane/` — scripts synced from GitHub |
 | Agent loop | `asdev-agent-loop.timer` — enabled, 10min interval, active |
 | GitHub sync | `asdev-github-sync.timer` — enabled, 5min interval, active — hardened v2 script |
-| Supervisor | `asdev-supervisor.timer` — enabled, 5min interval — pre-loop health gate (git/MCP/disk/memory/network) |
+| Supervisor | `asdev-supervisor.timer` — enabled, 5min interval — pre-loop health gate (git/MCP/disk/memory/network) — verdict: GO (18 PASS, 1 WARN, 0 FAIL) |
 | Auto-commit | Working — report files committed and pushed automatically |
 | Divergence | Auto-healed with recovery branch; protected on `main` only |
 | Detached HEAD | Auto-healed by supervisor; sync script refuses auto-commit on detached HEAD |
@@ -92,8 +92,10 @@
 | Linger | enabled (loginctl enable-linger asdev) |
 | Health monitor | `asdev-health-monitor.timer` — enabled, 5min interval, active |
 | MCP monitor | `asdev-mcp-monitor.timer` — enabled, 10min interval, active |
-| Node | bot.js running (GitHub Issue #45 command bus; must not be mislabeled branch 45) |
-| Hermes Telegram | Operational — default Telegram reporting owner |
+| Node | bot.js **disabled** (2026-07-12) — Telegram conflict resolved; Hermes is sole Telegram owner |
+| Hermes Telegram | Operational — sole Telegram polling owner (bot.js stopped, Telegram 409 resolved) |
+| Issue #45 wiring | Command bus now integrated into agent-loop via `issue45-command-bus.sh` |
+| Supervisor asdev-bot | Moved from `critical_units` to `optional_units` — absence causes WARN not FAIL/NO_GO |
 | Hermes proxy | SOCKS5 tunnel via local xray — systemd user service auto-restart |
 | OpenClaw gateway | Active — MCP/gateway/diagnostic only, Telegram disabled |
 
@@ -169,7 +171,9 @@ Quality note: Product-side quality packs advance trust/report depth on GitHub ma
 | Created Dialog UI component | done |
 | Server: removed duplicate openclaw-bot.service | done |
 | Server: disabled OpenClaw Telegram polling via empty token drop-in | done |
-| Server: verified Hermes sends messages despite cosmetic conflict warnings | done |
+| Server: disabled asdev-bot.service (Telegram conflict resolved) | 2026-07-12 |
+| Server: wired Issue #45 command-bus into agent-loop | 2026-07-12 |
+| Server: moved asdev-bot to optional supervisor checks (NO_GO→GO) | 2026-07-12 |
 
 ## MCP SERVER (ASDEV GitHub Assistant)
 
