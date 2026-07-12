@@ -55,7 +55,6 @@ is_allowlisted_unit() {
     asdev-agent-loop.timer|asdev-agent-loop.service) return 0 ;;
     asdev-health-monitor.timer|asdev-health-monitor.service) return 0 ;;
     asdev-mcp-monitor.timer|asdev-mcp-monitor.service) return 0 ;;
-    asdev-bot.service) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -272,17 +271,18 @@ check_systemd_health() {
   done
 
   # Check services with recovery
-  local critical_units=(asdev-bot.service)
+  local critical_units=()
+  local optional_units=(asdev-bot.service)
   local recoverable_units=(asdev-github-sync.service asdev-agent-loop.service asdev-health-monitor.service asdev-mcp-monitor.service)
 
-  # Critical units: check running, but do NOT auto-restart
-  for unit in "${critical_units[@]}"; do
+  # Optional units: check running, warn but NOT fail
+  for unit in "${optional_units[@]}"; do
     local state
     state=$(systemctl --user show "$unit" --property=ActiveState --value 2>/dev/null || echo "unknown")
     if [ "$state" = "active" ]; then
       pass "SVC-$unit" "Service running"
     else
-      fail "SVC-$unit" "Critical service not running (state=$state)"
+      warn "SVC-$unit" "Optional service not running (state=$state) — expected when disabled"
     fi
   done
 

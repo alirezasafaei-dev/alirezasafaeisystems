@@ -253,6 +253,22 @@ else
   warn "No queue file found at ${ASDEV_QUEUE_FILE}"
 fi
 
+# Issue #45 Command Bus: check for new commands
+if [ -n "$ISSUE" ]; then
+  section "Issue #${ISSUE} Command Bus"
+  local cmd_bus_script="${SCRIPT_DIR}/issue45-command-bus.sh"
+  if [ -f "$cmd_bus_script" ]; then
+    log "Running command bus for Issue #${ISSUE}..."
+    if bash "$cmd_bus_script" "$ISSUE"; then
+      ok "Command bus completed"
+    else
+      warn "Command bus exited with non-zero"
+    fi
+  else
+    warn "Command bus script not found at ${cmd_bus_script}"
+  fi
+fi
+
 # Self-tasking: when queue is empty, select highest-value safe next task
 if [ "$JOBS_EXECUTED" -eq 0 ] && [ "$JOBS_FAILED" -eq 0 ]; then
   section "Queue Empty — Self-Tasking"
