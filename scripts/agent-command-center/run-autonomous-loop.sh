@@ -256,7 +256,7 @@ fi
 # Issue #45 Command Bus: check for new commands
 if [ -n "$ISSUE" ]; then
   section "Issue #${ISSUE} Command Bus"
-  local cmd_bus_script="${SCRIPT_DIR}/issue45-command-bus.sh"
+  cmd_bus_script="${SCRIPT_DIR}/issue45-command-bus.sh"
   if [ -f "$cmd_bus_script" ]; then
     log "Running command bus for Issue #${ISSUE}..."
     if bash "$cmd_bus_script" "$ISSUE"; then
