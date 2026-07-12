@@ -129,8 +129,21 @@ execute_command() {
       ;;
     RUN)
       log "Run command: ${arg}"
-      bash "${SCRIPT_DIR}/run-autonomous-loop.sh" --issue "$ISSUE_NUMBER" --max-jobs 2 --once 2>&1 | tail -5
-      post_to_issue "**ASDEV run completed**: ${arg}"
+      local queue_file="${ASDEV_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md"
+      local task_id="CMD-${comment_id}"
+      local task_line="- [ ] ${task_id} — ${arg} | Mode: read-only | Repo: alirezasafaei-dev/alirezasafaeisystems | Target: vps"
+      if [ -f "$queue_file" ]; then
+        echo "$task_line" >> "$queue_file"
+        log "Queued task ${task_id} for next loop iteration"
+        post_to_issue "**ASDEV task queued** (${task_id}): ${arg}
+
+Task appended to active queue. The next loop iteration (timer-driven) will claim and execute it."
+      else
+        warn "Queue file not found at ${queue_file} — cannot queue task"
+        post_to_issue "**ASDEV run deferred**: ${arg}
+
+Queue file missing. Task not queued."
+      fi
       ;;
     REPORT)
       post_status_report
