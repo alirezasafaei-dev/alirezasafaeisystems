@@ -2,12 +2,12 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-12T16:31:00Z |
-| Finished | 2026-07-12T16:31:04Z |
+| Started | 2026-07-12T16:36:00Z |
+| Finished | 2026-07-12T16:36:04Z |
 | Endpoint | https://mcp.alirezasafaeisystems.ir/sse/ |
 | HTTP Status | 307 |
 | Failure Class | none |
-| Latency | 194ms |
+| Latency | 559ms |
 | Verdict | PASS |
 
 MCP endpoint is healthy. Loop may proceed.

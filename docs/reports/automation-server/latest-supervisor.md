@@ -2,14 +2,14 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-12T16:30:59Z |
-| Finished | 2026-07-12T16:31:04Z |
+| Started | 2026-07-12T16:35:59Z |
+| Finished | 2026-07-12T16:36:04Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
-| Verdict | NO_GO |
+| Verdict | GO |
 | Passed | 18 |
-| Warnings | 0 |
-| Failed | 1 |
+| Warnings | 1 |
+| Failed | 0 |
 | Auto-healed | 0 |
 | Skipped (cooldown) | 0 |
 | Skipped (not allowlisted) | 0 |
@@ -24,7 +24,7 @@
 - PASS [SVC-asdev-health-monitor.timer] Timer active
 - PASS [SVC-asdev-mcp-monitor.timer] Timer active
 - PASS [SVC-asdev-supervisor.timer] Timer active
-- FAIL [SVC-asdev-bot.service] Critical service not running (state=inactive)
+- WARN [SVC-asdev-bot.service] Optional service not running (state=inactive) — expected when disabled
 - PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-health-monitor.service] Oneshot service completed successfully (inactive, result=success)
@@ -36,4 +36,4 @@
 - PASS [PROV-001] OpenCode available
 
 ## Verdict
-Critical failures detected. Loop must not proceed until resolved.
+All critical checks passed. Loop may proceed.
