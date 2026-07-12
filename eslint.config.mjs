@@ -39,7 +39,9 @@ const eslintConfig = [
       "coverage/**",
       "next-env.d.ts",
       "examples/**",
-      "skills"
+      "skills",
+      "worktrees/**",
+      "sites/**"
     ]
   }
 ];

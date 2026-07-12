@@ -37,6 +37,8 @@
   ],
   "exclude": [
     "node_modules",
-    "_ops"
+    "_ops",
+    "worktrees",
+    "sites"
   ]
 }
