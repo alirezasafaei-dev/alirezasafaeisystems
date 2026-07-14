@@ -30,22 +30,22 @@
     },
     "worker_profile": {
       "type": "string",
-      "enum": [
-        "opencode",
-        "readonly-check"
-      ]
+      "enum": ["opencode", "readonly-check"]
     },
     "repository": {
       "type": "string",
-      "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+      "enum": [
+        "alirezasafaei-dev/alirezasafaeisystems",
+        "alirezasafaei-dev/auditsystems"
+      ]
     },
     "repo_path": {
       "type": "string",
-      "pattern": "^repos/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+      "pattern": "^repos/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+$"
     },
     "base_ref": {
       "type": "string",
-      "pattern": "^[a-zA-Z0-9_/.-]+$"
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_/.-]*$"
     },
     "expected_sha": {
       "type": "string",
@@ -53,24 +53,19 @@
     },
     "mode": {
       "type": "string",
-      "enum": [
-        "read-only",
-        "code",
-        "docs-only",
-        "automation-script"
-      ]
+      "enum": ["read-only", "code", "docs-only", "automation-script"]
     },
     "expected_artifact": {
       "type": "string",
-      "pattern": "^docs/reports/[a-zA-Z0-9_/-]+\\.md$"
+      "pattern": "^docs/reports/[A-Za-z0-9_/-]+\\.md$"
     },
     "artifact_validator": {
       "type": "string",
-      "pattern": "^scripts/(agent-command-center|control-plane)/[a-zA-Z0-9_-]+\\.sh$"
+      "enum": ["scripts/agent-command-center/validate-task-artifact.sh"]
     },
     "validation_command": {
       "type": "string",
-      "minLength": 1
+      "enum": ["artifact-nonempty", "markdown-report", "json-object"]
     },
     "timeout_seconds": {
       "type": "integer",

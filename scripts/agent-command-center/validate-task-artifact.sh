@@ -2,82 +2,149 @@
 set -Euo pipefail
 
 CONTRACT_FILE="${1:?usage: validate-task-artifact.sh <contract.json> [artifact_path]}"
-ARTIFACT_PATH="${2:-}"
-SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCHEMA_FILE="${SDIR}/task-contract.schema.json"
+SUPPLIED_ARTIFACT="${2:-}"
+ACC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCHEMA_FILE="$ACC_DIR/task-contract.schema.json"
+ROOT="${ASDEV_ROOT:-$(cd "$ACC_DIR/../.." && pwd)}"
 
-test -f "$CONTRACT_FILE" || { echo "ARTIFACT_INVALID contract-not-found"; exit 1; }
-test -f "$SCHEMA_FILE" || { echo "ARTIFACT_INVALID schema-not-found"; exit 1; }
+[ -f "$CONTRACT_FILE" ] || { echo "ARTIFACT_INVALID contract-not-found"; exit 1; }
+[ -f "$SCHEMA_FILE" ] || { echo "ARTIFACT_INVALID schema-not-found"; exit 1; }
 
-RAW="$(cat "$CONTRACT_FILE")"
+set +e
+SCHEMA_RESULT="$(python3 - "$CONTRACT_FILE" "$SCHEMA_FILE" <<'PY'
+import json
+import re
+import sys
 
-python3 -c "import json; json.load(open('$CONTRACT_FILE'))" 2>/dev/null || { echo "ARTIFACT_INVALID not-valid-json"; exit 1; }
+contract_path, schema_path = sys.argv[1:]
+try:
+    with open(contract_path, encoding="utf-8") as handle:
+        contract = json.load(handle)
+    with open(schema_path, encoding="utf-8") as handle:
+        schema = json.load(handle)
+except (OSError, json.JSONDecodeError) as exc:
+    print(f"not-valid-json:{type(exc).__name__}")
+    raise SystemExit(1)
 
-SCHEMA_RESULT=$(python3 -c "
-import json, sys, re
-c = json.load(open('$CONTRACT_FILE'))
-s = json.load(open('$SCHEMA_FILE'))
+if not isinstance(contract, dict):
+    print("type:root")
+    raise SystemExit(1)
+
 errors = []
-for f in s.get('required', []):
-    if f not in c: errors.append('missing:' + f)
-for k in list(c.keys()):
-    if k not in s.get('properties', {}):
-        if s.get('additionalProperties') is False and not k.startswith('_'):
-            errors.append('unknown:' + k)
-    else:
-        p = s['properties'][k]
-        if 'type' in p:
-            val = c[k]
-            if p['type'] == 'string' and not isinstance(val, str): errors.append('type:' + k)
-            elif p['type'] == 'integer' and not isinstance(val, int): errors.append('type:' + k)
-        if 'pattern' in p:
-            if not re.match(p['pattern'], str(c[k])): errors.append('format:' + k)
-        if 'enum' in p:
-            if c[k] not in p['enum']: errors.append('enum:' + k + '=' + str(c[k]))
-        if 'minimum' in p:
-            if not isinstance(c[k], int) or c[k] < p['minimum']: errors.append('min:' + k)
-        if 'maximum' in p:
-            if not isinstance(c[k], int) or c[k] > p['maximum']: errors.append('max:' + k)
+properties = schema.get("properties", {})
+for name in schema.get("required", []):
+    if name not in contract:
+        errors.append(f"missing:{name}")
+
+if schema.get("additionalProperties") is False:
+    for name in contract:
+        if name not in properties:
+            errors.append(f"unknown:{name}")
+
+for name, value in contract.items():
+    rule = properties.get(name)
+    if not rule:
+        continue
+    expected_type = rule.get("type")
+    if expected_type == "string" and not isinstance(value, str):
+        errors.append(f"type:{name}")
+        continue
+    if expected_type == "integer" and (not isinstance(value, int) or isinstance(value, bool)):
+        errors.append(f"type:{name}")
+        continue
+    if "minLength" in rule and len(value) < rule["minLength"]:
+        errors.append(f"minLength:{name}")
+    if "pattern" in rule and re.fullmatch(rule["pattern"], value) is None:
+        errors.append(f"format:{name}")
+    if "enum" in rule and value not in rule["enum"]:
+        errors.append(f"enum:{name}")
+    if "minimum" in rule and value < rule["minimum"]:
+        errors.append(f"minimum:{name}")
+    if "maximum" in rule and value > rule["maximum"]:
+        errors.append(f"maximum:{name}")
+
+if contract.get("repository") not in {
+    "alirezasafaei-dev/alirezasafaeisystems",
+    "alirezasafaei-dev/auditsystems",
+}:
+    errors.append("allowlist:repository")
+
+repo_tail = contract.get("repo_path", "").removeprefix("repos/")
+if repo_tail != contract.get("repository"):
+    errors.append("binding:repo_path")
+
 if errors:
-    print(';'.join(errors)); sys.exit(1)
-print('SCHEMA_OK')
-" 2>&1) || { echo "ARTIFACT_INVALID $SCHEMA_RESULT"; exit 1; }
-
-MODE=$(echo "$RAW" | python3 -c "import json,sys; print(json.load(sys.stdin).get('mode',''))")
-FM=0; for m in read-only code docs-only automation-script; do [ "$m" = "$MODE" ] && FM=1; done
-[ "$FM" -eq 1 ] || { echo "ARTIFACT_INVALID disallowed-mode:$MODE"; exit 1; }
-
-REPO=$(echo "$RAW" | python3 -c "import json,sys; print(json.load(sys.stdin).get('repository',''))")
-FR=0; for r in alirezasafaei-dev/alirezasafaeisystems alirezasafaei-dev/auditsystems; do [ "$r" = "$REPO" ] && FR=1; done
-[ "$FR" -eq 1 ] || { echo "ARTIFACT_INVALID disallowed-repo:$REPO"; exit 1; }
-
-EXPECTED_ARTIFACT=$(echo "$RAW" | python3 -c "import json,sys; print(json.load(sys.stdin).get('expected_artifact',''))")
-ARTIFACT_VALIDATOR=$(echo "$RAW" | python3 -c "import json,sys; print(json.load(sys.stdin).get('artifact_validator',''))")
-VALIDATION_COMMAND=$(echo "$RAW" | python3 -c "import json,sys; print(json.load(sys.stdin).get('validation_command',''))")
-
-if [ -n "$ARTIFACT_PATH" ]; then
-  [ -f "$ARTIFACT_PATH" ] || { echo "ARTIFACT_INVALID not-found:$ARTIFACT_PATH"; exit 1; }
-  [ -s "$ARTIFACT_PATH" ] || { echo "ARTIFACT_INVALID empty:$ARTIFACT_PATH"; exit 1; }
-  ARTIFACT_SHA=$(sha256sum "$ARTIFACT_PATH" | cut -d" " -f1)
-else
-  ARTIFACT_SHA=""
+    print(";".join(errors))
+    raise SystemExit(1)
+print("SCHEMA_OK")
+PY
+)"
+SCHEMA_EXIT=$?
+set -e
+if [ "$SCHEMA_EXIT" -ne 0 ]; then
+  echo "ARTIFACT_INVALID $SCHEMA_RESULT"
+  exit 1
 fi
 
-VALIDATOR_EXIT=0
-if [ -n "$ARTIFACT_VALIDATOR" ] && [ -z "${ASDEV_VALIDATOR_BUSY:-}" ]; then
-  ROOT="${ASDEV_ROOT:-$(cd "$SDIR/../../.." && pwd)}"
-  VALIDATOR_SCRIPT="$ROOT/$ARTIFACT_VALIDATOR"
-  if [ -x "$VALIDATOR_SCRIPT" ]; then
-    export ASDEV_VALIDATOR_BUSY=1
-    bash "$VALIDATOR_SCRIPT" "$CONTRACT_FILE" "$ARTIFACT_PATH" || VALIDATOR_EXIT=$?
-    [ "$VALIDATOR_EXIT" -eq 0 ] || { echo "ARTIFACT_INVALID validator-exit=$VALIDATOR_EXIT"; exit 1; }
-  fi
+if [ -z "$SUPPLIED_ARTIFACT" ]; then
+  echo "CONTRACT_VALID"
+  exit 0
 fi
 
-VALIDATION_EXIT=0
-if [ -n "$VALIDATION_COMMAND" ] && [ -n "$ARTIFACT_PATH" ]; then
-  eval "$VALIDATION_COMMAND" >/dev/null 2>&1 || VALIDATION_EXIT=$?
-  [ "$VALIDATION_EXIT" -eq 0 ] || { echo "ARTIFACT_INVALID validation-exit=$VALIDATION_EXIT"; exit 1; }
-fi
+EXPECTED_ARTIFACT="$(python3 - "$CONTRACT_FILE" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as handle:
+    print(json.load(handle)["expected_artifact"])
+PY
+)"
+VALIDATION_ID="$(python3 - "$CONTRACT_FILE" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as handle:
+    print(json.load(handle)["validation_command"])
+PY
+)"
 
+EXPECTED_PATH="$(realpath -m "$ROOT/$EXPECTED_ARTIFACT")"
+ACTUAL_PATH="$(realpath -m "$SUPPLIED_ARTIFACT")"
+case "$EXPECTED_PATH" in
+  "$ROOT"/*) ;;
+  *) echo "ARTIFACT_INVALID expected-path-escape"; exit 1 ;;
+esac
+[ "$ACTUAL_PATH" = "$EXPECTED_PATH" ] || {
+  echo "ARTIFACT_INVALID artifact-contract-mismatch"
+  exit 1
+}
+[ -f "$ACTUAL_PATH" ] || { echo "ARTIFACT_INVALID not-found:$EXPECTED_ARTIFACT"; exit 1; }
+[ -s "$ACTUAL_PATH" ] || { echo "ARTIFACT_INVALID empty:$EXPECTED_ARTIFACT"; exit 1; }
+
+case "$VALIDATION_ID" in
+  artifact-nonempty)
+    ;;
+  markdown-report)
+    grep -Eq '^#([#]*)[[:space:]]+[^[:space:]]' "$ACTUAL_PATH" || {
+      echo "ARTIFACT_INVALID markdown-heading-required"
+      exit 1
+    }
+    ;;
+  json-object)
+    python3 - "$ACTUAL_PATH" <<'PY' || {
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as handle:
+    value = json.load(handle)
+raise SystemExit(0 if isinstance(value, dict) else 1)
+PY
+      echo "ARTIFACT_INVALID json-object-required"
+      exit 1
+    }
+    ;;
+  *)
+    echo "ARTIFACT_INVALID validation-id-not-allowlisted:$VALIDATION_ID"
+    exit 1
+    ;;
+esac
+
+ARTIFACT_SHA="$(sha256sum "$ACTUAL_PATH" | awk '{print $1}')"
 echo "ARTIFACT_VALID sha256=$ARTIFACT_SHA"
