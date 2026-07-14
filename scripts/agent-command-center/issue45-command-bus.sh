@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+COMMAND_BUS_DEPTH="${ASDEV_COMMAND_BUS_DEPTH:-0}"
+if ! [[ "$COMMAND_BUS_DEPTH" =~ ^[0-9]+$ ]]; then
+  echo "[FAIL] invalid command-bus depth" >&2
+  exit 1
+fi
+if [ "$COMMAND_BUS_DEPTH" -gt 0 ]; then
+  echo "[FAIL] nested command-bus invocation refused" >&2
+  exit 1
+fi
+export ASDEV_COMMAND_BUS_DEPTH=1
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ASDEV_ROOT="${ASDEV_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
 ASDEV_AGENT_STATE_DIR="${ASDEV_AGENT_STATE_DIR:-${ASDEV_ROOT}/.state/asdev-agent-loop}"

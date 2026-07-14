@@ -107,7 +107,7 @@ esac
 
 ACTUAL_SHA="$(git -C "$REPO_DIR" rev-parse HEAD 2>/dev/null || true)"
 [ "$ACTUAL_SHA" = "$EXPECTED_SHA" ] || fail "sha-mismatch expected=$EXPECTED_SHA actual=$ACTUAL_SHA"
-BASE_SHA="$(git -C "$REPO_DIR" rev-parse "${BASE_REF}^{commit}" 2>/dev/null || true)"
+BASE_SHA="$(git -C "$REPO_DIR" rev-parse --verify "${BASE_REF}^{commit}" 2>/dev/null || true)"
 [ -n "$BASE_SHA" ] || fail "base-ref-not-found:$BASE_REF"
 git -C "$REPO_DIR" merge-base --is-ancestor "$BASE_SHA" "$ACTUAL_SHA" >/dev/null 2>&1 || \
   fail "base-ref-not-ancestor:$BASE_REF"
@@ -119,6 +119,12 @@ fi
 
 if [ "${ASDEV_OFFLINE_STAGE:-}" = "before" ]; then
   fail "offline-before-worker"
+fi
+
+COMMAND_BUS_DEPTH="${ASDEV_COMMAND_BUS_DEPTH:-0}"
+[[ "$COMMAND_BUS_DEPTH" =~ ^[0-9]+$ ]] || fail "invalid-command-bus-depth"
+if [ "$COMMAND_BUS_DEPTH" -gt 0 ]; then
+  fail "nested-command-bus-claim"
 fi
 
 SUPERVISOR_GATE_FILE="${ASDEV_SUPERVISOR_GATE_FILE:-$ROOT/.state/supervisor/verdict}"
@@ -136,6 +142,19 @@ LOCK_ACQUIRED=0
 FINALIZED=0
 
 mkdir -p "$STATE_DIR" "$(dirname "$ARTIFACT_PATH")"
+
+SOURCE_COMMENT_ID="${ASDEV_SOURCE_COMMENT_ID:-}"
+if [ -n "$SOURCE_COMMENT_ID" ]; then
+  [[ "$SOURCE_COMMENT_ID" =~ ^[1-9][0-9]*$ ]] || fail "invalid-source-comment-id"
+  COMMENT_CLAIM_DIR="$ROOT/.state/worker-comments/$SOURCE_COMMENT_ID"
+  mkdir -p "$(dirname "$COMMENT_CLAIM_DIR")"
+  if mkdir "$COMMENT_CLAIM_DIR" 2>/dev/null; then
+    printf '%s\n' "$TASK_ID" > "$COMMENT_CLAIM_DIR/task-id"
+  else
+    CLAIMED_TASK="$(cat "$COMMENT_CLAIM_DIR/task-id" 2>/dev/null || true)"
+    [ "$CLAIMED_TASK" = "$TASK_ID" ] || fail "duplicate-comment-claim:$SOURCE_COMMENT_ID"
+  fi
+fi
 
 is_done() {
   [ -s "$STATE_FILE" ] && [ -s "$RESULT_FILE" ] &&
@@ -234,14 +253,20 @@ WORKER_VERSION="unknown"
 case "$WORKER_PROFILE" in
   opencode)
     OPENCODE_BIN=""
-    for candidate in /home/asdev/.opencode/bin/opencode /usr/local/bin/opencode /usr/bin/opencode; do
-      if [ -x "$candidate" ]; then
-        OPENCODE_BIN="$candidate"
-        break
+    if [ -n "${ASDEV_OPENCODE_BIN:-}" ]; then
+      if [ -x "$ASDEV_OPENCODE_BIN" ]; then
+        OPENCODE_BIN="$ASDEV_OPENCODE_BIN"
       fi
-    done
-    if [ -z "$OPENCODE_BIN" ]; then
-      OPENCODE_BIN="$(command -v opencode 2>/dev/null || true)"
+    else
+      for candidate in /home/asdev/.opencode/bin/opencode /usr/local/bin/opencode /usr/bin/opencode; do
+        if [ -x "$candidate" ]; then
+          OPENCODE_BIN="$candidate"
+          break
+        fi
+      done
+      if [ -z "$OPENCODE_BIN" ]; then
+        OPENCODE_BIN="$(command -v opencode 2>/dev/null || true)"
+      fi
     fi
     if [ -z "$OPENCODE_BIN" ]; then
       EXIT_CODE=127

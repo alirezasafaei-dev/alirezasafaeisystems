@@ -261,7 +261,9 @@ fi
 if [ -n "$ISSUE" ]; then
   section "Issue #${ISSUE} Command Bus"
   cmd_bus_script="${SCRIPT_DIR}/issue45-command-bus.sh"
-  if [ -f "$cmd_bus_script" ]; then
+  if $DRY_RUN; then
+    log "DRY-RUN: command bus skipped; no GitHub reads or writes"
+  elif [ -f "$cmd_bus_script" ]; then
     log "Running command bus for Issue #${ISSUE}..."
     if bash "$cmd_bus_script" "$ISSUE"; then
       ok "Command bus completed"
