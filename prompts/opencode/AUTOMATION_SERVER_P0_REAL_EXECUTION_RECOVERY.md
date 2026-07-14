@@ -90,7 +90,16 @@ Required final line:
 PASS: command bus guard/idempotency fixtures
 ```
 
-Also verify that `critical-guard.json` reports `active: true`. If the file is missing, run the command bus only in a non-mutating mocked fixture environment. Do not run the real queue loop.
+Also verify that `critical-guard.json` reports `active: true`.
+
+If the file is missing, first verify the deployed command bus contains `enforce_critical_guard`. Then run exactly this script once:
+
+```bash
+bash scripts/agent-command-center/issue45-command-bus.sh \
+  45 alirezasafaei-dev/alirezasafaeisystems
+```
+
+The existing authorized Critical Guard comment must make it stop/disable the timer and exit before command intake. Confirm the guard state afterward. Do not run `run-autonomous-loop.sh`.
 
 ## Step 4 — create one isolated implementation worktree
 
@@ -101,7 +110,7 @@ Run equivalent commands:
 ```bash
 UTC="$(date -u +%Y%m%dT%H%M%SZ)"
 BRANCH="fix/p0-real-worker-contract-$UTC"
-WORKTREE="../asdev-issue98-$UTC"
+WORKTREE="$(dirname "$MOTHER_ROOT")/asdev-issue98-$UTC"
 git -C "$MOTHER_ROOT" worktree add -b "$BRANCH" "$WORKTREE" origin/main
 cd "$WORKTREE"
 ```
@@ -194,28 +203,28 @@ Tests must cover all 22 cases:
 6. artifact missing;
 7. artifact empty;
 8. invalid schema;
-9. wrong repository;
-10. wrong ref/SHA;
-11. validation failure;
-12. report publication failure;
-13. duplicate comment/task;
-14. nested command-bus recursion;
-15. stale-lock recovery;
-16. concurrent claim;
-17. offline before claim;
-18. offline after worker success and before reporting;
-19. supervisor `NO_GO`;
-20. disallowed command/mode;
-21. secret-redaction canary;
-22. acknowledgement cannot become `done`.
+9. wrong repository/ref/SHA;
+10. validation failure;
+11. report publication failure;
+12. duplicate comment/task;
+13. nested command-bus recursion;
+14. stale-lock recovery;
+15. concurrent claim;
+16. offline before claim;
+17. offline after worker success and before reporting;
+18. supervisor `NO_GO`;
+19. disallowed command/mode;
+20. secret-redaction canary;
+21. acknowledgement cannot become `done`;
+22. Issue #45 dry-run performs no GitHub mutation.
 
 The tests must not call the real GitHub API and must not touch the real queue or real user services.
 
 Run:
 
 ```bash
-bash -n scripts/agent-command-center/*.sh
-bash -n scripts/agent-command-center/tests/*.sh
+for file in scripts/agent-command-center/*.sh; do bash -n "$file"; done
+for file in scripts/agent-command-center/tests/*.sh; do bash -n "$file"; done
 bash scripts/agent-command-center/tests/test-command-bus-guard.sh \
   scripts/agent-command-center/issue45-command-bus.sh
 bash scripts/agent-command-center/tests/test-real-worker-contract.sh
@@ -227,10 +236,17 @@ Run ShellCheck if installed. A missing ShellCheck binary may be reported. Any mi
 
 Do this only after every fixture passes. Keep the queue timer disabled.
 
-Prepare a read-only checkout of AuditSystems at exactly:
+Locate the existing AuditSystems clone and set `AUDIT_ROOT` to its absolute path. Then create a detached read-only worktree at the exact commit:
 
-```text
-ac85316e77d499b04857b6845ddb943c9905bfeb
+```bash
+git -C "$AUDIT_ROOT" fetch --prune origin
+git -C "$AUDIT_ROOT" cat-file -e \
+  ac85316e77d499b04857b6845ddb943c9905bfeb^{commit}
+AUDIT_WORKTREE="$(dirname "$AUDIT_ROOT")/auditsystems-review-$UTC"
+git -C "$AUDIT_ROOT" worktree add --detach "$AUDIT_WORKTREE" \
+  ac85316e77d499b04857b6845ddb943c9905bfeb
+test "$(git -C "$AUDIT_WORKTREE" rev-parse HEAD)" = \
+  "ac85316e77d499b04857b6845ddb943c9905bfeb"
 ```
 
 Create one contract that invokes the real installed OpenCode worker to inspect that checkout.
@@ -269,7 +285,7 @@ BLOCK_RELEASE
 READY_FOR_LOCAL_DB_VALIDATION
 ```
 
-Validate the artifact, record its SHA-256, and prove the state reached `done` only after worker, artifact, validation, and reporting all succeeded.
+Validate the artifact and record its SHA-256. Publish a sanitized acceptance report to mother Issue #98. Report publication is part of this task: the state may reach `done` only after the worker, artifact, validator, validation command, atomic evidence write, and Issue #98 publication all succeed.
 
 If the real worker cannot run, stop with `BLOCKED_REAL_WORKER`. Do not fabricate the artifact.
 
