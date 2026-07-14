@@ -4,11 +4,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 ASDEV_ROOT="${ASDEV_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
+export ASDEV_ROOT
 ASDEV_SYSTEMS_DIR="${ASDEV_SYSTEMS_DIR:-${ASDEV_ROOT}/sites/live/alirezasafaeisystems}"
 AUDITSYSTEMS_DIR="${AUDITSYSTEMS_DIR:-${ASDEV_SYSTEMS_DIR}/../auditsystems}"
 ASDEV_AGENT_LOG_DIR="${ASDEV_AGENT_LOG_DIR:-${ASDEV_ROOT}/ops/automation-logs}"
 ASDEV_AGENT_STATE_DIR="${ASDEV_AGENT_STATE_DIR:-${ASDEV_ROOT}/.state/asdev-agent-loop}"
 ASDEV_QUEUE_FILE="${ASDEV_QUEUE_FILE:-${ASDEV_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md}"
+ASDEV_CONTRACTS_DIR="${ASDEV_CONTRACTS_DIR:-${ASDEV_ROOT}/docs/automation/contracts}"
 ASDEV_ALLOWED_MODES="${ASDEV_ALLOWED_MODES:-read-only,docs-only,automation-script}"
 ASDEV_BLOCK_PRODUCT_VALIDATION="${ASDEV_BLOCK_PRODUCT_VALIDATION:-false}"
 
@@ -133,43 +135,45 @@ execute_job() {
   section "Executing: ${task_id} — ${task_title}"
 
   if ! $DRY_RUN; then
-    SAFETY=$(bash "${SCRIPT_DIR}/agent-safety-gate.sh" "$repo" "$mode" 2>&1)
-    if [ $? -ne 0 ]; then
+    SAFETY_GATE="${ASDEV_SAFETY_GATE:-${SCRIPT_DIR}/agent-safety-gate.sh}"
+    if [ ! -x "$SAFETY_GATE" ]; then
+      fail "Safety gate missing or not executable: ${SAFETY_GATE}"
+      return 1
+    fi
+    if ! SAFETY=$(bash "$SAFETY_GATE" "$repo" "$mode" 2>&1); then
       fail "Safety gate blocked ${task_id}"
       return 1
     fi
   fi
 
-  case "$mode" in
-    read-only)
-      log "Read-only task ${task_id}"
-      ;;
-    test-only|product-branch)
-      if [ "$ASDEV_BLOCK_PRODUCT_VALIDATION" = "true" ]; then
-        warn "Product validation blocked by ASDEV_BLOCK_PRODUCT_VALIDATION — skipping"
-        return 0
-      fi
-      if [ -d "$AUDITSYSTEMS_DIR/node_modules" ] && command -v pnpm >/dev/null 2>&1; then
-        cd "$AUDITSYSTEMS_DIR"
-        TYPECHECK=$(pnpm typecheck 2>&1 && echo "PASS" || echo "FAIL")
-        LINT=$(pnpm lint 2>&1 && echo "PASS" || echo "FAIL")
-        if echo "$TYPECHECK" | grep -q "PASS" && echo "$LINT" | grep -q "PASS"; then
-          ok "Validation passed for ${task_id}"
-        else
-          fail "Validation failed for ${task_id}"
-          return 1
-        fi
-      else
-        warn "Skipping validation (no node_modules or pnpm)"
-      fi
-      ;;
-    docs-only|automation-script)
-      log "Task ${task_id} — no heavy validation needed"
-      ;;
-  esac
+  CONTRACT_FILE="${ASDEV_CONTRACTS_DIR}/${task_id}.json"
+  DISPATCHER="${SCRIPT_DIR}/dispatch-real-worker.sh"
 
-  ok "Task ${task_id} completed"
-  return 0
+  if [ ! -f "$CONTRACT_FILE" ]; then
+    fail "Missing required contract for ${task_id}: ${CONTRACT_FILE}"
+    return 1
+  fi
+  if [ ! -f "$DISPATCHER" ]; then
+    fail "Real worker dispatcher missing: ${DISPATCHER}"
+    return 1
+  fi
+
+  log "Contract found for ${task_id} — using real worker dispatcher"
+  if $DRY_RUN; then
+    if bash "${SCRIPT_DIR}/validate-task-artifact.sh" "$CONTRACT_FILE" >/dev/null; then
+      log "DRY-RUN: contract validated; would dispatch ${task_id}"
+      return 0
+    fi
+    fail "DRY-RUN: contract validation failed for ${task_id}"
+    return 1
+  fi
+
+  if ASDEV_ROOT="$ASDEV_ROOT" bash "$DISPATCHER" "$CONTRACT_FILE"; then
+    ok "Task ${task_id} dispatched — validated artifact and report receipt present"
+    return 0
+  fi
+  fail "Task ${task_id} dispatch failed"
+  return 1
 }
 
 section "ASDEV Autonomous Execution Loop"
@@ -257,7 +261,9 @@ fi
 if [ -n "$ISSUE" ]; then
   section "Issue #${ISSUE} Command Bus"
   cmd_bus_script="${SCRIPT_DIR}/issue45-command-bus.sh"
-  if [ -f "$cmd_bus_script" ]; then
+  if $DRY_RUN; then
+    log "DRY-RUN: command bus skipped; no GitHub reads or writes"
+  elif [ -f "$cmd_bus_script" ]; then
     log "Running command bus for Issue #${ISSUE}..."
     if bash "$cmd_bus_script" "$ISSUE"; then
       ok "Command bus completed"

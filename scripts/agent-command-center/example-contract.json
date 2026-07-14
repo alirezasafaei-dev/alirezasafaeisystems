@@ -1,0 +1,16 @@
+{
+  "task_id": "ASDEV-EXAMPLE-001",
+  "mission_file": "prompts/opencode/example-mission.md",
+  "worker_profile": "opencode",
+  "repository": "alirezasafaei-dev/auditsystems",
+  "repo_path": "repos/alirezasafaei-dev/auditsystems",
+  "base_ref": "main",
+  "expected_sha": "ac85316e77d499b04857b6845ddb943c9905bfeb",
+  "mode": "read-only",
+  "expected_artifact": "docs/reports/automation-server/example-review.md",
+  "artifact_validator": "scripts/agent-command-center/validate-task-artifact.sh",
+  "validation_command": "markdown-report",
+  "timeout_seconds": 1800,
+  "max_attempts": 3,
+  "created_at": "2026-07-14T12:00:00Z"
+}
