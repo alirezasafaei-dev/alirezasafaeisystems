@@ -70,6 +70,16 @@ REPO_DIR="$(path_within_root "$ROOT/$REPO_PATH")" || fail "repo-path-escape"
 MISSION_PATH="$(path_within_root "$ROOT/$MISSION_FILE")" || fail "mission-path-escape"
 ARTIFACT_PATH="$(path_within_root "$ROOT/$EXPECTED_ARTIFACT")" || fail "artifact-path-escape"
 ARTIFACT_VALIDATOR_PATH="$(path_within_root "$ROOT/$ARTIFACT_VALIDATOR")" || fail "validator-path-escape"
+[ -f "$MISSION_PATH" ] || fail "mission-not-found:$MISSION_FILE"
+MISSION_HASH="$(python3 - "$MISSION_PATH" <<'PY'
+import hashlib
+import pathlib
+import sys
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+normalized = "\n".join(line.rstrip() for line in text.replace("\r\n", "\n").split("\n")).strip() + "\n"
+print(hashlib.sha256(normalized.encode("utf-8")).hexdigest())
+PY
+)"
 
 if ! git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   fail "repo-not-git:$REPO_DIR"
@@ -101,7 +111,7 @@ REMOTE_URL="$(git -C "$REPO_DIR" remote get-url origin 2>/dev/null || true)"
 REMOTE_SLUG="$(normalize_remote "$REMOTE_URL" 2>/dev/null || true)"
 case "$REMOTE_SLUG" in
   alirezasafaei-dev/alirezasafaeisystems|alirezasafaei-dev/auditsystems) ;;
-  *) fail "remote-not-allowlisted:$REMOTE_URL" ;;
+  *) fail "remote-not-allowlisted" ;;
 esac
 [ "$REMOTE_SLUG" = "$REPOSITORY" ] || fail "remote-contract-mismatch:$REMOTE_SLUG"
 
@@ -113,9 +123,15 @@ git -C "$REPO_DIR" merge-base --is-ancestor "$BASE_SHA" "$ACTUAL_SHA" >/dev/null
   fail "base-ref-not-ancestor:$BASE_REF"
 
 BRANCH_NAME="$(git -C "$REPO_DIR" symbolic-ref --quiet --short HEAD 2>/dev/null || true)"
-if [ -n "$BRANCH_NAME" ] && [ -n "$(git -C "$REPO_DIR" status --porcelain 2>/dev/null)" ]; then
-  fail "dirty-worktree:$BRANCH_NAME"
+if [ -n "$(git -C "$REPO_DIR" status --porcelain 2>/dev/null)" ]; then
+  fail "dirty-worktree:${BRANCH_NAME:-detached}"
 fi
+case "$MODE" in
+  code|docs-only|automation-script)
+    [ -f "$REPO_DIR/.git" ] || fail "write-mode-requires-linked-worktree"
+    ;;
+  read-only) ;;
+esac
 
 if [ "${ASDEV_OFFLINE_STAGE:-}" = "before" ]; then
   fail "offline-before-worker"
@@ -142,6 +158,10 @@ LOCK_ACQUIRED=0
 FINALIZED=0
 
 mkdir -p "$STATE_DIR" "$(dirname "$ARTIFACT_PATH")"
+MISSION_INDEX_DIR="$ROOT/.state/worker-missions/$MISSION_HASH"
+mkdir -p "$MISSION_INDEX_DIR"
+printf '%s\n' "$TASK_ID" > "$MISSION_INDEX_DIR/$TASK_ID.tmp.$$"
+mv -f "$MISSION_INDEX_DIR/$TASK_ID.tmp.$$" "$MISSION_INDEX_DIR/$TASK_ID"
 
 SOURCE_COMMENT_ID="${ASDEV_SOURCE_COMMENT_ID:-}"
 if [ -n "$SOURCE_COMMENT_ID" ]; then
@@ -149,9 +169,9 @@ if [ -n "$SOURCE_COMMENT_ID" ]; then
   COMMENT_CLAIM_DIR="$ROOT/.state/worker-comments/$SOURCE_COMMENT_ID"
   mkdir -p "$(dirname "$COMMENT_CLAIM_DIR")"
   if mkdir "$COMMENT_CLAIM_DIR" 2>/dev/null; then
-    printf '%s\n' "$TASK_ID" > "$COMMENT_CLAIM_DIR/task-id"
+    printf '%s\n%s\n' "$TASK_ID" "$MISSION_HASH" > "$COMMENT_CLAIM_DIR/task-id"
   else
-    CLAIMED_TASK="$(cat "$COMMENT_CLAIM_DIR/task-id" 2>/dev/null || true)"
+    CLAIMED_TASK="$(head -n 1 "$COMMENT_CLAIM_DIR/task-id" 2>/dev/null || true)"
     [ "$CLAIMED_TASK" = "$TASK_ID" ] || fail "duplicate-comment-claim:$SOURCE_COMMENT_ID"
   fi
 fi
@@ -234,13 +254,51 @@ printf '%s\n' "$ATTEMPT" > "$RETRY_FILE.tmp.$$"
 mv -f "$RETRY_FILE.tmp.$$" "$RETRY_FILE"
 
 atom_write "$STATE_FILE" <<EOF
-{"task_id":"$TASK_ID","state":"claimed","attempt":$ATTEMPT,"repository":"$REPOSITORY","expected_sha":"$EXPECTED_SHA","mode":"$MODE","started_at":"$TS"}
+{"task_id":"$TASK_ID","state":"claimed","attempt":$ATTEMPT,"mission_hash":"$MISSION_HASH","repository":"$REPOSITORY","base_ref":"$BASE_REF","expected_sha":"$EXPECTED_SHA","mode":"$MODE","started_at":"$TS"}
 EOF
 
+REPORT_ONLY_RETRY=0
+PREVIOUS_ARTIFACT_HASH=""
+PREVIOUS_WORKER_VERSION=""
+PREVIOUS_WORKER_EXECUTABLE=""
+PREVIOUS_RESULT=()
+if [ -s "$RESULT_FILE" ]; then
+  mapfile -t PREVIOUS_RESULT < <(python3 - "$RESULT_FILE" "$MISSION_HASH" "$ARTIFACT_PATH" "$REPOSITORY" "$EXPECTED_SHA" <<'PY'
+import json
+import sys
+try:
+    with open(sys.argv[1], encoding="utf-8") as handle:
+        result = json.load(handle)
+except (OSError, json.JSONDecodeError):
+    raise SystemExit(1)
+same_contract = (
+    result.get("mission_hash") == sys.argv[2]
+    and result.get("artifact_path") == sys.argv[3]
+    and result.get("repository") == sys.argv[4]
+    and result.get("expected_sha") == sys.argv[5]
+)
+if same_contract and result.get("worker_exit") == 0 and result.get("artifact_valid") == 1 and result.get("report_published") != "yes":
+    print(result.get("artifact_hash", ""))
+    print(result.get("worker_version", "unknown"))
+    print(result.get("worker_executable", "unknown"))
+else:
+    raise SystemExit(1)
+PY
+  ) || true
+  if [ "${#PREVIOUS_RESULT[@]}" -eq 3 ] && [ -n "${PREVIOUS_RESULT[0]}" ]; then
+    REPORT_ONLY_RETRY=1
+    PREVIOUS_ARTIFACT_HASH="${PREVIOUS_RESULT[0]}"
+    PREVIOUS_WORKER_VERSION="${PREVIOUS_RESULT[1]}"
+    PREVIOUS_WORKER_EXECUTABLE="${PREVIOUS_RESULT[2]}"
+  fi
+fi
+
 RUNNING_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-atom_write "$STATE_FILE" <<EOF
-{"task_id":"$TASK_ID","state":"running","attempt":$ATTEMPT,"repository":"$REPOSITORY","expected_sha":"$EXPECTED_SHA","mode":"$MODE","started_at":"$RUNNING_TS"}
+if [ "$REPORT_ONLY_RETRY" -eq 0 ]; then
+  atom_write "$STATE_FILE" <<EOF
+{"task_id":"$TASK_ID","state":"running","attempt":$ATTEMPT,"mission_hash":"$MISSION_HASH","repository":"$REPOSITORY","base_ref":"$BASE_REF","expected_sha":"$EXPECTED_SHA","mode":"$MODE","started_at":"$RUNNING_TS"}
 EOF
+fi
 
 EFFECTIVE_TIMEOUT="$TIMEOUT_SECONDS"
 if [ "${ASDEV_TEST_MODE:-0}" = "1" ] && [[ "${ASDEV_TEST_TIMEOUT_SECONDS:-}" =~ ^[1-9][0-9]*$ ]]; then
@@ -250,13 +308,27 @@ fi
 EXIT_CODE=0
 CAPTURED_OUTPUT=""
 WORKER_VERSION="unknown"
+WORKER_EXECUTABLE="unknown"
+if [ "$REPORT_ONLY_RETRY" -eq 1 ]; then
+  WORKER_VERSION="$PREVIOUS_WORKER_VERSION"
+  WORKER_EXECUTABLE="$PREVIOUS_WORKER_EXECUTABLE"
+  CAPTURED_OUTPUT="report-only retry: successful worker was not rerun"
+  log "Report-only retry for task $TASK_ID"
+else
 case "$WORKER_PROFILE" in
   opencode)
     OPENCODE_BIN=""
     if [ -n "${ASDEV_OPENCODE_BIN:-}" ]; then
-      if [ -x "$ASDEV_OPENCODE_BIN" ]; then
-        OPENCODE_BIN="$ASDEV_OPENCODE_BIN"
-      fi
+      case "$ASDEV_OPENCODE_BIN" in
+        /home/asdev/.opencode/bin/opencode|/usr/local/bin/opencode|/usr/bin/opencode)
+          [ -x "$ASDEV_OPENCODE_BIN" ] && OPENCODE_BIN="$ASDEV_OPENCODE_BIN"
+          ;;
+        *)
+          if [ "${ASDEV_TEST_MODE:-0}" = "1" ] && [ -x "$ASDEV_OPENCODE_BIN" ]; then
+            OPENCODE_BIN="$ASDEV_OPENCODE_BIN"
+          fi
+          ;;
+      esac
     else
       for candidate in /home/asdev/.opencode/bin/opencode /usr/local/bin/opencode /usr/bin/opencode; do
         if [ -x "$candidate" ]; then
@@ -264,16 +336,13 @@ case "$WORKER_PROFILE" in
           break
         fi
       done
-      if [ -z "$OPENCODE_BIN" ]; then
-        OPENCODE_BIN="$(command -v opencode 2>/dev/null || true)"
-      fi
     fi
     if [ -z "$OPENCODE_BIN" ]; then
       EXIT_CODE=127
       CAPTURED_OUTPUT="opencode not found"
     else
+      WORKER_EXECUTABLE="$OPENCODE_BIN"
       WORKER_VERSION="$("$OPENCODE_BIN" --version 2>&1 | head -n 1 | tr -cd 'A-Za-z0-9._ -')"
-      [ -f "$MISSION_PATH" ] || fail "mission-not-found:$MISSION_FILE"
       MISSION_TEXT="$(cat "$MISSION_PATH")
 
 Required output artifact: $ARTIFACT_PATH
@@ -287,17 +356,32 @@ Mode: $MODE"
     fi
     ;;
   readonly-check)
-    [ -f "$MISSION_PATH" ] || fail "mission-not-found:$MISSION_FILE"
+    if [ "${ASDEV_TEST_MODE:-0}" != "1" ]; then
+      EXIT_CODE=22
+      CAPTURED_OUTPUT="readonly-check profile is fixture-only"
+    else
+    WORKER_EXECUTABLE="$(command -v bash)"
     set +e
     CAPTURED_OUTPUT="$(timeout "$EFFECTIVE_TIMEOUT" bash "$MISSION_PATH" 2>&1)"
     EXIT_CODE=$?
     set -e
+    fi
     ;;
   *)
     EXIT_CODE=22
     CAPTURED_OUTPUT="unknown worker profile"
     ;;
 esac
+fi
+
+POST_SHA="$(git -C "$REPO_DIR" rev-parse HEAD 2>/dev/null || true)"
+if [ "$MODE" = "read-only" ] && {
+  [ "$POST_SHA" != "$EXPECTED_SHA" ] || [ -n "$(git -C "$REPO_DIR" status --porcelain 2>/dev/null)" ];
+}; then
+  EXIT_CODE=90
+  CAPTURED_OUTPUT="${CAPTURED_OUTPUT}
+read-only worker mutated repository; manual cleanup required"
+fi
 
 SANITIZED_OUTPUT="$(printf '%s' "$CAPTURED_OUTPUT" | python3 -c '
 import os
@@ -335,7 +419,12 @@ if [ "$EXIT_CODE" -eq 0 ] && [ -x "$ARTIFACT_VALIDATOR_PATH" ]; then
   set -e
   if [ "$VALIDATOR_EXIT" -eq 0 ]; then
     ARTIFACT_HASH="$(sha256sum "$ARTIFACT_PATH" | awk '{print $1}')"
-    ARTIFACT_VALID=1
+    if [ "$REPORT_ONLY_RETRY" -eq 1 ] && [ "$ARTIFACT_HASH" != "$PREVIOUS_ARTIFACT_HASH" ]; then
+      VALIDATOR_EXIT=1
+      VALIDATION_OUTPUT="report-retry artifact hash mismatch"
+    else
+      ARTIFACT_VALID=1
+    fi
   fi
 fi
 
@@ -388,7 +477,7 @@ atom_write "$STATE_FILE" <<EOF
 {"task_id":"$TASK_ID","state":"$FINAL_STATE","reason":"$REPORT_REASON","attempt":$ATTEMPT,"worker_exit":$EXIT_CODE,"artifact_valid":$ARTIFACT_VALID,"artifact_hash":"$ARTIFACT_HASH","validator_exit":$VALIDATOR_EXIT,"report_published":"$REPORT_PUBLISHED","started_at":"$RUNNING_TS","ended_at":"$END_TS"}
 EOF
 atom_write "$RESULT_FILE" <<EOF
-{"task_id":"$TASK_ID","state":"$FINAL_STATE","reason":"$REPORT_REASON","attempt":$ATTEMPT,"worker_profile":"$WORKER_PROFILE","worker_version":"$WORKER_VERSION","worker_exit":$EXIT_CODE,"artifact_path":"$ARTIFACT_PATH","artifact_hash":"$ARTIFACT_HASH","artifact_valid":$ARTIFACT_VALID,"validator_exit":$VALIDATOR_EXIT,"validation_id":"$VALIDATION_ID","report_published":"$REPORT_PUBLISHED","repository":"$REPOSITORY","expected_sha":"$EXPECTED_SHA","mode":"$MODE","started_at":"$RUNNING_TS","ended_at":"$END_TS"}
+{"task_id":"$TASK_ID","state":"$FINAL_STATE","reason":"$REPORT_REASON","attempt":$ATTEMPT,"report_only_retry":$REPORT_ONLY_RETRY,"mission_hash":"$MISSION_HASH","worker_profile":"$WORKER_PROFILE","worker_executable":"$WORKER_EXECUTABLE","worker_version":"$WORKER_VERSION","worker_exit":$EXIT_CODE,"artifact_path":"$ARTIFACT_PATH","artifact_hash":"$ARTIFACT_HASH","artifact_valid":$ARTIFACT_VALID,"validator_exit":$VALIDATOR_EXIT,"validation_id":"$VALIDATION_ID","report_published":"$REPORT_PUBLISHED","repository":"$REPOSITORY","base_ref":"$BASE_REF","expected_sha":"$EXPECTED_SHA","mode":"$MODE","started_at":"$RUNNING_TS","ended_at":"$END_TS"}
 EOF
 
 FINALIZED=1

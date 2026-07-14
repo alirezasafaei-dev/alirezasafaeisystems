@@ -118,6 +118,14 @@ esac
 }
 [ -f "$ACTUAL_PATH" ] || { echo "ARTIFACT_INVALID not-found:$EXPECTED_ARTIFACT"; exit 1; }
 [ -s "$ACTUAL_PATH" ] || { echo "ARTIFACT_INVALID empty:$EXPECTED_ARTIFACT"; exit 1; }
+if [ -n "${ASDEV_SECRET_CANARY:-}" ] && grep -Fq -- "$ASDEV_SECRET_CANARY" "$ACTUAL_PATH"; then
+  echo "ARTIFACT_INVALID secret-canary-present"
+  exit 1
+fi
+if grep -Eq 'ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}' "$ACTUAL_PATH"; then
+  echo "ARTIFACT_INVALID secret-pattern-present"
+  exit 1
+fi
 
 case "$VALIDATION_ID" in
   artifact-nonempty)

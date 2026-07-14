@@ -282,15 +282,25 @@ fi
 # 11. Report publication failure after valid artifact.
 reset_mock
 make_contract 11
-write_success_mission 11
+cat > "$ASDEV_ROOT/prompts/opencode/f11.md" <<'SH'
+#!/usr/bin/env bash
+printf 'worker-run\n' >> "$ASDEV_ROOT/f11-worker-count"
+printf '# Report retry review\n' > "$ASDEV_ROOT/docs/reports/test/report-F11.md"
+SH
 export GH_MOCK_COMMENT_FAIL=1
 dispatch_capture "$TMP/c11.json" env
 unset GH_MOCK_COMMENT_FAIL
-if [ "$STATUS" -ne 0 ] && [[ "$OUTPUT" == *"BLOCKED_REPORTER"* ]] &&
-  grep -q '"reason":"report-publish-failed"' "$ASDEV_ROOT/.state/worker/ASDEV-F11/result.json"; then
-  pass 11 "report publication failure blocks done"
+FIRST_REPORT_STATUS="$STATUS"
+dispatch_capture "$TMP/c11.json" env
+SECOND_REPORT_STATUS="$STATUS"
+WORKER_RUNS="$(wc -l < "$ASDEV_ROOT/f11-worker-count")"
+if [ "$FIRST_REPORT_STATUS" -ne 0 ] && [ "$SECOND_REPORT_STATUS" -eq 0 ] &&
+  [ "$WORKER_RUNS" -eq 1 ] &&
+  grep -q '"report_only_retry":1' "$ASDEV_ROOT/.state/worker/ASDEV-F11/result.json" &&
+  grep -q '"state":"done"' "$ASDEV_ROOT/.state/worker/ASDEV-F11/result.json"; then
+  pass 11 "report failure blocks done; retry publishes without rerunning worker"
 else
-  fail_fixture 11 "report failure did not block done: $OUTPUT"
+  fail_fixture 11 "report-only retry failed: first=$FIRST_REPORT_STATUS second=$SECOND_REPORT_STATUS runs=$WORKER_RUNS $OUTPUT"
 fi
 
 # 12. Duplicate task and duplicate source-comment claims.
@@ -445,11 +455,18 @@ set +e
 COMMAND_OUTPUT="$(bash "$VALIDATOR" "$TMP/c19.json" 2>&1)"
 COMMAND_STATUS=$?
 set -e
-if [ "$MODE_STATUS" -ne 0 ] && [ "$COMMAND_STATUS" -ne 0 ] &&
+make_contract 19
+set_json "$TMP/c19.json" mode code
+write_success_mission 19
+dispatch_capture "$TMP/c19.json" env
+WORKTREE_STATUS="$STATUS"
+WORKTREE_OUTPUT="$OUTPUT"
+if [ "$MODE_STATUS" -ne 0 ] && [ "$COMMAND_STATUS" -ne 0 ] && [ "$WORKTREE_STATUS" -ne 0 ] &&
+  [[ "$WORKTREE_OUTPUT" == *"write-mode-requires-linked-worktree"* ]] &&
   [[ "$MODE_OUTPUT" == ARTIFACT_INVALID* ]] && [[ "$COMMAND_OUTPUT" == ARTIFACT_INVALID* ]]; then
-  pass 19 "disallowed mode and command rejected by schema allowlist"
+  pass 19 "mode/command allowlist and linked-worktree requirement enforced"
 else
-  fail_fixture 19 "mode/command allowlist failed"
+  fail_fixture 19 "mode/command/worktree enforcement failed"
 fi
 
 # 20. Secret redaction canary.
