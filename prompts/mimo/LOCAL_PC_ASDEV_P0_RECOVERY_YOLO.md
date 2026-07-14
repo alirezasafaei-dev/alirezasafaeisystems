@@ -1,5 +1,37 @@
 # LOCAL_PC MiMo P0 Recovery — High-Autonomy YOLO Mission
 
+## Final containment command — 2026-07-14 (supersedes every older sequence below)
+
+### Verified GitHub/server evidence
+
+- Mother command-bus containment PR #112 is merged at `043415bd657f23679326e3d7aa8d163534d6c005`.
+- Issue #45 later posted `ASDEV stopped`; treat `asdev-agent-loop.timer` as disabled until locally proven otherwise.
+- Last pre-STOP queue evidence is `1055 pending / 28 done`. Preserve it as incident evidence. It is not an execution backlog.
+- AuditSystems workflow-hardening PR #45 is merged at `ac85316e77d499b04857b6845ddb943c9905bfeb`.
+- AuditSystems security PR #46 is open at `54e6f7c008b26df2dc804d81c761e456e4517630` and is BLOCK_MERGE.
+- Mother CI PR #109 is Draft at `f20b0e26e1d1c87406d3d95673c328870b858f32` and is BLOCK_MERGE.
+- Current CI truth: mother workflows fail before usable execution evidence; AuditSystems main-gate/roadmap jobs queue, and docs can fail with zero recorded steps.
+
+### Execute now, in this exact order
+
+1. Stop and disable only `asdev-agent-loop.timer` again idempotently. Do not stop repository sync, reporting, or supervision unless their own evidence proves unsafe.
+2. Hash and copy queue/state/service definitions to a timestamped local incident directory. Record paths, owners, modes, hashes, and counts. Never print secrets.
+3. Fetch mother `origin/main`; prove commit `043415b` is present. Inspect the deployed `issue45-command-bus.sh` and run:
+   - `bash -n scripts/agent-command-center/issue45-command-bus.sh`
+   - `bash scripts/agent-command-center/tests/test-command-bus-guard.sh scripts/agent-command-center/issue45-command-bus.sh`
+4. Prove timer state with `systemctl --user is-active`, `is-enabled`, `list-timers`, and recent sanitized journal lines. Require inactive + disabled.
+5. Build a read-only duplicate report for the 1055-item queue keyed by exact task ID and normalized mission hash. Do not mutate the source queue.
+6. Recover the existing isolated `asdev-mother-ci` and `asdev-audit-ci` runners in place. Inspect service identity, runner version, workspace ownership, Git safe-directory, disk/temp, DNS/TLS, and GitHub action endpoints. Do not register duplicates unless stored identity is missing or corrupt.
+7. Produce a fresh checkout reproduction with non-expired logs. Fix the root cause without weakening `actions/checkout`, permissions, pinning, or repository isolation.
+8. Run current PR #109 and PR #46 heads. Require non-empty steps, exact head SHA, frozen install, typecheck, lint, complete tests, build, smoke where declared, and cleanup. Do not merge either PR unless all gates pass.
+9. Repair #98 from current mother main in an isolated worktree. Accept only real worker exit code + non-empty validated artifact + validation command + atomic state + successful report publication.
+10. Keep the Critical Guard active. Do not post `[ASDEV SAFE-MODE]` or a guard-lift marker. After #98 passes, prepare a proposed one-task resume dossier and stop for owner approval before enabling the timer.
+
+### Aggressive mode rule
+
+Do not wait after a failed command. Capture exit code and sanitized evidence, isolate the cause, apply the smallest reversible fix, rerun the exact failing check, and continue. Never convert missing evidence into PASS. Never touch Production, Production data, payment, pricing, DNS/nginx, public outreach, or secrets.
+
+
 ## Operational override — 2026-07-14
 
 This section supersedes any older sequencing in this document.
