@@ -115,6 +115,7 @@ jq -e '.active == true and .guard_comment_id == 101' "$ASDEV_AGENT_STATE_DIR/cri
 assert_contains "--user stop asdev-agent-loop.timer" "$SYSTEMCTL_LOG"
 assert_contains "--user disable asdev-agent-loop.timer" "$SYSTEMCTL_LOG"
 assert_contains "critical guard enforced" "$GH_POST_LOG"
+assert_contains 'newer `# Critical Guard Lift — #98 accepted` comment' "$GH_POST_LOG"
 
 reset_case fail_closed
 printf '[]\n' > "$GH_COMMENTS_FIXTURE"
@@ -151,4 +152,3 @@ run_bus
   fail "duplicate RUN appended more than once"
 
 printf 'PASS: command bus guard/idempotency fixtures\n'
-
