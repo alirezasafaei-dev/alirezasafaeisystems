@@ -1,171 +1,339 @@
-# AUTOMATION_SERVER P0 Real-Execution Recovery Mission
+# AUTOMATION_SERVER — EXECUTE ISSUE #98 NOW
 
-## Final server directive — 2026-07-14 (supersedes every older sequence below)
+You are running on `AUTOMATION_SERVER`.
 
-Containment is already in force, not merely requested:
+Do not summarize this file. Do not ask routine questions. Execute the steps below in order.
 
-- #112 merged the fail-closed, author-allowlisted, multiline-safe, idempotent Issue #45 command bus at `043415bd657f23679326e3d7aa8d163534d6c005`.
-- The server posted `ASDEV stopped` after the guard/STOP comments.
-- Last observed queue state before STOP: `1055 pending / 28 done`.
-- No queue task is authorized to run. The only implementation mission allowed is the focused #98 recovery in an isolated worktree; it must be invoked manually while the agent-loop timer remains disabled.
-- Never post `[ASDEV SAFE-MODE]` and never create `# Critical Guard Lift — #98 accepted` during this mission.
+If a required command fails, record the command, exit code, and sanitized error. Fix it when safe. If it needs Production access, a secret value, a reboot, destructive cleanup, or owner authorization, stop and report `BLOCKED`.
 
-Mandatory preflight:
+## Fixed values
 
-1. idempotently stop and disable `asdev-agent-loop.timer`;
-2. snapshot and hash queue/state/service definitions without mutation or secret output;
-3. sync mother main and prove `043415b` ancestry;
-4. run the merged command-bus syntax and fixture suite;
-5. prove `critical-guard.json` is active and the timer is inactive + disabled;
-6. generate only a read-only queue duplicate/classification artifact;
-7. create a fresh #98 branch/worktree from current main;
-8. run all deterministic fixtures plus exactly one bounded real OpenCode read-only acceptance mission;
-9. open a focused PR and publish sanitized evidence to #98/#45;
-10. stop with BLOCK_MERGE and leave the timer disabled unless the owner separately approves the fully evidenced one-task resume dossier.
+```text
+MOTHER_REPO=alirezasafaei-dev/alirezasafaeisystems
+MOTHER_REQUIRED_ANCESTOR=043415bd657f23679326e3d7aa8d163534d6c005
+AUDIT_REPO=alirezasafaei-dev/auditsystems
+AUDIT_MAIN_SHA=ac85316e77d499b04857b6845ddb943c9905bfeb
+ISSUE=98
+QUEUE_LAST_SEEN=1055 pending / 28 done
+```
 
-Any inability to verify GitHub guard markers, worker identity, exact repository SHA, artifact schema, validation result, atomic state, or report publication is a hard failure. Queue acknowledgements, status comments, and worker-looking prose are not execution.
+## Absolute rules
 
+- Keep `asdev-agent-loop.timer` stopped and disabled.
+- Do not execute, delete, reorder, mark, or rewrite the existing queue.
+- Do not post `[ASDEV SAFE-MODE]`.
+- Do not post a Critical Guard lift.
+- Do not deploy, migrate, restart Production, access Production DB, change payment/pricing/DNS/nginx/firewall, reveal secrets, force-push, or reset destructively.
+- Do not merge the PR you create.
 
-## Incident containment override — 2026-07-14
+## Step 1 — prove containment
 
-Before implementation:
+Run:
 
-- confirm `asdev-agent-loop.timer` is stopped under the Issue #45 Critical Guard;
-- preserve and hash the current queue/state; reported pending volume is approximately 1050;
-- do not execute, delete, or bulk-mark the backlog;
-- implement a read-only duplicate classifier keyed by task ID plus normalized mission hash;
-- treat repeated enqueue of identical missions as a failing regression fixture;
-- do not re-enable the loop until the full real-worker contract, artifact validator, atomic state, report publication, and negative fixtures pass;
-- first resumed cycle must execute at most one explicit contract-backed task.
+```bash
+systemctl --user stop asdev-agent-loop.timer
+systemctl --user disable asdev-agent-loop.timer
+systemctl --user is-active asdev-agent-loop.timer
+systemctl --user is-enabled asdev-agent-loop.timer
+systemctl --user list-timers --all | grep -F asdev-agent-loop || true
+```
 
-Queue growth, service health, and acknowledgement comments are not completion evidence.
+Required result:
 
+```text
+is-active = inactive
+is-enabled = disabled
+```
 
-Status: executable P0 mission for Issues #98, #45, #94, #99, and #100.
+If either value differs, fix only this timer and repeat the proof. Do not continue while it can execute the queue.
 
-## Operating mode
+## Step 2 — locate and snapshot the mother repository
 
-Act with high autonomy on `AUTOMATION_SERVER`, but fail closed. Do not ask for routine confirmations. Stop only for an explicit owner-approval gate, missing host access, missing short-lived credential, risk of data loss, or any required Production mutation.
+Locate the existing mother clone. Set `MOTHER_ROOT` to its absolute path.
 
-Use the repository's latest `origin/main`. Create an isolated worktree and a fresh focused branch from current main. Never continue PR #107's branch and never target a non-main base.
+Verify:
 
-## Primary outcome
+```bash
+git -C "$MOTHER_ROOT" remote -v
+git -C "$MOTHER_ROOT" status --short
+git -C "$MOTHER_ROOT" fetch --prune origin
+git -C "$MOTHER_ROOT" merge-base --is-ancestor "$MOTHER_REQUIRED_ANCESTOR" origin/main
+git -C "$MOTHER_ROOT" rev-parse origin/main
+```
 
-Repair the ASDEV command bus and autonomous loop so a task can reach `done` only after:
+Do not modify or clean a dirty checkout.
 
-1. a real allowlisted worker was invoked;
-2. the declared repository/ref/SHA was used;
-3. the worker returned a real exit status;
-4. the declared artifact exists and is non-empty;
-5. artifact schema/content validation passes;
-6. the declared validation command passes;
-7. evidence is persisted atomically;
-8. report publication succeeds or the task remains incomplete.
+Create a private incident snapshot directory with mode `0700`. Copy, without changing the originals:
 
-Acknowledgement, log output, a generated timestamp, or a generic report is never completion evidence.
+- `docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md`
+- agent-loop state directory
+- command-bus state
+- critical-guard state
+- relevant user-level systemd unit files
 
-## Confirmed defects to address
+Create SHA-256 hashes and a manifest containing paths, owners, modes, sizes, and hashes. Do not include environment values, tokens, cookies, SSH material, database URLs, or secret file contents in the report.
 
-- `run-autonomous-loop.sh` uses `local` outside a function in the Issue #45 path.
-- `read-only`, `docs-only`, and `automation-script` currently succeed without invoking a worker.
-- command-bus `RUN` ignores the requested mission and starts another generic loop.
-- nested loop/command-bus invocation can recurse before command state is persisted.
-- failures can be swallowed by `|| true` or converted into warning-only output.
-- `collect-agent-report.sh` labels every report `Complete` without verifying execution.
-- missing `node_modules` or `pnpm` can be reported as a skipped validation followed by success.
-- network-offline paths may return success even when an assigned task was not executed.
-- prompt/report timestamps and loose text matching are not a sufficient idempotency contract.
-- state writes are not proven atomic and concurrent command consumption is insufficiently guarded.
-- PR #107 targets the wrong base and still provides no real worker invocation.
+## Step 3 — verify the merged safety patch
 
-## Mandatory task contract
+From a clean checkout of `origin/main`, run:
 
-Implement a machine-readable contract. JSON is preferred. Require at least:
+```bash
+bash -n scripts/agent-command-center/issue45-command-bus.sh
+bash -n scripts/agent-command-center/tests/test-command-bus-guard.sh
+bash scripts/agent-command-center/tests/test-command-bus-guard.sh \
+  scripts/agent-command-center/issue45-command-bus.sh
+```
 
-`task_id`, `mission_file`, `worker_profile`, `repository`, `repo_path`, `base_ref`, `expected_sha`, `mode`, `expected_artifact`, `artifact_validator`, `validation_command`, `timeout_seconds`, `max_attempts`, `created_at`.
+Required final line:
 
-Reject unknown keys when safety-sensitive. Reject relative traversal, shell metacharacter injection, missing files, moving refs where an exact SHA is required, and commands not present in an explicit allowlist.
+```text
+PASS: command bus guard/idempotency fixtures
+```
 
-Do not use `eval`. Build command arguments as arrays. Redact environment and never print tokens, cookies, authorization headers, SSH material, database URLs, or provider secrets.
+Also verify that `critical-guard.json` reports `active: true`. If the file is missing, run the command bus only in a non-mutating mocked fixture environment. Do not run the real queue loop.
 
-## Real worker dispatch
+## Step 4 — create one isolated implementation worktree
 
-- Detect the canonical installed OpenCode executable/profile on AUTOMATION_SERVER.
-- Invoke OpenCode for the declared mission with bounded timeout and captured stdout/stderr.
-- Record executable path, safe version, worker profile, start/end time, exit code, repository, ref, exact SHA, artifact path, artifact hash, validator result, and validation result.
-- Worker unavailable, timeout, non-zero exit, missing artifact, empty artifact, schema mismatch, repo mismatch, SHA mismatch, or validation failure must leave the task failed/retryable—not done.
-- MiMo/Hermes may coordinate or report, but may not fabricate OpenCode execution evidence.
-- One task may be claimed by only one worker. Use an atomic lock and an atomic state transition.
+Do not edit the deployed checkout.
 
-## Command bus requirements
+Run equivalent commands:
 
-- Persist command claim before execution to prevent recursion and duplicate consumption.
-- Separate `claimed`, `running`, `validation`, `reporting`, `done`, and `failed` states.
-- A nested invocation for the same comment/task must refuse execution.
-- `[ASDEV RUN]` must resolve an explicit allowlisted contract or mission file; free-form shell execution is forbidden.
-- Posting a status report is not equivalent to completing a task.
-- Report-post failure must keep the task incomplete and retry safely without rerunning successful destructive work.
-- Unknown authors/commands and stale comments must not execute.
-- Preserve exact comment ID and task ID idempotently.
+```bash
+UTC="$(date -u +%Y%m%dT%H%M%SZ)"
+BRANCH="fix/p0-real-worker-contract-$UTC"
+WORKTREE="../asdev-issue98-$UTC"
+git -C "$MOTHER_ROOT" worktree add -b "$BRANCH" "$WORKTREE" origin/main
+cd "$WORKTREE"
+```
 
-## Required regression fixtures
+Record the exact base SHA.
 
-Create deterministic tests covering:
+## Step 5 — implement the real-worker contract
 
-1. syntax of every changed shell script;
-2. real fixture worker success plus valid artifact;
+Inspect these files first:
+
+```text
+scripts/agent-command-center/run-autonomous-loop.sh
+scripts/agent-command-center/issue45-command-bus.sh
+scripts/agent-command-center/collect-agent-report.sh
+scripts/control-plane/loop-until-blocked.sh
+```
+
+Implement these files or equivalent focused modules:
+
+```text
+scripts/agent-command-center/task-contract.schema.json
+scripts/agent-command-center/dispatch-real-worker.sh
+scripts/agent-command-center/validate-task-artifact.sh
+scripts/agent-command-center/tests/test-real-worker-contract.sh
+```
+
+The task contract must require:
+
+```text
+task_id
+mission_file
+worker_profile
+repository
+repo_path
+base_ref
+expected_sha
+mode
+expected_artifact
+artifact_validator
+validation_command
+timeout_seconds
+max_attempts
+created_at
+```
+
+Enforce all of the following:
+
+1. No `eval`; build command arguments as arrays.
+2. Allowlisted worker, mode, repository, and validation command only.
+3. Reject path traversal, shell metacharacters, unknown safety-sensitive keys, wrong repository, wrong ref, and wrong SHA.
+4. Detect the installed OpenCode executable with `command -v opencode`.
+5. Read `opencode --help` and use its installed non-interactive invocation. Do not invent flags.
+6. Apply a bounded timeout.
+7. Capture real exit code, safe version, profile, start/end time, repository, ref, exact SHA, artifact path, SHA-256, validator exit, validation exit, and reporting result.
+8. Require a non-empty artifact.
+9. Write state atomically using a temporary file plus rename.
+10. Use exactly these states:
+
+```text
+claimed -> running -> validation -> reporting -> done
+                                      \-> failed
+```
+
+A task must remain `failed` or incomplete when any of these occurs:
+
+- worker missing;
+- worker exits non-zero;
+- timeout;
+- missing or empty artifact;
+- invalid artifact;
+- wrong repository/ref/SHA;
+- validation failure;
+- report publication failure;
+- supervisor `NO_GO`;
+- duplicate, concurrent, stale, or recursive claim.
+
+Acknowledgement text, logs, timestamps, queue comments, or service health are never proof of completion.
+
+## Step 6 — implement deterministic tests
+
+Use a fake worker for fixtures. The fake worker must write controlled artifacts and controlled exit codes.
+
+Tests must cover all 22 cases:
+
+1. syntax;
+2. success with valid artifact;
 3. worker missing;
-4. worker non-zero exit;
+4. worker non-zero;
 5. timeout;
 6. artifact missing;
 7. artifact empty;
-8. invalid artifact schema;
-9. wrong repository/ref/SHA;
-10. validation command failure;
-11. report publication failure;
-12. duplicate comment/task;
-13. nested command-bus recursion refusal;
-14. stale lock recovery;
-15. concurrent claim refusal;
-16. offline before claim;
-17. offline after successful worker but before reporting;
-18. supervisor `NO_GO`;
-19. disallowed mode/command;
-20. secret-redaction canary;
-21. generic acknowledgement cannot become done;
-22. Issue #45 dry-run makes no GitHub API call.
+8. invalid schema;
+9. wrong repository;
+10. wrong ref/SHA;
+11. validation failure;
+12. report publication failure;
+13. duplicate comment/task;
+14. nested command-bus recursion;
+15. stale-lock recovery;
+16. concurrent claim;
+17. offline before claim;
+18. offline after worker success and before reporting;
+19. supervisor `NO_GO`;
+20. disallowed command/mode;
+21. secret-redaction canary;
+22. acknowledgement cannot become `done`.
 
-Run `bash -n` and ShellCheck when available. Missing ShellCheck may be documented, but missing deterministic fixtures is a blocker.
+The tests must not call the real GitHub API and must not touch the real queue or real user services.
 
-## Real acceptance mission
+Run:
 
-After fixtures pass, execute exactly one real read-only OpenCode mission:
+```bash
+bash -n scripts/agent-command-center/*.sh
+bash -n scripts/agent-command-center/tests/*.sh
+bash scripts/agent-command-center/tests/test-command-bus-guard.sh \
+  scripts/agent-command-center/issue45-command-bus.sh
+bash scripts/agent-command-center/tests/test-real-worker-contract.sh
+```
 
-- repository: `alirezasafaei-dev/auditsystems`
-- ref: current `main`
-- baseline merge SHA of interest: `acc3f24488b1e4e6e3eb0bce232138c51bba42e0`
-- purpose: post-merge security, migration, CI, privacy, lifecycle, and release-readiness review
-- artifact: `docs/reports/automation-server/auditsystems-current-main-post-merge-review-<UTC>.md`
+Run ShellCheck if installed. A missing ShellCheck binary may be reported. Any missing or failing fixture is `BLOCK_MERGE`.
 
-Artifact must include exact inspected SHA, P0/P1/P2 findings, file/line evidence, failure scenario, required fix, regression test, CI evidence assessment, and verdict `BLOCK_RELEASE` or `READY_FOR_LOCAL_DB_VALIDATION`.
+## Step 7 — execute exactly one real acceptance task
 
-Do not access Production DB. Do not deploy or migrate. Sanitized local/test PostgreSQL is allowed only if already provisioned and contains no Production data.
+Do this only after every fixture passes. Keep the queue timer disabled.
 
-## Deliverables
+Prepare a read-only checkout of AuditSystems at exactly:
 
-- corrected scripts and tests;
-- contract schema and example;
-- updated ops documentation;
-- one real worker evidence record;
-- one validated post-merge review artifact;
-- focused PR targeting current `main`;
-- evidence comments on #98 and #45;
-- update #94 only after #98 acceptance passes.
+```text
+ac85316e77d499b04857b6845ddb943c9905bfeb
+```
 
-## Merge gate
+Create one contract that invokes the real installed OpenCode worker to inspect that checkout.
 
-Final verdict must be `BLOCK_MERGE` unless every fixture passes and the real OpenCode mission produces a validated artifact. Do not self-merge. Do not close #98 from acknowledgement-only evidence.
+Mission:
 
-## Hard prohibitions
+```text
+Review AuditSystems main for security, privacy, migration safety, lifecycle integrity,
+CI truth, and release readiness. Do not modify AuditSystems. Do not access Production.
+```
 
-No Production deploy, Production database migration, payment activation, public pricing, outreach, DNS/nginx/firewall changes, reboot, AI Gateway rollout, IRAN_PROD access, force push, destructive reset, secret access, or deletion of user work.
+Required artifact inside the mother implementation worktree:
+
+```text
+docs/reports/automation-server/auditsystems-current-main-post-merge-review-<UTC>.md
+```
+
+Required artifact sections:
+
+```text
+# AuditSystems Current-Main Review
+## Inspected SHA
+## Worker Evidence
+## P0 Findings
+## P1 Findings
+## P2 Findings
+## CI Evidence
+## Required Regression Tests
+## Verdict
+```
+
+The verdict must be exactly one of:
+
+```text
+BLOCK_RELEASE
+READY_FOR_LOCAL_DB_VALIDATION
+```
+
+Validate the artifact, record its SHA-256, and prove the state reached `done` only after worker, artifact, validation, and reporting all succeeded.
+
+If the real worker cannot run, stop with `BLOCKED_REAL_WORKER`. Do not fabricate the artifact.
+
+## Step 8 — commit, push, and open a draft PR
+
+Before committing:
+
+```bash
+git status --short
+git diff --check
+```
+
+Commit only focused #98 implementation, tests, documentation, and the validated acceptance artifact.
+
+Push the new branch and open a draft PR targeting current mother `main`.
+
+PR title:
+
+```text
+fix(automation): require real worker and validated artifact before completion
+```
+
+PR body must include:
+
+- exact base/head SHA;
+- changed files;
+- all commands and exit codes;
+- fixture count and results;
+- real OpenCode invocation class and safe version;
+- AuditSystems exact SHA;
+- artifact path and SHA-256;
+- validation result;
+- timer inactive/disabled proof;
+- safety boundaries;
+- verdict `BLOCK_MERGE` or `READY_FOR_REVIEW`.
+
+Do not merge it.
+
+Post sanitized evidence to mother Issues #98 and #45. Do not post ASDEV RUN, SAFE-MODE, or guard-lift commands.
+
+## Final response format
+
+Return only this structure:
+
+```text
+STATUS: READY_FOR_REVIEW | BLOCK_MERGE | BLOCKED
+MOTHER_BASE_SHA:
+BRANCH:
+PR_URL:
+TIMER_ACTIVE:
+TIMER_ENABLED:
+QUEUE_MUTATED: no
+WORKER_EXECUTABLE:
+WORKER_VERSION:
+WORKER_EXIT_CODE:
+AUDIT_SHA:
+ARTIFACT_PATH:
+ARTIFACT_SHA256:
+FIXTURES_PASSED: <number>/22
+VALIDATOR_EXIT_CODE:
+VALIDATION_EXIT_CODE:
+REPORT_PUBLISHED: yes|no
+VERDICT:
+BLOCKERS:
+```
+
+Do not return `READY_FOR_REVIEW` unless all 22 fixtures pass and the one real acceptance task produces and validates the required artifact.
