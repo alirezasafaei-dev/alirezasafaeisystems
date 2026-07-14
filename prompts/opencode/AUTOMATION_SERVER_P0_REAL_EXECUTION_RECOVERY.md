@@ -1,5 +1,31 @@
 # AUTOMATION_SERVER P0 Real-Execution Recovery Mission
 
+## Final server directive — 2026-07-14 (supersedes every older sequence below)
+
+Containment is already in force, not merely requested:
+
+- #112 merged the fail-closed, author-allowlisted, multiline-safe, idempotent Issue #45 command bus at `043415bd657f23679326e3d7aa8d163534d6c005`.
+- The server posted `ASDEV stopped` after the guard/STOP comments.
+- Last observed queue state before STOP: `1055 pending / 28 done`.
+- No queue task is authorized to run. The only implementation mission allowed is the focused #98 recovery in an isolated worktree; it must be invoked manually while the agent-loop timer remains disabled.
+- Never post `[ASDEV SAFE-MODE]` and never create `# Critical Guard Lift — #98 accepted` during this mission.
+
+Mandatory preflight:
+
+1. idempotently stop and disable `asdev-agent-loop.timer`;
+2. snapshot and hash queue/state/service definitions without mutation or secret output;
+3. sync mother main and prove `043415b` ancestry;
+4. run the merged command-bus syntax and fixture suite;
+5. prove `critical-guard.json` is active and the timer is inactive + disabled;
+6. generate only a read-only queue duplicate/classification artifact;
+7. create a fresh #98 branch/worktree from current main;
+8. run all deterministic fixtures plus exactly one bounded real OpenCode read-only acceptance mission;
+9. open a focused PR and publish sanitized evidence to #98/#45;
+10. stop with BLOCK_MERGE and leave the timer disabled unless the owner separately approves the fully evidenced one-task resume dossier.
+
+Any inability to verify GitHub guard markers, worker identity, exact repository SHA, artifact schema, validation result, atomic state, or report publication is a hard failure. Queue acknowledgements, status comments, and worker-looking prose are not execution.
+
+
 ## Incident containment override — 2026-07-14
 
 Before implementation:
