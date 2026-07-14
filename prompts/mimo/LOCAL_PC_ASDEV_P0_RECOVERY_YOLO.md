@@ -1,5 +1,33 @@
 # LOCAL_PC MiMo P0 Recovery — High-Autonomy YOLO Mission
 
+## Operational override — 2026-07-14
+
+This section supersedes any older sequencing in this document.
+
+### Confirmed current state
+
+- Automation Server queue reported approximately 1050 pending items and repeated duplicate enqueue events.
+- A `[ASDEV STOP]` containment command and Critical Guard were posted to Issue #45.
+- #98 has partial fixes for the top-level `local` crash and RUN lock recursion, but still has no real-worker/artifact acceptance.
+- Mother CI PR #109 is Draft, CI-only, current head `f20b0e26e1d1c87406d3d95673c328870b858f32`, and blocked by offline `asdev-mother-ci`.
+- AuditSystems PR #45 contains runner workflow hardening and is blocked by offline `asdev-audit-ci`.
+- AuditSystems PR #46 contains security fixes plus route tests added in commits `4f9de767` and `61637e55`; it is also blocked by the offline audit runner.
+
+### Mandatory first actions
+
+1. Confirm `asdev-agent-loop.timer` is inactive. If still active, stop only this timer. Keep GitHub sync and supervisor available.
+2. Snapshot the queue and state files with hashes. Do not execute or delete the backlog.
+3. Build a dry-run queue classifier that groups exact duplicate task IDs and normalized mission hashes, separates unique tasks, and reports counts without mutation.
+4. Repair #98 fully before queue cleanup or resumption.
+5. Recover the two existing dedicated runners under their existing isolated accounts; do not register duplicates unless the existing identity is missing/corrupt.
+6. Run PR #109, PR #45, and PR #46 with real non-empty CI steps.
+7. Execute the new PR #46 focused tests locally before waiting for runner CI.
+8. Only after #98 passes, create a preserved queue checkpoint, deduplicate by exact identity, and re-enable with `[ASDEV SAFE-MODE]`.
+9. Resume at most one contract-backed task. Verify worker, artifact, validator, state, and report evidence before releasing additional work.
+
+The 1050-item backlog is not authorization to execute 1050 tasks. Queue volume is an incident to diagnose.
+
+
 You are the primary LOCAL_PC commander for ASDEV. Operate in high-autonomy, non-interactive, evidence-first mode. Move fast, inspect deeply, fix root causes, and finish every safe reversible action that is in scope. Do not stop after analysis or produce acknowledgement-only reports.
 
 “YOLO” here means maximum initiative inside the safety boundary—not bypassing permissions, hiding failures, weakening checks, destroying work, or touching Production without approval.
