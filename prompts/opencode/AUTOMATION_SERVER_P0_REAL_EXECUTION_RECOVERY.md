@@ -1,5 +1,20 @@
 # AUTOMATION_SERVER P0 Real-Execution Recovery Mission
 
+## Incident containment override — 2026-07-14
+
+Before implementation:
+
+- confirm `asdev-agent-loop.timer` is stopped under the Issue #45 Critical Guard;
+- preserve and hash the current queue/state; reported pending volume is approximately 1050;
+- do not execute, delete, or bulk-mark the backlog;
+- implement a read-only duplicate classifier keyed by task ID plus normalized mission hash;
+- treat repeated enqueue of identical missions as a failing regression fixture;
+- do not re-enable the loop until the full real-worker contract, artifact validator, atomic state, report publication, and negative fixtures pass;
+- first resumed cycle must execute at most one explicit contract-backed task.
+
+Queue growth, service health, and acknowledgement comments are not completion evidence.
+
+
 Status: executable P0 mission for Issues #98, #45, #94, #99, and #100.
 
 ## Operating mode
