@@ -64,7 +64,10 @@ jobs:
       - name: Install Playwright Chromium
         env:
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
-        run: pnpm exec playwright install chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Setup database
+        run: pnpm run db:push
 
       - name: Browser smoke
         env:
