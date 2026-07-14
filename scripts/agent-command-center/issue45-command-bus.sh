@@ -41,13 +41,11 @@ load_guard_markers() {
   local encoded record comment_id author body raw_comments
   LATEST_GUARD_COMMENT_ID=0
   LATEST_GUARD_LIFT_COMMENT_ID=0
-  GUARD_MARKERS_FETCH_OK=false
 
   if ! raw_comments="$(gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments?per_page=100" --paginate \
     --jq '.[] | @base64' 2>/dev/null)"; then
     return 1
   fi
-  GUARD_MARKERS_FETCH_OK=true
 
   while IFS= read -r encoded; do
     [ -z "$encoded" ] && continue
@@ -101,7 +99,7 @@ enforce_critical_guard() {
     jq -n --argjson guard "$guard_id" --arg at "$TIMESTAMP" \
       '{active: true, guard_comment_id: $guard, enforced_at: $at}' > "$GUARD_STATE"
     if [ "$previous_guard_id" != "$guard_id" ] || [ "$previous_active" != "true" ]; then
-      post_to_issue "**ASDEV critical guard enforced** — agent-loop timer disabled. Queue preserved; no backlog execution. Guard comment: ${guard_id}. Lift requires a newer `# Critical Guard Lift — #98 accepted` comment from an authorized author after full #98 evidence."
+      post_to_issue "**ASDEV critical guard enforced** — agent-loop timer disabled. Queue preserved; no backlog execution. Guard comment: ${guard_id}. Lift requires a newer \`# Critical Guard Lift — #98 accepted\` comment from an authorized author after full #98 evidence."
     fi
     return 0
   fi
