@@ -1,0 +1,16 @@
+{
+  "task_id": "ASDEV-ISSUE98-ACCEPTANCE",
+  "mission_file": "prompts/opencode/AUTOMATION_SERVER_P0_REAL_EXECUTION_RECOVERY.md",
+  "worker_profile": "opencode",
+  "repository": "alirezasafaei-dev/auditsystems",
+  "repo_path": "/home/asdev/repos/auditsystems-review-20260714T124335Z",
+  "base_ref": "main",
+  "expected_sha": "ac85316e77d499b04857b6845ddb943c9905bfeb",
+  "mode": "read-only",
+  "expected_artifact": "docs/reports/automation-server/auditsystems-current-main-post-merge-review-20260714T124335Z.md",
+  "artifact_validator": "scripts/agent-command-center/validate-task-artifact.sh",
+  "validation_command": "test -s",
+  "timeout_seconds": 1800,
+  "max_attempts": 1,
+  "created_at": "2026-07-14T12:43:35Z"
+}

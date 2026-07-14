@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ASDEV Task Contract",
+  "type": "object",
+  "required": [
+    "task_id",
+    "mission_file",
+    "worker_profile",
+    "repository",
+    "repo_path",
+    "base_ref",
+    "expected_sha",
+    "mode",
+    "expected_artifact",
+    "artifact_validator",
+    "validation_command",
+    "timeout_seconds",
+    "max_attempts",
+    "created_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "pattern": "^ASDEV-[A-Z0-9-]+$"
+    },
+    "mission_file": {
+      "type": "string",
+      "pattern": "^prompts/opencode/[A-Za-z0-9_-]+\\.md$"
+    },
+    "worker_profile": {
+      "type": "string",
+      "enum": [
+        "opencode",
+        "readonly-check"
+      ]
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    },
+    "repo_path": {
+      "type": "string",
+      "pattern": "^repos/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+    },
+    "base_ref": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_/.-]+$"
+    },
+    "expected_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "read-only",
+        "code",
+        "docs-only",
+        "automation-script"
+      ]
+    },
+    "expected_artifact": {
+      "type": "string",
+      "pattern": "^docs/reports/[a-zA-Z0-9_/-]+\\.md$"
+    },
+    "artifact_validator": {
+      "type": "string",
+      "pattern": "^scripts/(agent-command-center|control-plane)/[a-zA-Z0-9_-]+\\.sh$"
+    },
+    "validation_command": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 7200
+    },
+    "max_attempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    }
+  }
+}
