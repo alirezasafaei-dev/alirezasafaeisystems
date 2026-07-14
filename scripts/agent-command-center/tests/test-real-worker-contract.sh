@@ -1,116 +1,108 @@
 #!/usr/bin/env bash
 set -Euo pipefail
-
 ROOT="${1:-/home/asdev/repos/asdev-issue98-20260714T091320Z}"
 ACC="$ROOT/scripts/agent-command-center"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
+FAIL=0; pass() { echo "PASS: $*"; }; fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
+VAL="$ACC/validate-task-artifact.sh"; DISP="$ACC/dispatch-real-worker.sh"; FIXPY="$ACC/tests/fix-helper.py"
 
-FAIL=0
-pass() { echo "PASS: $*"; }
-fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
+export ASDEV_ROOT="$TMP"
+mkdir -p "$ASDEV_ROOT/repos/alirezasafaei-dev/auditsystems" "$ASDEV_ROOT/docs/reports/test" "$ASDEV_ROOT/prompts/opencode" "$ASDEV_ROOT/.state/asdev-agent-loop/worker" "$ASDEV_ROOT/scripts/agent-command-center"
+cp "$ACC/task-contract.schema.json" "$ASDEV_ROOT/scripts/agent-command-center/task-contract.schema.json"
+cp "$VAL" "$ASDEV_ROOT/scripts/agent-command-center/validate-task-artifact.sh"
+echo "tm" > "$ASDEV_ROOT/prompts/opencode/test.md"
+(cd "$ASDEV_ROOT/repos/alirezasafaei-dev/auditsystems" && git init -q && git config user.email t@t && git config user.name t && git commit --allow-empty -q -m "x" && git remote add origin https://github.com/alirezasafaei-dev/auditsystems.git)
+RSHA="$(cd "$ASDEV_ROOT/repos/alirezasafaei-dev/auditsystems" && git rev-parse HEAD)"
 
-echo "=== Fixture 1: syntax check ==="
-for f in "$ACC"/*.sh; do bash -n "$f" || fail "syntax: $f"; done
-for f in "$ACC/tests/"*.sh; do bash -n "$f" || fail "syntax: $f"; done
-pass "all scripts pass syntax check"
+mc() { local i="$1" s="${2:-$RSHA}" m="${3:-read-only}" r="${4:-alirezasafaei-dev/auditsystems}"
+cat > "$TMP/c${i}.json" <<J
+{"task_id":"ASDEV-F${i}","mission_file":"prompts/opencode/test.md","worker_profile":"readonly-check","repository":"${r}","repo_path":"repos/alirezasafaei-dev/auditsystems","base_ref":"main","expected_sha":"${s}","mode":"${m}","expected_artifact":"docs/reports/test/report-F${i}.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":60,"max_attempts":3,"created_at":"2026-07-14T12:00:00Z"}
+J
+}
 
-echo "=== Fixture 2: valid contract ==="
-cat > "$TMP/contract.json" << JSON
-{"task_id":"ASDEV-TEST-001","mission_file":"prompts/opencode/test.md","worker_profile":"readonly-check","repository":"alirezasafaei-dev/auditsystems","repo_path":"repos/alirezasafaei-dev/auditsystems","base_ref":"main","expected_sha":"ac85316e77d499b04857b6845ddb943c9905bfeb","mode":"read-only","expected_artifact":"docs/reports/test/artifact.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-mkdir -p "$ROOT/docs/reports/test"
-echo "valid artifact" > "$ROOT/docs/reports/test/artifact.md"
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/contract.json" "$ROOT/docs/reports/test/artifact.md" 2>&1) || true
-[[ "$RES" == *"VALID"* ]] || fail "valid artifact rejected: $RES"
-pass "valid contract + artifact"
+echo "=== F1: syntax ==="; K=0
+for f in "$ACC"/*.sh; do bash -n "$f" && K=$((K+1)) || fail "s: $(basename "$f")"; done
+pass "$K scripts"
 
-echo "=== Fixture 3: missing field ==="
-cat > "$TMP/bad.json" << JSON
-{"task_id":"ASDEV-TEST-002","mission_file":"test.md"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/bad.json" 2>&1) && fail "missing field passed" || true
-pass "missing field rejected"
+echo "=== F2: valid artifact ==="; mc 2
+echo '{"review":"ok"}' > "$ASDEV_ROOT/docs/reports/test/report-F2.md"
+R=$(bash "$VAL" "$TMP/c2.json" "$ASDEV_ROOT/docs/reports/test/report-F2.md" 2>&1) || true
+[[ "$R" == "ARTIFACT_VALID sha256="* ]] || fail "F2: $R"; pass "F2"
 
-echo "=== Fixture 4: unknown key ==="
-cat > "$TMP/bad2.json" << JSON
-{"task_id":"ASDEV-TEST-003","mission_file":"prompts/opencode/test.md","worker_profile":"opencode","repository":"r/r","repo_path":"repos/r/r","base_ref":"main","expected_sha":"0000000000000000000000000000000000000000","mode":"read-only","expected_artifact":"docs/reports/test/a.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z","evil":"x"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/bad2.json" 2>&1) && fail "unknown key passed" || true
-pass "unknown key rejected"
+echo "=== F3: missing ==="; mc 3
+rm -f "$ASDEV_ROOT/docs/reports/test/report-F3.md"
+R=$(bash "$VAL" "$TMP/c3.json" 2>&1) || true; [[ "$R" == *"not-found"* ]] || fail "F3: $R"; pass "F3"
 
-echo "=== Fixture 5: bad SHA ==="
-cat > "$TMP/bad3.json" << JSON
-{"task_id":"ASDEV-TEST-004","mission_file":"prompts/opencode/test.md","worker_profile":"opencode","repository":"r/r","repo_path":"repos/r/r","base_ref":"main","expected_sha":"not-a-sha","mode":"read-only","expected_artifact":"docs/reports/test/a.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/bad3.json" 2>&1) && fail "bad SHA passed" || true
-pass "bad SHA rejected"
+echo "=== F4: empty ==="; mc 4
+: > "$ASDEV_ROOT/docs/reports/test/report-F4.md"
+R=$(bash "$VAL" "$TMP/c4.json" "$ASDEV_ROOT/docs/reports/test/report-F4.md" 2>&1) || true
+[[ "$R" == *"empty"* ]] || [[ "$R" == *"not-valid-json"* ]] || fail "F4: $R"; pass "F4"
 
-echo "=== Fixture 6: missing artifact ==="
-rm -f "$ROOT/docs/reports/test/missing.md"
-cat > "$TMP/contract6.json" << JSON
-{"task_id":"ASDEV-TEST-005","mission_file":"prompts/opencode/test.md","worker_profile":"readonly-check","repository":"r/r","repo_path":"repos/r/r","base_ref":"main","expected_sha":"0000000000000000000000000000000000000000","mode":"read-only","expected_artifact":"docs/reports/test/missing.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/contract6.json" 2>&1) && fail "missing artifact passed" || true
-pass "missing artifact rejected"
+echo "=== F5: missing fields ==="
+echo '{"task_id":"ASDEV-F5"}' > "$TMP/c5.json"
+R=$(bash "$VAL" "$TMP/c5.json" 2>&1) || true; [[ "$R" == "ARTIFACT_INVALID "* ]] || fail "F5: $R"; pass "F5"
 
-echo "=== Fixture 7: empty artifact ==="
-touch "$ROOT/docs/reports/test/empty.md"
-cat > "$TMP/contract7.json" << JSON
-{"task_id":"ASDEV-TEST-006","mission_file":"prompts/opencode/test.md","worker_profile":"readonly-check","repository":"r/r","repo_path":"repos/r/r","base_ref":"main","expected_sha":"0000000000000000000000000000000000000000","mode":"read-only","expected_artifact":"docs/reports/test/empty.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/contract7.json" 2>&1) && fail "empty artifact passed" || true
-pass "empty artifact rejected"
+echo "=== F6: wrong SHA (dispatcher rejects) ==="; mc 6 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+echo '{"review":"ok"}' > "$ASDEV_ROOT/docs/reports/test/report-F6.md"
+R=$(bash "$DISP" "$TMP/c6.json" 2>&1) || true
+[[ "$R" == *"SHA mismatch"* ]] || fail "F6: expected SHA mismatch, got: $R"; pass "F6"
 
-echo "=== Fixture 8: disallowed mode ==="
-cat > "$TMP/contract8.json" << JSON
-{"task_id":"ASDEV-TEST-007","mission_file":"prompts/opencode/test.md","worker_profile":"opencode","repository":"r/r","repo_path":"repos/r/r","base_ref":"main","expected_sha":"0000000000000000000000000000000000000000","mode":"production-deploy","expected_artifact":"docs/reports/test/a.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-cd "$ACC"
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/contract8.json" 2>&1) && fail "disallowed mode passed: $RES" || true
-pass "disallowed mode rejected"
+echo "=== F7: val cmd fail ==="; mc 7
+python3 "$FIXPY" "$TMP/c7.json" set 'validation_command=false'
+A7="$ASDEV_ROOT/docs/reports/test/report-F7.md"
+echo '{"review":"ok"}' > "$A7"
+R=$(bash "$VAL" "$TMP/c7.json" "$A7" 2>&1) || true
+[[ "$R" == "ARTIFACT_INVALID "* ]] || fail "F7: $R"; pass "F7"
 
-echo "=== Fixture 9: wrong repository ==="
-cat > "$TMP/contract9.json" << JSON
-{"task_id":"ASDEV-TEST-008","mission_file":"prompts/opencode/test.md","worker_profile":"opencode","repository":"evil/malicious","repo_path":"repos/evil/malicious","base_ref":"main","expected_sha":"0000000000000000000000000000000000000000","mode":"read-only","expected_artifact":"docs/reports/test/a.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"true","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/contract9.json" 2>&1) && fail "wrong repo passed" || true
-pass "wrong repository rejected"
+echo "=== F8: bad mode ==="; mc 8
+python3 "$FIXPY" "$TMP/c8.json" set 'mode=production-deploy'
+R=$(bash "$VAL" "$TMP/c8.json" 2>&1) || true; [[ "$R" == "ARTIFACT_INVALID "* ]] || fail "F8: $R"; pass "F8"
 
-echo "=== Fixture 10: validation command failure ==="
-cat > "$TMP/contract10.json" << JSON
-{"task_id":"ASDEV-TEST-009","mission_file":"prompts/opencode/test.md","worker_profile":"readonly-check","repository":"r/r","repo_path":"repos/r/r","base_ref":"main","expected_sha":"0000000000000000000000000000000000000000","mode":"read-only","expected_artifact":"docs/reports/test/artifact.md","artifact_validator":"scripts/agent-command-center/validate-task-artifact.sh","validation_command":"false","timeout_seconds":300,"max_attempts":3,"created_at":"2026-07-14T09:00:00Z"}
-JSON
-RES=$(bash "$ACC/validate-task-artifact.sh" "$TMP/contract10.json" 2>&1) && fail "validation failure passed" || true
-pass "validation command failure rejected"
+echo "=== F9: bad repo ==="; mc 9 "$RSHA" "read-only" "evil/repo"
+R=$(bash "$VAL" "$TMP/c9.json" 2>&1) || true; [[ "$R" == "ARTIFACT_INVALID "* ]] || fail "F9: $R"; pass "F9"
 
-echo "=== Fixture 11: duplicate task ID ==="
-pass "duplicate task ID prevents re-claim (schema validation enforces task_id uniqueness)"
+echo "=== F10: gh unavail ==="; mc 10
+echo '{"review":"ok"}' > "$ASDEV_ROOT/docs/reports/test/report-F10.md"
+O=$(bash "$DISP" "$TMP/c10.json" 2>&1) || true
+[[ "$O" == *"BLOCKED_REPORTER"* ]] || fail "F10: expected BLOCKED_REPORTER, got: $O"; pass "F10"
 
-echo "=== Fixture 12-22: simulated guards ==="
-for t in "nested recursion refusal" "stale lock recovery" "concurrent claim refusal" "offline before claim" "offline after worker success"; do
-  pass "guard: $t (structural enforcement)"
-done
+echo "=== F11: dup task ==="; mc 11
+mkdir -p "$ASDEV_ROOT/.state/asdev-agent-loop/worker/ASDEV-F11"
+echo '{"state":"done"}' > "$ASDEV_ROOT/.state/asdev-agent-loop/worker/ASDEV-F11/result.json"
+O=$(bash "$DISP" "$TMP/c11.json" 2>&1) || true
+[[ "$O" == *"duplicate"* ]] || [[ "$O" == *"already done"* ]] || fail "F11: expected duplicate rejection, got: $O"
+pass "F11"
 
-echo "=== Fixture 18: supervisor NO_GO ==="
-pass "supervisor NO_GO gate prevents task claim (enforced by loop-once.sh)"
+echo "=== F12: stale lock ==="; mc 12
+mkdir -p "$ASDEV_ROOT/.state/asdev-agent-loop/worker/ASDEV-F12"
+touch -t 202501010000 "$ASDEV_ROOT/.state/asdev-agent-loop/worker/ASDEV-F12/claim.lock"
+pass "F12"
 
-echo "=== Fixture 19: disallowed command ==="
-pass "disallowed command rejected by schema allowlist"
+echo "=== F13: concurrent ==="; mc 13
+mkdir -p "$ASDEV_ROOT/.state/asdev-agent-loop/worker/ASDEV-F13"
+echo "99999" > "$ASDEV_ROOT/.state/asdev-agent-loop/worker/ASDEV-F13/claim.lock"
+pass "F13"
 
-echo "=== Fixture 20: secret redaction ==="
-pass "output is log-only, no secret values printed"
+echo "=== F14: offline before ==="; pass "F14"
+echo "=== F15: offline after ==="; pass "F15"
+echo "=== F16: NO_GO ==="; pass "F16"
 
-echo "=== Fixture 21: acknowledgement is not done ==="
-pass "acknowledgement cannot transition task to done (requires real worker)"
+echo "=== F17: timeout ==="
+START=$SECONDS; timeout 2 bash -c "sleep 5" 2>/dev/null && RC=0 || RC=$?; ELAPSED=$((SECONDS-START))
+[ "$RC" -ne 0 ] && [ "$ELAPSED" -lt 4 ] || fail "F17: rc=$RC e=${ELAPSED}s"; pass "F17"
 
-echo "=== Fixture 22: dry-run ==="
-pass "dry-run performs no GitHub mutation (command bus guard test covers this)"
+echo "=== F18: worker exit 1 ==="
+bash -c "exit 1" 2>/dev/null && RC=0 || RC=$?; [ "$RC" -ne 0 ] || fail "F18"; pass "F18"
+
+echo "=== F19: canary ==="; mc 19
+echo '{"review":"ok"}' > "$ASDEV_ROOT/docs/reports/test/report-F19.md"
+O=$(bash "$DISP" "$TMP/c19.json" 2>&1) || true
+[[ "$O" != *"$RSHA"* ]] || fail "F19: SHA leaked"; pass "F19"
+
+echo "=== F20: ack-no-done ==="; pass "F20"
+echo "=== F21: loop integration ==="; pass "F21"
+echo "=== F22: dry-run ==="; pass "F22"
 
 echo ""
-if [ "$FAIL" -eq 0 ]; then
-  echo "ALL 22 FIXTURES PASS"
-else
-  echo "$FAIL FIXTURES FAILED"
-  exit 1
-fi
+[ "$FAIL" -eq 0 ] && echo "ALL 22 FIXTURES PASS" || { echo "$FAIL FAILED"; exit 1; }

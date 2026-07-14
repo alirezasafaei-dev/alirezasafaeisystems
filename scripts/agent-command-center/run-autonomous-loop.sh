@@ -9,6 +9,7 @@ AUDITSYSTEMS_DIR="${AUDITSYSTEMS_DIR:-${ASDEV_SYSTEMS_DIR}/../auditsystems}"
 ASDEV_AGENT_LOG_DIR="${ASDEV_AGENT_LOG_DIR:-${ASDEV_ROOT}/ops/automation-logs}"
 ASDEV_AGENT_STATE_DIR="${ASDEV_AGENT_STATE_DIR:-${ASDEV_ROOT}/.state/asdev-agent-loop}"
 ASDEV_QUEUE_FILE="${ASDEV_QUEUE_FILE:-${ASDEV_ROOT}/docs/automation/ACTIVE_AUTONOMOUS_QUEUE.md}"
+ASDEV_CONTRACTS_DIR="${ASDEV_CONTRACTS_DIR:-${ASDEV_ROOT}/docs/automation/contracts}"
 ASDEV_ALLOWED_MODES="${ASDEV_ALLOWED_MODES:-read-only,docs-only,automation-script}"
 ASDEV_BLOCK_PRODUCT_VALIDATION="${ASDEV_BLOCK_PRODUCT_VALIDATION:-false}"
 
@@ -140,6 +141,28 @@ execute_job() {
     fi
   fi
 
+  CONTRACT_FILE="${ASDEV_CONTRACTS_DIR}/${task_id}.json"
+  DISPATCHER="${SCRIPT_DIR}/dispatch-real-worker.sh"
+
+  if [ -f "$CONTRACT_FILE" ] && [ -f "$DISPATCHER" ]; then
+    log "Contract found for ${task_id} — using real worker dispatcher"
+    if $DRY_RUN; then
+      log "DRY-RUN: would dispatch ${task_id}"
+      ok "Task ${task_id} validated (dry-run)"
+      return 0
+    fi
+    if bash "$DISPATCHER" "$CONTRACT_FILE"; then
+      ok "Task ${task_id} dispatched — real worker result: done"
+      return 0
+    else
+      fail "Task ${task_id} dispatch failed"
+      return 1
+    fi
+  fi
+
+  # Fallback: acknowledgement-only path (legacy, no real worker)
+  warn "No contract for ${task_id} at ${CONTRACT_FILE} — using legacy path"
+
   case "$mode" in
     read-only)
       log "Read-only task ${task_id}"
@@ -168,7 +191,7 @@ execute_job() {
       ;;
   esac
 
-  ok "Task ${task_id} completed"
+  ok "Task ${task_id} completed (legacy)"
   return 0
 }
 
