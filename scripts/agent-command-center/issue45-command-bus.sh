@@ -7,7 +7,10 @@ ASDEV_AGENT_STATE_DIR="${ASDEV_AGENT_STATE_DIR:-${ASDEV_ROOT}/.state/asdev-agent
 STATE_FILE="${ASDEV_AGENT_STATE_DIR}/state.json"
 COMMAND_BUS_STATE="${ASDEV_AGENT_STATE_DIR}/command-bus.json"
 WATCHER_STATE="${ASDEV_AGENT_STATE_DIR}/watcher-state.json"
+GUARD_STATE="${ASDEV_AGENT_STATE_DIR}/critical-guard.json"
+ASDEV_COMMAND_ALLOWED_AUTHORS="${ASDEV_COMMAND_ALLOWED_AUTHORS:-alirezasafaei-dev}"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+STOP_REQUESTED=false
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -25,6 +28,88 @@ ISSUE_NUMBER="${1:-45}"
 REPO="${2:-alirezasafaei-dev/alirezasafaeisystems}"
 
 mkdir -p "$ASDEV_AGENT_STATE_DIR"
+
+author_allowed() {
+  local author="$1"
+  case ",${ASDEV_COMMAND_ALLOWED_AUTHORS}," in
+    *,"${author}",*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+load_guard_markers() {
+  local encoded record comment_id author body raw_comments
+  LATEST_GUARD_COMMENT_ID=0
+  LATEST_GUARD_LIFT_COMMENT_ID=0
+
+  if ! raw_comments="$(gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments?per_page=100" --paginate \
+    --jq '.[] | @base64' 2>/dev/null)"; then
+    return 1
+  fi
+
+  while IFS= read -r encoded; do
+    [ -z "$encoded" ] && continue
+    record="$(printf '%s' "$encoded" | base64 --decode 2>/dev/null || true)"
+    comment_id="$(printf '%s' "$record" | jq -r '.id // 0')"
+    author="$(printf '%s' "$record" | jq -r '.user.login // empty')"
+    body="$(printf '%s' "$record" | jq -r '.body // empty')"
+
+    author_allowed "$author" || continue
+    case "$body" in
+      "# Critical Guard — Freeze agent-loop intake until #98 passes"*)
+        if [ "$comment_id" -gt "$LATEST_GUARD_COMMENT_ID" ] 2>/dev/null; then
+          LATEST_GUARD_COMMENT_ID="$comment_id"
+        fi
+        ;;
+      "# Critical Guard Lift — #98 accepted"*)
+        if [ "$comment_id" -gt "$LATEST_GUARD_LIFT_COMMENT_ID" ] 2>/dev/null; then
+          LATEST_GUARD_LIFT_COMMENT_ID="$comment_id"
+        fi
+        ;;
+    esac
+  done <<< "$raw_comments"
+}
+
+enforce_critical_guard() {
+  local guard_id lift_id previous_guard_id previous_active
+  previous_guard_id="0"
+  previous_active="false"
+  if [ -f "$GUARD_STATE" ]; then
+    previous_guard_id="$(jq -r '.guard_comment_id // 0' "$GUARD_STATE" 2>/dev/null || echo "0")"
+    previous_active="$(jq -r '.active // false' "$GUARD_STATE" 2>/dev/null || echo "false")"
+  fi
+
+  if ! load_guard_markers; then
+    systemctl --user stop asdev-agent-loop.timer 2>/dev/null || true
+    systemctl --user disable asdev-agent-loop.timer 2>/dev/null || true
+    jq -n --argjson guard "$previous_guard_id" --arg at "$TIMESTAMP" \
+      '{active: true, guard_comment_id: $guard, enforced_at: $at, reason: "github-marker-fetch-failed"}' > "$GUARD_STATE"
+    warn "Unable to verify guard markers — failing closed"
+    return 0
+  fi
+
+  guard_id="$LATEST_GUARD_COMMENT_ID"
+  lift_id="$LATEST_GUARD_LIFT_COMMENT_ID"
+
+  if [ "$guard_id" -gt "$lift_id" ] 2>/dev/null || \
+     { [ "$previous_active" = "true" ] && [ "$lift_id" -le "$previous_guard_id" ] 2>/dev/null; }; then
+    systemctl --user stop asdev-agent-loop.timer 2>/dev/null || true
+    systemctl --user disable asdev-agent-loop.timer 2>/dev/null || true
+    [ "$guard_id" -gt "$previous_guard_id" ] 2>/dev/null || guard_id="$previous_guard_id"
+    jq -n --argjson guard "$guard_id" --arg at "$TIMESTAMP" \
+      '{active: true, guard_comment_id: $guard, enforced_at: $at}' > "$GUARD_STATE"
+    if [ "$previous_guard_id" != "$guard_id" ] || [ "$previous_active" != "true" ]; then
+      post_to_issue "**ASDEV critical guard enforced** — agent-loop timer disabled. Queue preserved; no backlog execution. Guard comment: ${guard_id}. Lift requires a newer \`# Critical Guard Lift — #98 accepted\` comment from an authorized author after full #98 evidence."
+    fi
+    return 0
+  fi
+
+  if [ "$lift_id" -gt "$guard_id" ] 2>/dev/null; then
+    jq -n --argjson guard "$guard_id" --argjson lift "$lift_id" --arg at "$TIMESTAMP" \
+      '{active: false, guard_comment_id: $guard, lift_comment_id: $lift, lifted_at: $at}' > "$GUARD_STATE"
+  fi
+  return 1
+}
 
 load_bus_state() {
   if [ -f "$COMMAND_BUS_STATE" ]; then
@@ -82,7 +167,8 @@ EOF
 
 fetch_new_commands() {
   local since_id="$1"
-  gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments" --paginate --jq ".[] | select(.id > ${since_id}) | \"\(.id)|\(.user.login)|\(.body)\"" 2>/dev/null || echo ""
+  gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments" --paginate \
+    --jq ".[] | select(.id > ${since_id}) | @base64" 2>/dev/null || echo ""
 }
 
 parse_command() {
@@ -121,7 +207,8 @@ execute_command() {
     STOP)
       systemctl --user stop asdev-agent-loop.timer 2>/dev/null || true
       systemctl --user disable asdev-agent-loop.timer 2>/dev/null || true
-      post_to_issue "**ASDEV stopped** by ${author}. Timer disabled. Run \`[ASDEV SAFE-MODE]\` to re-enable."
+      STOP_REQUESTED=true
+      post_to_issue "**ASDEV stopped** by ${author}. Timer disabled. Run \`[ASDEV SAFE-MODE]\` only after the critical guard is lifted."
       ;;
     SAFE-MODE)
       systemctl --user enable --now asdev-agent-loop.timer 2>/dev/null || true
@@ -133,11 +220,15 @@ execute_command() {
       local task_id="CMD-${comment_id}"
       local task_line="- [ ] ${task_id} — ${arg} | Mode: read-only | Repo: alirezasafaei-dev/alirezasafaeisystems | Target: vps"
       if [ -f "$queue_file" ]; then
+        if grep -Fq "${task_id}" "$queue_file"; then
+          log "Duplicate task ${task_id} already exists — refusing to append"
+          return 0
+        fi
         echo "$task_line" >> "$queue_file"
         log "Queued task ${task_id} for next loop iteration"
         post_to_issue "**ASDEV task queued** (${task_id}): ${arg}
 
-Task appended to active queue. The next loop iteration (timer-driven) will claim and execute it."
+Task appended exactly once. The next loop iteration may claim it only after the critical guard is lifted."
       else
         warn "Queue file not found at ${queue_file} — cannot queue task"
         post_to_issue "**ASDEV run deferred**: ${arg}
@@ -303,6 +394,11 @@ echo ""
 load_bus_state
 load_watcher_state
 
+if enforce_critical_guard; then
+  warn "Critical guard active — timer disabled, queue preserved, command intake stopped"
+  exit 0
+fi
+
 log "Last processed comment: ${LAST_COMMENT_ID}"
 
 NEW_COMMANDS=$(fetch_new_commands "$LAST_COMMENT_ID")
@@ -311,20 +407,35 @@ if [ -n "$NEW_COMMANDS" ]; then
   log "New commands found"
   MAX_COMMENT_ID="$LAST_COMMENT_ID"
 
-  while IFS='|' read -r comment_id author body; do
+  while IFS= read -r encoded; do
+    [ -z "$encoded" ] && continue
+
+    record="$(printf '%s' "$encoded" | base64 --decode 2>/dev/null || true)"
+    comment_id="$(printf '%s' "$record" | jq -r '.id // empty')"
+    author="$(printf '%s' "$record" | jq -r '.user.login // empty')"
+    body="$(printf '%s' "$record" | jq -r '.body // empty')"
     [ -z "$comment_id" ] && continue
 
-    PARSED=$(parse_command "$body")
-    CMD=$(echo "$PARSED" | cut -d'|' -f1)
-    ARG=$(echo "$PARSED" | cut -d'|' -f2)
+    if ! author_allowed "$author"; then
+      warn "Ignoring command candidate from unauthorized author: ${author:-unknown}"
+    else
+      PARSED=$(parse_command "$body")
+      CMD=$(echo "$PARSED" | cut -d'|' -f1)
+      ARG=$(echo "$PARSED" | cut -d'|' -f2-)
 
-    if [ -n "$CMD" ]; then
-      execute_command "$CMD" "$ARG" "$comment_id" "$author"
-      save_bus_state "$comment_id" "$CMD"
+      if [ -n "$CMD" ]; then
+        execute_command "$CMD" "$ARG" "$comment_id" "$author"
+        save_bus_state "$comment_id" "$CMD"
+      fi
     fi
 
     if [ "$comment_id" -gt "$MAX_COMMENT_ID" ] 2>/dev/null; then
       MAX_COMMENT_ID="$comment_id"
+    fi
+
+    if $STOP_REQUESTED; then
+      log "STOP processed — refusing later commands in this batch"
+      break
     fi
   done <<< "$NEW_COMMANDS"
 
