@@ -37,38 +37,79 @@ author_allowed() {
   esac
 }
 
-latest_guard_comment_id() {
-  gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments?per_page=100" \
-    --jq '[.[] | select(.body | startswith("# Critical Guard — Freeze agent-loop intake until #98 passes")) | .id] | max // 0' \
-    2>/dev/null || echo "0"
-}
+load_guard_markers() {
+  local encoded record comment_id author body raw_comments
+  LATEST_GUARD_COMMENT_ID=0
+  LATEST_GUARD_LIFT_COMMENT_ID=0
+  GUARD_MARKERS_FETCH_OK=false
 
-latest_guard_lift_comment_id() {
-  gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments?per_page=100" \
-    --jq '[.[] | select(.body | startswith("# Critical Guard Lift — #98 accepted")) | .id] | max // 0' \
-    2>/dev/null || echo "0"
+  if ! raw_comments="$(gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments?per_page=100" --paginate \
+    --jq '.[] | @base64' 2>/dev/null)"; then
+    return 1
+  fi
+  GUARD_MARKERS_FETCH_OK=true
+
+  while IFS= read -r encoded; do
+    [ -z "$encoded" ] && continue
+    record="$(printf '%s' "$encoded" | base64 --decode 2>/dev/null || true)"
+    comment_id="$(printf '%s' "$record" | jq -r '.id // 0')"
+    author="$(printf '%s' "$record" | jq -r '.user.login // empty')"
+    body="$(printf '%s' "$record" | jq -r '.body // empty')"
+
+    author_allowed "$author" || continue
+    case "$body" in
+      "# Critical Guard — Freeze agent-loop intake until #98 passes"*)
+        if [ "$comment_id" -gt "$LATEST_GUARD_COMMENT_ID" ] 2>/dev/null; then
+          LATEST_GUARD_COMMENT_ID="$comment_id"
+        fi
+        ;;
+      "# Critical Guard Lift — #98 accepted"*)
+        if [ "$comment_id" -gt "$LATEST_GUARD_LIFT_COMMENT_ID" ] 2>/dev/null; then
+          LATEST_GUARD_LIFT_COMMENT_ID="$comment_id"
+        fi
+        ;;
+    esac
+  done <<< "$raw_comments"
 }
 
 enforce_critical_guard() {
-  local guard_id lift_id previous_guard_id
-  guard_id="$(latest_guard_comment_id)"
-  lift_id="$(latest_guard_lift_comment_id)"
+  local guard_id lift_id previous_guard_id previous_active
   previous_guard_id="0"
+  previous_active="false"
   if [ -f "$GUARD_STATE" ]; then
     previous_guard_id="$(jq -r '.guard_comment_id // 0' "$GUARD_STATE" 2>/dev/null || echo "0")"
+    previous_active="$(jq -r '.active // false' "$GUARD_STATE" 2>/dev/null || echo "false")"
   fi
 
-  if [ "$guard_id" -gt "$lift_id" ] 2>/dev/null; then
+  if ! load_guard_markers; then
     systemctl --user stop asdev-agent-loop.timer 2>/dev/null || true
     systemctl --user disable asdev-agent-loop.timer 2>/dev/null || true
+    jq -n --argjson guard "$previous_guard_id" --arg at "$TIMESTAMP" \
+      '{active: true, guard_comment_id: $guard, enforced_at: $at, reason: "github-marker-fetch-failed"}' > "$GUARD_STATE"
+    warn "Unable to verify guard markers — failing closed"
+    return 0
+  fi
+
+  guard_id="$LATEST_GUARD_COMMENT_ID"
+  lift_id="$LATEST_GUARD_LIFT_COMMENT_ID"
+
+  if [ "$guard_id" -gt "$lift_id" ] 2>/dev/null || \
+     { [ "$previous_active" = "true" ] && [ "$lift_id" -le "$previous_guard_id" ] 2>/dev/null; }; then
+    systemctl --user stop asdev-agent-loop.timer 2>/dev/null || true
+    systemctl --user disable asdev-agent-loop.timer 2>/dev/null || true
+    [ "$guard_id" -gt "$previous_guard_id" ] 2>/dev/null || guard_id="$previous_guard_id"
     jq -n --argjson guard "$guard_id" --arg at "$TIMESTAMP" \
       '{active: true, guard_comment_id: $guard, enforced_at: $at}' > "$GUARD_STATE"
-    if [ "$previous_guard_id" != "$guard_id" ]; then
-      post_to_issue "**ASDEV critical guard enforced** — agent-loop timer disabled. Queue preserved; no backlog execution. Guard comment: ${guard_id}. Lift requires a newer `# Critical Guard Lift — #98 accepted` comment after full #98 evidence."
+    if [ "$previous_guard_id" != "$guard_id" ] || [ "$previous_active" != "true" ]; then
+      post_to_issue "**ASDEV critical guard enforced** — agent-loop timer disabled. Queue preserved; no backlog execution. Guard comment: ${guard_id}. Lift requires a newer `# Critical Guard Lift — #98 accepted` comment from an authorized author after full #98 evidence."
     fi
     return 0
   fi
 
+  if [ "$lift_id" -gt "$guard_id" ] 2>/dev/null; then
+    jq -n --argjson guard "$guard_id" --argjson lift "$lift_id" --arg at "$TIMESTAMP" \
+      '{active: false, guard_comment_id: $guard, lift_comment_id: $lift, lifted_at: $at}' > "$GUARD_STATE"
+  fi
   return 1
 }
 
