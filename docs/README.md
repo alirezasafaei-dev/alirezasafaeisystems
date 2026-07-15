@@ -49,6 +49,8 @@
 | [operations/WORKSPACE_STRUCTURE.md](operations/WORKSPACE_STRUCTURE.md) | Local workspace layout and move plan |
 | [operations/DEPLOYMENT_INDEX.md](operations/DEPLOYMENT_INDEX.md) | Deploy scripts, ports, domains |
 | [operations/SERVER_OPERATIONS.md](operations/SERVER_OPERATIONS.md) | Production ops overview |
+| [operations/RELEASE_RUNBOOK.md](operations/RELEASE_RUNBOOK.md) | Coordinated production release, authorization, verification, and closure |
+| [operations/RELEASE_103_PRODUCTION_CLOSURE.md](operations/RELEASE_103_PRODUCTION_CLOSURE.md) | Immutable Release #103 production record |
 
 ---
 
