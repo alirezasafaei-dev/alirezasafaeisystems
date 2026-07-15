@@ -39,7 +39,7 @@ Release #103 was a security and operational hardening release. It intentionally 
 - Legacy unsubscribe tokens invalidated.
 - Database dump removed from the repository working tree.
 - Release-safety and CI guards added.
-- Backup/restore scripts corrected for `DATABASE_URL` normalization.
+- Backup/restore database-name normalization and release-safety coverage added; full remote URL target propagation is tracked separately.
 - Phase 2 security evidence and Phase 3 PostgreSQL rehearsal evidence recorded.
 
 ## Pull requests included
@@ -106,6 +106,7 @@ These decisions are not standing waivers for later releases.
 |---|---|---|
 | P1 | Make the database-dump guard classify each file independently and enforce it in required CI | [AuditSystems #52](https://github.com/alirezasafaei-dev/auditsystems/issues/52) |
 | P1 | Add individual admin-session revocation and revisit the Release #103 risk acceptance | [AuditSystems #53](https://github.com/alirezasafaei-dev/auditsystems/issues/53) |
+| P1 | Propagate the complete remote PostgreSQL target in backup/restore `DATABASE_URL` mode; use explicit protected `POSTGRES_*` variables until fixed | [AuditSystems #55](https://github.com/alirezasafaei-dev/auditsystems/issues/55) |
 
 DevAtlas availability is not part of Release #103 and any existing DevAtlas 502 response must not be attributed to this deployment.
 
@@ -114,5 +115,5 @@ DevAtlas availability is not part of Release #103 and any existing DevAtlas 502 
 - Release #103 is deployed and healthy.
 - No release blocker remains open.
 - Rollback remains authorized for a production incident.
-- Issues #52 and #53 remain intentionally open as post-release P1 work.
+- Issues #52, #53, and #55 remain intentionally open as post-release P1 work.
 - Future deployments must follow [RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md) and use newly frozen SHAs and a new owner authorization.
