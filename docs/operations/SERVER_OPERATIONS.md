@@ -1,8 +1,8 @@
 # ASDEV Server Operations
 
-**Last Updated:** 2026-07-06
+**Last Updated:** 2026-07-16
 
-High-level server operations reference. Credentials live on the server and in `.secrets/` — never in this repo.
+High-level server operations reference. Credentials live on the server and in protected secret storage — never in this repository or release evidence.
 
 ---
 
@@ -17,11 +17,13 @@ High-level server operations reference. Credentials live on the server and in `.
 
 ## Live services
 
-| Service | URL | PM2 | Health check |
+| Service | URL | Verified PM2 identity | Health check |
 |---|---|---|---|
 | PersianToolbox | https://persiantoolbox.ir/ | `persiantoolbox` | `deploy/persiantoolbox/health-check.sh` |
 | Portfolio / ASDEV brand | https://alirezasafaeisystems.ir/ | `my-portfolio-production` | `deploy/alirezasafaeisystems/health-check.sh` |
-| ASDEV Audit | https://audit.alirezasafaeisystems.ir/ | `asdev-audit-ir-production-web`, `asdev-audit-ir-production-worker` | `deploy/auditsystems/health-check.sh` |
+| ASDEV Audit | https://audit.alirezasafaeisystems.ir/ | `auditsystems-web`, `auditsystems-worker` (Release #103) | `deploy/auditsystems/health-check.sh` |
+
+Runtime identity must be verified on the host. Repository script defaults may differ from the active VPS registry; see [DEPLOYMENT_INDEX.md](DEPLOYMENT_INDEX.md).
 
 ---
 
@@ -40,10 +42,11 @@ DevAtlas, Novax, and secondary projects have **no production operational priorit
 ## Incident response
 
 1. Check PM2 status: `pm2 list`
-2. Run project health-check script
-3. Check Nginx upstream and local port binding
-4. Rollback if health check fails post-deploy
-5. Document in product `docs/runtime/Incidents/` if material
+2. Run the project health-check script
+3. Confirm active symlink, deployed SHA/build metadata, Nginx upstream, and local port
+4. Check Nginx and application error logs without exposing secrets
+5. Roll back if a release health check fails or the artifact differs from the approved SHA
+6. Document material incidents in the product incident log
 
 Escalation reference: `docs/ONCALL_ESCALATION.md` (product repo).
 
@@ -53,22 +56,29 @@ Escalation reference: `docs/ONCALL_ESCALATION.md` (product repo).
 
 Agents must **not** without owner approval:
 
-- Change Nginx/server configuration
-- Run production database migrations
-- Rotate or expose credentials
-- Deploy hold/secondary projects
-- Delete PM2 processes or release directories
+- change Nginx/server configuration;
+- run production database migrations;
+- rotate or expose credentials;
+- deploy hold/secondary projects;
+- delete PM2 processes, backups, or release directories;
+- purge Git history.
+
+A release-specific production authorization does not authorize unrelated infrastructure work.
 
 ---
 
 ## Evidence baseline
 
-Production evidence requirements (E0-05):
+Production evidence requirements:
 
-- Live commit hash matches deployed artifact
-- Health endpoints return 200
-- Audit worker processes jobs
-- Sitemap/canonical URLs correct
-- Analytics events flow with consent
+- approved full commit hashes match deployed artifacts;
+- immutable release IDs and current symlinks agree;
+- effective PM2 names and host ports are recorded;
+- health and readiness endpoints return HTTP 200;
+- Audit readiness confirms database and Redis;
+- Audit worker is online and queue behavior is normal;
+- public smoke routes pass;
+- rollback target and verified backup are recorded;
+- no secret is present in logs, artifacts, or GitHub comments.
 
-See meta-repo `IMPLEMENTATION-STATUS.md` for last verified snapshot (transitional).
+See [RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md) for the coordinated procedure and [RELEASE_103_PRODUCTION_CLOSURE.md](RELEASE_103_PRODUCTION_CLOSURE.md) for the latest completed release record.
