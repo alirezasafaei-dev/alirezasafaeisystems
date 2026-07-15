@@ -18,7 +18,7 @@ jobs:
   dependency-review:
     name: Dependency review (PR)
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, asdev-ci]
     permissions:
       contents: read
       pull-requests: read
@@ -35,12 +35,12 @@ jobs:
 
   pnpm-audit:
     name: pnpm audit (high/critical gate)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, asdev-ci]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          dest: ${{ runner.temp }}/setup-pnpm
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -52,12 +52,12 @@ jobs:
 
   secret-scan:
     name: Secret scan (repo)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, asdev-ci]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          dest: ${{ runner.temp }}/setup-pnpm
       - uses: actions/setup-node@v4
         with:
           node-version: 20
