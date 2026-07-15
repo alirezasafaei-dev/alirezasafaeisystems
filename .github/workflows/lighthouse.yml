@@ -11,13 +11,13 @@ permissions:
 
 jobs:
   lighthouse:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, asdev-ci]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          dest: ${{ runner.temp }}/setup-pnpm
       - uses: actions/setup-node@v4
         with:
           node-version: 20

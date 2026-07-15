@@ -10,7 +10,7 @@ on:
 
 jobs:
   analyze:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, asdev-ci]
     permissions:
       actions: read
       contents: read
