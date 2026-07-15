@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   safe-checks:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, asdev-ci]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
