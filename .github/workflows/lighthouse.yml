@@ -24,5 +24,11 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Install Chromium for Lighthouse
+        run: |
+          pnpm exec playwright install chromium
+          CHROME_PATH=$(node -e "const { chromium } = require('@playwright/test'); process.stdout.write(chromium.executablePath())")
+          test -x "$CHROME_PATH"
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
       - name: Run Lighthouse CI
         run: pnpm exec lhci autorun --config=./lighthouserc.json
