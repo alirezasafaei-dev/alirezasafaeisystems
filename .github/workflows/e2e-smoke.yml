@@ -27,6 +27,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - name: Install Chromium
+        run: pnpm exec playwright install chromium
       - name: Run smoke tests
         run: pnpm run test:e2e:smoke
