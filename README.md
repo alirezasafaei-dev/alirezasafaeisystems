@@ -1,87 +1,115 @@
-# ASDEV
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-191%20passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen)
 
-ASDEV is the parent brand for focused web systems, with **ASDEV Audit Platform** as the current primary product.
+<br />
 
-## Current Focus
+<img src="public/og-image.png" alt="ASDEV — Production Web Systems & Technical SEO" width="100%">
 
-**ASDEV Audit Platform** — https://audit.alirezasafaeisystems.ir/
+<br />
 
-## Product Roles
+# ASDEV — Production Web Systems & Technical SEO
 
-- **AuditSystems:** primary revenue product
-- **AlirezaSafaeiSystems:** parent brand, trust hub, and ASDEV governance (this repo)
-- **PersianToolbox:** traffic engine and acquisition channel
-- **DevAtlas:** future premium Code Audit module (hold)
-- **alirezasafaei-dev:** GitHub profile showcase
+**One codebase. Two missions.** The mother repository for autonomous-agent-driven governance and the live portfolio brand at [alirezasafaeisystems.ir](https://alirezasafaeisystems.ir) — production-ready, multi-agent orchestrated, and built for the modern web.
 
-## Start Here (Agents & Strategy)
-
-1. [ASDEV.md](ASDEV.md) — brand one-pager
-2. [AGENTS.md](AGENTS.md) — agent operating rules
-3. [docs/README.md](docs/README.md) — documentation index
-4. [docs/strategy/FOCUS_POLICY.md](docs/strategy/FOCUS_POLICY.md) — what to work on (and what to reject)
-5. [docs/strategy/ASDEV_AUDIT_MASTER_ROADMAP.md](docs/strategy/ASDEV_AUDIT_MASTER_ROADMAP.md) — master roadmap
-
-## Live Sites
-
-| Site | URL | Repository |
-|---|---|---|
-| ASDEV Brand | https://alirezasafaeisystems.ir/ | this repo |
-| ASDEV Audit | https://audit.alirezasafaeisystems.ir/ | [auditsystems](https://github.com/alirezasafaei-dev/auditsystems) |
-| PersianToolbox | https://persiantoolbox.ir/ | [persiantoolbox](https://github.com/alirezasafaei-dev/persiantoolbox) |
+<br />
 
 ---
 
-## Portfolio Application (this repository)
+## Repository Structure
 
-This repo is both the **ASDEV mother repository** (strategy, governance, agent rules) and the **live portfolio/brand website** (Next.js application).
+| Layer | Purpose |
+|---|---|
+| **Mother Repo** | Strategy, governance, agent rules, automation policies, memory, and ops documentation for the ASDEV ecosystem |
+| **Portfolio App** | Live Next.js 16 application — services, case studies, about brand, qualification forms, SEO-optimised with full i18n |
 
-### Quick Start
+This split means governance lives alongside production code. Every commit can update both the agent operating system and the public-facing website.
+
+---
+
+## Tech Stack
+
+| Category | Technology |
+|---|---|
+| **Framework** | Next.js 16 (App Router) + React 19 |
+| **Language** | TypeScript 5.9 (strict mode) |
+| **Styling** | Tailwind CSS 4 + shadcn/ui |
+| **Database** | Prisma 6 (SQLite dev · PostgreSQL prod) |
+| **Testing** | Vitest 4 (191 tests) · Playwright · Storybook |
+| **i18n** | Custom hand-rolled Persian / English system |
+| **SEO** | Dynamic sitemap · robots.txt · JSON-LD · OG images |
+| **Deployment** | Docker standalone · Nginx · systemd · VPS |
+
+---
+
+## Key Features
+
+**Autonomous Agent Governance**
+- Multi-agent orchestration (MiMo, OpenCode, Hermes, OpenClaw)
+- Autonomous loop with safe-next-task selection
+- GitHub ↔ AUTOMATION_SERVER bidirectional sync
+- Memory persistence, approval gates, post-deploy verification
+
+**Live Portfolio Website**
+- Bilingual Persian / English with hand-rolled i18n
+- Services: Technical SEO Audit, Web Development, Performance Analysis
+- 6 case studies, lead qualification form, about-brand page
+- Revenue Scorecard, Enterprise Audit, Network Smoke Testing dashboards
+- 191 passing tests · Lighthouse ≥ 75 · full a11y coverage
+
+---
+
+## Quick Start
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:3001
+pnpm dev                # → http://localhost:3001
 pnpm build
 pnpm start
 ```
 
-### Technology Stack
-
-- **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
-- **Styling:** Tailwind CSS 4 + shadcn/ui
-- **Database:** PostgreSQL with Prisma ORM
-- **Testing:** Vitest + Playwright
-- **Deployment:** Standalone Node.js on VPS
-
-### Key Commands
+### Environment
 
 ```bash
-pnpm lint
-pnpm type-check
-pnpm test
-pnpm test:e2e:smoke
-bash scripts/vps-deploy.sh deploy production   # requires approval
+cp .env.example .env    # Fill in your DATABASE_URL, etc.
+pnpm db:push            # Push Prisma schema
+pnpm db:generate        # Generate Prisma client
 ```
 
-### Application Docs
+---
 
-- [DOCUMENTATION.md](DOCUMENTATION.md) — feature and architecture detail
-- [REVENUE_SYSTEM.md](REVENUE_SYSTEM.md) — analytics API role
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — runtime architecture
+## Testing
+
+```bash
+pnpm test               # Vitest — 191 tests
+pnpm test:e2e:smoke     # Playwright smoke tests
+pnpm test:e2e:a11y      # Playwright accessibility tests
+pnpm lint               # ESLint
+pnpm type-check         # TypeScript strict check
+pnpm build              # Production build
+```
+
+All four post-development gates (`lint` → `type-check` → `test` → `build`) must pass before every commit.
 
 ---
 
-## Governance vs Product Code
+## Live Sites
 
-| In this repo | In separate repos |
+| Site | URL |
 |---|---|
-| ASDEV strategy and focus policy | AuditSystems application |
-| Agent rules and project role cards | PersianToolbox application |
-| Deployment index and ops overview | DevAtlas (hold) |
-| Brand positioning | Secondary/hold experiments |
-
-Do not dump all product code into this repo.
+| ASDEV Brand | [alirezasafaeisystems.ir](https://alirezasafaeisystems.ir) |
+| ASDEV Audit | [audit.alirezasafaeisystems.ir](https://audit.alirezasafaeisystems.ir) |
+| PersianToolbox | [persiantoolbox.ir](https://persiantoolbox.ir) |
 
 ---
 
-**Author:** [Alireza Safaei](https://alirezasafaeisystems.ir) · [@alirezasafaei-dev](https://github.com/alirezasafaei-dev)
+## Contributing
+
+PRs are welcome. Read [ASDEV.md](ASDEV.md) and [AGENTS.md](AGENTS.md) first to understand the governance model, then open a pull request. All code must pass lint, type-check, tests, and build.
+
+---
+
+## License
+
+MIT © [Alireza Safaei](https://github.com/alirezasafaei-dev)
