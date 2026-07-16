@@ -2,14 +2,14 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-16T20:35:58Z |
-| Finished | 2026-07-16T20:35:59Z |
+| Started | 2026-07-16T20:40:59Z |
+| Finished | 2026-07-16T20:41:03Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
-| Verdict | NO_GO |
-| Passed | 16 |
+| Verdict | GO |
+| Passed | 17 |
 | Warnings | 2 |
-| Failed | 1 |
+| Failed | 0 |
 | Auto-healed | 0 |
 | Skipped (cooldown) | 0 |
 | Skipped (not allowlisted) | 0 |
@@ -28,12 +28,12 @@
 - PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-health-monitor.service] Service transitioning (state=activating)
-- PASS [SVC-asdev-mcp-monitor.service] Service transitioning (state=activating)
-- FAIL [MCP-001] MCP endpoint unhealthy (verdict=UNKNOWN failure=unknown)
+- PASS [SVC-asdev-mcp-monitor.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [MCP-001] MCP endpoint healthy (HTTP 307, verdict=PASS)
 - PASS [SYS-001] Disk usage: 77%
 - PASS [SYS-002] Memory usage: 46%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
 
 ## Verdict
-Critical failures detected. Loop must not proceed until resolved.
+All critical checks passed. Loop may proceed.
