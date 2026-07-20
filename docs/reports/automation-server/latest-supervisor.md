@@ -2,14 +2,14 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-20T04:30:08Z |
-| Finished | 2026-07-20T04:30:09Z |
+| Started | 2026-07-20T05:50:08Z |
+| Finished | 2026-07-20T05:50:10Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | NO_GO |
-| Passed | 15 |
+| Passed | 14 |
 | Warnings | 3 |
-| Failed | 1 |
+| Failed | 2 |
 | Auto-healed | 0 |
 | Skipped (cooldown) | 0 |
 | Skipped (not allowlisted) | 0 |
@@ -28,7 +28,7 @@
 - PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-health-monitor.service] Oneshot service completed successfully (inactive, result=success)
-- PASS [SVC-asdev-mcp-monitor.service] Oneshot service completed successfully (inactive, result=success)
+- FAIL [SVC-asdev-mcp-monitor.service] Restart command failed
 - FAIL [MCP-001] MCP endpoint unhealthy (verdict=UNKNOWN failure=unknown)
 - WARN [SYS-001] Disk usage high: 81%
 - PASS [SYS-002] Memory usage: 42%
