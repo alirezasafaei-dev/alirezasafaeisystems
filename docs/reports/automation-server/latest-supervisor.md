@@ -2,8 +2,8 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-22T10:55:08Z |
-| Finished | 2026-07-22T10:55:13Z |
+| Started | 2026-07-22T12:00:08Z |
+| Finished | 2026-07-22T12:00:13Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | NO_GO |
@@ -25,7 +25,7 @@
 - PASS [SVC-asdev-mcp-monitor.timer] Timer active
 - PASS [SVC-asdev-supervisor.timer] Timer active
 - WARN [SVC-asdev-bot.service] Optional service not running (state=inactive) — expected when disabled
-- PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
+- PASS [SVC-asdev-github-sync.service] Service transitioning (state=activating)
 - PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-health-monitor.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-mcp-monitor.service] Service recovered (state=inactive result=success)
