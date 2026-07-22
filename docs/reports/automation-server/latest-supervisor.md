@@ -2,15 +2,15 @@
 
 | Item | Value |
 |---|---|
-| Started | 2026-07-22T12:00:08Z |
-| Finished | 2026-07-22T12:00:13Z |
+| Started | 2026-07-22T13:11:08Z |
+| Finished | 2026-07-22T13:11:10Z |
 | Environment | asdevserve |
 | Hostname | asdevserve |
 | Verdict | NO_GO |
 | Passed | 15 |
 | Warnings | 3 |
 | Failed | 1 |
-| Auto-healed | 1 |
+| Auto-healed | 0 |
 | Skipped (cooldown) | 0 |
 | Skipped (not allowlisted) | 0 |
 
@@ -25,18 +25,15 @@
 - PASS [SVC-asdev-mcp-monitor.timer] Timer active
 - PASS [SVC-asdev-supervisor.timer] Timer active
 - WARN [SVC-asdev-bot.service] Optional service not running (state=inactive) — expected when disabled
-- PASS [SVC-asdev-github-sync.service] Service transitioning (state=activating)
+- PASS [SVC-asdev-github-sync.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-agent-loop.service] Oneshot service completed successfully (inactive, result=success)
 - PASS [SVC-asdev-health-monitor.service] Oneshot service completed successfully (inactive, result=success)
-- PASS [SVC-asdev-mcp-monitor.service] Service recovered (state=inactive result=success)
+- PASS [SVC-asdev-mcp-monitor.service] Oneshot service completed successfully (inactive, result=success)
 - FAIL [MCP-001] MCP endpoint unhealthy (verdict=UNKNOWN failure=unknown)
 - WARN [SYS-001] Disk usage high: 87%
-- PASS [SYS-002] Memory usage: 41%
+- PASS [SYS-002] Memory usage: 42%
 - PASS [SYS-003] Network reachable (github.com)
 - PASS [PROV-001] OpenCode available
-
-## Auto-heal actions
-- Restarted asdev-mcp-monitor.service successfully
 
 ## Verdict
 Critical failures detected. Loop must not proceed until resolved.
