@@ -11,6 +11,12 @@
 
 Everything else exists to support audit acquisition, conversion, retention, report quality, reliability, or revenue — or it is frozen.
 
+### Discover acquisition surface
+
+`alirezasafaeisystems.ir/discover` is an approved **ASDEV acquisition surface**, not a separate product priority. Its role is to convert social/search audience—especially Instagram traffic—into owned-site traffic, ASDEV brand discovery, Audit/service exploration, qualification starts, and attributable leads.
+
+Discover work is in-scope only when it improves measurable acquisition, conversion, attribution, content-to-lead routing, or trust for the primary Audit business. It must not evolve into an unrelated standalone platform.
+
 ---
 
 ## Mandatory agent rule
