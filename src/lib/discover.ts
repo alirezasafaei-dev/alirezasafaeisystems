@@ -46,7 +46,7 @@ export const discoverUrlSchema = z
 export const optionalDiscoverUrlSchema = z
   .union([z.literal(''), discoverUrlSchema])
   .optional()
-  .transform((value) => value || undefined)
+  .transform((value) => (value === '' ? null : value))
 
 export const discoverInstagramUrlSchema = z
   .union([
@@ -57,7 +57,7 @@ export const discoverInstagramUrlSchema = z
     }, 'Instagram URL must use instagram.com'),
   ])
   .optional()
-  .transform((value) => value || undefined)
+  .transform((value) => (value === '' ? null : value))
 
 export const discoverFieldsSchema = z.object({
   slug: discoverSlugSchema,
