@@ -38,8 +38,8 @@ describe('DiscoverGrid', () => {
       />,
     )
 
-    const link = screen.getByRole('link', { name: /توضیح کوتاه و لینک رسمی/ })
-    const href = link.getAttribute('href') || ''
+    const links = screen.getAllByRole('link', { name: /توضیح کوتاه و لینک رسمی/ })
+    const href = links[0]?.getAttribute('href') || ''
     const parsed = new URL(href, 'https://alirezasafaeisystems.ir')
 
     expect(parsed.pathname).toBe('/discover/notebooklm')
