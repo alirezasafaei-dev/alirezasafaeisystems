@@ -1,6 +1,6 @@
 'use client'
 
-import type { MouseEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics/client'
 
@@ -25,7 +25,7 @@ export function DiscoverLink({
   metadata = {},
   ariaLabel,
 }: DiscoverLinkProps) {
-  function recordClick(_event: MouseEvent<HTMLAnchorElement>) {
+  function recordClick() {
     void trackEvent({
       name: eventName,
       category: eventName === 'discover_internal_cta_click' ? 'conversion' : 'engagement',
