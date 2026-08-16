@@ -33,8 +33,8 @@ const validLeadPayload = {
   notes: 'Need risk assessment this month.',
 }
 
-function createJsonLeadRequest(payload: Record<string, unknown>) {
-  return new NextRequest('http://localhost:3000/api/leads', {
+function createJsonLeadRequest(payload: Record<string, unknown>, url = 'http://localhost:3000/api/leads') {
+  return new NextRequest(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload),
@@ -70,6 +70,44 @@ describe('lead API integration', () => {
     const response = await POST(request)
     expect(response.status).toBe(201)
     expect(dbMock.lead.create).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves reel-level utm_content attribution on the stored lead', async () => {
+    const { POST } = await import('@/app/api/leads/route')
+    const request = createJsonLeadRequest({
+      ...validLeadPayload,
+      utmSource: 'instagram',
+      utmMedium: 'social',
+      utmCampaign: 'ai-tools',
+      utmContent: 'reel-42',
+    })
+
+    const response = await POST(request)
+
+    expect(response.status).toBe(201)
+    expect(dbMock.lead.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        utmSource: 'instagram',
+        utmMedium: 'social',
+        utmCampaign: 'ai-tools',
+        utmContent: 'reel-42',
+      }),
+    }))
+  })
+
+  it('falls back to utm_content from the request URL', async () => {
+    const { POST } = await import('@/app/api/leads/route')
+    const request = createJsonLeadRequest(
+      validLeadPayload,
+      'http://localhost:3000/api/leads?utm_source=instagram&utm_medium=social&utm_campaign=ai-tools&utm_content=reel-99',
+    )
+
+    const response = await POST(request)
+
+    expect(response.status).toBe(201)
+    expect(dbMock.lead.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ utmContent: 'reel-99' }),
+    }))
   })
 
   it('rejects invalid payload', async () => {
