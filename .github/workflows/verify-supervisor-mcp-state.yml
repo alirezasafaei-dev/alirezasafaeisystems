@@ -1,0 +1,24 @@
+name: Verify Supervisor MCP State
+
+on:
+  push:
+    branches:
+      - 'verify/supervisor-mcp-state-green-20260816'
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: |
+          bash -n scripts/control-plane/asdev-supervisor.sh
+          bash -n scripts/control-plane/test-supervisor-mcp-state-isolation.sh
+      - name: Verify MCP state isolation
+        run: bash scripts/control-plane/test-supervisor-mcp-state-isolation.sh
+      - name: Diff hygiene
+        run: git diff --check HEAD^
