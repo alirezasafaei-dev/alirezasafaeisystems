@@ -177,6 +177,7 @@ model Lead {
   utmSource        String?
   utmMedium        String?
   utmCampaign      String?
+  utmContent       String?
 
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
