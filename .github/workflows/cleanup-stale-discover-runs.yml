@@ -1,0 +1,80 @@
+name: Clean Superseded Discover Workflow Runs
+
+on:
+  push:
+    branches:
+      - verify/cleanup-stale-discover-runs-20260816
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PR_NUMBER: '133'
+      EXPECTED_BRANCH: 'agent/discover-acquisition-surface-20260815'
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Cancel only superseded PR runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          current_head="$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          current_branch="$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.head.ref')"
+          test "$current_branch" = "$EXPECTED_BRANCH" || { echo '::error::PR branch changed unexpectedly'; exit 1; }
+          echo "current_head=${current_head}"
+
+          runs_json="$(gh api --paginate "${api}/actions/runs?branch=${EXPECTED_BRANCH}&per_page=100")"
+          mapfile -t stale_ids < <(
+            jq -r --arg head "$current_head" '
+              .workflow_runs[]
+              | select(.event == "pull_request")
+              | select(.head_sha != $head)
+              | select(.status == "queued" or .status == "pending" or .status == "in_progress" or .status == "waiting" or .status == "requested")
+              | .id
+            ' <<<"$runs_json" | sort -u
+          )
+
+          echo "superseded_active_count=${#stale_ids[@]}"
+          for run_id in "${stale_ids[@]}"; do
+            run="$(gh api "${api}/actions/runs/${run_id}")"
+            run_sha="$(jq -r '.head_sha' <<<"$run")"
+            run_branch="$(jq -r '.head_branch' <<<"$run")"
+            run_event="$(jq -r '.event' <<<"$run")"
+            run_status="$(jq -r '.status' <<<"$run")"
+
+            test "$run_branch" = "$EXPECTED_BRANCH" || { echo "::error::Branch guard failed for ${run_id}"; exit 1; }
+            test "$run_event" = 'pull_request' || { echo "::error::Event guard failed for ${run_id}"; exit 1; }
+            test "$run_sha" != "$current_head" || { echo "::error::Refusing to cancel current head ${run_id}"; exit 1; }
+
+            echo "cancel run=${run_id} status=${run_status} sha=${run_sha}"
+            set +e
+            output="$(gh api --method POST "${api}/actions/runs/${run_id}/cancel" 2>&1)"
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then
+              final_status="$(gh api "${api}/actions/runs/${run_id}" --jq '.status')"
+              if [ "$final_status" != completed ]; then
+                echo "$output"
+                exit "$rc"
+              fi
+            fi
+          done
+
+      - name: Verify current head preserved
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          current_head="$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          current_branch="$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.head.ref')"
+          test "$current_branch" = "$EXPECTED_BRANCH"
+          active_current="$(gh api --paginate "${api}/actions/runs?branch=${EXPECTED_BRANCH}&per_page=100" | jq -s --arg head "$current_head" '[.[].workflow_runs[] | select(.event == "pull_request" and .head_sha == $head and (.status == "queued" or .status == "pending" or .status == "in_progress" or .status == "waiting" or .status == "requested"))] | length')"
+          echo "current_head=${current_head} active_current_runs=${active_current}"
+          echo 'Superseded-run cleanup never targets the current PR head.'
