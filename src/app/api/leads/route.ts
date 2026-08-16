@@ -45,6 +45,23 @@ async function saveAttachment(file: File, requestId: string): Promise<string> {
   return `storage/leads/${fileName}`
 }
 
+function requestAttribution(request: NextRequest, key: string): string | undefined {
+  const direct = request.nextUrl.searchParams.get(key)?.trim()
+  if (direct) return direct.slice(0, 120)
+
+  const referer = request.headers.get('referer')
+  if (!referer) return undefined
+
+  try {
+    const refererUrl = new URL(referer)
+    if (refererUrl.origin !== request.nextUrl.origin) return undefined
+    const value = refererUrl.searchParams.get(key)?.trim()
+    return value ? value.slice(0, 120) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export async function POST(request: NextRequest) {
   const requestId = createRequestId(request)
   const limit = await checkRateLimit(request, 'leads')
@@ -166,10 +183,10 @@ export async function POST(request: NextRequest) {
         preferredContact: payload.preferredContact,
         notes: payload.notes || undefined,
         attachmentPath: payload.attachmentPath || undefined,
-        utmSource: payload.utmSource || request.nextUrl.searchParams.get('utm_source') || undefined,
-        utmMedium: payload.utmMedium || request.nextUrl.searchParams.get('utm_medium') || undefined,
-        utmCampaign: payload.utmCampaign || request.nextUrl.searchParams.get('utm_campaign') || undefined,
-        utmContent: payload.utmContent || request.nextUrl.searchParams.get('utm_content') || undefined,
+        utmSource: payload.utmSource || requestAttribution(request, 'utm_source'),
+        utmMedium: payload.utmMedium || requestAttribution(request, 'utm_medium'),
+        utmCampaign: payload.utmCampaign || requestAttribution(request, 'utm_campaign'),
+        utmContent: payload.utmContent || requestAttribution(request, 'utm_content'),
       },
     })
 
