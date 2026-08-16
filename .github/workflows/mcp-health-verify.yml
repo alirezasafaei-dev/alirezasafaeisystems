@@ -1,0 +1,22 @@
+name: MCP Health Verify
+
+on:
+  push:
+    branches:
+      - verify/mcp-health-41731c6d
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Shell syntax
+        run: |
+          bash -n scripts/control-plane/mcp-health-check-v2.sh
+          bash -n scripts/control-plane/test-mcp-health-check-v2.sh
+      - name: MCP curl-exit regression
+        run: bash scripts/control-plane/test-mcp-health-check-v2.sh
