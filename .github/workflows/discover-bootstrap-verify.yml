@@ -16,8 +16,6 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      DATABASE_URL: file:./prisma/dev.db
     steps:
       - name: Checkout exact verification branch
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -37,6 +35,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Configure verifier database path
+        run: echo "DATABASE_URL=file:${GITHUB_WORKSPACE}/prisma/dev.db" >> "$GITHUB_ENV"
+
+      - name: Setup database
+        run: pnpm run db:push
+
       - name: Scan tracked source for secrets
         run: pnpm run scan:secrets
 
@@ -54,9 +58,6 @@ jobs:
 
       - name: Enterprise gate
         run: pnpm run enterprise:gate
-
-      - name: Setup database
-        run: pnpm run db:push
 
       - name: Install Playwright Chromium
         env:
