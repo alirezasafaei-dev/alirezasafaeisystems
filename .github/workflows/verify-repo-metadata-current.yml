@@ -1,0 +1,39 @@
+name: Verify Repository Metadata Hygiene
+
+on:
+  push:
+    branches:
+      - 'verify/repo-metadata-current-20260816'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify package metadata and dev port
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const expectedRepo = 'https://github.com/alirezasafaei-dev/alirezasafaeisystems.git';
+          if (pkg.repository?.url !== expectedRepo) throw new Error(`repository.url=${pkg.repository?.url}`);
+          if (pkg.homepage !== 'https://github.com/alirezasafaei-dev/alirezasafaeisystems') throw new Error(`homepage=${pkg.homepage}`);
+          if (pkg.bugs?.url !== 'https://github.com/alirezasafaei-dev/alirezasafaeisystems/issues') throw new Error(`bugs.url=${pkg.bugs?.url}`);
+          if (!pkg.scripts?.dev?.includes('-p 3000')) throw new Error(`dev script=${pkg.scripts?.dev}`);
+          NODE
+          grep -qF 'pnpm dev      # http://localhost:3000' README.md
+          if grep -qF 'localhost:3001' README.md; then
+            echo '::error::README still references localhost:3001'
+            exit 1
+          fi
+          if grep -qF 'parsairaniiidev/alirezasafaeisystems' package.json; then
+            echo '::error::package metadata still references old repository owner'
+            exit 1
+          fi
+          git diff --check
