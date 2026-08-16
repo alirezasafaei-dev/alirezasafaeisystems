@@ -110,6 +110,49 @@ describe('lead API integration', () => {
     }))
   })
 
+  it('recovers utm_content from a same-origin qualification referrer', async () => {
+    const { POST } = await import('@/app/api/leads/route')
+    const request = new NextRequest('http://localhost:3000/api/leads', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        referer: 'http://localhost:3000/qualification?utm_source=instagram&utm_medium=social&utm_campaign=ai-tools&utm_content=reel-123',
+      },
+      body: JSON.stringify(validLeadPayload),
+    })
+
+    const response = await POST(request)
+
+    expect(response.status).toBe(201)
+    expect(dbMock.lead.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        utmSource: 'instagram',
+        utmMedium: 'social',
+        utmCampaign: 'ai-tools',
+        utmContent: 'reel-123',
+      }),
+    }))
+  })
+
+  it('does not trust attribution from a cross-origin referrer', async () => {
+    const { POST } = await import('@/app/api/leads/route')
+    const request = new NextRequest('http://localhost:3000/api/leads', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        referer: 'https://attacker.example/qualification?utm_content=fake-reel',
+      },
+      body: JSON.stringify(validLeadPayload),
+    })
+
+    const response = await POST(request)
+
+    expect(response.status).toBe(201)
+    expect(dbMock.lead.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ utmContent: undefined }),
+    }))
+  })
+
   it('rejects invalid payload', async () => {
     const { POST } = await import('@/app/api/leads/route')
     const request = createJsonLeadRequest({
