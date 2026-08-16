@@ -4,16 +4,25 @@ import { trackEvent } from '@/lib/analytics/client'
 describe('trackEvent', () => {
   let sendBeaconSpy: ReturnType<typeof vi.fn>
   let fetchSpy: ReturnType<typeof vi.fn>
+  let localStore: Map<string, string>
+  let sessionStore: Map<string, string>
   const CONSENT_KEY = 'asdev_analytics_consent_v1'
+  const SESSION_KEY = 'asdev_session_v1'
 
   beforeEach(() => {
-    const storage = new Map<string, string>()
+    localStore = new Map<string, string>()
+    sessionStore = new Map<string, string>()
     sendBeaconSpy = vi.fn().mockReturnValue(true)
     fetchSpy = vi.fn().mockResolvedValue({ ok: true })
     vi.stubGlobal('localStorage', {
-      getItem: (key: string) => storage.get(key) ?? null,
-      setItem: (key: string, value: string) => { storage.set(key, value) },
-      removeItem: (key: string) => { storage.delete(key) },
+      getItem: (key: string) => localStore.get(key) ?? null,
+      setItem: (key: string, value: string) => { localStore.set(key, value) },
+      removeItem: (key: string) => { localStore.delete(key) },
+    })
+    vi.stubGlobal('sessionStorage', {
+      getItem: (key: string) => sessionStore.get(key) ?? null,
+      setItem: (key: string, value: string) => { sessionStore.set(key, value) },
+      removeItem: (key: string) => { sessionStore.delete(key) },
     })
     vi.stubGlobal('navigator', { sendBeacon: sendBeaconSpy })
     vi.stubGlobal('fetch', fetchSpy)
@@ -25,7 +34,6 @@ describe('trackEvent', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
-    globalThis.localStorage?.removeItem(CONSENT_KEY)
   })
 
   it('sends event via sendBeacon when available', async () => {
@@ -39,6 +47,19 @@ describe('trackEvent', () => {
     const [url, blob] = sendBeaconSpy.mock.calls[0]
     expect(url).toBe('/api/analytics/events')
     expect(blob).toBeInstanceOf(Blob)
+  })
+
+  it('keeps analytics correlation in sessionStorage rather than persistent localStorage', async () => {
+    await trackEvent({ name: 'first_event', category: 'engagement' })
+    await trackEvent({ name: 'second_event', category: 'conversion' })
+
+    const firstBody = JSON.parse(await sendBeaconSpy.mock.calls[0][1].text())
+    const secondBody = JSON.parse(await sendBeaconSpy.mock.calls[1][1].text())
+
+    expect(firstBody.sessionId).toBeTruthy()
+    expect(secondBody.sessionId).toBe(firstBody.sessionId)
+    expect(sessionStore.get(SESSION_KEY)).toBe(firstBody.sessionId)
+    expect(localStore.has(SESSION_KEY)).toBe(false)
   })
 
   it('sends event via fetch when sendBeacon is not available', async () => {
