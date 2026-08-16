@@ -1,0 +1,119 @@
+name: Audit Remaining Verification Queue
+
+on:
+  push:
+    branches:
+      - verify/audit-queued-verification-runs-20260816
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Classify active verification runs without mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          owner="${GH_REPO%%/*}"
+          current_main="$(gh api "${api}/git/ref/heads/main" --jq '.object.sha')"
+
+          allowed_workflow() {
+            case "$1" in
+              "CI"|"CI Router"|"E2E Smoke"|"Lighthouse Budget"|"Security Audit"|"CodeQL") return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          declare -A count
+          for key in open_current open_superseded closed_pr old_main current_main unresolved out_of_scope; do
+            count[$key]=0
+          done
+
+          tmp="$(mktemp)"
+          trap 'rm -f "$tmp"' EXIT
+          gh api --paginate "${api}/actions/runs?per_page=100" --jq '.workflow_runs[] | @base64' > "$tmp"
+
+          while IFS= read -r encoded; do
+            [ -n "$encoded" ] || continue
+            run="$(printf '%s' "$encoded" | base64 --decode)"
+            status="$(jq -r '.status' <<<"$run")"
+            case "$status" in queued|pending|in_progress|waiting|requested) ;; *) continue ;; esac
+
+            id="$(jq -r '.id' <<<"$run")"
+            name="$(jq -r '.name' <<<"$run")"
+            event="$(jq -r '.event' <<<"$run")"
+            sha="$(jq -r '.head_sha' <<<"$run")"
+            branch="$(jq -r '.head_branch' <<<"$run")"
+
+            if ! allowed_workflow "$name"; then
+              count[out_of_scope]=$((count[out_of_scope]+1))
+              continue
+            fi
+
+            if [ "$event" = push ] && [ "$branch" = main ]; then
+              if [ "$sha" = "$current_main" ]; then
+                class=current_main
+              else
+                class=old_main
+              fi
+              count[$class]=$((count[$class]+1))
+              echo "${class} run=${id} workflow=${name} sha=${sha}"
+              continue
+            fi
+
+            if [ "$event" != pull_request ]; then
+              count[unresolved]=$((count[unresolved]+1))
+              echo "unresolved run=${id} workflow=${name} event=${event} branch=${branch} sha=${sha}"
+              continue
+            fi
+
+            pr_number="$(jq -r '.pull_requests[0].number // empty' <<<"$run")"
+            pr=''
+            if [ -n "$pr_number" ]; then
+              pr="$(gh api "${api}/pulls/${pr_number}" 2>/dev/null || true)"
+            fi
+
+            if [ -z "$pr" ] || [ "$pr" = null ]; then
+              candidates="$(gh api "${api}/pulls?state=all&head=${owner}:${branch}&per_page=20" 2>/dev/null || echo '[]')"
+              pr="$(jq -c --arg sha "$sha" '[.[] | select(.head.sha == $sha)] | first // empty' <<<"$candidates")"
+              if [ -z "$pr" ]; then
+                # Branch may have moved after this run; use the newest PR for the exact head branch as ownership evidence.
+                pr="$(jq -c '[.[]] | sort_by(.updated_at) | reverse | first // empty' <<<"$candidates")"
+              fi
+            fi
+
+            if [ -z "$pr" ]; then
+              count[unresolved]=$((count[unresolved]+1))
+              echo "unresolved run=${id} workflow=${name} branch=${branch} sha=${sha}"
+              continue
+            fi
+
+            state="$(jq -r '.state' <<<"$pr")"
+            current_head="$(jq -r '.head.sha' <<<"$pr")"
+            number="$(jq -r '.number' <<<"$pr")"
+            merged_at="$(jq -r '.merged_at // empty' <<<"$pr")"
+
+            if [ "$state" = closed ] || [ -n "$merged_at" ]; then
+              class=closed_pr
+            elif [ "$current_head" = "$sha" ]; then
+              class=open_current
+            else
+              class=open_superseded
+            fi
+            count[$class]=$((count[$class]+1))
+            echo "${class} run=${id} workflow=${name} pr=${number} branch=${branch} sha=${sha} current=${current_head}"
+          done < "$tmp"
+
+          echo '--- summary ---'
+          for key in open_current open_superseded closed_pr old_main current_main unresolved out_of_scope; do
+            echo "${key}=${count[$key]}"
+          done
