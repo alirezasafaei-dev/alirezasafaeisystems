@@ -358,9 +358,11 @@ check_systemd_health() {
 # ---------------------------------------------------------------------------
 check_mcp_health() {
   local mcp_check="$REPO_DIR/scripts/control-plane/mcp-health-check-v2.sh"
+  local mcp_state_dir="$REPO_DIR/.state/asdev-mcp"
+  local mcp_state="$mcp_state_dir/latest.json"
   if [ -x "$mcp_check" ]; then
-    if bash "$mcp_check" 2>/dev/null; then
-      local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"
+    mkdir -p "$mcp_state_dir"
+    if ASDEV_STATE_DIR="$mcp_state_dir" bash "$mcp_check" 2>/dev/null; then
       if [ -f "$mcp_state" ]; then
         local verdict http_code
         verdict=$(python3 -c "import json; d=json.load(open('$mcp_state')); print(d.get('verdict','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
@@ -370,7 +372,6 @@ check_mcp_health() {
         pass "MCP-001" "MCP check passed (no state file)"
       fi
     else
-      local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"
       if [ -f "$mcp_state" ]; then
         local verdict failure_class
         verdict=$(python3 -c "import json; d=json.load(open('$mcp_state')); print(d.get('verdict','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
