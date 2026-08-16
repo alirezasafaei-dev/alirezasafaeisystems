@@ -1,0 +1,22 @@
+name: Offline External Scan Verify
+
+on:
+  push:
+    branches:
+      - verify/offline-external-scan-528f74c4
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Shell syntax
+        run: |
+          bash -n scripts/offline-external-scan.sh
+          bash -n scripts/test-offline-external-scan.sh
+      - name: Fail-closed regression
+        run: bash scripts/test-offline-external-scan.sh
