@@ -28,6 +28,16 @@ describe('Discover acquisition surface contract', () => {
     expect(landing).not.toContain('مشاهده پروژه')
   })
 
+  it('exposes Discover as its own Admin tab instead of nesting it inside Portfolio projects', () => {
+    const dashboard = source('src/components/admin/admin-dashboard.tsx')
+    const projectManager = source('src/components/admin/project-manager.tsx')
+
+    expect(dashboard).toContain("'discover'")
+    expect(dashboard).toContain('DiscoverManager')
+    expect(dashboard).toContain("activeTab === 'discover'")
+    expect(projectManager).not.toContain('DiscoverManager')
+  })
+
   it('documents Discover as an ASDEV acquisition surface in the focus policy', () => {
     const focusPolicy = source('docs/strategy/FOCUS_POLICY.md')
 
