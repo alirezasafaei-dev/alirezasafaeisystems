@@ -76,7 +76,7 @@ function buildCsp(nonce: string): string {
     "form-action 'self'",
     "frame-ancestors 'none'",
     "object-src 'none'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https:",
     `font-src ${fontSources.join(' ')}`,
     `style-src ${styleSources.join(' ')}`,
     "style-src-attr 'unsafe-inline'",
