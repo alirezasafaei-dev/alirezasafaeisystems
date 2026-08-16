@@ -53,8 +53,9 @@ function requestAttribution(request: NextRequest, key: string): string | undefin
   if (!referer) return undefined
 
   try {
+    const requestOrigin = new URL(request.url).origin
     const refererUrl = new URL(referer)
-    if (refererUrl.origin !== request.nextUrl.origin) return undefined
+    if (refererUrl.origin !== requestOrigin) return undefined
     const value = refererUrl.searchParams.get(key)?.trim()
     return value ? value.slice(0, 120) : undefined
   } catch {
