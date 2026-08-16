@@ -23,7 +23,7 @@ pnpm db:generate
 
 ## Database and migration rehearsal
 
-Discover جدید جدول مستقل `DiscoverItem` دارد. migration عمداً non-destructive است: رکوردهای قدیمی `Project` با `contentType=discover` را به جدول جدید copy می‌کند و ردیف‌های Project را حذف یا overwrite نمی‌کند.
+Discover جدید جدول مستقل `DiscoverItem` دارد. migration اصلی عمداً non-destructive است: رکوردهای قدیمی `Project` با `contentType=discover` را به جدول جدید copy می‌کند و ردیف‌های Project را حذف یا overwrite نمی‌کند. migration دوم فقط ستون nullable `Lead.utmContent` را اضافه می‌کند تا attribution سطح Reel/content تا Lead نهایی حفظ شود.
 
 قبل از migration از دیتابیس local backup بگیرید و سپس:
 
@@ -36,7 +36,8 @@ pnpm exec prisma migrate dev
 1. جدول `DiscoverItem` ایجاد شده باشد.
 2. Discoverهای قدیمی در صورت وجود با slug نوع `legacy-<project-id>` کپی شده باشند.
 3. Projectهای قبلی همچنان موجود باشند.
-4. فایل DB و backup وارد Git نشوند.
+4. ستون nullable `utmContent` در `Lead` اضافه شده باشد و Leadهای قبلی دست‌نخورده باشند.
+5. فایل DB و backup وارد Git نشوند.
 
 ## Verification
 
@@ -56,7 +57,7 @@ pnpm dev
 
 ## Admin CRUD smoke
 
-از بخش Projects/Admin، manager مستقل Discover را باز کنید و با یک رکورد موقت این چرخه را اجرا کنید:
+از تب مستقل **Discover** در Admin، با یک رکورد موقت این چرخه را اجرا کنید:
 
 1. Create به‌صورت Draft با title، slug، category، description، short guide و official HTTPS URL.
 2. Edit و اضافه‌کردن tags، optional Instagram URL و image URL.
@@ -83,6 +84,7 @@ http://localhost:3000/discover?utm_source=instagram&utm_medium=social&utm_campai
 2. CTA داخلی Qualification/Audit/Case Studies همان UTMهای مجاز را حفظ کند.
 3. لینک رسمی third-party و Instagram destination هیچ UTM داخلی را به مقصد خارجی append نکند.
 4. پارامترهای نامرتبط مثل email یا query دلخواه propagate نشوند.
+5. پس از ثبت Qualification، Lead ذخیره‌شده `utmSource=instagram`، campaign مربوط و `utmContent=reel-test` را حفظ کند.
 
 ## Analytics smoke
 
@@ -91,21 +93,23 @@ Analytics فقط با consent فعال ثبت می‌شود. پس از دادن 
 - landing باید `discover_landing_view` ثبت کند؛
 - detail باید `discover_item_view` ثبت کند؛
 - official link باید `discover_external_click` ثبت کند؛
-- ASDEV CTA باید `discover_internal_cta_click` ثبت کند.
+- ASDEV CTA باید `discover_internal_cta_click` ثبت کند؛
+- eventهای یک browser session باید `sessionId` یکسان داشته باشند تا funnel قابل correlation باشد.
 
 Metadata فقط شامل slug/category/target و UTMهای مجاز است و نباید PII یا query string کامل داشته باشد. شکست telemetry نباید navigation را متوقف کند.
 
-## SEO smoke
+## SEO and media smoke
 
 - `/discover` باید canonical و hreflang داشته باشد.
 - detail Published باید metadata و breadcrumb JSON-LD داشته باشد.
 - Draft نباید public resolve شود.
 - sitemap در صورت دسترسی DB باید فقط detailهای Published را اضافه کند.
 - نبود DB هنگام build نباید sitemap استاتیک را از کار بیندازد.
+- یک `imageUrl` معتبر HTTPS باید بدون CSP violation در کارت/detail render شود.
 
 ## Rollback principle
 
-اگر migration یا rollout نیاز به rollback داشت، Projectهای legacy همچنان history/backup داخلی را نگه می‌دارند. این feature مجاز نیست برای rollback یا cleanup ردیف‌های Project قدیمی را حذف کند.
+اگر migration یا rollout نیاز به rollback داشت، Projectهای legacy همچنان history/backup داخلی را نگه می‌دارند. migration attribution فقط یک ستون nullable به Lead اضافه می‌کند و داده قبلی را بازنویسی نمی‌کند. این feature مجاز نیست برای rollback یا cleanup ردیف‌های Project یا Lead قدیمی را حذف کند.
 
 ## Failure handling
 
