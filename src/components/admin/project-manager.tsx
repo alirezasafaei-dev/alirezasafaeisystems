@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
-import { DiscoverManager } from '@/components/admin/discover-manager'
 
 type Project = {
   id: string
@@ -131,52 +130,48 @@ export function ProjectManager() {
   }
 
   return (
-    <div className="space-y-10">
-      <DiscoverManager />
-
-      <div className="space-y-6 border-t pt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>{form.id ? 'Edit portfolio project' : 'New portfolio project'}</CardTitle>
-            <CardDescription>Manage portfolio projects separately from the Discover acquisition library.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="grid gap-4 md:grid-cols-2" onSubmit={saveProject}>
-              <label className="space-y-1 text-sm font-medium">Title<Input required maxLength={140} value={form.title} onChange={(event) => updateForm('title', event.target.value)} /></label>
-              <label className="space-y-1 text-sm font-medium md:col-span-2">Description<Textarea required maxLength={400} value={form.description} onChange={(event) => updateForm('description', event.target.value)} /></label>
-              <label className="space-y-1 text-sm font-medium md:col-span-2">Long description<Textarea maxLength={2000} value={form.longDescription} onChange={(event) => updateForm('longDescription', event.target.value)} /></label>
-              <label className="space-y-1 text-sm font-medium">Live HTTPS URL<Input type="url" placeholder="https://" value={form.liveUrl} onChange={(event) => updateForm('liveUrl', event.target.value)} /></label>
-              <label className="space-y-1 text-sm font-medium">GitHub HTTPS URL<Input type="url" placeholder="https://github.com/" value={form.githubUrl} onChange={(event) => updateForm('githubUrl', event.target.value)} /></label>
-              <label className="space-y-1 text-sm font-medium">Tags<Input placeholder="web, automation" value={form.tags} onChange={(event) => updateForm('tags', event.target.value)} /></label>
-              <label className="space-y-1 text-sm font-medium">Sort order<Input type="number" min={0} value={form.order} onChange={(event) => updateForm('order', Number(event.target.value))} /></label>
-              <div className="flex flex-wrap items-center gap-4 md:col-span-2">
-                <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={form.published} onChange={(event) => updateForm('published', event.target.checked)} /> Published</label>
-                <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={form.featured} onChange={(event) => updateForm('featured', event.target.checked)} /> Featured</label>
-              </div>
-              <div className="flex gap-2 md:col-span-2">
-                <Button type="submit" disabled={saving}><Save className="me-2 h-4 w-4" />{saving ? 'Saving…' : 'Save project'}</Button>
-                {form.id && <Button type="button" variant="outline" onClick={() => setForm(emptyForm)}><X className="me-2 h-4 w-4" />Cancel</Button>}
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader><CardTitle>Portfolio projects</CardTitle><CardDescription>{loading ? 'Loading…' : `${projects.length} project(s)`}</CardDescription></CardHeader>
-          <CardContent>
-            {error ? <div role="alert" className="rounded-md border border-destructive/40 p-4 text-destructive">{error}</div> : null}
-            {!loading && !error && projects.length === 0 ? <div className="rounded-md border border-dashed p-6 text-center text-muted-foreground">No portfolio projects yet.</div> : null}
-            <div className="space-y-3">
-              {projects.map((project) => (
-                <div key={project.id} className="flex flex-col gap-3 rounded-lg border p-4 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong>{project.title}</strong><Badge variant="outline">portfolio</Badge><Badge variant={project.published ? 'default' : 'secondary'}>{project.published ? 'Published' : 'Draft'}</Badge>{project.featured && <Badge>Featured</Badge>}</div><p className="mt-1 truncate text-sm text-muted-foreground">#{project.order} · {project.description}</p></div>
-                  <div className="flex shrink-0 gap-2"><Button type="button" variant="outline" size="sm" onClick={() => setForm(toForm(project))}><Pencil className="me-2 h-4 w-4" />Edit</Button><Button type="button" variant="ghost" size="sm" onClick={() => void deleteProject(project.id)} aria-label={`Delete ${project.title}`}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>
-                </div>
-              ))}
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>{form.id ? 'Edit portfolio project' : 'New portfolio project'}</CardTitle>
+          <CardDescription>Manage portfolio projects separately from the Discover acquisition library.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="grid gap-4 md:grid-cols-2" onSubmit={saveProject}>
+            <label className="space-y-1 text-sm font-medium">Title<Input required maxLength={140} value={form.title} onChange={(event) => updateForm('title', event.target.value)} /></label>
+            <label className="space-y-1 text-sm font-medium md:col-span-2">Description<Textarea required maxLength={400} value={form.description} onChange={(event) => updateForm('description', event.target.value)} /></label>
+            <label className="space-y-1 text-sm font-medium md:col-span-2">Long description<Textarea maxLength={2000} value={form.longDescription} onChange={(event) => updateForm('longDescription', event.target.value)} /></label>
+            <label className="space-y-1 text-sm font-medium">Live HTTPS URL<Input type="url" placeholder="https://" value={form.liveUrl} onChange={(event) => updateForm('liveUrl', event.target.value)} /></label>
+            <label className="space-y-1 text-sm font-medium">GitHub HTTPS URL<Input type="url" placeholder="https://github.com/" value={form.githubUrl} onChange={(event) => updateForm('githubUrl', event.target.value)} /></label>
+            <label className="space-y-1 text-sm font-medium">Tags<Input placeholder="web, automation" value={form.tags} onChange={(event) => updateForm('tags', event.target.value)} /></label>
+            <label className="space-y-1 text-sm font-medium">Sort order<Input type="number" min={0} value={form.order} onChange={(event) => updateForm('order', Number(event.target.value))} /></label>
+            <div className="flex flex-wrap items-center gap-4 md:col-span-2">
+              <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={form.published} onChange={(event) => updateForm('published', event.target.checked)} /> Published</label>
+              <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={form.featured} onChange={(event) => updateForm('featured', event.target.checked)} /> Featured</label>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex gap-2 md:col-span-2">
+              <Button type="submit" disabled={saving}><Save className="me-2 h-4 w-4" />{saving ? 'Saving…' : 'Save project'}</Button>
+              {form.id && <Button type="button" variant="outline" onClick={() => setForm(emptyForm)}><X className="me-2 h-4 w-4" />Cancel</Button>}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Portfolio projects</CardTitle><CardDescription>{loading ? 'Loading…' : `${projects.length} project(s)`}</CardDescription></CardHeader>
+        <CardContent>
+          {error ? <div role="alert" className="rounded-md border border-destructive/40 p-4 text-destructive">{error}</div> : null}
+          {!loading && !error && projects.length === 0 ? <div className="rounded-md border border-dashed p-6 text-center text-muted-foreground">No portfolio projects yet.</div> : null}
+          <div className="space-y-3">
+            {projects.map((project) => (
+              <div key={project.id} className="flex flex-col gap-3 rounded-lg border p-4 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong>{project.title}</strong><Badge variant="outline">portfolio</Badge><Badge variant={project.published ? 'default' : 'secondary'}>{project.published ? 'Published' : 'Draft'}</Badge>{project.featured && <Badge>Featured</Badge>}</div><p className="mt-1 truncate text-sm text-muted-foreground">#{project.order} · {project.description}</p></div>
+                <div className="flex shrink-0 gap-2"><Button type="button" variant="outline" size="sm" onClick={() => setForm(toForm(project))}><Pencil className="me-2 h-4 w-4" />Edit</Button><Button type="button" variant="ghost" size="sm" onClick={() => void deleteProject(project.id)} aria-label={`Delete ${project.title}`}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
