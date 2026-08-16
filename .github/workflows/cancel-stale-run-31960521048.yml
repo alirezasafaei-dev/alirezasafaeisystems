@@ -1,0 +1,74 @@
+name: Cancel One Obsolete Workflow Run
+
+on:
+  push:
+    branches:
+      - verify/cancel-stale-run-31960521048
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      TARGET_RUN_ID: '31960521048'
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Confirm target is still obsolete and cancel it
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo_api="repos/${GH_REPO}"
+          current_main="$(gh api "${repo_api}/git/ref/heads/main" --jq '.object.sha')"
+          target_status="$(gh api "${repo_api}/actions/runs/${TARGET_RUN_ID}" --jq '.status')"
+          target_sha="$(gh api "${repo_api}/actions/runs/${TARGET_RUN_ID}" --jq '.head_sha')"
+          target_branch="$(gh api "${repo_api}/actions/runs/${TARGET_RUN_ID}" --jq '.head_branch')"
+
+          echo "target_status=${target_status} target_branch=${target_branch}"
+          echo "target_sha=${target_sha} current_main=${current_main}"
+
+          if [ "$target_branch" != "main" ]; then
+            echo "::error::Refusing to cancel: target is not the explicitly reviewed legacy main run."
+            exit 1
+          fi
+          if [ "$target_sha" = "$current_main" ]; then
+            echo "::error::Refusing to cancel: target is the current main head."
+            exit 1
+          fi
+          case "$target_status" in
+            queued|pending|in_progress|waiting|requested)
+              gh api --method POST "${repo_api}/actions/runs/${TARGET_RUN_ID}/cancel"
+              ;;
+            completed)
+              echo "Target already completed; no cancellation needed."
+              ;;
+            *)
+              echo "::error::Unexpected target status: $target_status"
+              exit 1
+              ;;
+          esac
+
+      - name: Verify cancellation/completion state
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo_api="repos/${GH_REPO}"
+          for attempt in $(seq 1 20); do
+            status="$(gh api "${repo_api}/actions/runs/${TARGET_RUN_ID}" --jq '.status')"
+            conclusion="$(gh api "${repo_api}/actions/runs/${TARGET_RUN_ID}" --jq '.conclusion // ""')"
+            echo "attempt=${attempt} status=${status} conclusion=${conclusion}"
+            if [ "$status" = "completed" ]; then
+              case "$conclusion" in
+                cancelled|success|failure|timed_out|neutral|skipped|action_required|stale)
+                  exit 0
+                  ;;
+              esac
+            fi
+            sleep 3
+          done
+          echo "::error::Target did not reach a terminal state in time."
+          exit 1
