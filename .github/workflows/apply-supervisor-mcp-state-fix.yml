@@ -26,36 +26,33 @@ jobs:
 
           path = Path('scripts/control-plane/asdev-supervisor.sh')
           text = path.read_text()
-          old = '''check_mcp_health() {
-            local mcp_check="$REPO_DIR/scripts/control-plane/mcp-health-check-v2.sh"
-            if [ -x "$mcp_check" ]; then
-              if bash "$mcp_check" 2>/dev/null; then
-                local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"
-                if [ -f "$mcp_state" ]; then
-          '''
-          new = '''check_mcp_health() {
-            local mcp_check="$REPO_DIR/scripts/control-plane/mcp-health-check-v2.sh"
-            local mcp_state_dir="$REPO_DIR/.state/asdev-mcp"
-            local mcp_state="$mcp_state_dir/latest.json"
-            if [ -x "$mcp_check" ]; then
-              mkdir -p "$mcp_state_dir"
-              if ASDEV_STATE_DIR="$mcp_state_dir" bash "$mcp_check" 2>/dev/null; then
-                if [ -f "$mcp_state" ]; then
-          '''
-          if text.count(old) != 1:
-              raise SystemExit(f'expected exactly one success-path snippet, found {text.count(old)}')
-          text = text.replace(old, new, 1)
 
-          old_else = '''            else
-                local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"
-                if [ -f "$mcp_state" ]; then
-          '''
-          new_else = '''            else
-                if [ -f "$mcp_state" ]; then
-          '''
-          if text.count(old_else) != 1:
-              raise SystemExit(f'expected exactly one failure-path snippet, found {text.count(old_else)}')
-          text = text.replace(old_else, new_else, 1)
+          marker = '  local mcp_check="$REPO_DIR/scripts/control-plane/mcp-health-check-v2.sh"\n'
+          if text.count(marker) != 1:
+              raise SystemExit(f'expected exactly one MCP checker marker, found {text.count(marker)}')
+          text = text.replace(
+              marker,
+              marker +
+              '  local mcp_state_dir="$REPO_DIR/.state/asdev-mcp"\n' +
+              '  local mcp_state="$mcp_state_dir/latest.json"\n',
+              1,
+          )
+
+          invocation = '    if bash "$mcp_check" 2>/dev/null; then\n'
+          if text.count(invocation) != 1:
+              raise SystemExit(f'expected exactly one MCP invocation, found {text.count(invocation)}')
+          text = text.replace(
+              invocation,
+              '    mkdir -p "$mcp_state_dir"\n'
+              '    if ASDEV_STATE_DIR="$mcp_state_dir" bash "$mcp_check" 2>/dev/null; then\n',
+              1,
+          )
+
+          duplicate_state = '      local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"\n'
+          if text.count(duplicate_state) != 2:
+              raise SystemExit(f'expected exactly two duplicate MCP state declarations, found {text.count(duplicate_state)}')
+          text = text.replace(duplicate_state, '')
+
           path.write_text(text)
           PY
 
