@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: mother-e2e-smoke-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   smoke:
     runs-on: [self-hosted, linux, x64, asdev-ci]

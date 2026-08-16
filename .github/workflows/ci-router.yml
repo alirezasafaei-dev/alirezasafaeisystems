@@ -7,9 +7,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: mother-ci-router-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   safe-checks:
     runs-on: [self-hosted, linux, x64, asdev-ci]
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
