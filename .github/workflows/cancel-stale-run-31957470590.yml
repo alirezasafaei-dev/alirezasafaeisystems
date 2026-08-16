@@ -1,0 +1,80 @@
+name: Cancel Obsolete Discover CodeQL Run
+
+on:
+  push:
+    branches:
+      - verify/cancel-stale-run-31957470590
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      TARGET_RUN_ID: '31957470590'
+      EXPECTED_TARGET_SHA: 'b870a09d5bd53100d82f26031c8b8ddf6787826e'
+      EXPECTED_BRANCH: 'agent/discover-acquisition-surface-20260815'
+      PR_NUMBER: '133'
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Guard target and cancel only if superseded
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          current_pr_head="$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          target_json="$(gh api "${api}/actions/runs/${TARGET_RUN_ID}")"
+          status="$(jq -r '.status' <<<"$target_json")"
+          target_sha="$(jq -r '.head_sha' <<<"$target_json")"
+          target_branch="$(jq -r '.head_branch' <<<"$target_json")"
+
+          echo "status=${status} target_sha=${target_sha} current_pr_head=${current_pr_head}"
+          test "$target_branch" = "$EXPECTED_BRANCH" || { echo '::error::Target branch mismatch'; exit 1; }
+          test "$target_sha" = "$EXPECTED_TARGET_SHA" || { echo '::error::Target SHA mismatch'; exit 1; }
+          test "$current_pr_head" != "$target_sha" || { echo '::error::Refusing to cancel current PR head'; exit 1; }
+
+          case "$status" in
+            completed)
+              echo 'Target already terminal.'
+              exit 0
+              ;;
+            queued|pending|in_progress|waiting|requested)
+              set +e
+              response="$(gh api --method POST "${api}/actions/runs/${TARGET_RUN_ID}/cancel" 2>&1)"
+              rc=$?
+              set -e
+              if [ "$rc" -ne 0 ]; then
+                echo "$response"
+                final_status="$(gh api "${api}/actions/runs/${TARGET_RUN_ID}" --jq '.status')"
+                if [ "$final_status" != 'completed' ]; then
+                  exit "$rc"
+                fi
+              fi
+              ;;
+            *)
+              echo "::error::Unexpected target status: $status"
+              exit 1
+              ;;
+          esac
+
+      - name: Verify terminal state
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          for attempt in $(seq 1 20); do
+            status="$(gh api "${api}/actions/runs/${TARGET_RUN_ID}" --jq '.status')"
+            conclusion="$(gh api "${api}/actions/runs/${TARGET_RUN_ID}" --jq '.conclusion // ""')"
+            echo "attempt=${attempt} status=${status} conclusion=${conclusion}"
+            if [ "$status" = completed ]; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo '::error::Target did not reach terminal state.'
+          exit 1
