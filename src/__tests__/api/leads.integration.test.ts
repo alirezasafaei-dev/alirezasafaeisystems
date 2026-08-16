@@ -112,19 +112,17 @@ describe('lead API integration', () => {
 
   it('recovers utm_content from a same-origin qualification referrer', async () => {
     const { POST } = await import('@/app/api/leads/route')
-    const referer = 'http://localhost:3000/qualification?utm_source=instagram&utm_medium=social&utm_campaign=ai-tools&utm_content=reel-123'
+    const referrer = 'http://localhost:3000/qualification?utm_source=instagram&utm_medium=social&utm_campaign=ai-tools&utm_content=reel-123'
     const request = new NextRequest('http://localhost:3000/api/leads', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        referer,
-      },
+      headers: { 'content-type': 'application/json' },
+      referrer,
       body: JSON.stringify(validLeadPayload),
     })
 
-    expect(request.headers.get('referer')).toBe(referer)
+    expect(request.headers.get('referer')).toBeNull()
+    expect(request.referrer).toBe(referrer)
     expect(new URL(request.url).origin).toBe('http://localhost:3000')
-    expect(request.nextUrl.origin).toBe('http://localhost:3000')
 
     const response = await POST(request)
 
@@ -143,10 +141,8 @@ describe('lead API integration', () => {
     const { POST } = await import('@/app/api/leads/route')
     const request = new NextRequest('http://localhost:3000/api/leads', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        referer: 'https://attacker.example/qualification?utm_content=fake-reel',
-      },
+      headers: { 'content-type': 'application/json' },
+      referrer: 'https://attacker.example/qualification?utm_content=fake-reel',
       body: JSON.stringify(validLeadPayload),
     })
 
