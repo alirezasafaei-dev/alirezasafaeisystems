@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { MessageSquare, Briefcase, BarChart3, Users, Trash2, LogOut, ClipboardList, Search } from 'lucide-react'
+import { MessageSquare, Briefcase, BarChart3, Users, Trash2, LogOut, ClipboardList, Search, Compass } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { DiscoverManager } from '@/components/admin/discover-manager'
 import { ProjectManager } from '@/components/admin/project-manager'
 
 interface LeadData {
@@ -47,7 +48,7 @@ interface Message {
 
 export function AdminDashboard() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'leads' | 'messages' | 'projects' | 'stats'>('leads')
+  const [activeTab, setActiveTab] = useState<'leads' | 'messages' | 'projects' | 'discover' | 'stats'>('leads')
   const [leads, setLeads] = useState<LeadData[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [leadsLoading, setLeadsLoading] = useState(false)
@@ -173,7 +174,7 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage leads, messages, and portfolio content</p>
+              <p className="text-muted-foreground">Manage leads, messages, portfolio, and Discover content</p>
             </div>
             <Button variant="outline" onClick={logout}>
               <LogOut className="h-4 w-4 mr-2" />
@@ -255,6 +256,13 @@ export function AdminDashboard() {
           >
             <Briefcase className="h-4 w-4 mr-2" />
             Projects
+          </Button>
+          <Button
+            variant={activeTab === 'discover' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('discover')}
+          >
+            <Compass className="h-4 w-4 mr-2" />
+            Discover
           </Button>
           <Button
             variant={activeTab === 'stats' ? 'default' : 'outline'}
@@ -549,6 +557,10 @@ export function AdminDashboard() {
 
         {activeTab === 'projects' && (
           <ProjectManager />
+        )}
+
+        {activeTab === 'discover' && (
+          <DiscoverManager />
         )}
 
         {activeTab === 'stats' && (
