@@ -28,6 +28,7 @@ export const leadSchema = z.object({
   utmSource: z.string().max(120).optional().default(''),
   utmMedium: z.string().max(120).optional().default(''),
   utmCampaign: z.string().max(120).optional().default(''),
+  utmContent: z.string().max(120).optional().default(''),
 })
 
 export type LeadPayload = z.infer<typeof leadSchema>
@@ -90,5 +91,6 @@ export function normalizeLeadPayload(input: LeadPayload): LeadPayload {
     utmSource: input.utmSource.trim().substring(0, 120),
     utmMedium: input.utmMedium.trim().substring(0, 120),
     utmCampaign: input.utmCampaign.trim().substring(0, 120),
+    utmContent: input.utmContent.trim().substring(0, 120),
   }
 }
