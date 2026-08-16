@@ -26,6 +26,7 @@ ON "DiscoverItem"("category", "published");
 
 -- Preserve any Discover content already created through the earlier Project-based implementation.
 -- Stable legacy ids/slugs avoid unsafe transliteration and guarantee uniqueness.
+-- Legacy URLs predate the strict Discover URL contract, so copy only HTTPS destinations/images.
 INSERT INTO "DiscoverItem" (
     "id",
     "slug",
@@ -50,10 +51,17 @@ SELECT
     "title",
     "description",
     COALESCE(NULLIF("longDescription", ''), "description"),
-    COALESCE(NULLIF("liveUrl", ''), NULLIF("githubUrl", ''), 'https://alirezasafaeisystems.ir/'),
+    CASE
+        WHEN lower(COALESCE("liveUrl", '')) LIKE 'https://%' THEN "liveUrl"
+        WHEN lower(COALESCE("githubUrl", '')) LIKE 'https://%' THEN "githubUrl"
+        ELSE 'https://alirezasafaeisystems.ir/'
+    END,
     'Legacy',
     "tags",
-    "imageUrl",
+    CASE
+        WHEN lower(COALESCE("imageUrl", '')) LIKE 'https://%' THEN "imageUrl"
+        ELSE NULL
+    END,
     NULL,
     "featured",
     "published",
