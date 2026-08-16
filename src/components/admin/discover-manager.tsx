@@ -102,7 +102,11 @@ export function DiscoverManager() {
   }, [])
 
   useEffect(() => {
-    void loadItems()
+    const timeout = window.setTimeout(() => {
+      void loadItems()
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
   }, [loadItems])
 
   const filteredItems = useMemo(() => {
