@@ -40,7 +40,7 @@ This repo is both the **ASDEV mother repository** (strategy, governance, agent r
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:3001
+pnpm dev      # http://localhost:3000
 pnpm build
 pnpm start
 ```
