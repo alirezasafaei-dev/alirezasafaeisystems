@@ -91,8 +91,9 @@ run_mcp_check() {
   local start_ns
   start_ns=$(date +%s%N 2>/dev/null || echo 0)
 
-  # Phase 1: Initial request without following redirects
-  # Capture the initial HTTP response to detect the redirect pattern
+  # Phase 1: Initial request without following redirects.
+  # This script intentionally does not enable `set -e`, so preserve curl's
+  # real exit status directly instead of masking it with `|| true`.
   initial_status=$(curl \
     -sS \
     -o "$tmp_body" \
@@ -102,9 +103,9 @@ run_mcp_check() {
     --max-time "$TOTAL_TIMEOUT" \
     --tlsv1.2 \
     -A "ASDEV-MCP-Check/2.0" \
-    "$MCP_URL" 2>/dev/null) || true
-
+    "$MCP_URL" 2>/dev/null)
   local phase1_exit=$?
+
   local end_ns
   end_ns=$(date +%s%N 2>/dev/null || echo 0)
 
@@ -122,12 +123,10 @@ run_mcp_check() {
   http_code="$initial_status"
   curl_exit_code=$phase1_exit
 
-  # Classify failure modes
+  # Classify specific transport failures before the generic HTTP 000 fallback.
   failure_class="none"
 
-  if [ "$http_code" = "000" ]; then
-    failure_class="connection_failure"
-  elif [ "$curl_exit_code" -eq 28 ]; then
+  if [ "$curl_exit_code" -eq 28 ]; then
     failure_class="timeout"
   elif [ "$curl_exit_code" -eq 6 ]; then
     failure_class="dns_failure"
@@ -143,6 +142,8 @@ run_mcp_check() {
     failure_class="redirect_loop"
   elif [ "$curl_exit_code" -eq 49 ]; then
     failure_class="max_redirects"
+  elif [ "$http_code" = "000" ]; then
+    failure_class="connection_failure"
   fi
 
   # Determine verdict
