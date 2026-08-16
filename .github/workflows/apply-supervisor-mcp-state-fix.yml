@@ -1,0 +1,75 @@
+name: Apply Supervisor MCP State Fix
+
+on:
+  push:
+    branches:
+      - 'verify/apply-supervisor-mcp-state-fix-20260816'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/supervisor-mcp-state-isolation-20260816
+          fetch-depth: 0
+      - name: Apply minimal state-path fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/control-plane/asdev-supervisor.sh')
+          text = path.read_text()
+          old = '''check_mcp_health() {
+            local mcp_check="$REPO_DIR/scripts/control-plane/mcp-health-check-v2.sh"
+            if [ -x "$mcp_check" ]; then
+              if bash "$mcp_check" 2>/dev/null; then
+                local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"
+                if [ -f "$mcp_state" ]; then
+          '''
+          new = '''check_mcp_health() {
+            local mcp_check="$REPO_DIR/scripts/control-plane/mcp-health-check-v2.sh"
+            local mcp_state_dir="$REPO_DIR/.state/asdev-mcp"
+            local mcp_state="$mcp_state_dir/latest.json"
+            if [ -x "$mcp_check" ]; then
+              mkdir -p "$mcp_state_dir"
+              if ASDEV_STATE_DIR="$mcp_state_dir" bash "$mcp_check" 2>/dev/null; then
+                if [ -f "$mcp_state" ]; then
+          '''
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one success-path snippet, found {text.count(old)}')
+          text = text.replace(old, new, 1)
+
+          old_else = '''            else
+                local mcp_state="$REPO_DIR/.state/asdev-mcp/latest.json"
+                if [ -f "$mcp_state" ]; then
+          '''
+          new_else = '''            else
+                if [ -f "$mcp_state" ]; then
+          '''
+          if text.count(old_else) != 1:
+              raise SystemExit(f'expected exactly one failure-path snippet, found {text.count(old_else)}')
+          text = text.replace(old_else, new_else, 1)
+          path.write_text(text)
+          PY
+
+          bash -n scripts/control-plane/asdev-supervisor.sh
+          bash -n scripts/control-plane/test-supervisor-mcp-state-isolation.sh
+          git diff --check
+          git diff -- scripts/control-plane/asdev-supervisor.sh
+      - name: Commit fix to target branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'ASDEV GitHub Verifier'
+          git config user.email 'asdev@alirezasafaeisystems.ir'
+          git add scripts/control-plane/asdev-supervisor.sh
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: isolate supervisor MCP state namespace'
+          git push origin HEAD:fix/supervisor-mcp-state-isolation-20260816
