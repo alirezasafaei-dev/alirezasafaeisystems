@@ -112,14 +112,19 @@ describe('lead API integration', () => {
 
   it('recovers utm_content from a same-origin qualification referrer', async () => {
     const { POST } = await import('@/app/api/leads/route')
+    const referer = 'http://localhost:3000/qualification?utm_source=instagram&utm_medium=social&utm_campaign=ai-tools&utm_content=reel-123'
     const request = new NextRequest('http://localhost:3000/api/leads', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        referer: 'http://localhost:3000/qualification?utm_source=instagram&utm_medium=social&utm_campaign=ai-tools&utm_content=reel-123',
+        referer,
       },
       body: JSON.stringify(validLeadPayload),
     })
+
+    expect(request.headers.get('referer')).toBe(referer)
+    expect(new URL(request.url).origin).toBe('http://localhost:3000')
+    expect(request.nextUrl.origin).toBe('http://localhost:3000')
 
     const response = await POST(request)
 
