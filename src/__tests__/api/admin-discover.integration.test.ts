@@ -28,14 +28,16 @@ const validItem = {
   order: 1,
 }
 
-function adminRequest(url: string, init: RequestInit = {}) {
+type NextRequestInit = NonNullable<ConstructorParameters<typeof NextRequest>[1]>
+
+function adminRequest(url: string, init: NextRequestInit = {}) {
+  const headers = new Headers(init.headers)
+  headers.set('authorization', 'Bearer abcdefghijklmnopqrstuvwxyz')
+  if (init.body) headers.set('content-type', 'application/json')
+
   return new NextRequest(url, {
     ...init,
-    headers: {
-      authorization: 'Bearer abcdefghijklmnopqrstuvwxyz',
-      ...(init.body ? { 'content-type': 'application/json' } : {}),
-      ...(init.headers || {}),
-    },
+    headers,
   })
 }
 
