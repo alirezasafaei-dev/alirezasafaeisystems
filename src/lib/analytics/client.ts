@@ -3,6 +3,8 @@
 const CONSENT_KEY = 'asdev_analytics_consent_v1'
 const SESSION_KEY = 'asdev_session_v1'
 
+let fallbackSessionId: string | null = null
+
 const ENDPOINT = process.env['NEXT_PUBLIC_ANALYTICS_ENDPOINT']
   ?? (typeof process !== 'undefined' && process.env?.['NEXT_PUBLIC_SITE_URL']
     ? `${process.env['NEXT_PUBLIC_SITE_URL']}/api/analytics/events`
@@ -20,14 +22,24 @@ function hasConsent(): boolean {
   }
 }
 
+function createSessionId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
+}
+
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'server'
-  let session = localStorage.getItem(SESSION_KEY)
-  if (!session) {
-    session = `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
-    localStorage.setItem(SESSION_KEY, session)
+
+  try {
+    let session = sessionStorage.getItem(SESSION_KEY)
+    if (!session) {
+      session = createSessionId()
+      sessionStorage.setItem(SESSION_KEY, session)
+    }
+    return session
+  } catch {
+    if (!fallbackSessionId) fallbackSessionId = createSessionId()
+    return fallbackSessionId
   }
-  return session
 }
 
 type AnalyticsPayload = {
@@ -47,7 +59,7 @@ export async function trackEvent(payload: AnalyticsPayload): Promise<void> {
     name: payload.name,
     category: payload.category,
     sessionId: getSessionId(),
-    path: typeof window !== 'undefined' ? window.location.pathname : '',
+    path: window.location.pathname,
     locale: payload.locale,
     variant: payload.variant,
     value: payload.value,
