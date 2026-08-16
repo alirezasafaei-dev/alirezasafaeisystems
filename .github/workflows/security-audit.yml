@@ -62,31 +62,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Ensure ripgrep is available
+      - name: Verify scanner availability without mutating runner
         shell: bash
         run: |
           set -euo pipefail
           if command -v rg >/dev/null 2>&1; then
             rg --version | head -n 1
-            exit 0
-          fi
-
-          if command -v apt-get >/dev/null 2>&1; then
-            if [ "$(id -u)" -eq 0 ]; then
-              DEBIAN_FRONTEND=noninteractive apt-get update
-              DEBIAN_FRONTEND=noninteractive apt-get install -y ripgrep
-            elif command -v sudo >/dev/null 2>&1; then
-              sudo -n env DEBIAN_FRONTEND=noninteractive apt-get update
-              sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y ripgrep
+          elif git grep -P -n 'asdev-secret-scan-probe-never-match' -- . >/dev/null 2>&1; then
+            echo "git grep PCRE fallback is available"
+          else
+            status=$?
+            if [ "$status" -eq 1 ]; then
+              echo "git grep PCRE fallback is available"
+            else
+              echo "::error::Neither ripgrep nor a working git-grep PCRE fallback is available."
+              exit 2
             fi
           fi
-
-          if ! command -v rg >/dev/null 2>&1; then
-            echo "::error::ripgrep (rg) is required for the repository secret-scan gate."
-            exit 2
-          fi
-          rg --version | head -n 1
-      - name: Verify secret scan fails closed without scanner
+      - name: Verify secret scan fallback contract
         run: bash scripts/test-scan-secrets.sh
       - name: Run local secret scan gate
         run: bash scripts/scan-secrets.sh
