@@ -1,0 +1,32 @@
+name: Verify Exact Repository Hygiene Head
+
+on:
+  push:
+    branches:
+      - verify/repo-metadata-cff21ab9
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Verify metadata contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          if (pkg.repository?.url !== 'https://github.com/alirezasafaei-dev/alirezasafaeisystems.git') throw new Error('repository.url mismatch');
+          if (pkg.homepage !== 'https://github.com/alirezasafaei-dev/alirezasafaeisystems') throw new Error('homepage mismatch');
+          if (pkg.bugs?.url !== 'https://github.com/alirezasafaei-dev/alirezasafaeisystems/issues') throw new Error('bugs.url mismatch');
+          if (!pkg.scripts?.dev?.includes('-p 3000')) throw new Error('dev port mismatch');
+          NODE
+          grep -qF 'pnpm dev      # http://localhost:3000' README.md
+          ! grep -qF 'localhost:3001' README.md
+          ! grep -qF 'parsairaniiidev/alirezasafaeisystems' package.json
+          git diff --check
