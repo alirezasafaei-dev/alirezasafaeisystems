@@ -45,11 +45,21 @@ async function saveAttachment(file: File, requestId: string): Promise<string> {
   return `storage/leads/${fileName}`
 }
 
+function requestReferrer(request: NextRequest): string | undefined {
+  const headerReferrer = request.headers.get('referer')?.trim()
+  if (headerReferrer) return headerReferrer
+
+  const propertyReferrer = request.referrer?.trim()
+  if (propertyReferrer && propertyReferrer !== 'about:client') return propertyReferrer
+
+  return undefined
+}
+
 function requestAttribution(request: NextRequest, key: string): string | undefined {
   const direct = request.nextUrl.searchParams.get(key)?.trim()
   if (direct) return direct.slice(0, 120)
 
-  const referer = request.headers.get('referer')
+  const referer = requestReferrer(request)
   if (!referer) return undefined
 
   try {
