@@ -4,6 +4,7 @@ import {
   discoverInstagramUrlSchema,
   discoverSlugSchema,
   discoverTagsSchema,
+  discoverUpdateSchema,
   discoverUrlSchema,
   extractDiscoverAttribution,
 } from '@/lib/discover'
@@ -38,6 +39,16 @@ describe('Discover content contracts', () => {
       'https://www.instagram.com/reel/abc/'
     )
     expect(discoverInstagramUrlSchema.safeParse('https://example.com/reel/abc').success).toBe(false)
+  })
+
+  it('does not inject create defaults into partial updates', () => {
+    expect(discoverUpdateSchema.parse({
+      id: 'discover_12345',
+      published: true,
+    })).toEqual({
+      id: 'discover_12345',
+      published: true,
+    })
   })
 
   it('extracts only bounded approved UTM values', () => {

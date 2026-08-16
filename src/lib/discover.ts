@@ -17,6 +17,11 @@ export const discoverSlugSchema = z
   .max(100)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must use lowercase letters, digits, and hyphens only')
 
+const discoverTitleSchema = z.string().trim().min(1).max(140)
+const discoverDescriptionSchema = z.string().trim().min(1).max(400)
+const discoverContentSchema = z.string().trim().min(1).max(8000)
+const discoverCategorySchema = z.string().trim().min(1).max(60)
+const discoverOrderSchema = z.number().int().nonnegative()
 const discoverTagSchema = z.string().trim().min(1).max(40)
 
 export const discoverTagsSchema = z
@@ -61,22 +66,35 @@ export const discoverInstagramUrlSchema = z
 
 export const discoverFieldsSchema = z.object({
   slug: discoverSlugSchema,
-  title: z.string().trim().min(1).max(140),
-  description: z.string().trim().min(1).max(400),
-  content: z.string().trim().min(1).max(8000),
+  title: discoverTitleSchema,
+  description: discoverDescriptionSchema,
+  content: discoverContentSchema,
   externalUrl: discoverUrlSchema,
-  category: z.string().trim().min(1).max(60),
+  category: discoverCategorySchema,
   tags: discoverTagsSchema,
   imageUrl: optionalDiscoverUrlSchema,
   instagramUrl: discoverInstagramUrlSchema,
   featured: z.boolean().optional().default(false),
   published: z.boolean().optional().default(false),
-  order: z.number().int().nonnegative().optional().default(0),
+  order: discoverOrderSchema.optional().default(0),
 })
 
 export const discoverCreateSchema = discoverFieldsSchema
-export const discoverUpdateSchema = discoverFieldsSchema.partial().extend({
+
+export const discoverUpdateSchema = z.object({
   id: z.string().trim().min(10).max(200),
+  slug: discoverSlugSchema.optional(),
+  title: discoverTitleSchema.optional(),
+  description: discoverDescriptionSchema.optional(),
+  content: discoverContentSchema.optional(),
+  externalUrl: discoverUrlSchema.optional(),
+  category: discoverCategorySchema.optional(),
+  tags: discoverTagsSchema.optional(),
+  imageUrl: optionalDiscoverUrlSchema,
+  instagramUrl: discoverInstagramUrlSchema,
+  featured: z.boolean().optional(),
+  published: z.boolean().optional(),
+  order: discoverOrderSchema.optional(),
 })
 
 function normalizeAttributionValue(value: unknown): string | undefined {
