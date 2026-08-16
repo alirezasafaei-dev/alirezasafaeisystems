@@ -1,0 +1,128 @@
+name: Clean Superseded Verification Runs
+
+on:
+  push:
+    branches:
+      - verify/cleanup-stale-verification-runs-20260816
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Cancel superseded verification runs only
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          current_main="$(gh api "${api}/git/ref/heads/main" --jq '.object.sha')"
+          echo "current_main=${current_main}"
+
+          allowed_workflow() {
+            case "$1" in
+              "CI"|"CI Router"|"E2E Smoke"|"Lighthouse Budget"|"Security Audit"|"CodeQL") return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          should_cancel_run() {
+            local run_json="$1"
+            local name event status head_sha head_branch pr_number current_pr_head
+            name="$(jq -r '.name' <<<"$run_json")"
+            event="$(jq -r '.event' <<<"$run_json")"
+            status="$(jq -r '.status' <<<"$run_json")"
+            head_sha="$(jq -r '.head_sha' <<<"$run_json")"
+            head_branch="$(jq -r '.head_branch' <<<"$run_json")"
+
+            allowed_workflow "$name" || return 1
+            case "$status" in queued|pending|in_progress|waiting|requested) ;; *) return 1 ;; esac
+
+            if [ "$event" = pull_request ]; then
+              pr_number="$(jq -r '.pull_requests[0].number // empty' <<<"$run_json")"
+              [ -n "$pr_number" ] || return 1
+              current_pr_head="$(gh api "${api}/pulls/${pr_number}" --jq '.head.sha' 2>/dev/null || true)"
+              [ -n "$current_pr_head" ] || return 1
+              [ "$head_sha" != "$current_pr_head" ] || return 1
+              return 0
+            fi
+
+            if [ "$event" = push ] && [ "$head_branch" = main ]; then
+              [ "$head_sha" != "$current_main" ] || return 1
+              return 0
+            fi
+
+            return 1
+          }
+
+          tmp_runs="$(mktemp)"
+          trap 'rm -f "$tmp_runs"' EXIT
+          gh api --paginate "${api}/actions/runs?per_page=100" --jq '.workflow_runs[] | @base64' > "$tmp_runs"
+
+          reviewed=0
+          cancelled=0
+          skipped=0
+          while IFS= read -r encoded; do
+            [ -n "$encoded" ] || continue
+            run_json="$(printf '%s' "$encoded" | base64 --decode)"
+            run_id="$(jq -r '.id' <<<"$run_json")"
+            name="$(jq -r '.name' <<<"$run_json")"
+            status="$(jq -r '.status' <<<"$run_json")"
+            head_sha="$(jq -r '.head_sha' <<<"$run_json")"
+            head_branch="$(jq -r '.head_branch' <<<"$run_json")"
+            event="$(jq -r '.event' <<<"$run_json")"
+
+            case "$status" in queued|pending|in_progress|waiting|requested) reviewed=$((reviewed+1)) ;; *) continue ;; esac
+
+            if ! should_cancel_run "$run_json"; then
+              skipped=$((skipped+1))
+              continue
+            fi
+
+            # Re-fetch immediately before mutation and re-run the same safety decision.
+            fresh="$(gh api "${api}/actions/runs/${run_id}")"
+            if ! should_cancel_run "$fresh"; then
+              echo "skip-after-refresh run=${run_id} name=${name}"
+              skipped=$((skipped+1))
+              continue
+            fi
+
+            echo "cancel superseded run=${run_id} workflow=${name} event=${event} branch=${head_branch} sha=${head_sha}"
+            set +e
+            output="$(gh api --method POST "${api}/actions/runs/${run_id}/cancel" 2>&1)"
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then
+              final_status="$(gh api "${api}/actions/runs/${run_id}" --jq '.status')"
+              if [ "$final_status" != completed ]; then
+                echo "$output"
+                exit "$rc"
+              fi
+            fi
+            cancelled=$((cancelled+1))
+          done < "$tmp_runs"
+
+          echo "reviewed_active=${reviewed} cancelled_superseded=${cancelled} preserved_or_out_of_scope=${skipped}"
+
+      - name: Verify protected current heads remain
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          current_main="$(gh api "${api}/git/ref/heads/main" --jq '.object.sha')"
+          pr133="$(gh api "${api}/pulls/133" --jq '.head.sha')"
+          pr148="$(gh api "${api}/pulls/148" --jq '.head.sha')"
+          echo "current_main=${current_main}"
+          echo "pr133_current=${pr133}"
+          echo "pr148_current=${pr148}"
+          test -n "$current_main"
+          test -n "$pr133"
+          test -n "$pr148"
+          echo 'Current main and rollout-gated PR heads were read after cleanup; cleanup logic never targets matching current SHAs.'
