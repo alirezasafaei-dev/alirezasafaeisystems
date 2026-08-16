@@ -6,6 +6,7 @@ import { db } from '@/lib/db'
 const analyticsSchema = z.object({
   name: z.string().min(2).max(120),
   category: z.enum(['conversion', 'engagement', 'web_vital']),
+  sessionId: z.string().min(1).max(200).optional(),
   path: z.string().max(200).optional().default(''),
   locale: z.enum(['fa', 'en']).optional(),
   variant: z.string().max(40).optional().default(''),
@@ -50,6 +51,7 @@ export async function POST(request: NextRequest) {
       data: {
         site: 'portfolio',
         event: payload.category,
+        sessionId: payload.sessionId,
         name: payload.name,
         category: payload.category,
         path: payload.path || undefined,
