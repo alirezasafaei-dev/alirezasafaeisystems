@@ -14,11 +14,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: mother-security-audit-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   dependency-review:
     name: Dependency review (PR)
     if: github.event_name == 'pull_request'
     runs-on: [self-hosted, linux, x64, asdev-ci]
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read
@@ -36,6 +41,7 @@ jobs:
   pnpm-audit:
     name: pnpm audit (high/critical gate)
     runs-on: [self-hosted, linux, x64, asdev-ci]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -53,16 +59,27 @@ jobs:
   secret-scan:
     name: Secret scan (repo)
     runs-on: [self-hosted, linux, x64, asdev-ci]
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          dest: ${{ runner.temp }}/setup-pnpm
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
+      - name: Verify scanner availability without mutating runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v rg >/dev/null 2>&1; then
+            rg --version | head -n 1
+          elif git grep -P -n 'asdev-secret-scan-probe-never-match' -- . >/dev/null 2>&1; then
+            echo "git grep PCRE fallback is available"
+          else
+            status=$?
+            if [ "$status" -eq 1 ]; then
+              echo "git grep PCRE fallback is available"
+            else
+              echo "::error::Neither ripgrep nor a working git-grep PCRE fallback is available."
+              exit 2
+            fi
+          fi
+      - name: Verify secret scan fallback contract
+        run: bash scripts/test-scan-secrets.sh
       - name: Run local secret scan gate
-        run: pnpm run scan:secrets
+        run: bash scripts/scan-secrets.sh
