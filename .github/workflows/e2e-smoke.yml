@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: mother-e2e-smoke-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   smoke:
     runs-on: [self-hosted, linux, x64, asdev-ci]
@@ -27,6 +31,11 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - name: Install Chromium without host package mutation
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
+        run: pnpm exec playwright install chromium
       - name: Run smoke tests
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
         run: pnpm run test:e2e:smoke
