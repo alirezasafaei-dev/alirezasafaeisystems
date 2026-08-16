@@ -17,6 +17,33 @@ NC='\033[0m'
 FOUND_EXTERNAL=0
 WARNINGS=()
 
+# Scanner contract: ripgrep is required for the repository/build scans below.
+# Resolve it before defining the wrapper so a missing or broken scanner can
+# never be interpreted as a clean scan by legacy `|| true` call sites.
+RG_BIN="${EXTERNAL_SCAN_RG_BIN:-rg}"
+if ! RG_PATH="$(command -v "$RG_BIN" 2>/dev/null)" || [ -z "$RG_PATH" ]; then
+    echo -e "${RED}❌ External scan unavailable: required scanner '$RG_BIN' was not found.${NC}" >&2
+    exit 2
+fi
+
+RG_ERROR_FILE="$(mktemp)"
+trap 'rm -f "$RG_ERROR_FILE"' EXIT
+
+rg() {
+    local status
+    set +e
+    "$RG_PATH" "$@"
+    status=$?
+    set -e
+
+    # ripgrep: 0=match, 1=no match, >1=runtime/scanner error.
+    if [ "$status" -gt 1 ]; then
+        printf '%s\n' "$status" >> "$RG_ERROR_FILE"
+        echo "External scan scanner error: ripgrep exited with status $status." >&2
+    fi
+    return "$status"
+}
+
 # Allowed exceptions (documented and intentional)
 ALLOWLIST_FILE="${EXTERNAL_SCAN_ALLOWLIST_FILE:-scripts/external-scan-allowlist.txt}"
 ALLOWED_EXTERNALS=()
@@ -133,17 +160,17 @@ else
     fi
 fi
 
-	# Scan public text files only (-I ignores binary files)
-	if [ -d "public" ]; then
-	    echo "Checking public/ text assets for external URLs..."
-	    PUB_EXTERNALS=$(grep -rInI "https\\?://" public/ --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.webp" --exclude="*.ico" --exclude="*.woff" --exclude="*.woff2" --exclude="*.ttf" --exclude="*.otf" 2>/dev/null || true)
-	    FILTERED_PUB_EXTERNALS=$(print_filtered_matches "$PUB_EXTERNALS")
-	    if [ -n "$FILTERED_PUB_EXTERNALS" ]; then
-	        echo -e "${YELLOW}⚠ Found external URLs in public/ text assets:${NC}"
-	        echo "$FILTERED_PUB_EXTERNALS"
-	        WARNINGS+=("External URLs in public text assets")
-	    fi
-	fi
+# Scan public text files only (-I ignores binary files)
+if [ -d "public" ]; then
+    echo "Checking public/ text assets for external URLs..."
+    PUB_EXTERNALS=$(grep -rInI "https\\?://" public/ --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.webp" --exclude="*.ico" --exclude="*.woff" --exclude="*.woff2" --exclude="*.ttf" --exclude="*.otf" 2>/dev/null || true)
+    FILTERED_PUB_EXTERNALS=$(print_filtered_matches "$PUB_EXTERNALS")
+    if [ -n "$FILTERED_PUB_EXTERNALS" ]; then
+        echo -e "${YELLOW}⚠ Found external URLs in public/ text assets:${NC}"
+        echo "$FILTERED_PUB_EXTERNALS"
+        WARNINGS+=("External URLs in public text assets")
+    fi
+fi
 
 # Scan config files
 echo ""
@@ -263,6 +290,15 @@ if [ -n "$FILTERED_FONT_REFS" ]; then
     echo -e "${RED}❌ Found Google Fonts references (MUST be self-hosted):${NC}"
     echo "$FILTERED_FONT_REFS"
     FOUND_EXTERNAL=1
+fi
+
+# Scanner/runtime errors are never equivalent to "no matches". Check the
+# marker immediately before the summary so legacy capture sites cannot hide
+# a failed scan.
+if [ -s "$RG_ERROR_FILE" ]; then
+    FIRST_RG_ERROR="$(head -n 1 "$RG_ERROR_FILE")"
+    echo -e "${RED}❌ External dependency scan incomplete: ripgrep failed (status ${FIRST_RG_ERROR}).${NC}" >&2
+    exit 2
 fi
 
 # Summary
