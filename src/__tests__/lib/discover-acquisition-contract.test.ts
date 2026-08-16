@@ -38,6 +38,12 @@ describe('Discover acquisition surface contract', () => {
     expect(projectManager).not.toContain('DiscoverManager')
   })
 
+  it('allows curated HTTPS Discover images through the site CSP', () => {
+    const proxy = source('src/proxy.ts')
+
+    expect(proxy).toContain('"img-src \'self\' data: blob: https:"')
+  })
+
   it('documents Discover as an ASDEV acquisition surface in the focus policy', () => {
     const focusPolicy = source('docs/strategy/FOCUS_POLICY.md')
 
