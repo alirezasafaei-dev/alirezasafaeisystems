@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Shell syntax
         run: |
           bash -n scripts/control-plane/asdev-supervisor.sh
