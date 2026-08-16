@@ -1,0 +1,36 @@
+name: Repository Metadata Verify
+
+on:
+  push:
+    branches:
+      - verify/repo-metadata-97b80498
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Validate package metadata and dev port
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs')
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+          const expectedRepo = 'https://github.com/alirezasafaei-dev/alirezasafaeisystems.git'
+          const expectedHome = 'https://github.com/alirezasafaei-dev/alirezasafaeisystems'
+          const expectedIssues = 'https://github.com/alirezasafaei-dev/alirezasafaeisystems/issues'
+          if (pkg.repository?.url !== expectedRepo) throw new Error(`repository.url=${pkg.repository?.url}`)
+          if (pkg.homepage !== expectedHome) throw new Error(`homepage=${pkg.homepage}`)
+          if (pkg.bugs?.url !== expectedIssues) throw new Error(`bugs.url=${pkg.bugs?.url}`)
+          if (!pkg.scripts?.dev?.includes('next dev -p 3000')) throw new Error(`dev=${pkg.scripts?.dev}`)
+          NODE
+      - name: Validate README quick-start port
+        run: |
+          grep -qF 'pnpm dev      # http://localhost:3000' README.md
+          if grep -qF 'http://localhost:3001' README.md; then
+            echo '::error::README still references localhost:3001'
+            exit 1
+          fi
