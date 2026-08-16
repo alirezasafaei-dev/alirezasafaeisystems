@@ -1,0 +1,97 @@
+name: Clean Merged PR 136 Verification Runs
+
+on:
+  push:
+    branches:
+      - verify/cleanup-merged-pr136-runs-20260816
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: '136'
+      EXPECTED_BRANCH: 'fix/ci-runner-hardening-20260816'
+      EXPECTED_HEAD: '176d20bcbe2a6fee8a4291bc62624bed31882234'
+    steps:
+      - name: Prove PR is merged and cancel only its obsolete verification runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          pr="$(gh api "${api}/pulls/${PR_NUMBER}")"
+          state="$(jq -r '.state' <<<"$pr")"
+          merged_at="$(jq -r '.merged_at // empty' <<<"$pr")"
+          head_branch="$(jq -r '.head.ref' <<<"$pr")"
+          head_sha="$(jq -r '.head.sha' <<<"$pr")"
+
+          test "$state" = closed || { echo '::error::PR is not closed'; exit 1; }
+          test -n "$merged_at" || { echo '::error::PR is not merged'; exit 1; }
+          test "$head_branch" = "$EXPECTED_BRANCH" || { echo '::error::PR branch mismatch'; exit 1; }
+          test "$head_sha" = "$EXPECTED_HEAD" || { echo '::error::PR head mismatch'; exit 1; }
+
+          allowed_workflow() {
+            case "$1" in
+              "CI"|"CI Router"|"E2E Smoke"|"Lighthouse Budget"|"Security Audit"|"CodeQL") return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          runs="$(gh api --paginate "${api}/actions/runs?branch=${EXPECTED_BRANCH}&per_page=100")"
+          mapfile -t ids < <(
+            jq -r --arg sha "$EXPECTED_HEAD" '
+              .workflow_runs[]
+              | select(.head_sha == $sha)
+              | select(.event == "pull_request")
+              | select(.status == "queued" or .status == "pending" or .status == "in_progress" or .status == "waiting" or .status == "requested")
+              | [.id, .name] | @tsv
+            ' <<<"$runs"
+          )
+
+          cancelled=0
+          for row in "${ids[@]}"; do
+            run_id="${row%%$'\t'*}"
+            name="${row#*$'\t'}"
+            allowed_workflow "$name" || continue
+            fresh="$(gh api "${api}/actions/runs/${run_id}")"
+            fresh_status="$(jq -r '.status' <<<"$fresh")"
+            fresh_sha="$(jq -r '.head_sha' <<<"$fresh")"
+            fresh_branch="$(jq -r '.head_branch' <<<"$fresh")"
+            fresh_event="$(jq -r '.event' <<<"$fresh")"
+            test "$fresh_sha" = "$EXPECTED_HEAD" || continue
+            test "$fresh_branch" = "$EXPECTED_BRANCH" || continue
+            test "$fresh_event" = pull_request || continue
+            case "$fresh_status" in queued|pending|in_progress|waiting|requested) ;; *) continue ;; esac
+
+            echo "cancel merged-pr run=${run_id} workflow=${name} status=${fresh_status}"
+            set +e
+            output="$(gh api --method POST "${api}/actions/runs/${run_id}/cancel" 2>&1)"
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then
+              terminal="$(gh api "${api}/actions/runs/${run_id}" --jq '.status')"
+              if [ "$terminal" != completed ]; then
+                echo "$output"
+                exit "$rc"
+              fi
+            fi
+            cancelled=$((cancelled+1))
+          done
+
+          echo "merged_pr=${PR_NUMBER} cancelled_active_runs=${cancelled}"
+
+      - name: Verify merged PR remains closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/${GH_REPO}"
+          test "$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.state')" = closed
+          test -n "$(gh api "${api}/pulls/${PR_NUMBER}" --jq '.merged_at // empty')"
+          echo 'Merged PR state preserved; only obsolete verification runs were targeted.'
