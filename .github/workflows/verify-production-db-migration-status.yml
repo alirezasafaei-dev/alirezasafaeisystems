@@ -57,34 +57,55 @@ jobs:
             set -a
             source /var/www/my-portfolio/shared/env/production.env
             set +a
+
             case "${DATABASE_URL:-}" in
               file:/*)
                 echo "[diagnostic] database URL class: absolute SQLite"
                 DB_SPEC="${DATABASE_URL#file:}"
                 DB_SPEC="${DB_SPEC%%\?*}"
-                DB_PATH="$DB_SPEC"
                 ;;
               file:*)
                 echo "[diagnostic] database URL class: relative SQLite"
                 DB_SPEC="${DATABASE_URL#file:}"
                 DB_SPEC="${DB_SPEC%%\?*}"
-                DB_PATH="$(realpath -m "$CURRENT/prisma/$DB_SPEC")"
                 ;;
               *)
                 echo "[diagnostic] database URL class: unsupported by current SQLite schema" >&2
                 exit 2
                 ;;
             esac
-            test -f "$DB_PATH"
-            echo "[diagnostic] production database file exists"
-            RELEASE_ROOT="$(realpath -m /var/www/my-portfolio/releases/production)"
-            case "$DB_PATH" in
-              "$RELEASE_ROOT"/*)
-                echo "[diagnostic] database persistence: release-scoped (unsafe for immutable releases)" >&2
-                ;;
-              *)
-                echo "[diagnostic] database persistence: outside release tree"
-                ;;
-            esac
+
+            if [[ "$DB_SPEC" = /* ]]; then
+              candidate_absolute="$DB_SPEC"
+            else
+              candidate_absolute=""
+            fi
+            candidate_cwd="$(realpath -m "$CURRENT/$DB_SPEC")"
+            candidate_schema="$(realpath -m "$CURRENT/prisma/$DB_SPEC")"
+
+            absolute_exists=false
+            cwd_exists=false
+            schema_exists=false
+            [[ -n "$candidate_absolute" && -f "$candidate_absolute" ]] && absolute_exists=true
+            [[ -f "$candidate_cwd" ]] && cwd_exists=true
+            [[ -f "$candidate_schema" ]] && schema_exists=true
+
+            echo "[diagnostic] candidate exists: absolute=${absolute_exists} cwd=${cwd_exists} schema=${schema_exists}"
+
+            node <<'"'"'NODE'"'"'
+const { PrismaClient } = require("@prisma/client")
+const prisma = new PrismaClient()
+;(async () => {
+  const tables = await prisma.$queryRawUnsafe("SELECT name FROM sqlite_master WHERE type = 'table'")
+  const names = new Set(tables.map((row) => String(row.name)))
+  console.log(`[diagnostic] Prisma Client connection: success; tables=${names.size}`)
+  console.log(`[diagnostic] migration table present: ${names.has('_prisma_migrations')}`)
+  if (names.has('_prisma_migrations')) {
+    const rows = await prisma.$queryRawUnsafe("SELECT migration_name, finished_at, rolled_back_at FROM _prisma_migrations ORDER BY started_at")
+    console.log(`[diagnostic] migration rows=${rows.length}; unfinished=${rows.filter((row) => !row.finished_at && !row.rolled_back_at).length}`)
+  }
+})().finally(() => prisma.$disconnect())
+NODE
+
             pnpm exec prisma migrate status
           '
