@@ -9,8 +9,8 @@ describe('production database migration safety', () => {
     const buildIndex = deploy.indexOf('pnpm run build')
     const migrationIndex = deploy.indexOf('pnpm exec prisma migrate deploy')
     const migrationStatusIndex = deploy.indexOf('pnpm exec prisma migrate status')
-    const replaceAppIndex = deploy.indexOf('pm2 delete "$APP_NAME"')
-    const publishLinkIndex = deploy.indexOf('ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"')
+    const replaceAppIndex = deploy.indexOf('pm2 delete "$APP_NAME"', migrationStatusIndex)
+    const publishLinkIndex = deploy.indexOf('ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"', replaceAppIndex)
 
     expect(deploy).toContain('DATABASE_URL must use an absolute SQLite file URL')
     expect(deploy).toContain('DB_PATH="${DATABASE_URL#file:}"')
