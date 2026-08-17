@@ -44,10 +44,13 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 describe('DiscoverManager', () => {
+  let confirmMock: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
     toastMock.mockReset()
+    confirmMock = vi.fn().mockReturnValue(true)
     vi.stubGlobal('scrollTo', vi.fn())
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    vi.stubGlobal('confirm', confirmMock)
   })
 
   afterEach(() => {
@@ -153,7 +156,7 @@ describe('DiscoverManager', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete Draft Tool Updated' }))
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3))
-    expect(window.confirm).toHaveBeenCalledWith('Delete “Draft Tool Updated” permanently?')
+    expect(confirmMock).toHaveBeenCalledWith('Delete “Draft Tool Updated” permanently?')
     expect(fetchMock.mock.calls[2]?.[0]).toBe('/api/admin/discover?id=discover-item-0001')
     expect((fetchMock.mock.calls[2]?.[1] as RequestInit).method).toBe('DELETE')
   })
