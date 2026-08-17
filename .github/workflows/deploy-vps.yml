@@ -62,6 +62,8 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Provision ripgrep scanner
+        run: bash scripts/ci/bootstrap-ripgrep.sh
       - name: Verify
         run: pnpm run verify
 
