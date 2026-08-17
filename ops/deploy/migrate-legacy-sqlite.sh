@@ -71,7 +71,11 @@ if [[ "$DATABASE_URL" == file:/* ]]; then
 fi
 
 if [[ -e "$MIGRATION_MARKER" ]]; then
-  echo "[sqlite-relocation] one-time SQLite relocation has already been consumed; refusing a new relative-path migration" >&2
+  if [[ -f "$PERSISTENT_DB_PATH" ]]; then
+    echo "[sqlite-relocation] relocation marker and persistent SQLite state verified; no migration required"
+    exit 0
+  fi
+  echo "[sqlite-relocation] relocation marker exists but persistent SQLite state is missing; refusing unsafe continuation" >&2
   exit 1
 fi
 
