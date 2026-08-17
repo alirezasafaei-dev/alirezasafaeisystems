@@ -77,7 +77,7 @@ jobs:
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
     env:
       TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
-      TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
+      TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}`n      DEPLOY_BASE_DIR: /srv/asdev/sites/alirezasafaeisystems`n      DEPLOY_APP_SLUG: alirezasafaeisystems`n      DEPLOY_PERSISTENT_DB_PATH: /var/lib/alirezasafaeisystems/custom.db
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER }}
       VPS_PORT: ${{ secrets.VPS_PORT }}
@@ -151,22 +151,22 @@ jobs:
         run: |
           set -euo pipefail
           ssh -F ~/.ssh/config deploy-target \
-            "cd '$REMOTE_TMP' && bash ops/deploy/migrate-legacy-sqlite.sh --env '$TARGET_ENV'"
+            "cd '$REMOTE_TMP' && BASE_DIR='$DEPLOY_BASE_DIR' APP_SLUG='$DEPLOY_APP_SLUG' PERSISTENT_DB_PATH='$DEPLOY_PERSISTENT_DB_PATH' bash ops/deploy/migrate-legacy-sqlite.sh --env '$TARGET_ENV'"
 
       - name: Execute remote deploy
         run: |
           set -euo pipefail
           ssh -F ~/.ssh/config deploy-target \
-            "cd '$REMOTE_TMP' && bash ops/deploy/deploy.sh --env '$TARGET_ENV' --source-dir '$REMOTE_TMP' --release-id '$RELEASE_ID' --keep-releases 3"
+            "cd '$REMOTE_TMP' && BASE_DIR='$DEPLOY_BASE_DIR' APP_SLUG='$DEPLOY_APP_SLUG' bash ops/deploy/deploy.sh --env '$TARGET_ENV' --source-dir '$REMOTE_TMP' --release-id '$RELEASE_ID' --keep-releases 3"
 
       - name: Post-deploy smoke check
         run: |
           set -euo pipefail
           if [ "$TARGET_ENV" = "production" ]; then
-            PORT="3002"
+            PORT="3001"
             BASE_URL="https://alirezasafaeisystems.ir"
           else
-            PORT="3003"
+            PORT="3101"
             BASE_URL="https://staging.alirezasafaeisystems.ir"
           fi
 
