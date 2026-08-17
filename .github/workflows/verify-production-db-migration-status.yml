@@ -52,17 +52,39 @@ jobs:
         run: |
           set -euo pipefail
           ssh -F ~/.ssh/config deploy-target 'set -euo pipefail
-            cd /var/www/my-portfolio/current/production
+            CURRENT=/var/www/my-portfolio/current/production
+            cd "$CURRENT"
             set -a
             source /var/www/my-portfolio/shared/env/production.env
             set +a
             case "${DATABASE_URL:-}" in
-              file:/*) ;;
-              *) echo "[diagnostic] production DATABASE_URL is not an absolute SQLite file URL" >&2; exit 2 ;;
+              file:/*)
+                echo "[diagnostic] database URL class: absolute SQLite"
+                DB_SPEC="${DATABASE_URL#file:}"
+                DB_SPEC="${DB_SPEC%%\?*}"
+                DB_PATH="$DB_SPEC"
+                ;;
+              file:*)
+                echo "[diagnostic] database URL class: relative SQLite"
+                DB_SPEC="${DATABASE_URL#file:}"
+                DB_SPEC="${DB_SPEC%%\?*}"
+                DB_PATH="$(realpath -m "$CURRENT/prisma/$DB_SPEC")"
+                ;;
+              *)
+                echo "[diagnostic] database URL class: unsupported by current SQLite schema" >&2
+                exit 2
+                ;;
             esac
-            DB_PATH="${DATABASE_URL#file:}"
-            DB_PATH="${DB_PATH%%\?*}"
             test -f "$DB_PATH"
             echo "[diagnostic] production database file exists"
+            RELEASE_ROOT="$(realpath -m /var/www/my-portfolio/releases/production)"
+            case "$DB_PATH" in
+              "$RELEASE_ROOT"/*)
+                echo "[diagnostic] database persistence: release-scoped (unsafe for immutable releases)" >&2
+                ;;
+              *)
+                echo "[diagnostic] database persistence: outside release tree"
+                ;;
+            esac
             pnpm exec prisma migrate status
           '
