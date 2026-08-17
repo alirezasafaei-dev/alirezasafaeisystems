@@ -62,6 +62,19 @@ describe('trackEvent', () => {
     expect(localStore.has(SESSION_KEY)).toBe(false)
   })
 
+  it('uses Web Crypto for newly created analytics session IDs', async () => {
+    const sessionId = '4b083d8b-b83f-48c2-9f1d-4fe3a2fbb220'
+    const randomUUID = vi.fn().mockReturnValue(sessionId)
+    vi.stubGlobal('crypto', { randomUUID })
+
+    await trackEvent({ name: 'secure_session_event', category: 'engagement' })
+
+    const body = JSON.parse(await sendBeaconSpy.mock.calls[0][1].text())
+    expect(randomUUID).toHaveBeenCalledOnce()
+    expect(body.sessionId).toBe(sessionId)
+    expect(sessionStore.get(SESSION_KEY)).toBe(sessionId)
+  })
+
   it('sends event via fetch when sendBeacon is not available', async () => {
     vi.stubGlobal('navigator', { sendBeacon: undefined })
 
