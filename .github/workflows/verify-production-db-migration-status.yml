@@ -82,30 +82,20 @@ jobs:
             fi
             candidate_cwd="$(realpath -m "$CURRENT/$DB_SPEC")"
             candidate_schema="$(realpath -m "$CURRENT/prisma/$DB_SPEC")"
+            candidate_generated="$(realpath -m "$CURRENT/node_modules/.prisma/client/$DB_SPEC")"
 
             absolute_exists=false
             cwd_exists=false
             schema_exists=false
+            generated_exists=false
             [[ -n "$candidate_absolute" && -f "$candidate_absolute" ]] && absolute_exists=true
             [[ -f "$candidate_cwd" ]] && cwd_exists=true
             [[ -f "$candidate_schema" ]] && schema_exists=true
+            [[ -f "$candidate_generated" ]] && generated_exists=true
 
-            echo "[diagnostic] candidate exists: absolute=${absolute_exists} cwd=${cwd_exists} schema=${schema_exists}"
+            echo "[diagnostic] candidate exists: absolute=${absolute_exists} cwd=${cwd_exists} schema=${schema_exists} generated=${generated_exists}"
 
-            node <<'"'"'NODE'"'"'
-const { PrismaClient } = require("@prisma/client")
-const prisma = new PrismaClient()
-;(async () => {
-  const tables = await prisma.$queryRawUnsafe("SELECT name FROM sqlite_master WHERE type = 'table'")
-  const names = new Set(tables.map((row) => String(row.name)))
-  console.log(`[diagnostic] Prisma Client connection: success; tables=${names.size}`)
-  console.log(`[diagnostic] migration table present: ${names.has('_prisma_migrations')}`)
-  if (names.has('_prisma_migrations')) {
-    const rows = await prisma.$queryRawUnsafe("SELECT migration_name, finished_at, rolled_back_at FROM _prisma_migrations ORDER BY started_at")
-    console.log(`[diagnostic] migration rows=${rows.length}; unfinished=${rows.filter((row) => !row.finished_at && !row.rolled_back_at).length}`)
-  }
-})().finally(() => prisma.$disconnect())
-NODE
+            node -e "const {PrismaClient}=require('@prisma/client'); const p=new PrismaClient(); (async()=>{const rows=await p.\$queryRawUnsafe(\"SELECT name FROM sqlite_master WHERE type = 'table'\"); const names=new Set(rows.map(r=>String(r.name))); console.log('[diagnostic] Prisma Client connection: success; tables='+names.size); console.log('[diagnostic] migration table present: '+names.has('_prisma_migrations')); if(names.has('_prisma_migrations')){const m=await p.\$queryRawUnsafe(\"SELECT migration_name, finished_at, rolled_back_at FROM _prisma_migrations ORDER BY started_at\"); console.log('[diagnostic] migration rows='+m.length+'; unfinished='+m.filter(r=>!r.finished_at&&!r.rolled_back_at).length)}})().finally(()=>p.\$disconnect())"
 
             pnpm exec prisma migrate status
           '
