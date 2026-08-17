@@ -22,7 +22,7 @@ jobs:
   dependency-review:
     name: Dependency review (PR)
     if: github.event_name == 'pull_request'
-    runs-on: [self-hosted, linux, x64, asdev-ci]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -40,7 +40,7 @@ jobs:
 
   pnpm-audit:
     name: pnpm audit (high/critical gate)
-    runs-on: [self-hosted, linux, x64, asdev-ci]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
 
   secret-scan:
     name: Secret scan (repo)
-    runs-on: [self-hosted, linux, x64, asdev-ci]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
