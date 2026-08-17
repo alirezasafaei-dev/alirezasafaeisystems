@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-describe('self-hosted CI ripgrep bootstrap', () => {
+describe('CI ripgrep bootstrap contract', () => {
   it('provisions a verified job-local scanner before the enterprise gate', () => {
     const root = process.cwd()
     const helperPath = resolve(root, 'scripts/ci/bootstrap-ripgrep.sh')
@@ -26,5 +26,14 @@ describe('self-hosted CI ripgrep bootstrap', () => {
     expect(helper).toContain('GITHUB_PATH')
     expect(helper).not.toContain('sudo ')
     expect(helper).not.toContain('apt-get')
+  })
+
+  it('provisions ripgrep before the deploy quality gate runs pnpm verify', () => {
+    const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/deploy-vps.yml'), 'utf8')
+    const bootstrapIndex = workflow.indexOf('bash scripts/ci/bootstrap-ripgrep.sh')
+    const verifyIndex = workflow.indexOf('pnpm run verify')
+
+    expect(bootstrapIndex).toBeGreaterThan(-1)
+    expect(verifyIndex).toBeGreaterThan(bootstrapIndex)
   })
 })
