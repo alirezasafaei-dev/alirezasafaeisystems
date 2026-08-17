@@ -1,0 +1,147 @@
+name: Guarded Discover Verification Queue Cleanup
+
+on:
+  push:
+    branches:
+      - verify/queue-cleanup-discover-20260817
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Cancel only stale verification runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          API_URL: ${{ github.api_url }}
+        run: |
+          set -euo pipefail
+
+          auth_headers=(
+            -H "Authorization: Bearer ${GH_TOKEN}"
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
+
+          api_get() {
+            curl --fail --silent --show-error "${auth_headers[@]}" "$1"
+          }
+
+          main_sha="$(api_get "${API_URL}/repos/${REPO}/git/ref/heads/main" | jq -r '.object.sha')"
+          open_prs_file="$(mktemp)"
+          candidates_file="$(mktemp)"
+          trap 'rm -f "$open_prs_file" "$candidates_file"' EXIT
+
+          api_get "${API_URL}/repos/${REPO}/pulls?state=open&per_page=100" > "$open_prs_file"
+
+          collect_runs() {
+            local status="$1"
+            local page=1
+            while :; do
+              local payload
+              payload="$(api_get "${API_URL}/repos/${REPO}/actions/runs?status=${status}&per_page=100&page=${page}")"
+              local count
+              count="$(jq '.workflow_runs | length' <<<"$payload")"
+              [ "$count" -gt 0 ] || break
+              jq -c '.workflow_runs[]' <<<"$payload" >> "$candidates_file"
+              [ "$count" -eq 100 ] || break
+              page=$((page + 1))
+            done
+          }
+
+          collect_runs queued
+          collect_runs in_progress
+
+          cancelled=0
+          preserved=0
+          ignored=0
+          raced=0
+
+          while IFS= read -r run; do
+            [ -n "$run" ] || continue
+
+            id="$(jq -r '.id' <<<"$run")"
+            name="$(jq -r '.name' <<<"$run")"
+            head_sha="$(jq -r '.head_sha // empty' <<<"$run")"
+            head_branch="$(jq -r '.head_branch // empty' <<<"$run")"
+
+            case "$name" in
+              "CI"|"CI Router"|"E2E Smoke"|"Lighthouse Budget"|"Security Audit"|"CodeQL") ;;
+              *) ignored=$((ignored + 1)); continue ;;
+            esac
+
+            if [ -z "$head_sha" ]; then
+              preserved=$((preserved + 1))
+              continue
+            fi
+
+            if [ "$head_sha" = "$main_sha" ] || jq -e --arg sha "$head_sha" '.[] | select(.head.sha == $sha)' "$open_prs_file" >/dev/null; then
+              preserved=$((preserved + 1))
+              continue
+            fi
+
+            safe_to_cancel=false
+
+            if [ "$head_branch" = "main" ]; then
+              latest_main="$(api_get "${API_URL}/repos/${REPO}/git/ref/heads/main" | jq -r '.object.sha')"
+              if [ "$head_sha" != "$latest_main" ]; then
+                safe_to_cancel=true
+              fi
+            else
+              mapfile -t pr_numbers < <(jq -r '.pull_requests[]?.number' <<<"$run")
+              if [ "${#pr_numbers[@]}" -gt 0 ]; then
+                current_head_match=false
+                for pr_number in "${pr_numbers[@]}"; do
+                  pr="$(api_get "${API_URL}/repos/${REPO}/pulls/${pr_number}")"
+                  if [ "$(jq -r '.state' <<<"$pr")" = "open" ] && [ "$(jq -r '.head.sha' <<<"$pr")" = "$head_sha" ]; then
+                    current_head_match=true
+                    break
+                  fi
+                done
+                if [ "$current_head_match" = false ]; then
+                  safe_to_cancel=true
+                fi
+              fi
+            fi
+
+            if [ "$safe_to_cancel" != true ]; then
+              preserved=$((preserved + 1))
+              continue
+            fi
+
+            http_code="$(curl --silent --show-error -o /tmp/cancel-response.json -w '%{http_code}' \
+              -X POST "${auth_headers[@]}" \
+              "${API_URL}/repos/${REPO}/actions/runs/${id}/cancel")"
+
+            case "$http_code" in
+              202)
+                echo "cancelled stale verification run id=${id} name=${name} branch=${head_branch} sha=${head_sha}"
+                cancelled=$((cancelled + 1))
+                ;;
+              409)
+                echo "run id=${id} reached terminal state before guarded cancellation"
+                raced=$((raced + 1))
+                ;;
+              *)
+                echo "unexpected cancellation response id=${id} status=${http_code}" >&2
+                cat /tmp/cancel-response.json >&2 || true
+                exit 1
+                ;;
+            esac
+          done < "$candidates_file"
+
+          latest_main="$(api_get "${API_URL}/repos/${REPO}/git/ref/heads/main" | jq -r '.object.sha')"
+          if [ "$latest_main" != "$main_sha" ]; then
+            echo "::error::main moved during cleanup; refusing to claim a stable protected-head snapshot." >&2
+            exit 1
+          fi
+
+          echo "cleanup summary: cancelled=${cancelled} preserved=${preserved} ignored=${ignored} raced=${raced}"
+          echo "protected main=${latest_main}"
+          jq -r '.[] | "protected PR #\(.number)=\(.head.sha)"' "$open_prs_file"
