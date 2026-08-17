@@ -101,6 +101,7 @@ fi
 SHARED_DIR="$BASE_DIR/shared"
 ENV_DIR="$SHARED_DIR/env"
 LOG_DIR="$SHARED_DIR/logs"
+BACKUP_DIR="$BASE_DIR/shared/backups/$ENVIRONMENT"
 RELEASES_DIR="$BASE_DIR/releases/$ENVIRONMENT"
 CURRENT_LINK="$BASE_DIR/current/$ENVIRONMENT"
 RELEASE_DIR="$RELEASES_DIR/$RELEASE_ID"
@@ -112,7 +113,7 @@ if [[ "$ENVIRONMENT" == "production" ]]; then
   PORT="3002"
 fi
 
-mkdir -p "$ENV_DIR" "$LOG_DIR" "$RELEASES_DIR" "$BASE_DIR/current"
+mkdir -p "$ENV_DIR" "$LOG_DIR" "$BACKUP_DIR" "$RELEASES_DIR" "$BASE_DIR/current"
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "[deploy] environment file not found: $ENV_FILE" >&2
@@ -142,6 +143,20 @@ export NODE_ENV=production
 export HOSTNAME=127.0.0.1
 export PORT
 
+if [[ "${DATABASE_URL:-}" != file:/* ]]; then
+  echo "[deploy] DATABASE_URL must use an absolute SQLite file URL (file:/absolute/path.db)" >&2
+  exit 1
+fi
+DB_PATH="${DATABASE_URL#file:}"
+DB_PATH="${DB_PATH%%\?*}"
+if [[ "$DB_PATH" != /* ]]; then
+  echo "[deploy] DATABASE_URL must use an absolute SQLite file URL (file:/absolute/path.db)" >&2
+  exit 1
+fi
+mkdir -p "$(dirname "$DB_PATH")"
+
+# Build while the previous release is still serving traffic. Database mutation
+# is deliberately delayed until the replacement application is ready to start.
 pnpm run build
 
 cat > ecosystem.config.cjs <<ECOSYSTEM
@@ -169,31 +184,155 @@ module.exports = {
 };
 ECOSYSTEM
 
-# A failed or interrupted release can leave duplicate PM2 entries with the
-# same name and stale cwd. Remove the whole app set before starting the
-# release-specific ecosystem file so only the validated release is active.
+PREVIOUS_RELEASE="$(readlink -f "$CURRENT_LINK" 2>/dev/null || true)"
+SNAPSHOT_DIR="$BACKUP_DIR/$RELEASE_ID"
+APP_WAS_RUNNING=false
+APP_PID="$(pm2 pid "$APP_NAME" 2>/dev/null | head -n 1 | tr -d '[:space:]' || true)"
+if [[ "$APP_PID" =~ ^[1-9][0-9]*$ ]]; then
+  APP_WAS_RUNNING=true
+fi
+
+if [[ "$APP_WAS_RUNNING" == "true" && ( -z "$PREVIOUS_RELEASE" || ! -f "$PREVIOUS_RELEASE/ecosystem.config.cjs" ) ]]; then
+  echo "[deploy] previous running release cannot be resolved safely; refusing rollout" >&2
+  exit 1
+fi
+
+snapshot_database() {
+  rm -rf -- "$SNAPSHOT_DIR" || return 1
+  mkdir -p "$SNAPSHOT_DIR" || return 1
+  chmod 700 "$SNAPSHOT_DIR" || return 1
+
+  if [[ -f "$DB_PATH" ]]; then
+    cp -a -- "$DB_PATH" "$SNAPSHOT_DIR/database.sqlite" || return 1
+    for suffix in -wal -shm; do
+      if [[ -f "${DB_PATH}${suffix}" ]]; then
+        cp -a -- "${DB_PATH}${suffix}" "$SNAPSHOT_DIR/database.sqlite${suffix}" || return 1
+      fi
+    done
+  else
+    : > "$SNAPSHOT_DIR/.database-absent" || return 1
+  fi
+}
+
+restore_database_snapshot() {
+  rm -f -- "$DB_PATH" "${DB_PATH}-wal" "${DB_PATH}-shm" || return 1
+
+  if [[ -f "$SNAPSHOT_DIR/.database-absent" ]]; then
+    return 0
+  fi
+
+  if [[ ! -f "$SNAPSHOT_DIR/database.sqlite" ]]; then
+    echo "[deploy] database snapshot is incomplete; refusing silent recovery" >&2
+    return 1
+  fi
+
+  cp -a -- "$SNAPSHOT_DIR/database.sqlite" "$DB_PATH" || return 1
+  for suffix in -wal -shm; do
+    if [[ -f "$SNAPSHOT_DIR/database.sqlite${suffix}" ]]; then
+      cp -a -- "$SNAPSHOT_DIR/database.sqlite${suffix}" "${DB_PATH}${suffix}" || return 1
+    fi
+  done
+}
+
+restart_previous_app() {
+  if [[ "$APP_WAS_RUNNING" == "true" ]]; then
+    pm2 restart "$APP_NAME" --update-env || return 1
+    pm2 save >/dev/null 2>&1 || true
+  fi
+}
+
+rollback_previous_release() {
+  if [[ "$APP_WAS_RUNNING" != "true" ]]; then
+    echo "[deploy] no previously running application is available for rollback" >&2
+    return 1
+  fi
+  if [[ -z "$PREVIOUS_RELEASE" || ! -f "$PREVIOUS_RELEASE/ecosystem.config.cjs" ]]; then
+    echo "[deploy] previous release metadata is unavailable for rollback" >&2
+    return 1
+  fi
+
+  pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
+  (
+    cd "$PREVIOUS_RELEASE"
+    pm2 start ecosystem.config.cjs --only "$APP_NAME" --update-env
+  ) || return 1
+  pm2 save >/dev/null 2>&1 || true
+}
+
+# Quiesce the old application only for the snapshot + migration window. With
+# SQLite this avoids copying a live database/WAL set and makes recovery exact.
+if [[ "$APP_WAS_RUNNING" == "true" ]]; then
+  if ! pm2 stop "$APP_NAME"; then
+    echo "[deploy] failed to quiesce previous application; migration not attempted" >&2
+    exit 1
+  fi
+fi
+
+if ! snapshot_database; then
+  echo "[deploy] database snapshot failed; migration not attempted" >&2
+  restart_previous_app || true
+  exit 1
+fi
+
+echo "[deploy] database snapshot created for release $RELEASE_ID"
+
+if ! pnpm exec prisma migrate deploy; then
+  echo "[deploy] database migration failed; restoring pre-migration snapshot" >&2
+  if ! restore_database_snapshot; then
+    echo "[deploy] CRITICAL: database snapshot restore failed" >&2
+  fi
+  restart_previous_app || true
+  exit 1
+fi
+
+if ! pnpm exec prisma migrate status; then
+  echo "[deploy] migration status is not clean; restoring pre-migration snapshot" >&2
+  if ! restore_database_snapshot; then
+    echo "[deploy] CRITICAL: database snapshot restore failed" >&2
+  fi
+  restart_previous_app || true
+  exit 1
+fi
+
+# Replace the stopped previous app only after migrations are verified.
 pm2 delete "$APP_NAME" >/dev/null 2>&1 || true
-pm2 start ecosystem.config.cjs --only "$APP_NAME" --update-env
+if ! pm2 start ecosystem.config.cjs --only "$APP_NAME" --update-env; then
+  echo "[deploy] new application failed to start; rolling back previous release" >&2
+  rollback_previous_release || true
+  exit 1
+fi
 pm2 save >/dev/null 2>&1 || true
 
-ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
-
+HEALTHY=false
 for attempt in {1..20}; do
   if curl -fsS "http://127.0.0.1:$PORT/api/ready" >/dev/null 2>&1; then
     echo "[deploy] health check passed for $ENVIRONMENT on port $PORT"
+    HEALTHY=true
     break
-  fi
-  if [[ "$attempt" -eq 20 ]]; then
-    echo "[deploy] health check failed after 20 attempts" >&2
-    exit 1
   fi
   sleep 2
 done
+
+if [[ "$HEALTHY" != "true" ]]; then
+  echo "[deploy] health check failed after 20 attempts; rolling back previous release" >&2
+  rollback_previous_release || true
+  exit 1
+fi
+
+# Publish the release symlink only after the new process is healthy.
+ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"
 
 mapfile -t releases < <(ls -1dt "$RELEASES_DIR"/* 2>/dev/null || true)
 if (( ${#releases[@]} > KEEP_RELEASES )); then
   for old_release in "${releases[@]:KEEP_RELEASES}"; do
     rm -rf "$old_release"
+  done
+fi
+
+mapfile -t backups < <(ls -1dt "$BACKUP_DIR"/* 2>/dev/null || true)
+if (( ${#backups[@]} > 5 )); then
+  for old_backup in "${backups[@]:5}"; do
+    rm -rf "$old_backup"
   done
 fi
 
