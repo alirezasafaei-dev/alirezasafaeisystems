@@ -61,4 +61,19 @@ describe('DiscoverGrid', () => {
     expect(screen.getByText('NotebookLM')).toBeInTheDocument()
     expect(screen.queryByText('Canva')).not.toBeInTheDocument()
   })
+
+  it('provides accessible search/filter controls and exposes the active category state', () => {
+    render(<DiscoverGrid items={items} isEn={false} attribution={{}} />)
+
+    expect(screen.getByRole('searchbox', { name: 'جستجو بین ابزارها و سرویس‌ها' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'AI' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Design' })).toHaveAttribute('aria-pressed', 'false')
+
+    fireEvent.click(screen.getByRole('button', { name: 'AI' }))
+
+    expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'AI' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('1 مورد')).toHaveAttribute('aria-live', 'polite')
+  })
 })
