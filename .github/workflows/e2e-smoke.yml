@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   smoke:
-    runs-on: [self-hosted, linux, x64, asdev-ci]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
