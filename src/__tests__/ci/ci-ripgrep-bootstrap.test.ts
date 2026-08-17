@@ -18,8 +18,10 @@ describe('self-hosted CI ripgrep bootstrap', () => {
 
     expect(bootstrapIndex).toBeGreaterThan(-1)
     expect(enterpriseGateIndex).toBeGreaterThan(bootstrapIndex)
-    expect(helper).toContain('ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz')
-    expect(helper).toContain('ripgrep-14.1.1-x86_64-unknown-linux-musl.tar.gz.sha256')
+    expect(helper).toContain('RIPGREP_VERSION="14.1.1"')
+    expect(helper).toContain('RIPGREP_TARGET="x86_64-unknown-linux-musl"')
+    expect(helper).toContain('RIPGREP_ARCHIVE="ripgrep-${RIPGREP_VERSION}-${RIPGREP_TARGET}.tar.gz"')
+    expect(helper).toContain('RIPGREP_CHECKSUM="ripgrep-${RIPGREP_VERSION}-${RIPGREP_TARGET}.tar.gz.sha256"')
     expect(helper).toContain('sha256sum -c')
     expect(helper).toContain('GITHUB_PATH')
     expect(helper).not.toContain('sudo ')
