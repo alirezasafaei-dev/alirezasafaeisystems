@@ -23,7 +23,7 @@ function hasConsent(): boolean {
 }
 
 function createSessionId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
+  return globalThis.crypto.randomUUID()
 }
 
 function getSessionId(): string {
