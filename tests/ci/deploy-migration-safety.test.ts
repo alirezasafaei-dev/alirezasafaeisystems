@@ -3,6 +3,20 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 describe('production database migration safety', () => {
+  it('uses the registered AlirezaSafaeiSystems VPS layout and ports', () => {
+    const workflow = readFileSync(
+      resolve(process.cwd(), '.github/workflows/deploy-vps.yml'),
+      'utf8',
+    )
+
+    expect(workflow).toContain('DEPLOY_BASE_DIR: /srv/asdev/sites/alirezasafaeisystems')
+    expect(workflow).toContain('DEPLOY_APP_SLUG: alirezasafaeisystems')
+    expect(workflow).toContain('DEPLOY_PERSISTENT_DB_PATH: /var/lib/alirezasafaeisystems/custom.db')
+    expect(workflow).toContain('PORT="3001"')
+    expect(workflow).toContain('PORT="3101"')
+    expect(workflow).toContain('BASE_URL="https://alirezasafaeisystems.ir"')
+  })
+
   it('backs up persistent SQLite state and fails back to the previous app on rollout errors', () => {
     const deploy = readFileSync(resolve(process.cwd(), 'ops/deploy/deploy.sh'), 'utf8')
 
