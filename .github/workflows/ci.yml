@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Provision ripgrep scanner
+        run: bash scripts/ci/bootstrap-ripgrep.sh
+
       - name: Scan tracked source for secrets
         run: pnpm run scan:secrets
 
