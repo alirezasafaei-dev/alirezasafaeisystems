@@ -1,0 +1,34 @@
+name: Verify CI Ripgrep Final
+
+on:
+  push:
+    branches:
+      - verify/ci-ripgrep-final-20260817
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-final:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provision pinned ripgrep
+        run: bash scripts/ci/bootstrap-ripgrep.sh
+      - name: Verify scanner and fail-closed contract
+        run: |
+          set -euo pipefail
+          rg --version | grep -q 'ripgrep 14.1.1'
+          bash scripts/test-offline-external-scan.sh
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Run moved targeted regression
+        run: pnpm exec vitest run tests/ci/ci-ripgrep-bootstrap.test.ts --reporter=verbose
