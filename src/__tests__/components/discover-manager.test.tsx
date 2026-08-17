@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DiscoverManager } from '@/components/admin/discover-manager'
 
-const toast = vi.fn()
-vi.mock('@/hooks/use-toast', () => ({ toast }))
+const { toastMock } = vi.hoisted(() => ({ toastMock: vi.fn() }))
+vi.mock('@/hooks/use-toast', () => ({ toast: toastMock }))
 
 const draftItem = {
   id: 'discover-item-0001',
@@ -45,9 +45,14 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 describe('DiscoverManager', () => {
   beforeEach(() => {
-    toast.mockReset()
+    toastMock.mockReset()
     vi.stubGlobal('scrollTo', vi.fn())
     vi.spyOn(window, 'confirm').mockReturnValue(true)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   it('loads draft/published items and exposes the required editor fields', async () => {
@@ -121,7 +126,7 @@ describe('DiscoverManager', () => {
       order: 3,
     })
     expect(await screen.findByText('New Tool')).toBeInTheDocument()
-    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Saved' }))
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({ title: 'Saved' }))
   })
 
   it('loads an existing item into edit mode and confirms deletion before issuing DELETE', async () => {
