@@ -1,0 +1,68 @@
+name: Verify Production DB Migration Status
+
+on:
+  push:
+    branches:
+      - verify/production-db-migration-status-20260817
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}
+      VPS_JUMP_HOST: ${{ secrets.VPS_JUMP_HOST }}
+      VPS_JUMP_USER: ${{ secrets.VPS_JUMP_USER }}
+      VPS_JUMP_PORT: ${{ secrets.VPS_JUMP_PORT }}
+    steps:
+      - name: Install SSH key
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.VPS_JUMP_SSH_KEY }}" > ~/.ssh/id_jump_ed25519
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/id_jump_ed25519
+          ssh-keyscan -p "${VPS_JUMP_PORT:-22}" -H "$VPS_JUMP_HOST" >> ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host deploy-jump
+            HostName $VPS_JUMP_HOST
+            User $VPS_JUMP_USER
+            Port ${VPS_JUMP_PORT:-22}
+            IdentityFile ~/.ssh/id_jump_ed25519
+            IdentitiesOnly yes
+          Host deploy-target
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port ${VPS_PORT:-22}
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            ProxyJump deploy-jump
+          EOF
+          chmod 600 ~/.ssh/config
+          ssh -F ~/.ssh/config -o StrictHostKeyChecking=accept-new deploy-target true
+
+      - name: Read-only Prisma migration status
+        run: |
+          set -euo pipefail
+          ssh -F ~/.ssh/config deploy-target 'set -euo pipefail
+            cd /var/www/my-portfolio/current/production
+            set -a
+            source /var/www/my-portfolio/shared/env/production.env
+            set +a
+            case "${DATABASE_URL:-}" in
+              file:/*) ;;
+              *) echo "[diagnostic] production DATABASE_URL is not an absolute SQLite file URL" >&2; exit 2 ;;
+            esac
+            DB_PATH="${DATABASE_URL#file:}"
+            DB_PATH="${DB_PATH%%\?*}"
+            test -f "$DB_PATH"
+            echo "[diagnostic] production database file exists"
+            pnpm exec prisma migrate status
+          '
