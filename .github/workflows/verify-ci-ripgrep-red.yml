@@ -1,0 +1,27 @@
+name: Verify CI Ripgrep RED
+
+on:
+  push:
+    branches:
+      - verify/ci-ripgrep-red-20260817
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-red:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Run targeted regression
+        run: pnpm exec vitest run src/__tests__/ci/ci-ripgrep-bootstrap.test.ts --reporter=verbose
