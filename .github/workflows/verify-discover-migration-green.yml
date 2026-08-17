@@ -1,0 +1,29 @@
+name: Verify Discover Migration GREEN
+
+on:
+  push:
+    branches:
+      - verify/discover-migration-green-20260817
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-green:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n ops/deploy/deploy.sh
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Run migration safety contract
+        run: pnpm exec vitest run tests/ci/deploy-migration-safety.test.ts --reporter=verbose
