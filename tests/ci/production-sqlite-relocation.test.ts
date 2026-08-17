@@ -24,7 +24,7 @@ describe('one-time production SQLite relocation', () => {
 
     expect(helper).toContain('PERSISTENT_DB_PATH="${PERSISTENT_DB_PATH:-/var/lib/my-portfolio/custom.db}"')
     expect(helper).toContain('MIGRATION_MARKER=')
-    expect(helper).toContain('one-time SQLite relocation has already been consumed')
+    expect(helper).toContain('relocation marker and persistent SQLite state verified')
     expect(helper).toContain('PREVIOUS_RELEASE="$(readlink -f "$CURRENT_LINK" 2>/dev/null || true)"')
     expect(helper).toContain('pm2 stop "$APP_NAME"')
     expect(helper).toContain('cp -a -- "$LEGACY_DB_PATH" "$PERSISTENT_DB_PATH"')
