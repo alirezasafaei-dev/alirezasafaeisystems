@@ -22,7 +22,7 @@ describe('one-time production SQLite relocation', () => {
       'utf8',
     )
 
-    expect(helper).toContain('PERSISTENT_DB_PATH="${PERSISTENT_DB_PATH:-/var/lib/my-portfolio/custom.db}"')
+    expect(helper).toContain('PERSISTENT_DB_PATH="${PERSISTENT_DB_PATH:-/var/www/my-portfolio/shared/data/production.db}"')
     expect(helper).toContain('MIGRATION_MARKER=')
     expect(helper).toContain('relocation marker and persistent SQLite state verified')
     expect(helper).toContain('PREVIOUS_RELEASE="$(readlink -f "$CURRENT_LINK" 2>/dev/null || true)"')
