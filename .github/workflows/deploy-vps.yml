@@ -80,7 +80,7 @@ jobs:
       TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
       DEPLOY_BASE_DIR: /var/www/my-portfolio
       DEPLOY_APP_SLUG: my-portfolio
-      DEPLOY_PERSISTENT_DB_PATH: /var/lib/my-portfolio/custom.db
+      DEPLOY_PERSISTENT_DB_PATH: /var/www/my-portfolio/shared/data/production.db
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER }}
       VPS_PORT: ${{ secrets.VPS_PORT }}
