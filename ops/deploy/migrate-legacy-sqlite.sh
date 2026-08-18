@@ -103,15 +103,26 @@ case "$LEGACY_DB_PATH" in
     ;;
 esac
 
-echo "[sqlite-relocation] resolved release: $PREVIOUS_RELEASE"
-echo "[sqlite-relocation] resolved legacy database path: $LEGACY_DB_PATH (exists=$([ -f "$LEGACY_DB_PATH" ] && echo yes || echo no))"
-for candidate in "$PREVIOUS_RELEASE/db/custom.db" "$PREVIOUS_RELEASE/prisma/dev.db" "$PREVIOUS_RELEASE/prisma/db/custom.db"; do
-  echo "[sqlite-relocation] candidate: $candidate (exists=$([ -f "$candidate" ] && echo yes || echo no))"
-done
-
 if [[ ! -f "$LEGACY_DB_PATH" ]]; then
-  echo "[sqlite-relocation] legacy SQLite database was not found at the resolved current-release path" >&2
-  exit 1
+  LEGACY_CANDIDATE_COUNT=0
+  LEGACY_CANDIDATE_PATH=""
+  for candidate in "$PREVIOUS_RELEASE/db/custom.db" "$PREVIOUS_RELEASE/prisma/dev.db" "$PREVIOUS_RELEASE/prisma/db/custom.db"; do
+    if [[ -f "$candidate" ]]; then
+      LEGACY_CANDIDATE_COUNT=$((LEGACY_CANDIDATE_COUNT + 1))
+      LEGACY_CANDIDATE_PATH="$candidate"
+    fi
+  done
+
+  if [[ "$LEGACY_CANDIDATE_COUNT" == "1" ]]; then
+    LEGACY_DB_PATH="$LEGACY_CANDIDATE_PATH"
+    echo "[sqlite-relocation] resolved legacy SQLite path via the only valid release candidate: $LEGACY_DB_PATH"
+  elif [[ "$LEGACY_CANDIDATE_COUNT" -gt "1" ]]; then
+    echo "[sqlite-relocation] multiple legacy SQLite candidates were found; refusing ambiguous relocation" >&2
+    exit 1
+  else
+    echo "[sqlite-relocation] legacy SQLite database was not found at the resolved current-release path or supported release candidates" >&2
+    exit 1
+  fi
 fi
 
 if [[ -e "$PERSISTENT_DB_PATH" || -e "${PERSISTENT_DB_PATH}-wal" || -e "${PERSISTENT_DB_PATH}-shm" ]]; then
