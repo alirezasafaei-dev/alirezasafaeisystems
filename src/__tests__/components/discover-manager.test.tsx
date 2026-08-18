@@ -154,7 +154,8 @@ describe('DiscoverManager', () => {
     expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/admin/discover')
     expect((fetchMock.mock.calls[1]?.[1] as RequestInit).method).toBe('PATCH')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete Draft Tool Updated' }))
+    const deleteButton = await screen.findByRole('button', { name: 'Delete Draft Tool Updated' })
+    fireEvent.click(deleteButton)
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3))
     expect(confirmMock).toHaveBeenCalledWith('Delete “Draft Tool Updated” permanently?')
     expect(fetchMock.mock.calls[2]?.[0]).toBe('/api/admin/discover?id=discover-item-0001')
