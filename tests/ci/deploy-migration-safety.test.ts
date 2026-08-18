@@ -12,6 +12,8 @@ describe('production database migration safety', () => {
     const replaceAppIndex = deploy.indexOf('pm2 delete "$APP_NAME"', migrationStatusIndex)
     const publishLinkIndex = deploy.indexOf('ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"', replaceAppIndex)
 
+    expect(deploy).toContain('20260617000000_baseline_legacy_portfolio')
+    expect(deploy).toContain('The database schema is not empty')
     expect(deploy).toContain('DATABASE_URL must use an absolute SQLite file URL')
     expect(deploy).toContain('DB_PATH="${DATABASE_URL#file:}"')
     expect(deploy).toContain('BACKUP_DIR="$BASE_DIR/shared/backups/$ENVIRONMENT"')
