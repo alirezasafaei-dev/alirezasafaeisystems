@@ -276,6 +276,20 @@ fi
 
 echo "[deploy] database snapshot created for release $RELEASE_ID"
 
+# Existing portfolio releases predate Prisma migration metadata. Baseline only
+# a non-empty database with the legacy schema; new databases run the baseline
+# migration normally through migrate deploy.
+MIGRATE_STATUS_OUTPUT=""
+if MIGRATE_STATUS_OUTPUT="$(pnpm exec prisma migrate status 2>&1)"; then
+  :
+elif printf '%s\n' "$MIGRATE_STATUS_OUTPUT" | grep -q 'The database schema is not empty'; then
+  echo "[deploy] legacy non-empty SQLite detected without migration metadata; applying baseline"
+  pnpm exec prisma migrate resolve --applied 20260617000000_baseline_legacy_portfolio
+else
+  printf '%s\n' "$MIGRATE_STATUS_OUTPUT" >&2
+  echo "[deploy] Prisma migration preflight failed; refusing rollout" >&2
+  exit 1
+fi
 if ! pnpm exec prisma migrate deploy; then
   echo "[deploy] database migration failed; restoring pre-migration snapshot" >&2
   if ! restore_database_snapshot; then
