@@ -26,6 +26,8 @@ describe('one-time production SQLite relocation', () => {
     expect(helper).toContain('MIGRATION_MARKER=')
     expect(helper).toContain('relocation marker and persistent SQLite state verified')
     expect(helper).toContain('PREVIOUS_RELEASE="$(readlink -f "$CURRENT_LINK" 2>/dev/null || true)"')
+    expect(helper).toContain('LEGACY_CANDIDATE_COUNT=0')
+    expect(helper).toContain('multiple legacy SQLite candidates were found')
     expect(helper).toContain('pm2 stop "$APP_NAME"')
     expect(helper).toContain('cp -a -- "$LEGACY_DB_PATH" "$PERSISTENT_DB_PATH"')
     expect(helper).toContain('ENV_BACKUP=')
