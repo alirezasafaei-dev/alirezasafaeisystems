@@ -3,7 +3,7 @@ set -euo pipefail
 
 ENVIRONMENT="production"
 BASE_DIR="${BASE_DIR:-/var/www/my-portfolio}"
-PERSISTENT_DB_PATH="${PERSISTENT_DB_PATH:-/var/lib/my-portfolio/custom.db}"
+PERSISTENT_DB_PATH="${PERSISTENT_DB_PATH:-/var/www/my-portfolio/shared/data/production.db}"
 APP_SLUG="${APP_SLUG:-my-portfolio}"
 
 usage() {
