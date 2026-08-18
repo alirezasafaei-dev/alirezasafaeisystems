@@ -103,6 +103,12 @@ case "$LEGACY_DB_PATH" in
     ;;
 esac
 
+echo "[sqlite-relocation] resolved release: $PREVIOUS_RELEASE"
+echo "[sqlite-relocation] resolved legacy database path: $LEGACY_DB_PATH (exists=$([ -f "$LEGACY_DB_PATH" ] && echo yes || echo no))"
+for candidate in "$PREVIOUS_RELEASE/db/custom.db" "$PREVIOUS_RELEASE/prisma/dev.db" "$PREVIOUS_RELEASE/prisma/db/custom.db"; do
+  echo "[sqlite-relocation] candidate: $candidate (exists=$([ -f "$candidate" ] && echo yes || echo no))"
+done
+
 if [[ ! -f "$LEGACY_DB_PATH" ]]; then
   echo "[sqlite-relocation] legacy SQLite database was not found at the resolved current-release path" >&2
   exit 1
