@@ -58,9 +58,15 @@ jobs:
       - name: Unit and integration tests
         run: pnpm run test
 
-      # Mirror the successful Playwright/production ordering: an absolute SQLite
-      # database exists before the standalone bundle is built, while all CI data
-      # remains disposable under test-results/.
+      # enterprise:gate invokes verify, which itself performs a build. Run it
+      # before preparing the browser artifact so it cannot overwrite the final
+      # standalone bundle that Browser Smoke is supposed to verify.
+      - name: Enterprise gate
+        run: pnpm run enterprise:gate
+
+      # Match the successful Playwright and production runtime contract: create
+      # the absolute disposable SQLite database first, then build the exact
+      # standalone artifact that the following Browser Smoke will execute.
       - name: Setup browser database and deterministic Discover fixture
         env:
           DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
@@ -74,9 +80,6 @@ jobs:
           DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
           ASDEV_BUILD_SKIP_DYNAMIC_DB: "1"
         run: pnpm run build
-
-      - name: Enterprise gate
-        run: pnpm run enterprise:gate
 
       - name: Install Playwright Chromium
         env:
