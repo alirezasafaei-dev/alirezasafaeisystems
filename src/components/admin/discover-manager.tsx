@@ -20,6 +20,7 @@ type DiscoverItem = {
   tags: string
   imageUrl: string | null
   instagramUrl: string | null
+  telegramGuideUrl: string | null
   featured: boolean
   published: boolean
   order: number
@@ -39,6 +40,7 @@ type DiscoverForm = {
   tags: string
   imageUrl: string
   instagramUrl: string
+  telegramGuideUrl: string
   featured: boolean
   published: boolean
   order: number
@@ -54,6 +56,7 @@ const emptyForm: DiscoverForm = {
   tags: '',
   imageUrl: '',
   instagramUrl: '',
+  telegramGuideUrl: '',
   featured: false,
   published: false,
   order: 0,
@@ -71,6 +74,7 @@ function toForm(item: DiscoverItem): DiscoverForm {
     tags: item.tags,
     imageUrl: item.imageUrl || '',
     instagramUrl: item.instagramUrl || '',
+    telegramGuideUrl: item.telegramGuideUrl || '',
     featured: item.featured,
     published: item.published,
     order: item.order,
@@ -222,6 +226,18 @@ export function DiscoverManager() {
             <label className="space-y-1 text-sm font-medium">
               Image HTTPS URL
               <Input type="url" placeholder="https://..." value={form.imageUrl} onChange={(event) => updateForm('imageUrl', event.target.value)} />
+            </label>
+            <label className="space-y-1 text-sm font-medium md:col-span-2">
+              Telegram full guide / file URL
+              <Input
+                type="url"
+                placeholder="https://t.me/asdev/123"
+                value={form.telegramGuideUrl}
+                onChange={(event) => updateForm('telegramGuideUrl', event.target.value)}
+              />
+              <span className="block text-xs font-normal text-muted-foreground">
+                Prefer the exact t.me message link for the tutorial or file, not the channel homepage.
+              </span>
             </label>
             <label className="space-y-1 text-sm font-medium">
               Sort order
