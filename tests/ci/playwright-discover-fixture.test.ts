@@ -19,6 +19,13 @@ describe('Playwright Discover fixture isolation', () => {
     expect(seed).toContain("telegramGuideUrl: 'https://t.me/asdev_test/123'")
   })
 
+  it('keeps Playwright artifacts in a child directory so runner cleanup cannot delete the disposable SQLite fixture', () => {
+    const config = readFileSync(resolve(process.cwd(), 'playwright.config.mjs'), 'utf8')
+
+    expect(config).toContain("outputDir: './test-results/playwright-artifacts'")
+    expect(config).toContain("const playwrightDatabaseUrl = `file:${resolve(process.cwd(), 'test-results/playwright.db')}`")
+  })
+
   it('runs both smoke and accessibility browser contracts in the E2E workflow', () => {
     const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/e2e-smoke.yml'), 'utf8')
 
