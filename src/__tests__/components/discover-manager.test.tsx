@@ -16,6 +16,7 @@ const draftItem = {
   tags: 'ai,draft',
   imageUrl: null,
   instagramUrl: null,
+  telegramGuideUrl: 'https://t.me/asdev/123',
   featured: false,
   published: false,
   order: 2,
@@ -75,6 +76,7 @@ describe('DiscoverManager', () => {
     expect(screen.getByLabelText('Short description')).toBeRequired()
     expect(screen.getByLabelText('Short practical guide')).toBeRequired()
     expect(screen.getByLabelText('Official HTTPS URL')).toBeRequired()
+    expect(screen.getByLabelText('Telegram full guide / file URL')).toBeInTheDocument()
     expect(screen.getByLabelText('Published')).toBeInTheDocument()
     expect(screen.getByLabelText('Featured')).toBeInTheDocument()
 
@@ -90,6 +92,7 @@ describe('DiscoverManager', () => {
       description: 'Useful tool',
       content: 'Use it for focused work.',
       externalUrl: 'https://example.com/new-tool',
+      telegramGuideUrl: 'https://t.me/asdev/456',
       category: 'Productivity',
       tags: 'focus,work',
       order: 3,
@@ -109,6 +112,7 @@ describe('DiscoverManager', () => {
     fireEvent.change(screen.getByLabelText('Short description'), { target: { value: 'Useful tool' } })
     fireEvent.change(screen.getByLabelText('Short practical guide'), { target: { value: 'Use it for focused work.' } })
     fireEvent.change(screen.getByLabelText('Official HTTPS URL'), { target: { value: 'https://example.com/new-tool' } })
+    fireEvent.change(screen.getByLabelText('Telegram full guide / file URL'), { target: { value: 'https://t.me/asdev/456' } })
     fireEvent.change(screen.getByLabelText('Sort order'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('button', { name: /Save Discover item/i }))
 
@@ -124,6 +128,7 @@ describe('DiscoverManager', () => {
       description: 'Useful tool',
       content: 'Use it for focused work.',
       externalUrl: 'https://example.com/new-tool',
+      telegramGuideUrl: 'https://t.me/asdev/456',
       published: false,
       featured: false,
       order: 3,
@@ -132,8 +137,8 @@ describe('DiscoverManager', () => {
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({ title: 'Saved' }))
   })
 
-  it('loads an existing item into edit mode and confirms deletion before issuing DELETE', async () => {
-    const updated = { ...draftItem, title: 'Draft Tool Updated' }
+  it('loads and clears an existing Telegram guide in edit mode before deletion', async () => {
+    const updated = { ...draftItem, title: 'Draft Tool Updated', telegramGuideUrl: null }
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse({ items: [draftItem] }))
       .mockResolvedValueOnce(jsonResponse({ item: updated }))
@@ -147,12 +152,17 @@ describe('DiscoverManager', () => {
     expect(screen.getByText('Edit Discover item')).toBeInTheDocument()
     expect(screen.getByLabelText('Title')).toHaveValue('Draft Tool')
     expect(screen.getByLabelText('Slug')).toHaveValue('draft-tool')
+    expect(screen.getByLabelText('Telegram full guide / file URL')).toHaveValue('https://t.me/asdev/123')
 
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Draft Tool Updated' } })
+    fireEvent.change(screen.getByLabelText('Telegram full guide / file URL'), { target: { value: '' } })
     fireEvent.click(screen.getByRole('button', { name: /Save Discover item/i }))
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
     expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/admin/discover')
     expect((fetchMock.mock.calls[1]?.[1] as RequestInit).method).toBe('PATCH')
+    expect(JSON.parse(String((fetchMock.mock.calls[1]?.[1] as RequestInit).body))).toMatchObject({
+      telegramGuideUrl: '',
+    })
 
     const deleteButton = await screen.findByRole('button', { name: 'Delete Draft Tool Updated' })
     fireEvent.click(deleteButton)
