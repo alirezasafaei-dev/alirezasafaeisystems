@@ -77,23 +77,23 @@ model Project {
 }
 
 model DiscoverItem {
-  id               String    @id @default(cuid())
-  slug             String    @unique
-  title            String
-  description      String
-  content          String
-  externalUrl      String
-  category         String
-  tags             String
-  imageUrl         String?
-  instagramUrl     String?
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  title        String
+  description  String
+  content      String
+  externalUrl  String
+  category     String
+  tags         String
+  imageUrl     String?
+  instagramUrl String?
   telegramGuideUrl String?
-  featured         Boolean   @default(false)
-  published        Boolean   @default(false)
-  order            Int       @default(0)
-  publishedAt      DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  featured     Boolean   @default(false)
+  published    Boolean   @default(false)
+  order        Int       @default(0)
+  publishedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([published, featured, order])
   @@index([category, published])
