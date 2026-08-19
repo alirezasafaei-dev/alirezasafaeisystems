@@ -25,4 +25,12 @@ describe('Playwright Discover fixture isolation', () => {
     expect(workflow).toContain('pnpm run test:e2e:smoke')
     expect(workflow).toContain('pnpm exec playwright test e2e/a11y.spec.ts')
   })
+
+  it('uses the same disposable seeded database for the CI Browser Smoke step', () => {
+    const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8')
+
+    expect(workflow).toContain('DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"')
+    expect(workflow).toContain('node scripts/test/seed-playwright-discover.mjs')
+    expect(workflow).not.toContain('DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"')
+  })
 })
