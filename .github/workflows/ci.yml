@@ -58,7 +58,14 @@ jobs:
       - name: Unit and integration tests
         run: pnpm run test
 
+      # Next/Turbopack compiles the server-side Prisma call sites into the standalone
+      # output. Keep the CI build bound to the same disposable absolute SQLite URL
+      # used by Browser Smoke, matching production deploy where DATABASE_URL is
+      # loaded before `pnpm run build`. Dynamic sitemap DB reads stay disabled here.
       - name: Production build
+        env:
+          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
+          ASDEV_BUILD_SKIP_DYNAMIC_DB: "1"
         run: pnpm run build
 
       - name: Enterprise gate
@@ -76,34 +83,6 @@ jobs:
           mkdir -p test-results
           pnpm run db:push
           node scripts/test/seed-playwright-discover.mjs
-
-      - name: Diagnose standalone SQLite binding
-        env:
-          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
-        run: |
-          node <<'NODE'
-          const { PrismaClient } = require('@prisma/client')
-          const db = new PrismaClient()
-          ;(async () => {
-            const databases = await db.$queryRawUnsafe('PRAGMA database_list')
-            const count = await db.discoverItem.count()
-            console.log('[diagnostic] root prisma database_list=', databases)
-            console.log('[diagnostic] root DiscoverItem count=', count)
-          })().finally(() => db.$disconnect())
-          NODE
-          (
-            cd .next/standalone
-            node <<'NODE'
-          const { PrismaClient } = require('@prisma/client')
-          const db = new PrismaClient()
-          ;(async () => {
-            const databases = await db.$queryRawUnsafe('PRAGMA database_list')
-            const count = await db.discoverItem.count()
-            console.log('[diagnostic] standalone prisma database_list=', databases)
-            console.log('[diagnostic] standalone DiscoverItem count=', count)
-          })().finally(() => db.$disconnect())
-          NODE
-          )
 
       - name: Browser smoke
         env:
