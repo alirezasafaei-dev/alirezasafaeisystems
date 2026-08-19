@@ -95,7 +95,7 @@ jobs:
         run: |
           fuser -k 3100/tcp 2>/dev/null || true
           sleep 2
-          PORT=3100 pnpm run start &
+          HOSTNAME=127.0.0.1 PORT=3100 node scripts/start-playwright-server.mjs &
           npx wait-on http://127.0.0.1:3100 --timeout 120000
           pnpm exec playwright test e2e/smoke.spec.mjs --config=playwright.config.mjs --reporter=list --workers=1 --retries=1
 
