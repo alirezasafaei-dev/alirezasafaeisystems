@@ -42,6 +42,24 @@ test.describe('smoke', () => {
     await expect(page.getByText('Use this page as the single link in my Instagram bio; no DM automation is required.')).toBeVisible()
   })
 
+  test('Discover resource detail preserves the exact Telegram guide link without campaign leakage', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/discover/playwright-discover-resource?utm_source=instagram&utm_medium=social&utm_campaign=playwright&utm_content=reel-test')
+
+    await expect(page.locator('h1')).toContainText('Playwright Discover Resource')
+    await expect(page.getByText('This quick guide is seeded only for disposable browser testing.')).toBeVisible()
+
+    const official = page.locator('a[href="https://example.com/tool"]')
+    const telegramGuide = page.locator('a[href="https://t.me/asdev_test/123"]')
+    await expect(official).toBeVisible()
+    await expect(telegramGuide).toBeVisible()
+    await expect(telegramGuide).toHaveAttribute('href', 'https://t.me/asdev_test/123')
+    await expect(telegramGuide).toHaveAttribute('target', '_blank')
+    await expect(telegramGuide).toHaveAttribute('rel', 'noopener noreferrer')
+
+    expect(new URL(await telegramGuide.getAttribute('href')).search).toBe('')
+  })
+
   test('theme toggle button is removed from header', async ({ page }) => {
     await page.goto('/')
     await expect(page.locator('header button[aria-label="Toggle theme"]')).toHaveCount(0)
