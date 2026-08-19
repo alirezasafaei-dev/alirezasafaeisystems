@@ -21,10 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const isEn = lang === 'en'
   const canonicalPath = isEn ? '/en/discover' : '/discover'
   return {
-    title: isEn ? 'Discover Useful Apps, Tools and Services' : 'Discover | ابزارها، برنامه‌ها و سرویس‌های کاربردی',
+    title: isEn ? 'Discover Tools, Guides and Resources' : 'Discover | ابزارها، راهنماها و منابع',
     description: isEn
-      ? 'Apps, AI tools, online services and platforms introduced by Alireza Safaei, with short guidance and official links.'
-      : 'ابزارها، برنامه‌ها، سرویس‌ها و پلتفرم‌هایی که در محتوای علیرضا صفایی معرفی می‌شوند؛ همراه با توضیح کوتاه و لینک رسمی.',
+      ? 'Find the tools and resources mentioned in ASDEV social content, with official destinations, quick guides, and direct full-resource links when available.'
+      : 'ابزارها و منابع معرفی‌شده در محتوای ASDEV؛ همراه با مقصد رسمی، راهنمای کوتاه و لینک مستقیم منبع کامل در صورت وجود.',
     alternates: {
       canonical: canonicalPath,
       languages: {
@@ -67,17 +67,17 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
 
   const copy = isEn
     ? {
-        eyebrow: 'From social discovery to useful context',
-        title: 'Everything I introduce on Instagram, collected here with the real link',
-        description: 'Apps, AI tools, online services and useful platforms I share on social media—without the one-link limitation. Open an item to get a short practical explanation, the official link, and related ASDEV resources.',
-        note: 'Discover is curated, not a paid ranking. External tools belong to their respective owners.',
+        eyebrow: 'ASDEV Resource Hub',
+        title: 'Find the tools and resources I mention on Instagram',
+        description: 'Search a name, open its real official destination, read the quick guide, and use the full Telegram resource when one is available.',
+        note: 'Use this page as the single link in my Instagram bio; no DM automation is required.',
         home: 'Back to home',
       }
     : {
-        eyebrow: 'از معرفی در اینستاگرام تا توضیح و لینک واقعی',
-        title: 'چیزهایی که در اینستاگرام معرفی می‌کنم، اینجا کامل‌تر ببین',
-        description: 'برنامه‌ها، ابزارهای هوش مصنوعی، سرویس‌های آنلاین و پلتفرم‌های کاربردی که در محتوای اینستاگرام معرفی می‌کنم؛ بدون محدودیت لینک. هر مورد یک توضیح کوتاه و کاربردی، لینک رسمی و مسیرهای مرتبط در ASDEV دارد.',
-        note: 'Discover یک مجموعهٔ منتخب است، نه رتبه‌بندی پولی. مالکیت سرویس‌های خارجی متعلق به ارائه‌دهندگان خودشان است.',
+        eyebrow: 'مرکز منابع ASDEV',
+        title: 'ابزارها و منابعی که در اینستاگرام معرفی می‌کنم، اینجا پیدا کن',
+        description: 'اسم ابزار را جستجو کن، به مقصد رسمی برو، راهنمای کوتاه را بخوان و اگر منبع کامل تلگرام موجود بود مستقیم همان را باز کن.',
+        note: 'این صفحه مقصد ثابت لینک بیوی اینستاگرام است و برای دریافت منابع نیازی به اتوماسیون دایرکت نیست.',
         home: 'بازگشت به خانه',
       }
 
