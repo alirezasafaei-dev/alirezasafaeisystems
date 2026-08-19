@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { telegramUrlSchema } from '@/lib/telegram'
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -9,6 +10,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_GITHUB_URL: z.string().url().optional(),
   NEXT_PUBLIC_LINKEDIN_URL: z.string().url().optional(),
   NEXT_PUBLIC_TELEGRAM_URL: z.string().url().optional(),
+  NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: telegramUrlSchema.optional(),
+  NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL: telegramUrlSchema.optional(),
   NEXT_PUBLIC_INSTAGRAM_URL: z.string().url().optional(),
   NEXT_PUBLIC_WHATSAPP_URL: z.string().url().optional(),
   NEXT_PUBLIC_TWITTER_URL: z.string().url().optional(),
@@ -48,6 +51,8 @@ const parsed = parseEnv({
   NEXT_PUBLIC_GITHUB_URL: process.env.NEXT_PUBLIC_GITHUB_URL,
   NEXT_PUBLIC_LINKEDIN_URL: process.env.NEXT_PUBLIC_LINKEDIN_URL,
   NEXT_PUBLIC_TELEGRAM_URL: process.env.NEXT_PUBLIC_TELEGRAM_URL,
+  NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: process.env.NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL,
+  NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL: process.env.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL,
   NEXT_PUBLIC_INSTAGRAM_URL: process.env.NEXT_PUBLIC_INSTAGRAM_URL,
   NEXT_PUBLIC_WHATSAPP_URL: process.env.NEXT_PUBLIC_WHATSAPP_URL,
   NEXT_PUBLIC_TWITTER_URL: process.env.NEXT_PUBLIC_TWITTER_URL,
