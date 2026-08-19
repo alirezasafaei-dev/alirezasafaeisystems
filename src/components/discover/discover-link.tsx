@@ -4,13 +4,20 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics/client'
 
+type DiscoverLinkEventName =
+  | 'discover_external_click'
+  | 'discover_internal_cta_click'
+  | 'discover_telegram_guide_click'
+  | 'discover_telegram_channel_click'
+  | 'discover_telegram_group_click'
+
 type DiscoverLinkProps = {
   href: string
   children: ReactNode
   className?: string
   external?: boolean
   locale: 'fa' | 'en'
-  eventName: 'discover_external_click' | 'discover_internal_cta_click'
+  eventName: DiscoverLinkEventName
   metadata?: Record<string, string | number | boolean>
   ariaLabel?: string
 }
@@ -26,9 +33,10 @@ export function DiscoverLink({
   ariaLabel,
 }: DiscoverLinkProps) {
   function recordClick() {
+    const category = eventName === 'discover_internal_cta_click' ? 'conversion' : 'engagement'
     void trackEvent({
       name: eventName,
-      category: eventName === 'discover_internal_cta_click' ? 'conversion' : 'engagement',
+      category,
       locale,
       metadata,
     })
