@@ -42,6 +42,19 @@ for (const { name, path } of PAGES) {
   })
 }
 
+test('Discover Telegram resource detail has no serious or critical accessibility violations on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/discover/playwright-discover-resource')
+  await page.waitForLoadState('networkidle')
+
+  const results = await new AxeBuilder({ page }).analyze()
+  const blockingViolations = results.violations.filter((violation) =>
+    violation.impact === 'critical' || violation.impact === 'serious'
+  )
+
+  expect(blockingViolations).toEqual([])
+})
+
 test('home page has proper heading hierarchy', async ({ page }) => {
   await page.goto('/fa/')
   await page.waitForLoadState('networkidle')
