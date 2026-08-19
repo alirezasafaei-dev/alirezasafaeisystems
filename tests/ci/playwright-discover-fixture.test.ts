@@ -18,4 +18,11 @@ describe('Playwright Discover fixture isolation', () => {
     expect(seed).toContain("where: { slug: 'playwright-discover-resource' }")
     expect(seed).toContain("telegramGuideUrl: 'https://t.me/asdev_test/123'")
   })
+
+  it('runs both smoke and accessibility browser contracts in the E2E workflow', () => {
+    const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/e2e-smoke.yml'), 'utf8')
+
+    expect(workflow).toContain('pnpm run test:e2e:smoke')
+    expect(workflow).toContain('pnpm exec playwright test e2e/a11y.spec.ts')
+  })
 })
