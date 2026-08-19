@@ -58,15 +58,9 @@ jobs:
       - name: Unit and integration tests
         run: pnpm run test
 
-      # enterprise:gate invokes verify, which itself performs a build. Run it
-      # before preparing the browser artifact so it cannot overwrite the final
-      # standalone bundle that Browser Smoke is supposed to verify.
       - name: Enterprise gate
         run: pnpm run enterprise:gate
 
-      # Match the successful Playwright and production runtime contract: create
-      # the absolute disposable SQLite database first, then build the exact
-      # standalone artifact that the following Browser Smoke will execute.
       - name: Setup browser database and deterministic Discover fixture
         env:
           DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
@@ -90,6 +84,7 @@ jobs:
         env:
           CI: "true"
           DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
+          ASDEV_DB_DIAGNOSTIC: "1"
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
           PLAYWRIGHT_DISABLE_WEBSERVER: "true"
         run: |
