@@ -69,15 +69,18 @@ jobs:
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
         run: pnpm exec playwright install chromium
 
-      - name: Setup database
+      - name: Setup browser database and deterministic Discover fixture
         env:
-          DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"
-        run: pnpm run db:push
+          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
+        run: |
+          mkdir -p test-results
+          pnpm run db:push
+          node scripts/test/seed-playwright-discover.mjs
 
       - name: Browser smoke
         env:
           CI: "true"
-          DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"
+          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
           PLAYWRIGHT_DISABLE_WEBSERVER: "true"
         run: |
