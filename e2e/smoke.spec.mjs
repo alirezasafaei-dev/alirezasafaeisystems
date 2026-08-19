@@ -33,11 +33,13 @@ test.describe('smoke', () => {
     await expect(page.locator('h1')).toContainText('Services')
   })
 
-  test('Discover keeps English locale after the internal rewrite', async ({ page }) => {
+  test('Discover keeps English locale and presents the Resource Hub contract', async ({ page }) => {
     await page.goto('/en/discover')
     await expect.poll(async () => page.evaluate(() => document.documentElement.lang)).toBe('en')
     await expect.poll(async () => page.evaluate(() => document.documentElement.dir)).toBe('ltr')
-    await expect(page.locator('h1')).toContainText('Everything I introduce on Instagram, collected here with the real link')
+    await expect(page.locator('h1')).toContainText('Find the tools and resources I mention on Instagram')
+    await expect(page.getByText('Search a name, open its real official destination, read the quick guide, and use the full Telegram resource when one is available.')).toBeVisible()
+    await expect(page.getByText('Use this page as the single link in my Instagram bio; no DM automation is required.')).toBeVisible()
   })
 
   test('theme toggle button is removed from header', async ({ page }) => {
