@@ -41,6 +41,24 @@ describe('Discover content contracts', () => {
     expect(discoverInstagramUrlSchema.safeParse('https://example.com/reel/abc').success).toBe(false)
   })
 
+  it('accepts and clears the optional exact Telegram guide URL', () => {
+    expect(discoverUpdateSchema.parse({
+      id: 'discover_12345',
+      telegramGuideUrl: 'https://t.me/asdev/123',
+    })).toEqual({
+      id: 'discover_12345',
+      telegramGuideUrl: 'https://t.me/asdev/123',
+    })
+
+    expect(discoverUpdateSchema.parse({
+      id: 'discover_12345',
+      telegramGuideUrl: '',
+    })).toEqual({
+      id: 'discover_12345',
+      telegramGuideUrl: null,
+    })
+  })
+
   it('does not inject create defaults into partial updates', () => {
     expect(discoverUpdateSchema.parse({
       id: 'discover_12345',
