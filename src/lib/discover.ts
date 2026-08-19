@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { optionalTelegramUrlSchema } from '@/lib/telegram'
 
 export const DISCOVER_ATTRIBUTION_KEYS = [
   'utm_source',
@@ -74,6 +75,7 @@ export const discoverFieldsSchema = z.object({
   tags: discoverTagsSchema,
   imageUrl: optionalDiscoverUrlSchema,
   instagramUrl: discoverInstagramUrlSchema,
+  telegramGuideUrl: optionalTelegramUrlSchema,
   featured: z.boolean().optional().default(false),
   published: z.boolean().optional().default(false),
   order: discoverOrderSchema.optional().default(0),
@@ -92,6 +94,7 @@ export const discoverUpdateSchema = z.object({
   tags: discoverTagsSchema.optional(),
   imageUrl: optionalDiscoverUrlSchema,
   instagramUrl: discoverInstagramUrlSchema,
+  telegramGuideUrl: optionalTelegramUrlSchema,
   featured: z.boolean().optional(),
   published: z.boolean().optional(),
   order: discoverOrderSchema.optional(),
