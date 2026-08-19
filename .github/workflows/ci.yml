@@ -58,10 +58,17 @@ jobs:
       - name: Unit and integration tests
         run: pnpm run test
 
-      # Next/Turbopack compiles the server-side Prisma call sites into the standalone
-      # output. Keep the CI build bound to the same disposable absolute SQLite URL
-      # used by Browser Smoke, matching production deploy where DATABASE_URL is
-      # loaded before `pnpm run build`. Dynamic sitemap DB reads stay disabled here.
+      # Mirror the successful Playwright/production ordering: an absolute SQLite
+      # database exists before the standalone bundle is built, while all CI data
+      # remains disposable under test-results/.
+      - name: Setup browser database and deterministic Discover fixture
+        env:
+          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
+        run: |
+          mkdir -p test-results
+          pnpm run db:push
+          node scripts/test/seed-playwright-discover.mjs
+
       - name: Production build
         env:
           DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
@@ -75,14 +82,6 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
         run: pnpm exec playwright install chromium
-
-      - name: Setup browser database and deterministic Discover fixture
-        env:
-          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
-        run: |
-          mkdir -p test-results
-          pnpm run db:push
-          node scripts/test/seed-playwright-discover.mjs
 
       - name: Browser smoke
         env:
