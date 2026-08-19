@@ -39,9 +39,33 @@ describe('Discover public data contract', () => {
 
     expect(detail).toContain('href={item.externalUrl}')
     expect(detail).toContain('href={item.instagramUrl}')
+    expect(detail).toContain('href={item.telegramGuideUrl}')
+    expect(detail).toContain('href={telegramChannelUrl}')
+    expect(detail).toContain('href={telegramGroupUrl}')
     expect(detail).toContain("appendDiscoverAttribution(isEn ? '/en/qualification' : '/qualification', attribution)")
     expect(detail).not.toContain('appendDiscoverAttribution(item.externalUrl')
     expect(detail).not.toContain('appendDiscoverAttribution(item.instagramUrl')
+    expect(detail).not.toContain('appendDiscoverAttribution(item.telegramGuideUrl')
+    expect(detail).not.toContain('appendDiscoverAttribution(telegramChannelUrl')
+    expect(detail).not.toContain('appendDiscoverAttribution(telegramGroupUrl')
+  })
+
+  it('emits distinct Telegram destination events with resource-first source order', () => {
+    const detail = source('src/app/discover/[slug]/page.tsx')
+
+    expect(detail).toContain('discover_telegram_guide_click')
+    expect(detail).toContain('discover_telegram_channel_click')
+    expect(detail).toContain('discover_telegram_group_click')
+
+    const officialIndex = detail.indexOf('href={item.externalUrl}')
+    const telegramGuideIndex = detail.indexOf('href={item.telegramGuideUrl}')
+    const relatedHeadingIndex = detail.indexOf('{copy.related}')
+    const asdevHeadingIndex = detail.indexOf('{copy.asdev}')
+
+    expect(officialIndex).toBeGreaterThan(-1)
+    expect(telegramGuideIndex).toBeGreaterThan(officialIndex)
+    expect(relatedHeadingIndex).toBeGreaterThan(telegramGuideIndex)
+    expect(asdevHeadingIndex).toBeGreaterThan(relatedHeadingIndex)
   })
 
   it('localizes the featured badge on the detail page', () => {
