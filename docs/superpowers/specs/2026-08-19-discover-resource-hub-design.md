@@ -3,7 +3,7 @@
 **Date:** 2026-08-19  
 **Repository:** `alirezasafaei-dev/alirezasafaeisystems`  
 **Public surface:** `https://alirezasafaeisystems.ir/discover`  
-**Status:** Owner-approved design; implementation tracked by `docs/superpowers/plans/2026-08-19-discover-resource-hub.md`
+**Status:** Owner-approved design; implementation tracked by `docs/superpowers/plans/2026-08-19-discover-resource-hub.md` and roadmap issue #174
 
 ## Context
 
@@ -403,19 +403,17 @@ No traffic, conversion or revenue claim should be made until real production dat
 
 ## Implementation sequencing recommendation
 
-The approved implementation plan is now committed at:
+The approved implementation plan is committed at:
 
 `docs/superpowers/plans/2026-08-19-discover-resource-hub.md`
 
-Its dependency order is:
+GitHub execution tracking:
 
-1. data contract and validation;
-2. Admin/API editorial lifecycle;
-3. global Telegram configuration;
-4. destination-specific analytics;
-5. public detail-page resource hierarchy;
-6. landing resource-hub positioning;
-7. browser/accessibility proof;
-8. operations, exact-head verification and rollout evidence.
+- Roadmap: #174
+- Tasks: #175, #176, #177, #178, #179, #180, #181, #182
+
+Dependency order:
+
+`#175 → #176 → (#177 || #178) → #179 → #180 → #181 → #182`
 
 Each slice is designed as an independently reviewable TDD unit with exact file targets, acceptance criteria and stop conditions.
