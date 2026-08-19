@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { db, diagnoseDatabaseConnection } from '@/lib/db'
+import { db } from '@/lib/db'
 import { discoverAnalyticsMetadata, extractDiscoverAttribution } from '@/lib/discover'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { getSiteUrl } from '@/lib/site-config'
@@ -41,7 +41,6 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
   const isEn = lang === 'en'
   const canonicalPath = isEn ? '/en/discover' : '/discover'
   const attribution = extractDiscoverAttribution(await searchParams)
-  await diagnoseDatabaseConnection('discover-landing')
   const records = await db.discoverItem.findMany({
     where: { published: true },
     select: {

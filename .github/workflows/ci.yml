@@ -84,7 +84,6 @@ jobs:
         env:
           CI: "true"
           DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
-          ASDEV_DB_DIAGNOSTIC: "1"
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
           PLAYWRIGHT_DISABLE_WEBSERVER: "true"
         run: |
