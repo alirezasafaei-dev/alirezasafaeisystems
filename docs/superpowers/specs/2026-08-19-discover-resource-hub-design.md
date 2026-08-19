@@ -3,7 +3,7 @@
 **Date:** 2026-08-19  
 **Repository:** `alirezasafaei-dev/alirezasafaeisystems`  
 **Public surface:** `https://alirezasafaeisystems.ir/discover`  
-**Status:** Approved product direction; implementation not started by this document
+**Status:** Owner-approved design; implementation tracked by `docs/superpowers/plans/2026-08-19-discover-resource-hub.md`
 
 ## Context
 
@@ -403,14 +403,19 @@ No traffic, conversion or revenue claim should be made until real production dat
 
 ## Implementation sequencing recommendation
 
-After this spec is approved, the implementation plan should be decomposed into independently verifiable slices in this order:
+The approved implementation plan is now committed at:
+
+`docs/superpowers/plans/2026-08-19-discover-resource-hub.md`
+
+Its dependency order is:
 
 1. data contract and validation;
 2. Admin/API editorial lifecycle;
-3. public detail-page resource hierarchy;
-4. global Telegram configuration;
-5. analytics events;
-6. regression/a11y/E2E coverage;
-7. documentation, production migration rehearsal and rollout evidence.
+3. global Telegram configuration;
+4. destination-specific analytics;
+5. public detail-page resource hierarchy;
+6. landing resource-hub positioning;
+7. browser/accessibility proof;
+8. operations, exact-head verification and rollout evidence.
 
-Each slice should be small enough for an agent to execute with exact file targets, test-first steps, acceptance criteria and a clear stop condition.
+Each slice is designed as an independently reviewable TDD unit with exact file targets, acceptance criteria and stop conditions.
