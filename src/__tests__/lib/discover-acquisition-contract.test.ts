@@ -13,6 +13,7 @@ describe('Discover acquisition surface contract', () => {
     expect(schema).toContain('slug         String')
     expect(schema).toContain('externalUrl')
     expect(schema).toContain('instagramUrl')
+    expect(schema).toContain('telegramGuideUrl')
   })
 
   it('has an internal detail route and a dedicated authenticated admin API', () => {
@@ -26,6 +27,14 @@ describe('Discover acquisition surface contract', () => {
     expect(landing).toContain('DiscoverGrid')
     expect(landing).toContain('discover_landing_view')
     expect(landing).not.toContain('مشاهده پروژه')
+  })
+
+  it('uses Discover-specific Telegram configuration on the resource detail page', () => {
+    const detail = source('src/app/discover/[slug]/page.tsx')
+
+    expect(detail).toContain('NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL')
+    expect(detail).toContain('NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL')
+    expect(detail).not.toContain('NEXT_PUBLIC_TELEGRAM_URL')
   })
 
   it('exposes Discover as its own Admin tab instead of nesting it inside Portfolio projects', () => {
