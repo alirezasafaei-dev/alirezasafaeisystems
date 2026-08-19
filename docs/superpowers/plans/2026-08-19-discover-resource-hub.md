@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-19-discover-resource-hub-design.md`
 
+**GitHub roadmap:** #174 with implementation issues #175–#182.
+
 ## Global Constraints
 
 - Reuse the existing application, database, Admin authentication, rate limiting, analytics client, sitemap and deploy/rollback system.
@@ -65,6 +67,8 @@
 ---
 
 ### Task 1: Add the Telegram URL contract and additive database field
+
+**GitHub issue:** #175
 
 **Files:**
 - Create: `src/lib/telegram.ts`
@@ -221,6 +225,8 @@ git commit -m "feat(discover): add Telegram guide data contract"
 
 ### Task 2: Extend the authenticated Admin API and editor lifecycle
 
+**GitHub issue:** #176
+
 **Files:**
 - Modify: `src/app/api/admin/discover/route.ts`
 - Modify: `src/__tests__/api/admin-discover.integration.test.ts`
@@ -355,6 +361,8 @@ git commit -m "feat(discover): manage Telegram guide links in Admin"
 
 ### Task 3: Add optional global Discover Telegram channel/group configuration
 
+**GitHub issue:** #177
+
 **Files:**
 - Modify: `src/lib/env.ts`
 - Modify: `src/__tests__/lib/env.test.ts`
@@ -443,6 +451,8 @@ git commit -m "feat(discover): configure optional Telegram community links"
 
 ### Task 4: Extend Discover link telemetry for Telegram destinations
 
+**GitHub issue:** #178
+
 **Files:**
 - Modify: `src/components/discover/discover-link.tsx`
 - Create: `src/__tests__/components/discover-link.test.tsx`
@@ -518,6 +528,8 @@ git commit -m "feat(discover): track Telegram resource clicks"
 ---
 
 ### Task 5: Make the detail page resource-first and render optional Telegram actions
+
+**GitHub issue:** #179
 
 **Files:**
 - Modify: `src/app/discover/[slug]/page.tsx`
@@ -662,6 +674,8 @@ git commit -m "feat(discover): prioritize resource resolution on detail pages"
 
 ### Task 6: Update the Discover landing promise for the bio/resource-hub use case
 
+**GitHub issue:** #180
+
 **Files:**
 - Modify: `src/app/discover/page.tsx`
 - Modify: `e2e/smoke.spec.mjs`
@@ -730,6 +744,8 @@ git commit -m "feat(discover): position landing as ASDEV resource hub"
 ---
 
 ### Task 7: Add deterministic browser coverage for Telegram-backed Discover content
+
+**GitHub issue:** #181
 
 **Files:**
 - Create: `scripts/seed-playwright-discover.mjs`
@@ -836,6 +852,8 @@ git commit -m "test(discover): cover Telegram resource flow in browser"
 ---
 
 ### Task 8: Update operations docs, rollout contract, and run the complete verification gate
+
+**GitHub issue:** #182
 
 **Files:**
 - Modify: `docs/operations/DISCOVER_LOCAL_RUNBOOK.md`
@@ -963,24 +981,24 @@ Do not close the implementation issue as production-complete without this eviden
 ## Roadmap / Dependency Order
 
 ```text
-Task 1 — Data + validation
+Task 1 / #175 — Data + validation
   ↓
-Task 2 — Admin/API editorial lifecycle
+Task 2 / #176 — Admin/API editorial lifecycle
   ↓
-Task 3 — Global Telegram configuration
+Task 3 / #177 — Global Telegram configuration
   ↓
-Task 4 — Destination-specific telemetry
+Task 4 / #178 — Destination-specific telemetry
   ↓
-Task 5 — Detail resource UX
+Task 5 / #179 — Detail resource UX
   ↓
-Task 6 — Landing resource-hub positioning
+Task 6 / #180 — Landing resource-hub positioning
   ↓
-Task 7 — Browser + accessibility proof
+Task 7 / #181 — Browser + accessibility proof
   ↓
-Task 8 — Ops docs + full verification + rollout evidence
+Task 8 / #182 — Ops docs + full verification + rollout evidence
 ```
 
-Tasks 3 and 4 can be implemented in parallel after Task 1, but Task 5 depends on both. Task 7 depends on Tasks 1–6. Task 8 is the final integration/verification gate.
+Tasks #177 and #178 can be implemented in parallel after #175, but #179 depends on both. #181 depends on #175–#180. #182 is the final integration/verification gate.
 
 ## Definition of Ready for Each Agent Task
 
@@ -1005,6 +1023,6 @@ Stop and report instead of guessing when any of these occur:
 
 ## Plan Self-Review Result
 
-- Spec coverage: all data, Admin, public UX, global configuration, analytics, SEO-preservation, security/privacy, migration, testing, content workflow and production-evidence requirements map to Tasks 1–8.
+- Spec coverage: all data, Admin, public UX, global configuration, analytics, SEO-preservation, security/privacy, migration, testing, content workflow and production-evidence requirements map to Tasks #175–#182.
 - Placeholder scan: no implementation step requires a guessed Telegram handle, secret, production slug or future TODO. Optional global destinations remain unset until owner configuration exists.
 - Type consistency: the single per-item field is `telegramGuideUrl`; global environment names are `NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL` and `NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL`; Telegram event names are `discover_telegram_guide_click`, `discover_telegram_channel_click`, and `discover_telegram_group_click` throughout.
