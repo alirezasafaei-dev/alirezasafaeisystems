@@ -77,6 +77,34 @@ jobs:
           pnpm run db:push
           node scripts/test/seed-playwright-discover.mjs
 
+      - name: Diagnose standalone SQLite binding
+        env:
+          DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"
+        run: |
+          node <<'NODE'
+          const { PrismaClient } = require('@prisma/client')
+          const db = new PrismaClient()
+          ;(async () => {
+            const databases = await db.$queryRawUnsafe('PRAGMA database_list')
+            const count = await db.discoverItem.count()
+            console.log('[diagnostic] root prisma database_list=', databases)
+            console.log('[diagnostic] root DiscoverItem count=', count)
+          })().finally(() => db.$disconnect())
+          NODE
+          (
+            cd .next/standalone
+            node <<'NODE'
+          const { PrismaClient } = require('@prisma/client')
+          const db = new PrismaClient()
+          ;(async () => {
+            const databases = await db.$queryRawUnsafe('PRAGMA database_list')
+            const count = await db.discoverItem.count()
+            console.log('[diagnostic] standalone prisma database_list=', databases)
+            console.log('[diagnostic] standalone DiscoverItem count=', count)
+          })().finally(() => db.$disconnect())
+          NODE
+          )
+
       - name: Browser smoke
         env:
           CI: "true"
