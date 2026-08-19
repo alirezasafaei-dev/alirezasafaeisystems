@@ -25,6 +25,8 @@ describe('env', () => {
     expect(parsed.NEXT_PUBLIC_ENABLE_ANALYTICS).toBe('false')
     expect(parsed.NEXT_PUBLIC_ENABLE_WEB_VITALS).toBe('false')
     expect(parsed.NEXT_PUBLIC_FONT_CDN_ENABLED).toBe('false')
+    expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL).toBeUndefined()
+    expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL).toBeUndefined()
     expect(parsed.ADMIN_SESSION_MAX_AGE_SECONDS).toBe(60 * 60 * 8)
     expect(parsed.API_RATE_LIMIT_WINDOW_MS).toBe(15 * 60 * 1000)
     expect(parsed.API_RATE_LIMIT_MAX_REQUESTS).toBe(5)
@@ -59,5 +61,21 @@ describe('env', () => {
     expect(parsed.REDIS_REST_URL).toBe('https://redis.example.com')
     expect(parsed.API_RATE_LIMIT_WINDOW_MS).toBe(60000)
     expect(parsed.API_RATE_LIMIT_MAX_REQUESTS).toBe(12)
+  })
+
+  it('accepts canonical Discover Telegram channel and group URLs', () => {
+    const parsed = parseEnv({
+      NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: 'https://t.me/asdev',
+      NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL: 'https://t.me/asdev_chat',
+    })
+
+    expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL).toBe('https://t.me/asdev')
+    expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL).toBe('https://t.me/asdev_chat')
+  })
+
+  it('rejects non-t.me Discover Telegram destinations', () => {
+    expect(() => parseEnv({
+      NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: 'https://telegram.me/asdev',
+    })).toThrow()
   })
 })
