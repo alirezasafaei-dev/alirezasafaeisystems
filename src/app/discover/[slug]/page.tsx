@@ -8,6 +8,7 @@ import {
   discoverAnalyticsMetadata,
   extractDiscoverAttribution,
 } from '@/lib/discover'
+import { env } from '@/lib/env'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { generateBreadcrumbSchema } from '@/lib/seo'
 import { getSiteUrl } from '@/lib/site-config'
@@ -89,6 +90,8 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
   const qualificationHref = appendDiscoverAttribution(isEn ? '/en/qualification' : '/qualification', attribution)
   const auditHref = appendDiscoverAttribution(isEn ? '/en/audit-readiness' : '/audit-readiness', attribution)
   const caseStudiesHref = appendDiscoverAttribution(isEn ? '/en/case-studies' : '/case-studies', attribution)
+  const telegramChannelUrl = env.NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL
+  const telegramGroupUrl = env.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL
   const locale = isEn ? 'en' : 'fa'
 
   const copy = isEn
@@ -96,11 +99,14 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
         back: 'Back to Discover',
         guide: 'Quick practical guide',
         official: 'Open official website',
+        telegramGuide: 'Full tutorial / file on Telegram',
+        telegramChannel: 'Browse the Telegram channel',
+        telegramGroup: 'Ask a question in the Telegram group',
         instagram: 'View the Instagram post',
         related: 'Related Discover items',
         featured: 'Featured',
         asdev: 'Continue inside ASDEV',
-        asdevDescription: 'If this tool brought you here from social media, you can also explore the systems I build and the technical audit path I use for real websites.',
+        asdevDescription: 'If this resource was useful, you can also explore the systems I build, case studies, and the technical audit path for real websites.',
         audit: 'Website Audit readiness',
         cases: 'View case studies',
         qualify: 'Start a project inquiry',
@@ -110,11 +116,14 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
         back: 'بازگشت به Discover',
         guide: 'راهنمای کوتاه و کاربردی',
         official: 'باز کردن سایت رسمی',
+        telegramGuide: 'آموزش کامل / فایل در تلگرام',
+        telegramChannel: 'مشاهده کانال تلگرام',
+        telegramGroup: 'پرسش در گروه تلگرام',
         instagram: 'دیدن پست اینستاگرام',
         related: 'موارد مشابه در Discover',
         featured: 'منتخب',
         asdev: 'ادامه در ASDEV',
-        asdevDescription: 'اگر از اینستاگرام برای دیدن این ابزار وارد سایت شدی، می‌توانی پروژه‌ها، سیستم‌ها و مسیر بررسی فنی سایت در ASDEV را هم ببینی.',
+        asdevDescription: 'اگر این منبع برایت مفید بود، می‌توانی سیستم‌هایی که می‌سازم، Case Studyها و مسیر بررسی فنی سایت را هم ببینی.',
         audit: 'بررسی آمادگی سایت برای Audit',
         cases: 'دیدن Case Studyها',
         qualify: 'شروع درخواست همکاری',
@@ -187,6 +196,48 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
               <ExternalLink className="h-4 w-4" />
             </DiscoverLink>
 
+            {item.telegramGuideUrl ? (
+              <DiscoverLink
+                href={item.telegramGuideUrl}
+                external
+                locale={locale}
+                eventName="discover_telegram_guide_click"
+                metadata={{ ...telemetryMetadata, target: 'telegram_guide' }}
+                className="inline-flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-5 py-3 text-sm font-semibold transition hover:bg-primary/10"
+              >
+                {copy.telegramGuide}
+                <ExternalLink className="h-4 w-4" />
+              </DiscoverLink>
+            ) : null}
+
+            {telegramChannelUrl ? (
+              <DiscoverLink
+                href={telegramChannelUrl}
+                external
+                locale={locale}
+                eventName="discover_telegram_channel_click"
+                metadata={{ ...telemetryMetadata, target: 'telegram_channel' }}
+                className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition hover:bg-muted"
+              >
+                {copy.telegramChannel}
+                <ExternalLink className="h-4 w-4" />
+              </DiscoverLink>
+            ) : null}
+
+            {telegramGroupUrl ? (
+              <DiscoverLink
+                href={telegramGroupUrl}
+                external
+                locale={locale}
+                eventName="discover_telegram_group_click"
+                metadata={{ ...telemetryMetadata, target: 'telegram_group' }}
+                className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition hover:bg-muted"
+              >
+                {copy.telegramGroup}
+                <ExternalLink className="h-4 w-4" />
+              </DiscoverLink>
+            ) : null}
+
             {item.instagramUrl ? (
               <DiscoverLink
                 href={item.instagramUrl}
@@ -204,8 +255,28 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
           <p className="text-xs leading-6 text-muted-foreground">{copy.disclosure}</p>
         </section>
 
-        <section className="rounded-2xl border bg-card p-6 md:p-8">
-          <h2 className="text-2xl font-bold">{copy.asdev}</h2>
+        {related.length > 0 ? (
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold">{copy.related}</h2>
+            <div className="grid gap-3 md:grid-cols-3">
+              {related.map((relatedItem) => {
+                const href = appendDiscoverAttribution(
+                  isEn ? `/en/discover/${relatedItem.slug}` : `/discover/${relatedItem.slug}`,
+                  attribution,
+                )
+                return (
+                  <Link key={relatedItem.slug} href={href} className="rounded-xl border bg-card p-4 transition hover:bg-muted/50">
+                    <h3 className="font-semibold">{relatedItem.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-xs leading-6 text-muted-foreground">{relatedItem.description}</p>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="rounded-2xl border border-dashed bg-muted/20 p-6 md:p-8">
+          <h2 className="text-lg font-semibold">{copy.asdev}</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{copy.asdevDescription}</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <DiscoverLink
@@ -213,7 +284,7 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
               locale={locale}
               eventName="discover_internal_cta_click"
               metadata={{ ...telemetryMetadata, target: 'audit_readiness' }}
-              className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+              className="rounded-xl border px-4 py-2.5 text-sm font-semibold hover:bg-muted"
             >
               {copy.audit}
             </DiscoverLink>
@@ -237,26 +308,6 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
             </DiscoverLink>
           </div>
         </section>
-
-        {related.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold">{copy.related}</h2>
-            <div className="grid gap-3 md:grid-cols-3">
-              {related.map((relatedItem) => {
-                const href = appendDiscoverAttribution(
-                  isEn ? `/en/discover/${relatedItem.slug}` : `/discover/${relatedItem.slug}`,
-                  attribution,
-                )
-                return (
-                  <Link key={relatedItem.slug} href={href} className="rounded-xl border bg-card p-4 transition hover:bg-muted/50">
-                    <h3 className="font-semibold">{relatedItem.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-xs leading-6 text-muted-foreground">{relatedItem.description}</p>
-                  </Link>
-                )
-              })}
-            </div>
-          </section>
-        ) : null}
       </article>
     </main>
   )
