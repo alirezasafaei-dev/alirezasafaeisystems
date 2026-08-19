@@ -23,6 +23,7 @@ const validItem = {
   tags: ['AI', 'research'],
   imageUrl: '',
   instagramUrl: 'https://www.instagram.com/reel/example/',
+  telegramGuideUrl: 'https://t.me/asdev/123',
   featured: true,
   published: false,
   order: 1,
@@ -50,7 +51,7 @@ describe('Discover admin API', () => {
     process.env.API_RATE_LIMIT_WINDOW_MS = '60000'
   })
 
-  it('creates a draft Discover item with normalized tags', async () => {
+  it('creates a draft Discover item with normalized tags and Telegram guide URL', async () => {
     discoverItemMock.create.mockResolvedValueOnce({ id: 'discover_12345', ...validItem, tags: 'AI,research' })
     const { POST } = await import('@/app/api/admin/discover/route')
     const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
@@ -63,6 +64,7 @@ describe('Discover admin API', () => {
       data: expect.objectContaining({
         slug: 'notebooklm',
         tags: 'AI,research',
+        telegramGuideUrl: 'https://t.me/asdev/123',
         published: false,
         publishedAt: null,
       }),
@@ -74,6 +76,17 @@ describe('Discover admin API', () => {
     const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
       method: 'POST',
       body: JSON.stringify({ ...validItem, instagramUrl: 'https://example.com/post/1' }),
+    }))
+
+    expect(response.status).toBe(400)
+    expect(discoverItemMock.create).not.toHaveBeenCalled()
+  })
+
+  it('rejects a non-canonical Telegram guide host before touching the database', async () => {
+    const { POST } = await import('@/app/api/admin/discover/route')
+    const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'POST',
+      body: JSON.stringify({ ...validItem, telegramGuideUrl: 'https://telegram.me/asdev/123' }),
     }))
 
     expect(response.status).toBe(400)
@@ -96,6 +109,21 @@ describe('Discover admin API', () => {
     expect(discoverItemMock.update).toHaveBeenCalledWith({
       where: { id: 'discover_12345' },
       data: expect.objectContaining({ published: true, publishedAt: expect.any(Date) }),
+    })
+  })
+
+  it('clears a Telegram guide URL to null on PATCH', async () => {
+    discoverItemMock.update.mockResolvedValueOnce({ id: 'discover_12345', telegramGuideUrl: null })
+    const { PATCH } = await import('@/app/api/admin/discover/route')
+    const response = await PATCH(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'discover_12345', telegramGuideUrl: '' }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(discoverItemMock.update).toHaveBeenCalledWith({
+      where: { id: 'discover_12345' },
+      data: expect.objectContaining({ telegramGuideUrl: null }),
     })
   })
 
