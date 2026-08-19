@@ -45,4 +45,11 @@ describe('Playwright Discover fixture isolation', () => {
     expect(workflow).toContain('node scripts/test/seed-playwright-discover.mjs')
     expect(workflow).not.toContain('DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"')
   })
+
+  it('starts Browser Smoke with the same direct standalone launcher contract used by E2E and production', () => {
+    const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8')
+
+    expect(workflow).toContain('HOSTNAME=127.0.0.1 PORT=3100 node scripts/start-playwright-server.mjs &')
+    expect(workflow).not.toContain('PORT=3100 pnpm run start &')
+  })
 })
