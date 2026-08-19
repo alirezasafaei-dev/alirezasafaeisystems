@@ -26,16 +26,19 @@ describe('Playwright Discover fixture isolation', () => {
     expect(workflow).toContain('pnpm exec playwright test e2e/a11y.spec.ts')
   })
 
-  it('creates and seeds the same disposable database before the CI standalone build and Browser Smoke', () => {
+  it('creates and seeds the disposable database before the final CI build and keeps that build after enterprise verification', () => {
     const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8')
     const disposableDatabase = 'DATABASE_URL: "file:${{ github.workspace }}/test-results/playwright.db"'
+    const enterpriseIndex = workflow.indexOf('- name: Enterprise gate')
     const setupIndex = workflow.indexOf('- name: Setup browser database and deterministic Discover fixture')
     const buildIndex = workflow.indexOf('- name: Production build')
     const smokeIndex = workflow.indexOf('- name: Browser smoke')
 
-    expect(setupIndex).toBeGreaterThan(-1)
+    expect(enterpriseIndex).toBeGreaterThan(-1)
+    expect(setupIndex).toBeGreaterThan(enterpriseIndex)
     expect(buildIndex).toBeGreaterThan(setupIndex)
     expect(smokeIndex).toBeGreaterThan(buildIndex)
+    expect(workflow.indexOf('- name: Enterprise gate', buildIndex)).toBe(-1)
     expect(workflow).toContain(disposableDatabase)
     expect(workflow).toContain('ASDEV_BUILD_SKIP_DYNAMIC_DB: "1"')
     expect(workflow.match(new RegExp(disposableDatabase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))?.length).toBeGreaterThanOrEqual(3)
