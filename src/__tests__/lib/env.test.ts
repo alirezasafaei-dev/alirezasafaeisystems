@@ -73,6 +73,16 @@ describe('env', () => {
     expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL).toBe('https://t.me/asdev_chat')
   })
 
+  it('treats blank Discover Telegram configuration as absent', () => {
+    const parsed = parseEnv({
+      NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: '',
+      NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL: '   ',
+    })
+
+    expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL).toBeUndefined()
+    expect(parsed.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL).toBeUndefined()
+  })
+
   it('rejects non-t.me Discover Telegram destinations', () => {
     expect(() => parseEnv({
       NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: 'https://telegram.me/asdev',
