@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { telegramUrlSchema } from '@/lib/telegram'
 
+const optionalTelegramEnvUrlSchema = z.preprocess(
+  (value) => typeof value === 'string' && value.trim() === '' ? undefined : value,
+  telegramUrlSchema.optional(),
+)
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
@@ -10,8 +15,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_GITHUB_URL: z.string().url().optional(),
   NEXT_PUBLIC_LINKEDIN_URL: z.string().url().optional(),
   NEXT_PUBLIC_TELEGRAM_URL: z.string().url().optional(),
-  NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: telegramUrlSchema.optional(),
-  NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL: telegramUrlSchema.optional(),
+  NEXT_PUBLIC_DISCOVER_TELEGRAM_CHANNEL_URL: optionalTelegramEnvUrlSchema,
+  NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL: optionalTelegramEnvUrlSchema,
   NEXT_PUBLIC_INSTAGRAM_URL: z.string().url().optional(),
   NEXT_PUBLIC_WHATSAPP_URL: z.string().url().optional(),
   NEXT_PUBLIC_TWITTER_URL: z.string().url().optional(),
