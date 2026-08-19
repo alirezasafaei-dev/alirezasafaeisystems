@@ -13,6 +13,7 @@ const launchOptions = fs.existsSync(systemChromePath)
 
 const config = {
   testDir: './e2e',
+  outputDir: './test-results/playwright-artifacts',
   timeout: 30_000,
   retries: 1,
   use: {
