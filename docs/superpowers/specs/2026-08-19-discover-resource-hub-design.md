@@ -410,7 +410,14 @@ The approved implementation plan is committed at:
 GitHub execution tracking:
 
 - Roadmap: #174
-- Tasks: #175, #176, #177, #178, #179, #180, #181, #182
+- Task 1: #175
+- Task 2: #176
+- Task 3: #177
+- Task 4: #178
+- Task 5: #179
+- Task 6: #180
+- Task 7: #181
+- Task 8: #182
 
 Dependency order:
 
