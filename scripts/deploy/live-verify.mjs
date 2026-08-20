@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { chromium } from '@playwright/test'
+import { isExpectedNextPrefetchAbort } from './live-verify-request-failure.mjs'
 
 const baseUrl = process.env.LIVE_VERIFY_BASE_URL
 const releaseSha = process.env.LIVE_VERIFY_RELEASE_SHA
@@ -41,8 +42,13 @@ function attachDiagnostics(page, scope) {
   })
   page.on('pageerror', (error) => recordFailure(scope, `page error: ${error.message}`))
   page.on('requestfailed', (request) => {
-    if (sameOrigin(request.url())) {
-      recordFailure(scope, `request failed: ${request.method()} ${request.url()} (${request.failure()?.errorText ?? 'unknown'})`)
+    const errorText = request.failure()?.errorText ?? 'unknown'
+    if (sameOrigin(request.url()) && !isExpectedNextPrefetchAbort({
+      method: request.method(),
+      url: request.url(),
+      errorText,
+    })) {
+      recordFailure(scope, `request failed: ${request.method()} ${request.url()} (${errorText})`)
     }
   })
   page.on('response', (response) => {
