@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Search, Sparkles } from 'lucide-react'
 import { appendDiscoverAttribution, type DiscoverAttribution } from '@/lib/discover'
-import { getDiscoverCategoryLabel, normalizeDiscoverCategory } from '@/lib/discover-categories'
+import { getSafeDiscoverCategoryLabel } from '@/lib/discover-categories'
 import { translations } from '@/lib/i18n/translations'
 
 export type DiscoverGridItem = {
@@ -31,13 +31,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
     () => [...new Set(items.map((item) => item.category).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
     [items],
   )
-  const categoryLabel = (value: string) => {
-    try {
-      return getDiscoverCategoryLabel(normalizeDiscoverCategory(value), isEn ? 'en' : 'fa')
-    } catch {
-      return getDiscoverCategoryLabel('general', isEn ? 'en' : 'fa')
-    }
-  }
+  const categoryLabel = (value: string) => getSafeDiscoverCategoryLabel(value, isEn ? 'en' : 'fa')
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase()

@@ -13,6 +13,10 @@ function PersianProvider({ children }: { children: React.ReactNode }) {
   return <I18nProvider initialLanguage="fa">{children}</I18nProvider>
 }
 
+function EnglishProvider({ children }: { children: React.ReactNode }) {
+  return <I18nProvider initialLanguage="en">{children}</I18nProvider>
+}
+
 describe('Discover navigation localization', () => {
   beforeEach(() => {
     document.cookie = 'lang=; Path=/; Max-Age=0'
@@ -34,5 +38,15 @@ describe('Discover navigation localization', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'باز کردن منو' }))
     expect(screen.getByRole('link', { name: 'ابزارها و منابع' })).toBeInTheDocument()
+  })
+
+  it('renders English Discover links in desktop, mobile, and footer navigation', () => {
+    document.cookie = 'lang=en; Path=/'
+    const { container } = render(<><Header /><Footer /></>, { wrapper: EnglishProvider })
+
+    expect(within(container.querySelector('header') as HTMLElement).getByRole('link', { name: 'Discover' })).toBeInTheDocument()
+    expect(within(container.querySelector('footer') as HTMLElement).getByRole('link', { name: /Discover/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+    expect(screen.getByRole('link', { name: 'Discover' })).toBeInTheDocument()
   })
 })

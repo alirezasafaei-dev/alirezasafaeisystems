@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DiscoverManager } from '@/components/admin/discover-manager'
+import { I18nProvider } from '@/lib/i18n-context'
 
 const { toastMock } = vi.hoisted(() => ({ toastMock: vi.fn() }))
 vi.mock('@/hooks/use-toast', () => ({ toast: toastMock }))
@@ -25,6 +26,13 @@ describe('DiscoverManager', () => {
     expect(await screen.findByText('ابزار پیش‌نویس')).toBeInTheDocument(); expect(screen.getByText('ابزار منتشرشده')).toBeInTheDocument(); expect(screen.getByText('پیش‌نویس')).toBeInTheDocument(); expect(screen.getByText('منتشرشده')).toBeInTheDocument()
     expect(screen.getByLabelText('عنوان فارسی')).toBeRequired(); expect(screen.getByLabelText('نامک')).toBeRequired(); expect(screen.getByLabelText('دسته‌بندی')).toBeRequired(); expect(screen.getByLabelText('توضیح فارسی')).toBeRequired(); expect(screen.getByLabelText('راهنمای فارسی')).toBeRequired(); expect(screen.getByLabelText('نشانی رسمی HTTPS')).toBeRequired(); expect(screen.getByLabelText('نشانی تلگرام')).toBeInTheDocument(); expect(screen.getByLabelText('انتشار فارسی')).toBeInTheDocument(); expect(screen.getByLabelText('ویژه')).toBeInTheDocument()
     expect(screen.getByLabelText('نامک')).toHaveAttribute('dir', 'ltr'); expect(screen.getByLabelText('نشانی تلگرام')).toHaveAttribute('dir', 'ltr'); expect(fetchMock).toHaveBeenCalledWith('/api/admin/discover?published=all', { cache: 'no-store' })
+  })
+
+  it('uses English dynamic delete copy when the admin locale is English', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ items: [draftItem] })))
+    render(<I18nProvider initialLanguage="en"><DiscoverManager /></I18nProvider>)
+
+    expect(await screen.findByRole('button', { name: 'Delete ابزار پیش‌نویس' })).toBeInTheDocument()
   })
 
   it('creates a Discover item as JSON through the dedicated admin endpoint', async () => {

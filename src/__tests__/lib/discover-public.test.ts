@@ -76,4 +76,11 @@ describe('Discover public data contract', () => {
     expect(detail).toContain('{copy.featured}')
     expect(detail).not.toContain('> Featured\n')
   })
+
+  it('uses the shared safe category label for public detail badges', () => {
+    const detail = source('src/app/discover/[slug]/page.tsx')
+
+    expect(detail).toContain("getSafeDiscoverCategoryLabel(item.category, locale)")
+    expect(detail).not.toContain('>{item.category}</span>')
+  })
 })

@@ -28,6 +28,14 @@ export function getDiscoverCategoryLabel(key: DiscoverCategoryKey, locale: Disco
   return DISCOVER_CATEGORIES[key][locale]
 }
 
+export function getSafeDiscoverCategoryLabel(value: string, locale: DiscoverCategoryLocale): string {
+  try {
+    return getDiscoverCategoryLabel(normalizeDiscoverCategory(value), locale)
+  } catch {
+    return getDiscoverCategoryLabel('general', locale)
+  }
+}
+
 export function normalizeDiscoverCategory(value: string): DiscoverCategoryKey {
   const category = DISCOVER_CATEGORY_ALIASES[value]
   if (!category) throw new Error(`Unknown Discover category: ${value}`)
