@@ -21,7 +21,7 @@ export function DiscoverPreview({ value }: { value: DiscoverForm }) {
       </div>
     </div>
     <article className="mt-4 rounded-lg border p-4" dir={isEnglish ? 'ltr' : 'rtl'}>
-      <p className="text-xs text-muted-foreground" dir="ltr">/discover/{value.slug || '…'}</p>
+      <p className="text-xs text-muted-foreground" dir="ltr">/discover/{value.slug || DISCOVER_ADMIN_COPY.preview.emptySlug}</p>
       <h3 className="mt-2 font-semibold">{title || (isEnglish ? DISCOVER_ADMIN_COPY.preview.englishTitle : DISCOVER_ADMIN_COPY.preview.persianTitle)}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{description || (isEnglish ? DISCOVER_ADMIN_COPY.preview.englishDescription : DISCOVER_ADMIN_COPY.preview.persianDescription)}</p>
     </article>
