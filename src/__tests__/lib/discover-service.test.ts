@@ -73,12 +73,33 @@ describe('Discover persistence service', () => {
     })
     const publishedAt = new Date('2026-08-20T00:00:00.000Z')
 
-    expect(normalizeDiscoverUpdateInput(input, { publishedAt })).toEqual({
+    expect(normalizeDiscoverUpdateInput(input, {
+      publishedAt,
+      publishedEn: false,
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+    })).toEqual({
       titleEn: null,
       descriptionEn: null,
       contentEn: null,
       publishedEn: false,
       published: true,
     })
+  })
+
+  it('rejects clearing English content while the persisted item remains English-published', () => {
+    const input = discoverUpdateSchema.parse({
+      id: 'discover_12345',
+      titleEn: null,
+    })
+
+    expect(() => normalizeDiscoverUpdateInput(input, {
+      publishedAt: new Date('2026-08-20T00:00:00.000Z'),
+      publishedEn: true,
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+    })).toThrow('English content is required when publishedEn is true')
   })
 })

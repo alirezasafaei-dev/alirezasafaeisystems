@@ -6,6 +6,19 @@ import { sanitizeInput } from '@/lib/validators'
 
 type DiscoverCreateInput = z.output<typeof discoverCreateSchema>
 type DiscoverUpdateInput = Omit<z.output<typeof discoverUpdateSchema>, 'id'>
+type DiscoverUpdateCurrent = {
+  publishedAt: Date | null
+  publishedEn: boolean
+  titleEn: string | null
+  descriptionEn: string | null
+  contentEn: string | null
+}
+
+export class DiscoverEnglishPublicationError extends Error {
+  constructor() {
+    super('English content is required when publishedEn is true')
+  }
+}
 
 export function normalizeDiscoverCreateInput(input: DiscoverCreateInput): Prisma.DiscoverItemCreateInput {
   return {
@@ -32,8 +45,17 @@ export function normalizeDiscoverCreateInput(input: DiscoverCreateInput): Prisma
 
 export function normalizeDiscoverUpdateInput(
   input: DiscoverUpdateInput,
-  current: { publishedAt: Date | null },
+  current: DiscoverUpdateCurrent,
 ): Prisma.DiscoverItemUpdateInput {
+  const publishedEn = input.publishedEn ?? current.publishedEn
+  const titleEn = input.titleEn !== undefined ? input.titleEn : current.titleEn
+  const descriptionEn = input.descriptionEn !== undefined ? input.descriptionEn : current.descriptionEn
+  const contentEn = input.contentEn !== undefined ? input.contentEn : current.contentEn
+
+  if (publishedEn && (!titleEn?.trim() || !descriptionEn?.trim() || !contentEn?.trim())) {
+    throw new DiscoverEnglishPublicationError()
+  }
+
   return {
     ...(input.slug !== undefined ? { slug: input.slug } : {}),
     ...(input.title !== undefined ? { title: sanitizeInput(input.title, 140) } : {}),

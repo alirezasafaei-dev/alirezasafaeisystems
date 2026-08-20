@@ -3,7 +3,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, createRequestId, enforceAdminAccess, withCommonApiHeaders } from '@/lib/api-security'
 import { db } from '@/lib/db'
 import { discoverCreateSchema, discoverUpdateSchema } from '@/lib/discover'
-import { normalizeDiscoverCreateInput, normalizeDiscoverUpdateInput } from '@/lib/discover-service'
+import { normalizeDiscoverCategory } from '@/lib/discover-categories'
+import {
+  DiscoverEnglishPublicationError,
+  normalizeDiscoverCreateInput,
+  normalizeDiscoverUpdateInput,
+} from '@/lib/discover-service'
 import { logger } from '@/lib/logger'
 import { sanitizeInput } from '@/lib/validators'
 
@@ -23,6 +28,14 @@ function validationResponse(requestId: string, headers: Record<string, string>, 
     requestId,
     headers,
   )
+}
+
+function normalizeResponseCategory(category: string): string {
+  try {
+    return normalizeDiscoverCategory(category)
+  } catch {
+    return category
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -70,7 +83,12 @@ export async function GET(request: NextRequest) {
       orderBy: [{ featured: 'desc' }, { order: 'asc' }, { updatedAt: 'desc' }],
     })
 
-    return withCommonApiHeaders(NextResponse.json({ items }), requestId, limit.headers)
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      category: normalizeResponseCategory(item.category),
+    }))
+
+    return withCommonApiHeaders(NextResponse.json({ items: normalizedItems }), requestId, limit.headers)
   } catch (error) {
     logger.error('Error fetching Discover items', {
       requestId,
@@ -168,15 +186,33 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { id, ...input } = parsed.data
-    const publication = input.published === true
-      ? await db.discoverItem.findUnique({ where: { id }, select: { publishedAt: true } })
+    const requiresCurrentItem = input.published === true
+      || input.publishedEn !== undefined
+      || input.titleEn !== undefined
+      || input.descriptionEn !== undefined
+      || input.contentEn !== undefined
+    const currentItem = requiresCurrentItem
+      ? await db.discoverItem.findUnique({
+          where: { id },
+          select: { publishedAt: true, publishedEn: true, titleEn: true, descriptionEn: true, contentEn: true },
+        })
       : null
 
-    const data = normalizeDiscoverUpdateInput(input, { publishedAt: publication?.publishedAt ?? null })
+    const data = normalizeDiscoverUpdateInput(input, currentItem ?? {
+      publishedAt: null,
+      publishedEn: false,
+      titleEn: null,
+      descriptionEn: null,
+      contentEn: null,
+    })
 
     const item = await db.discoverItem.update({ where: { id }, data })
     return withCommonApiHeaders(NextResponse.json({ item }), requestId, limit.headers)
   } catch (error) {
+    if (error instanceof DiscoverEnglishPublicationError) {
+      return validationResponse(requestId, limit.headers, [error.message])
+    }
+
     if (isUniqueConstraintError(error)) {
       return withCommonApiHeaders(
         NextResponse.json({ error: 'Slug already exists' }, { status: 409 }),

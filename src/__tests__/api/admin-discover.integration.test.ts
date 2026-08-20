@@ -230,6 +230,24 @@ describe('Discover admin API', () => {
     })
   })
 
+  it('rejects clearing English content from an existing English-published item without unpublishing it', async () => {
+    discoverItemMock.findUnique.mockResolvedValueOnce({
+      publishedAt: new Date('2026-08-20T00:00:00.000Z'),
+      publishedEn: true,
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+    })
+    const { PATCH } = await import('@/app/api/admin/discover/route')
+    const response = await PATCH(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'discover_12345', titleEn: null }),
+    }))
+
+    expect(response.status).toBe(400)
+    expect(discoverItemMock.update).not.toHaveBeenCalled()
+  })
+
   it('builds safe list filters for publication, category, and search', async () => {
     discoverItemMock.findMany.mockResolvedValueOnce([])
     const { GET } = await import('@/app/api/admin/discover/route')
@@ -264,6 +282,23 @@ describe('Discover admin API', () => {
         contentEn: 'Upload your sources.',
         publishedEn: true,
       })],
+    })
+  })
+
+  it('normalizes known legacy categories in the admin list response without changing unknown categories', async () => {
+    discoverItemMock.findMany.mockResolvedValueOnce([
+      { id: 'discover_legacy', ...validItem, category: 'AI' },
+      { id: 'discover_unknown', ...validItem, category: 'legacy-custom' },
+    ])
+    const { GET } = await import('@/app/api/admin/discover/route')
+    const response = await GET(adminRequest('http://localhost:3000/api/admin/discover'))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      items: [
+        expect.objectContaining({ id: 'discover_legacy', category: 'ai' }),
+        expect.objectContaining({ id: 'discover_unknown', category: 'legacy-custom' }),
+      ],
     })
   })
 
