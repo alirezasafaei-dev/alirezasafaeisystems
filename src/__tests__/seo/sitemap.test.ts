@@ -53,6 +53,12 @@ describe('sitemap contract', () => {
     })
   })
 
+  it('renders at request time so post-deploy Discover publications reach the sitemap', async () => {
+    const { dynamic } = await import('@/app/sitemap')
+
+    expect(dynamic).toBe('force-dynamic')
+  })
+
   it('skips dynamic Discover queries during a pre-migration production build', async () => {
     process.env.ASDEV_BUILD_SKIP_DYNAMIC_DB = '1'
     const { default: sitemap } = await import('@/app/sitemap')

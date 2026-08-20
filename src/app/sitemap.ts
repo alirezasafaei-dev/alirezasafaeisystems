@@ -3,6 +3,8 @@ import { db } from '@/lib/db'
 import { getSiteUrl } from '@/lib/site-config'
 import manifest from '@/generated/sitemap-manifest.json'
 
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl()
   const staticEntries: MetadataRoute.Sitemap = (manifest as Array<{
