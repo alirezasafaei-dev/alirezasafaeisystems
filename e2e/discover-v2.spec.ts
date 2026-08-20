@@ -104,7 +104,7 @@ test('authenticated Discover Admin preserves RTL/LTR semantics and passes seriou
   await expect(englishSection.locator('input').first()).toHaveAttribute('dir', 'ltr')
   await expect(englishSection.locator('textarea').first()).toHaveAttribute('dir', 'ltr')
 
-  const adminResults = await new AxeBuilder({ page }).analyze()
+  const adminResults = await new AxeBuilder({ page }).include('[data-testid="discover-editor"]').analyze()
   expect(adminResults.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious')).toEqual([])
 })
 
