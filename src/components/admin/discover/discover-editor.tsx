@@ -38,7 +38,7 @@ export function DiscoverEditor({ value, status, errors, fieldErrors, onChange, o
       <label className="text-sm font-medium md:col-span-2">راهنمای فارسی<Textarea dir="rtl" className={fieldClass} required maxLength={8000} rows={8} value={value.content} onChange={(event) => onChange('content', event.target.value)} /></label>
     </div></section>
     <section dir="ltr" className="rounded-xl border bg-card p-5" aria-labelledby="en-heading"><h2 id="en-heading" className="font-semibold">English content</h2><div className="mt-4 grid gap-4">
-      <label className="text-sm font-medium">English title<Input dir="ltr" className={fieldClass} maxLength={140} value={value.titleEn} onChange={(event) => onChange('titleEn', event.target.value)} /></label>
+      <label className="text-sm font-medium">English title<Input dir="ltr" aria-invalid={Boolean(fieldErrors.titleEn)} aria-describedby={fieldErrors.titleEn ? 'discover-title-en-error' : undefined} className={fieldClass} maxLength={140} value={value.titleEn} onChange={(event) => onChange('titleEn', event.target.value)} />{fieldErrors.titleEn ? <p id="discover-title-en-error" className="mt-1 text-xs text-destructive">{fieldErrors.titleEn}</p> : null}</label>
       <label className="text-sm font-medium">English description<Textarea dir="ltr" className={fieldClass} maxLength={400} value={value.descriptionEn} onChange={(event) => onChange('descriptionEn', event.target.value)} /></label>
       <label className="text-sm font-medium">English guide<Textarea dir="ltr" className={fieldClass} maxLength={8000} rows={8} value={value.contentEn} onChange={(event) => onChange('contentEn', event.target.value)} /></label>
     </div></section>
