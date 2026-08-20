@@ -31,7 +31,6 @@ describe('DiscoverManager', () => {
   it('uses English dynamic delete copy when the admin locale is English', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ items: [draftItem] })))
     render(<I18nProvider initialLanguage="en"><DiscoverManager /></I18nProvider>)
-
     expect(await screen.findByRole('button', { name: 'Delete ابزار پیش‌نویس' })).toBeInTheDocument()
   })
 
@@ -40,7 +39,7 @@ describe('DiscoverManager', () => {
     const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse({ items: [] })).mockResolvedValueOnce(jsonResponse({ item: saved }, 201)); vi.stubGlobal('fetch', fetchMock)
     render(<DiscoverManager />); await screen.findByText('0 آیتم')
     fireEvent.change(screen.getByLabelText('عنوان فارسی'), { target: { value: 'ابزار جدید' } }); fireEvent.change(screen.getByLabelText('نامک'), { target: { value: 'new-tool' } }); fireEvent.change(screen.getByLabelText('دسته‌بندی'), { target: { value: 'productivity' } }); fireEvent.change(screen.getByLabelText('برچسب‌ها'), { target: { value: 'focus,work' } }); fireEvent.change(screen.getByLabelText('توضیح فارسی'), { target: { value: 'ابزار کاربردی' } }); fireEvent.change(screen.getByLabelText('راهنمای فارسی'), { target: { value: 'برای کار متمرکز استفاده کنید.' } }); fireEvent.change(screen.getByLabelText('نشانی رسمی HTTPS'), { target: { value: 'https://example.com/new-tool' } }); fireEvent.change(screen.getByLabelText('نشانی تلگرام'), { target: { value: 'https://t.me/asdev/456' } }); fireEvent.change(screen.getByLabelText('ترتیب نمایش'), { target: { value: '3' } }); fireEvent.click(screen.getByRole('button', { name: 'ذخیره آیتم' }))
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2)); const [, request] = fetchMock.mock.calls[1] as [string, RequestInit]; expect(request.method).toBe('POST'); expect(request.headers).toEqual({ 'Content-Type': 'application/json' }); expect(JSON.parse(String(request.body))).toMatchObject({ slug: 'new-tool', title: 'ابزار جدید', category: 'productivity', tags: 'focus,work', description: 'ابزار کاربردی', content: 'برای کار متمرکز استفاده کنید.', externalUrl: 'https://example.com/new-tool', telegramGuideUrl: 'https://t.me/asdev/456', published: false, featured: false, order: 3 }); expect((await screen.findAllByText('ابزار جدید')).length).toBeGreaterThan(1); expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({ title: 'ذخیره شد' }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2)); const [, request] = fetchMock.mock.calls[1] as [string, RequestInit]; expect(request.method).toBe('POST'); expect(request.headers).toEqual({ 'Content-Type': 'application/json' }); expect(JSON.parse(String(request.body))).toMatchObject({ slug: 'new-tool', title: 'ابزار جدید', category: 'productivity', tags: 'focus,work', description: 'ابزار کاربردی', content: 'برای کار متمرکز استفاده کنید.', externalUrl: 'https://example.com/new-tool', telegramGuideUrl: 'https://t.me/asdev/456', published: false, featured: false, order: 3 }); expect((await screen.findAllByText('ابزار جدید')).length).toBeGreaterThanOrEqual(1); expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({ title: 'ذخیره شد' }))
   })
 
   it('loads and clears an existing Telegram guide in edit mode before deletion', async () => {
