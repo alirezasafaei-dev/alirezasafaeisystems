@@ -130,7 +130,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.imageUrl} alt="" loading="lazy" className="aspect-[16/9] w-full border-b object-cover" />
                 ) : (
-                  <div className="flex aspect-[16/7] items-center justify-center border-b bg-muted/40" aria-hidden="true">
+                  <div className="flex aspect-[16/9] items-center justify-center border-b bg-muted/40" aria-hidden="true">
                     <Sparkles className="h-8 w-8 text-primary/70" />
                   </div>
                 )}

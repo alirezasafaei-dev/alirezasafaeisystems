@@ -94,6 +94,17 @@ describe('DiscoverGrid', () => {
     expect(screen.queryByText('Canva')).not.toBeInTheDocument()
   })
 
+  it('reserves the same 16:9 media geometry for image and fallback cards', () => {
+    const mixedMediaItems = [
+      { ...items[0], imageUrl: 'https://images.example.test/notebooklm.png' },
+      { ...items[1], imageUrl: null },
+    ]
+    const { container } = render(<DiscoverGrid items={mixedMediaItems} isEn={false} attribution={{}} />)
+
+    expect(container.querySelector('img.aspect-\\[16\\/9\\]')).toBeInTheDocument()
+    expect(container.querySelector('[aria-hidden="true"].aspect-\\[16\\/9\\]')).toBeInTheDocument()
+  })
+
   it('uses the server-projected localized general label without exposing raw categories', () => {
     const unknownItems = [{ ...items[0], categoryKey: 'general' as const, categoryLabel: 'عمومی' }]
     const { rerender } = render(<DiscoverGrid items={unknownItems} isEn={false} attribution={{}} />)
