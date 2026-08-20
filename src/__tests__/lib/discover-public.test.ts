@@ -6,13 +6,15 @@ function source(path: string): string {
 }
 
 describe('Discover public data contract', () => {
-  it('queries only published items for the landing and exposes a bounded public card shape', () => {
+  it('queries locale-published items for the landing and exposes a bounded public card shape', () => {
     const landing = source('src/app/discover/page.tsx')
 
-    expect(landing).toContain('where: { published: true }')
+    expect(landing).toContain("where: isEn ? { publishedEn: true } : { published: true }")
     expect(landing).toContain('slug: true')
     expect(landing).toContain('title: true')
     expect(landing).toContain('description: true')
+    expect(landing).toContain('titleEn: true')
+    expect(landing).toContain('descriptionEn: true')
     expect(landing).toContain('category: true')
     expect(landing).toContain('tags: true')
     expect(landing).toContain('featured: true')

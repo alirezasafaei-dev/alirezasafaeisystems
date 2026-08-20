@@ -1,13 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { DiscoverGrid } from '@/components/discover/discover-grid'
+import { DiscoverGrid, type DiscoverGridItem } from '@/components/discover/discover-grid'
 
-const items = [
+const items: DiscoverGridItem[] = [
   {
     slug: 'notebooklm',
     title: 'NotebookLM',
     description: 'Research assistant grounded in your sources',
-    category: 'AI',
+    categoryKey: 'ai',
+    categoryLabel: 'هوش مصنوعی',
     tags: ['research', 'productivity'],
     featured: true,
     imageUrl: null,
@@ -16,7 +17,8 @@ const items = [
     slug: 'canva',
     title: 'Canva',
     description: 'Visual design platform',
-    category: 'Design',
+    categoryKey: 'general',
+    categoryLabel: 'عمومی',
     tags: ['design'],
     featured: false,
     imageUrl: null,
@@ -76,16 +78,30 @@ describe('DiscoverGrid', () => {
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1 مورد')).toHaveAttribute('aria-live', 'polite')
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Notebook' } })
+    expect(screen.getByRole('button', { name: 'پاک کردن فیلترها' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'پاک کردن فیلترها' }))
+    expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('searchbox')).toHaveValue('')
   })
 
-  it('uses the localized general label when persisted categories are unknown', () => {
-    const unknownItems = [{ ...items[0], category: 'legacy-unknown' }]
+  it('searches effective localized category labels without exposing raw categories', () => {
+    render(<DiscoverGrid items={items} isEn={false} attribution={{}} />)
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'هوش مصنوعی' } })
+    expect(screen.getByText('NotebookLM')).toBeInTheDocument()
+    expect(screen.queryByText('Canva')).not.toBeInTheDocument()
+  })
+
+  it('uses the server-projected localized general label without exposing raw categories', () => {
+    const unknownItems = [{ ...items[0], categoryKey: 'general' as const, categoryLabel: 'عمومی' }]
     const { rerender } = render(<DiscoverGrid items={unknownItems} isEn={false} attribution={{}} />)
 
     expect(screen.getByRole('button', { name: 'عمومی' })).toBeInTheDocument()
     expect(screen.queryByText('legacy-unknown')).not.toBeInTheDocument()
 
-    rerender(<DiscoverGrid items={unknownItems} isEn attribution={{}} />)
+    rerender(<DiscoverGrid items={[{ ...unknownItems[0], categoryLabel: 'General' }]} isEn attribution={{}} />)
     expect(screen.getByRole('button', { name: 'General' })).toBeInTheDocument()
     expect(screen.queryByText('legacy-unknown')).not.toBeInTheDocument()
   })
