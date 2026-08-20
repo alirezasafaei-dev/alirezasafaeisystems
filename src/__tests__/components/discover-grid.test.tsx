@@ -52,7 +52,7 @@ describe('DiscoverGrid', () => {
   it('filters cards by category and search without creating query-page URLs', () => {
     render(<DiscoverGrid items={items} isEn={false} attribution={{}} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Design' }))
+    fireEvent.click(screen.getByRole('button', { name: 'عمومی' }))
     expect(screen.getByText('Canva')).toBeInTheDocument()
     expect(screen.queryByText('NotebookLM')).not.toBeInTheDocument()
 
@@ -69,12 +69,24 @@ describe('DiscoverGrid', () => {
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.queryByRole('button', { name: 'AI' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Design' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'عمومی' })).toHaveAttribute('aria-pressed', 'false')
 
     fireEvent.click(screen.getByRole('button', { name: 'هوش مصنوعی' }))
 
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1 مورد')).toHaveAttribute('aria-live', 'polite')
+  })
+
+  it('uses the localized general label when persisted categories are unknown', () => {
+    const unknownItems = [{ ...items[0], category: 'legacy-unknown' }]
+    const { rerender } = render(<DiscoverGrid items={unknownItems} isEn={false} attribution={{}} />)
+
+    expect(screen.getByRole('button', { name: 'عمومی' })).toBeInTheDocument()
+    expect(screen.queryByText('legacy-unknown')).not.toBeInTheDocument()
+
+    rerender(<DiscoverGrid items={unknownItems} isEn attribution={{}} />)
+    expect(screen.getByRole('button', { name: 'General' })).toBeInTheDocument()
+    expect(screen.queryByText('legacy-unknown')).not.toBeInTheDocument()
   })
 })

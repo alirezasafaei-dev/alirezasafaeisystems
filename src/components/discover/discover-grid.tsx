@@ -35,7 +35,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
     try {
       return getDiscoverCategoryLabel(normalizeDiscoverCategory(value), isEn ? 'en' : 'fa')
     } catch {
-      return value
+      return getDiscoverCategoryLabel('general', isEn ? 'en' : 'fa')
     }
   }
 

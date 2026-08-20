@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { DiscoverEditorStatus, type DiscoverSaveStatus } from './discover-editor-status'
-import { DISCOVER_ADMIN_COPY } from './discover-admin-copy'
+import { useDiscoverAdminCopy } from './discover-admin-copy'
 
 export type DiscoverForm = {
   id?: string; slug: string; title: string; description: string; content: string
@@ -25,6 +25,7 @@ function FieldError({ field, error }: { field: keyof DiscoverForm; error?: strin
 }
 
 export function DiscoverEditor({ value, status, errors, fieldErrors, onChange, onSubmit, onCancel }: Props) {
+  const DISCOVER_ADMIN_COPY = useDiscoverAdminCopy()
   const englishReady = Boolean(value.titleEn.trim() && value.descriptionEn.trim() && value.contentEn.trim())
   const issueId = DISCOVER_ADMIN_COPY.editor.errorsId
   return <form data-testid="discover-editor" dir="rtl" onSubmit={onSubmit} className="space-y-5">

@@ -5,11 +5,12 @@ import { Download, Upload } from 'lucide-react'
 import { discoverCreateSchema } from '@/lib/discover'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { DISCOVER_ADMIN_COPY } from './discover-admin-copy'
+import { useDiscoverAdminCopy } from './discover-admin-copy'
 
 type ImportableForm = Record<string, unknown>
 
 export function DiscoverImportExport({ value, onImport }: { value: ImportableForm; onImport: (value: ImportableForm) => void }) {
+  const DISCOVER_ADMIN_COPY = useDiscoverAdminCopy()
   const [raw, setRaw] = useState('')
   const [error, setError] = useState('')
 

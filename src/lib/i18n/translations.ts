@@ -1,9 +1,18 @@
 import { PROFILE_SUMMARY_FA } from '@/lib/profile-copy'
 import { DISCOVER_ADMIN_COPY } from './discover-admin-copy'
 
+const DISCOVER_ADMIN_COPY_EN = {
+  ...DISCOVER_ADMIN_COPY,
+  editor: { ...DISCOVER_ADMIN_COPY.editor, editing: 'Edit Discover item', creating: 'New Discover item', save: 'Save item', cancel: 'Cancel', saved: 'Saved', saving: 'Saving…', unsaved: 'Unsaved', publishHeading: 'Publication status', published: 'Publish Persian', publishedEn: 'Publish English', featured: 'Featured', englishPublishHelp: 'Complete the English title, description, and guide before publishing.', persianHeading: 'Persian content', title: 'Persian title', slug: 'Slug', description: 'Persian description', content: 'Persian guide', englishHeading: 'English content', titleEn: 'English title', descriptionEn: 'English description', contentEn: 'English guide', categoryHeading: 'Category and tags', category: 'Category', selectCategory: 'Select a category', tags: 'Tags', order: 'Display order', linksHeading: 'Links and source', externalUrl: 'Official HTTPS URL', instagramUrl: 'Instagram URL', telegramGuideUrl: 'Telegram URL', imageUrl: 'Image URL' },
+  manager: { ...DISCOVER_ADMIN_COPY.manager, searchLabel: 'Search Discover items', searchPlaceholder: 'Search title, slug, or category', loading: 'Loading…', itemCount: (count: number) => `${count} items`, listTitle: 'Discover library', empty: 'No items found.', faPreview: 'Persian preview', enPreview: 'English preview', edit: 'Edit', published: 'Published', draft: 'Draft', saveFailed: 'Could not save item.', saveFailedTitle: 'Save failed', deleteFailed: 'Could not delete item.', deleteFailedTitle: 'Delete failed', deleted: 'Deleted', authRequired: 'Administrator access is required.', loadFailed: 'Could not load Discover items.', recovery: 'A local draft was found. Server data will not change until you choose.', restoreDraft: 'Restore draft', discardDraft: 'Discard draft', slugConflict: 'This slug is already in use.' },
+  preview: { ...DISCOVER_ADMIN_COPY.preview, heading: 'Preview and SEO', persian: 'Persian', english: 'English', public: 'View public page', persianTitle: 'Persian title', persianDescription: 'Persian description', englishTitle: 'English title', englishDescription: 'English description' },
+  status: { saving: 'Saving…', saved: 'Saved', unsaved: 'Unsaved' },
+  transfer: { ...DISCOVER_ADMIN_COPY.transfer, heading: 'Import and export', label: 'JSON to import', import: 'Import JSON', export: 'Export JSON', invalid: 'Invalid input', invalidJson: 'Invalid JSON', exportInvalid: 'Fix form errors before exporting.' },
+} as const
+
 export const translations = {
   en: {
-    admin: { discover: DISCOVER_ADMIN_COPY },
+    admin: { discover: DISCOVER_ADMIN_COPY_EN },
     discover: {
       landing: {
         eyebrow: 'ASDEV Resource Hub',

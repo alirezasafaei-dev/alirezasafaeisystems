@@ -12,7 +12,7 @@ import { type DiscoverSaveStatus } from './discover/discover-editor-status'
 import { discardDraft, readDraft, writeDraft } from './discover/discover-draft-recovery'
 import { DiscoverImportExport } from './discover/discover-import-export'
 import { DiscoverPreview } from './discover/discover-preview'
-import { DISCOVER_ADMIN_COPY } from './discover/discover-admin-copy'
+import { useDiscoverAdminCopy } from './discover/discover-admin-copy'
 
 type DiscoverItem = DiscoverForm & { id: string; imageUrl: string | null; instagramUrl: string | null; telegramGuideUrl: string | null; titleEn: string | null; descriptionEn: string | null; contentEn: string | null; publishedAt: string | null; createdAt: string; updatedAt: string }
 type DiscoverValidationDetail = string | { path?: unknown; message?: unknown }
@@ -32,6 +32,7 @@ function payload(form: DiscoverForm): Record<string, unknown> {
 }
 
 export function DiscoverManager() {
+  const DISCOVER_ADMIN_COPY = useDiscoverAdminCopy()
   const [items, setItems] = useState<DiscoverItem[]>([])
   const [form, setForm] = useState<DiscoverForm>(emptyForm)
   const [query, setQuery] = useState('')
@@ -52,7 +53,7 @@ export function DiscoverManager() {
       const data = await response.json() as { items?: DiscoverItem[] }
       setItems(data.items || [])
     } catch (loadError) { setError(loadError instanceof Error ? loadError.message : DISCOVER_ADMIN_COPY.manager.loadFailed) } finally { setLoading(false) }
-  }, [])
+  }, [DISCOVER_ADMIN_COPY.manager.authRequired, DISCOVER_ADMIN_COPY.manager.loadFailed])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => { void loadItems() }, 0)

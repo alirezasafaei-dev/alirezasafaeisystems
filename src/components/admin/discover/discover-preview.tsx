@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { DiscoverForm } from './discover-editor'
-import { DISCOVER_ADMIN_COPY } from './discover-admin-copy'
+import { useDiscoverAdminCopy } from './discover-admin-copy'
 
 export function DiscoverPreview({ value }: { value: DiscoverForm }) {
+  const DISCOVER_ADMIN_COPY = useDiscoverAdminCopy()
   const [locale, setLocale] = useState<'fa' | 'en'>('fa')
   const isEnglish = locale === 'en'
   const title = isEnglish ? value.titleEn : value.title

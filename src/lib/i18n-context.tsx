@@ -107,4 +107,9 @@ export function useI18n() {
   return context
 }
 
+export function useDiscoverAdminCopy() {
+  const context = React.useContext(I18nContext)
+  return translations[context?.language ?? 'fa'].admin.discover
+}
+
 export { translations }

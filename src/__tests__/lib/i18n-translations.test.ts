@@ -36,4 +36,10 @@ describe('i18n translations parity', () => {
     expect(translations.fa.nav.discover).toBe('ابزارها و منابع')
     expect(translations.fa.footer.quickDiscover).toBe('ابزارها و منابع')
   })
+
+  it('keeps complete, distinct admin Discover dictionaries for each locale', () => {
+    expect(translations.en.admin.discover).not.toBe(translations.fa.admin.discover)
+    expect(translations.en.admin.discover.editor.save).toBe('Save item')
+    expect(translations.fa.admin.discover.editor.save).toBe('ذخیره آیتم')
+  })
 })
