@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   appendDiscoverAttribution,
+  discoverCreateSchema,
   discoverInstagramUrlSchema,
   discoverSlugSchema,
   discoverTagsSchema,
@@ -101,4 +102,73 @@ describe('Discover content contracts', () => {
     expect(parsed.searchParams.get('utm_medium')).toBe('social')
     expect(parsed.searchParams.get('utm_campaign')).toBe('ai-tools')
   })
+
+  it('normalizes only registered categories in create payloads', () => {
+    const input = {
+      slug: 'canonical-category-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'AI',
+      tags: ['AI'],
+    }
+
+    expect(discoverCreateSchema.parse(input).category).toBe('ai')
+    expect(discoverCreateSchema.safeParse({ ...input, category: 'made-up' }).success).toBe(false)
+  })
+
+  it('requires complete trimmed English content before English publication on create', () => {
+    const input = {
+      slug: 'english-discover-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'ai',
+      tags: ['AI'],
+      titleEn: ' English title ',
+      descriptionEn: ' English description ',
+      contentEn: ' English content ',
+      publishedEn: true,
+    }
+
+    expect(discoverCreateSchema.parse(input)).toMatchObject({
+      titleEn: 'English title',
+      descriptionEn: 'English description',
+      contentEn: 'English content',
+      publishedEn: true,
+    })
+
+    expect(discoverCreateSchema.safeParse({ ...input, titleEn: ' ' }).success).toBe(false)
+    expect(discoverCreateSchema.safeParse({ ...input, descriptionEn: ' ' }).success).toBe(false)
+    expect(discoverCreateSchema.safeParse({ ...input, contentEn: ' ' }).success).toBe(false)
+  })
+
+  it('allows absent English content while English publication is disabled', () => {
+    expect(discoverCreateSchema.parse({
+      slug: 'persian-discover-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'ai',
+      tags: ['AI'],
+      publishedEn: false,
+    })).toMatchObject({ publishedEn: false })
+  })
+
+  it('requires complete English content before English publication on update', () => {
+    const input = {
+      id: 'discover_12345',
+      titleEn: 'English title',
+      descriptionEn: 'English description',
+      contentEn: 'English content',
+      publishedEn: true,
+    }
+
+    expect(discoverUpdateSchema.parse(input)).toMatchObject(input)
+    expect(discoverUpdateSchema.safeParse({ ...input, contentEn: ' ' }).success).toBe(false)
+  })
+
 })
