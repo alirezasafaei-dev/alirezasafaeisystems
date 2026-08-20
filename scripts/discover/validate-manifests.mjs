@@ -7,6 +7,16 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const manifestsDirectory = path.join(projectRoot, 'docs/discover/resources')
 const schemaContractTest = 'src/__tests__/lib/discover-manifests.test.ts'
 
+function getContractRunner() {
+  const pnpmCliPath = process.env.npm_execpath
+  if (!pnpmCliPath) throw new Error('pnpm execution path is unavailable')
+
+  return {
+    command: process.execPath,
+    args: [pnpmCliPath, 'exec', 'vitest', 'run', schemaContractTest],
+  }
+}
+
 async function main() {
   let filenames
 
@@ -34,10 +44,21 @@ async function main() {
     }
   }
 
-  const result = spawnSync(path.join(projectRoot, 'node_modules/.bin/vitest'), ['run', schemaContractTest], {
-    cwd: projectRoot,
-    stdio: 'inherit',
-  })
+  let result
+  try {
+    const runner = getContractRunner()
+    result = spawnSync(runner.command, runner.args, { cwd: projectRoot, stdio: 'inherit' })
+  } catch (error) {
+    console.error(`Discover manifest validation failed: ${error instanceof Error ? error.message : String(error)}`)
+    process.exitCode = 1
+    return
+  }
+
+  if (result.error) {
+    console.error(`Discover manifest validation failed: ${result.error.message}`)
+    process.exitCode = 1
+    return
+  }
 
   if (result.status !== 0) {
     process.exitCode = result.status ?? 1
@@ -47,4 +68,4 @@ async function main() {
   for (const filename of filenames) process.stdout.write(`VALID ${filename}\n`)
 }
 
-await main()
+if (process.argv[1] === fileURLToPath(import.meta.url)) await main()

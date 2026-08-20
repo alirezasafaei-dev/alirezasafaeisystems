@@ -109,6 +109,8 @@ pnpm discover:validate
 
 پس از PASS، `payload` را به Admin Import JSON منتقل کنید، محتوا و مقصدها را review کنید، ابتدا draft را ذخیره کنید یا در صورت تأیید publish کنید، و سپس detail public را live verify کنید.
 
+برای manifestی که English editorial copy ندارد، `publishedEn` را در payload وارد نکنید. قرارداد create مقدار persisted پیش‌فرض `publishedEn=false` را اعمال می‌کند؛ بنابراین نتیجهٔ مؤثر انگلیسی منتشرنشده است، بدون افزودن field ناشناخته یا bypass کردن contract.
+
 ## Content operating workflow
 
 برای هر Reel/Post که یک ابزار یا منبع را معرفی می‌کند:

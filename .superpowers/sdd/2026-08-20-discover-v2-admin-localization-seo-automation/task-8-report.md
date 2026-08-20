@@ -17,3 +17,9 @@
 
 - The manifest is a local import artifact. Only its `payload` is compatible with Admin Import JSON; `evidence` remains non-persisted source metadata.
 - No network access, production storage mutation, or Admin-authentication bypass was used.
+## Review round 1 correction
+
+- RED: focused manifest contract failed because the payload explicitly contained `publishedEn`; the established create contract defaults it to `false` when omitted.
+- GREEN: focused contract passed with 2 tests. It proves each payload has no evidence/unknown key silently stripped, omits `publishedEn`, and parses to `publishedEn=false`.
+- The validator now launches the invoking pnpm CLI with `process.execPath` and `npm_execpath`, not `node_modules/.bin`; it handles both child-process errors and non-zero statuses. The regression supplies a fake pnpm CLI and proves the selected command is `exec vitest run src/__tests__/lib/discover-manifests.test.ts`.
+- GREEN: `pnpm discover:validate` passed and listed `VALID deepseek-telegram-bot.json`.
