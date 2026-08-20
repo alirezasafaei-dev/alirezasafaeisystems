@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DiscoverManager } from '@/components/admin/discover-manager'
+import { DiscoverPreview } from '@/components/admin/discover/discover-preview'
 
 const { toastMock } = vi.hoisted(() => ({ toastMock: vi.fn() }))
 vi.mock('@/hooks/use-toast', () => ({ toast: toastMock }))
@@ -44,5 +45,13 @@ describe('Discover editor', () => {
     fireEvent.change(screen.getByLabelText('English description'), { target: { value: 'Research assistant' } })
     fireEvent.change(screen.getByLabelText('English guide'), { target: { value: 'Upload your sources.' } })
     await waitFor(() => expect(screen.getByLabelText('انتشار انگلیسی')).toBeEnabled())
+  })
+
+  it('shows a public preview link only for the selected published locale', () => {
+    const value = { id: 'discover-item-0001', slug: 'tool', title: 'ابزار', description: 'توضیح', content: 'راهنما', titleEn: 'Tool', descriptionEn: 'Description', contentEn: 'Guide', externalUrl: 'https://example.com', category: 'ai', tags: '', imageUrl: '', instagramUrl: '', telegramGuideUrl: '', featured: false, published: true, publishedEn: false, order: 0 }
+    render(<DiscoverPreview value={value} />)
+    expect(screen.getByRole('link', { name: 'نمایش عمومی' })).toHaveAttribute('href', '/discover/tool')
+    fireEvent.click(screen.getByRole('button', { name: 'English' }))
+    expect(screen.queryByRole('link', { name: 'نمایش عمومی' })).not.toBeInTheDocument()
   })
 })

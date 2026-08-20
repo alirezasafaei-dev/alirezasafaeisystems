@@ -13,7 +13,7 @@ function jsonResponse(body: unknown, status = 200): Response { return { ok: stat
 describe('DiscoverManager', () => {
   let confirmMock: ReturnType<typeof vi.fn>
   beforeEach(() => { toastMock.mockReset(); confirmMock = vi.fn().mockReturnValue(true); vi.stubGlobal('scrollTo', vi.fn()); vi.stubGlobal('confirm', confirmMock) })
-  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
+  afterEach(() => { localStorage.clear(); vi.unstubAllGlobals(); vi.restoreAllMocks() })
 
   it('loads draft/published rows and exposes the required Persian-first editor fields', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ items: [draftItem, publishedItem] })); vi.stubGlobal('fetch', fetchMock)
@@ -36,5 +36,13 @@ describe('DiscoverManager', () => {
     render(<DiscoverManager />); expect(await screen.findByText('ابزار پیش‌نویس')).toBeInTheDocument(); fireEvent.click(screen.getByRole('button', { name: 'ویرایش' })); expect(screen.getByText('ویرایش آیتم Discover')).toBeInTheDocument(); expect(screen.getByLabelText('عنوان فارسی')).toHaveValue('ابزار پیش‌نویس'); expect(screen.getByLabelText('نامک')).toHaveValue('draft-tool'); expect(screen.getByLabelText('نشانی تلگرام')).toHaveValue('https://t.me/asdev/123')
     fireEvent.change(screen.getByLabelText('عنوان فارسی'), { target: { value: 'ابزار به‌روز' } }); fireEvent.change(screen.getByLabelText('نشانی تلگرام'), { target: { value: '' } }); fireEvent.click(screen.getByRole('button', { name: 'ذخیره آیتم' })); await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2)); expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/admin/discover'); expect((fetchMock.mock.calls[1]?.[1] as RequestInit).method).toBe('PATCH'); expect(JSON.parse(String((fetchMock.mock.calls[1]?.[1] as RequestInit).body))).toMatchObject({ id: 'discover-item-0001', telegramGuideUrl: '' })
     const deleteButton = await screen.findByRole('button', { name: 'Delete ابزار به‌روز' }); fireEvent.click(deleteButton); await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3)); expect(confirmMock).toHaveBeenCalledWith('Delete “ابزار به‌روز” permanently?'); expect(fetchMock.mock.calls[2]?.[0]).toBe('/api/admin/discover?id=discover-item-0001'); expect((fetchMock.mock.calls[2]?.[1] as RequestInit).method).toBe('DELETE')
+  })
+
+  it('offers only a newer selected-item draft and supports explicit restore and discard', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ items: [draftItem] })); vi.stubGlobal('fetch', fetchMock)
+    localStorage.setItem('asdev:discover:draft:discover-item-0001', JSON.stringify({ savedAt: Date.parse('2026-08-18T00:00:00.000Z'), form: { ...draftItem, title: 'بازیابی‌شده', titleEn: '', descriptionEn: '', contentEn: '', imageUrl: '', instagramUrl: '', telegramGuideUrl: '' } }))
+    render(<DiscoverManager />); await screen.findByText('ابزار پیش‌نویس'); fireEvent.click(screen.getByRole('button', { name: 'ویرایش' }))
+    expect(await screen.findByText(/پیش‌نویس محلی پیدا شد/)).toBeInTheDocument(); fireEvent.click(screen.getByRole('button', { name: 'بازیابی پیش‌نویس' })); expect(screen.getByLabelText('عنوان فارسی')).toHaveValue('بازیابی‌شده')
+    localStorage.setItem('asdev:discover:draft:discover-item-0001', JSON.stringify({ savedAt: Date.parse('2026-08-19T00:00:00.000Z'), form: { ...draftItem, title: 'حذف‌شونده', titleEn: '', descriptionEn: '', contentEn: '', imageUrl: '', instagramUrl: '', telegramGuideUrl: '' } })); fireEvent.click(screen.getByRole('button', { name: 'انصراف' })); fireEvent.click(screen.getByRole('button', { name: 'ویرایش' })); expect(await screen.findByText(/پیش‌نویس محلی پیدا شد/)).toBeInTheDocument(); fireEvent.click(screen.getByRole('button', { name: 'حذف پیش‌نویس' })); expect(localStorage.getItem('asdev:discover:draft:discover-item-0001')).toBeNull()
   })
 })
