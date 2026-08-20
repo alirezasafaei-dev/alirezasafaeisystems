@@ -10,6 +10,7 @@ import {
 } from '@/lib/discover'
 import { env } from '@/lib/env'
 import { getRequestLanguage } from '@/lib/i18n/server'
+import { translations } from '@/lib/i18n/translations'
 import { generateBreadcrumbSchema } from '@/lib/seo'
 import { getSiteUrl } from '@/lib/site-config'
 import { DiscoverLink } from '@/components/discover/discover-link'
@@ -94,41 +95,7 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
   const telegramGroupUrl = env.NEXT_PUBLIC_DISCOVER_TELEGRAM_GROUP_URL
   const locale = isEn ? 'en' : 'fa'
 
-  const copy = isEn
-    ? {
-        back: 'Back to Discover',
-        guide: 'Quick practical guide',
-        official: 'Open official website',
-        telegramGuide: 'Full tutorial / file on Telegram',
-        telegramChannel: 'Browse the Telegram channel',
-        telegramGroup: 'Ask a question in the Telegram group',
-        instagram: 'View the Instagram post',
-        related: 'Related Discover items',
-        featured: 'Featured',
-        asdev: 'Continue inside ASDEV',
-        asdevDescription: 'If this resource was useful, you can also explore the systems I build, case studies, and the technical audit path for real websites.',
-        audit: 'Website Audit readiness',
-        cases: 'View case studies',
-        qualify: 'Start a project inquiry',
-        disclosure: 'External products belong to their respective owners. This page provides editorial context and the official destination link.',
-      }
-    : {
-        back: 'بازگشت به Discover',
-        guide: 'راهنمای کوتاه و کاربردی',
-        official: 'باز کردن سایت رسمی',
-        telegramGuide: 'آموزش کامل / فایل در تلگرام',
-        telegramChannel: 'مشاهده کانال تلگرام',
-        telegramGroup: 'پرسش در گروه تلگرام',
-        instagram: 'دیدن پست اینستاگرام',
-        related: 'موارد مشابه در Discover',
-        featured: 'منتخب',
-        asdev: 'ادامه در ASDEV',
-        asdevDescription: 'اگر این منبع برایت مفید بود، می‌توانی سیستم‌هایی که می‌سازم، Case Studyها و مسیر بررسی فنی سایت را هم ببینی.',
-        audit: 'بررسی آمادگی سایت برای Audit',
-        cases: 'دیدن Case Studyها',
-        qualify: 'شروع درخواست همکاری',
-        disclosure: 'مالکیت سرویس خارجی متعلق به ارائه‌دهندهٔ آن است. این صفحه فقط توضیح تحریری و لینک مقصد رسمی را ارائه می‌کند.',
-      }
+  const copy = translations[lang].discover.detail
 
   const BackIcon = isEn ? ArrowLeft : ArrowRight
   const telemetryMetadata = discoverAnalyticsMetadata(attribution, {
@@ -140,7 +107,7 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
     <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: isEn ? 'Home' : 'خانه', url: siteUrl },
-        { name: 'Discover', url: `${siteUrl}${isEn ? '/en/discover' : '/discover'}` },
+        { name: copy.breadcrumb, url: `${siteUrl}${isEn ? '/en/discover' : '/discover'}` },
         { name: item.title, url: `${siteUrl}${canonicalPath}` },
       ])} />
       <DiscoverTelemetry name="discover_item_view" locale={locale} metadata={telemetryMetadata} />

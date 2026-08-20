@@ -71,8 +71,8 @@ describe('Discover public data contract', () => {
   it('localizes the featured badge on the detail page', () => {
     const detail = source('src/app/discover/[slug]/page.tsx')
 
-    expect(detail).toContain("featured: 'Featured'")
-    expect(detail).toContain("featured: 'منتخب'")
+    expect(source('src/lib/i18n/translations.ts')).toContain("featured: 'Featured'")
+    expect(source('src/lib/i18n/translations.ts')).toContain("featured: 'منتخب'")
     expect(detail).toContain('{copy.featured}')
     expect(detail).not.toContain('> Featured\n')
   })

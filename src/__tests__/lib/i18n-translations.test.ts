@@ -31,4 +31,9 @@ describe('i18n translations parity', () => {
 
     expect(missingInEn).toEqual([])
   })
+
+  it('localizes the Discover navigation label in Persian', () => {
+    expect(translations.fa.nav.discover).toBe('ابزارها و منابع')
+    expect(translations.fa.footer.quickDiscover).toBe('ابزارها و منابع')
+  })
 })

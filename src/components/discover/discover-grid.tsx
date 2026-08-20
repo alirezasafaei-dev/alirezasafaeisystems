@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Search, Sparkles } from 'lucide-react'
 import { appendDiscoverAttribution, type DiscoverAttribution } from '@/lib/discover'
+import { getDiscoverCategoryLabel, normalizeDiscoverCategory } from '@/lib/discover-categories'
+import { translations } from '@/lib/i18n/translations'
 
 export type DiscoverGridItem = {
   slug: string
@@ -29,6 +31,13 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
     () => [...new Set(items.map((item) => item.category).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
     [items],
   )
+  const categoryLabel = (value: string) => {
+    try {
+      return getDiscoverCategoryLabel(normalizeDiscoverCategory(value), isEn ? 'en' : 'fa')
+    } catch {
+      return value
+    }
+  }
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase()
@@ -42,23 +51,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
     })
   }, [category, items, query])
 
-  const copy = isEn
-    ? {
-        search: 'Search tools and services',
-        all: 'All',
-        featured: 'Featured',
-        open: 'View guide and official link',
-        empty: 'No Discover items match this filter.',
-        results: 'items',
-      }
-    : {
-        search: 'جستجو بین ابزارها و سرویس‌ها',
-        all: 'همه',
-        featured: 'منتخب',
-        open: 'توضیح کوتاه و لینک رسمی',
-        empty: 'موردی با این فیلتر پیدا نشد.',
-        results: 'مورد',
-      }
+  const copy = translations[isEn ? 'en' : 'fa'].discover.grid
 
   return (
     <div className="space-y-6">
@@ -75,7 +68,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
           />
         </label>
 
-        <div className="flex flex-wrap gap-2" aria-label={isEn ? 'Discover categories' : 'دسته‌بندی‌های Discover'}>
+        <div className="flex flex-wrap gap-2" aria-label={copy.categories}>
           <button
             type="button"
             onClick={() => setCategory('all')}
@@ -92,7 +85,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
               aria-pressed={category === itemCategory}
               className={`rounded-full border px-3 py-1.5 text-sm transition ${category === itemCategory ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
             >
-              {itemCategory}
+              {categoryLabel(itemCategory)}
             </button>
           ))}
         </div>
@@ -123,7 +116,7 @@ export function DiscoverGrid({ items, attribution, isEn }: DiscoverGridProps) {
                 )}
                 <div className="flex flex-1 flex-col p-5">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="rounded-full border px-2.5 py-1 text-muted-foreground">{item.category}</span>
+                    <span className="rounded-full border px-2.5 py-1 text-muted-foreground">{categoryLabel(item.category)}</span>
                     {item.featured ? <span className="font-semibold text-primary">{copy.featured}</span> : null}
                   </div>
                   <h2 className="mt-4 text-xl font-semibold leading-8">{item.title}</h2>

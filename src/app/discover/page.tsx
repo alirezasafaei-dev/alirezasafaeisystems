@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { db } from '@/lib/db'
 import { discoverAnalyticsMetadata, extractDiscoverAttribution } from '@/lib/discover'
 import { getRequestLanguage } from '@/lib/i18n/server'
+import { translations } from '@/lib/i18n/translations'
 import { getSiteUrl } from '@/lib/site-config'
 import { generateBreadcrumbSchema } from '@/lib/seo'
 import { DiscoverGrid, type DiscoverGridItem } from '@/components/discover/discover-grid'
@@ -65,21 +66,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     tags: item.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
   }))
 
-  const copy = isEn
-    ? {
-        eyebrow: 'ASDEV Resource Hub',
-        title: 'Find the tools and resources I mention on Instagram',
-        description: 'Search a name, open its real official destination, read the quick guide, and use the full Telegram resource when one is available.',
-        note: 'Use this page as the single link in my Instagram bio; no DM automation is required.',
-        home: 'Back to home',
-      }
-    : {
-        eyebrow: 'مرکز منابع ASDEV',
-        title: 'ابزارها و منابعی که در اینستاگرام معرفی می‌کنم، اینجا پیدا کن',
-        description: 'اسم ابزار را جستجو کن، به مقصد رسمی برو، راهنمای کوتاه را بخوان و اگر منبع کامل تلگرام موجود بود مستقیم همان را باز کن.',
-        note: 'این صفحه مقصد ثابت لینک بیوی اینستاگرام است و برای دریافت منابع نیازی به اتوماسیون دایرکت نیست.',
-        home: 'بازگشت به خانه',
-      }
+  const copy = translations[lang].discover.landing
 
   const BackIcon = isEn ? ArrowLeft : ArrowRight
 
@@ -87,7 +74,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     <main className="container mx-auto px-4 py-28 subtle-grid">
       <JsonLd data={generateBreadcrumbSchema([
         { name: isEn ? 'Home' : 'خانه', url: siteUrl },
-        { name: 'Discover', url: `${siteUrl}${canonicalPath}` },
+        { name: copy.breadcrumb, url: `${siteUrl}${canonicalPath}` },
       ])} />
       <DiscoverTelemetry
         name="discover_landing_view"

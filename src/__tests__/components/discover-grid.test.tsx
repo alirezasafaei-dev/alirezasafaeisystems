@@ -67,13 +67,14 @@ describe('DiscoverGrid', () => {
 
     expect(screen.getByRole('searchbox', { name: 'جستجو بین ابزارها و سرویس‌ها' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: 'AI' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.queryByRole('button', { name: 'AI' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Design' })).toHaveAttribute('aria-pressed', 'false')
 
-    fireEvent.click(screen.getByRole('button', { name: 'AI' }))
+    fireEvent.click(screen.getByRole('button', { name: 'هوش مصنوعی' }))
 
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'false')
-    expect(screen.getByRole('button', { name: 'AI' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1 مورد')).toHaveAttribute('aria-live', 'polite')
   })
 })
