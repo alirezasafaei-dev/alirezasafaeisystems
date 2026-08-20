@@ -102,4 +102,34 @@ describe('Discover persistence service', () => {
       contentEn: 'Upload your sources.',
     })).toThrow('English content is required when publishedEn is true')
   })
+
+  it('rejects English text that sanitizes to empty while English publication remains enabled', () => {
+    const input = discoverUpdateSchema.parse({
+      id: 'discover_12345',
+      titleEn: '<>',
+    })
+
+    expect(() => normalizeDiscoverUpdateInput(input, {
+      publishedAt: new Date('2026-08-20T00:00:00.000Z'),
+      publishedEn: true,
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+    })).toThrow('English content is required when publishedEn is true')
+  })
+
+  it('persists complete sanitized English text while English publication remains enabled', () => {
+    const input = discoverUpdateSchema.parse({
+      id: 'discover_12345',
+      titleEn: ' <NotebookLM> ',
+    })
+
+    expect(normalizeDiscoverUpdateInput(input, {
+      publishedAt: new Date('2026-08-20T00:00:00.000Z'),
+      publishedEn: true,
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+    })).toEqual({ titleEn: 'NotebookLM' })
+  })
 })

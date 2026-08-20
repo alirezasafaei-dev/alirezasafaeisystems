@@ -248,6 +248,24 @@ describe('Discover admin API', () => {
     expect(discoverItemMock.update).not.toHaveBeenCalled()
   })
 
+  it('rejects English text that sanitizes to empty on an existing English-published item', async () => {
+    discoverItemMock.findUnique.mockResolvedValueOnce({
+      publishedAt: new Date('2026-08-20T00:00:00.000Z'),
+      publishedEn: true,
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+    })
+    const { PATCH } = await import('@/app/api/admin/discover/route')
+    const response = await PATCH(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'discover_12345', titleEn: '<>' }),
+    }))
+
+    expect(response.status).toBe(400)
+    expect(discoverItemMock.update).not.toHaveBeenCalled()
+  })
+
   it('builds safe list filters for publication, category, and search', async () => {
     discoverItemMock.findMany.mockResolvedValueOnce([])
     const { GET } = await import('@/app/api/admin/discover/route')

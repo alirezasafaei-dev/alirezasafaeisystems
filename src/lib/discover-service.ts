@@ -20,6 +20,10 @@ export class DiscoverEnglishPublicationError extends Error {
   }
 }
 
+function sanitizeEnglishField(value: string | null, maxLength: number): string | null {
+  return value === null ? null : sanitizeInput(value, maxLength)
+}
+
 export function normalizeDiscoverCreateInput(input: DiscoverCreateInput): Prisma.DiscoverItemCreateInput {
   return {
     slug: input.slug,
@@ -48,9 +52,9 @@ export function normalizeDiscoverUpdateInput(
   current: DiscoverUpdateCurrent,
 ): Prisma.DiscoverItemUpdateInput {
   const publishedEn = input.publishedEn ?? current.publishedEn
-  const titleEn = input.titleEn !== undefined ? input.titleEn : current.titleEn
-  const descriptionEn = input.descriptionEn !== undefined ? input.descriptionEn : current.descriptionEn
-  const contentEn = input.contentEn !== undefined ? input.contentEn : current.contentEn
+  const titleEn = input.titleEn !== undefined ? sanitizeEnglishField(input.titleEn, 140) : current.titleEn
+  const descriptionEn = input.descriptionEn !== undefined ? sanitizeEnglishField(input.descriptionEn, 400) : current.descriptionEn
+  const contentEn = input.contentEn !== undefined ? sanitizeEnglishField(input.contentEn, 8000) : current.contentEn
 
   if (publishedEn && (!titleEn?.trim() || !descriptionEn?.trim() || !contentEn?.trim())) {
     throw new DiscoverEnglishPublicationError()
@@ -61,9 +65,9 @@ export function normalizeDiscoverUpdateInput(
     ...(input.title !== undefined ? { title: sanitizeInput(input.title, 140) } : {}),
     ...(input.description !== undefined ? { description: sanitizeInput(input.description, 400) } : {}),
     ...(input.content !== undefined ? { content: sanitizeInput(input.content, 8000) } : {}),
-    ...(input.titleEn !== undefined ? { titleEn: input.titleEn === null ? null : sanitizeInput(input.titleEn, 140) } : {}),
-    ...(input.descriptionEn !== undefined ? { descriptionEn: input.descriptionEn === null ? null : sanitizeInput(input.descriptionEn, 400) } : {}),
-    ...(input.contentEn !== undefined ? { contentEn: input.contentEn === null ? null : sanitizeInput(input.contentEn, 8000) } : {}),
+    ...(input.titleEn !== undefined ? { titleEn } : {}),
+    ...(input.descriptionEn !== undefined ? { descriptionEn } : {}),
+    ...(input.contentEn !== undefined ? { contentEn } : {}),
     ...(input.externalUrl !== undefined ? { externalUrl: input.externalUrl } : {}),
     ...(input.category !== undefined ? { category: normalizeDiscoverCategory(input.category) } : {}),
     ...(input.tags !== undefined ? { tags: input.tags.join(',') } : {}),
