@@ -76,16 +76,16 @@ test('bilingual resource exposes locale-correct content, canonical and reciproca
   await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveAttribute('href', /\/en\/discover\/playwright-discover-resource$/)
 })
 
-test('Persian-only resource is excluded from the English landing and detail route', async ({ page }) => {
+test('Persian-only resource is public in Persian and excluded from English', async ({ page }) => {
+  await page.goto(persianOnlyPath)
+  await expect(page.locator('h1')).toContainText('منبع فقط فارسی')
+
   await page.goto('/en/discover')
   await expect(page.getByText('Playwright Discover Resource', { exact: true })).toBeVisible()
   await expect(page.getByText('منبع فقط فارسی', { exact: true })).toHaveCount(0)
 
   const response = await page.goto(englishPersianOnlyPath)
   expect(response?.status()).toBe(404)
-
-  await page.goto(persianOnlyPath)
-  await expect(page.locator('h1')).toContainText('منبع فقط فارسی')
 })
 
 test('authenticated Discover Admin preserves RTL/LTR semantics and passes serious/critical axe checks', async ({ page }) => {
