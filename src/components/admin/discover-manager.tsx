@@ -12,10 +12,16 @@ import { type DiscoverSaveStatus } from './discover/discover-editor-status'
 import { discardDraft, readDraft, writeDraft } from './discover/discover-draft-recovery'
 import { DiscoverImportExport } from './discover/discover-import-export'
 import { DiscoverPreview } from './discover/discover-preview'
+import { DISCOVER_ADMIN_COPY } from './discover/discover-admin-copy'
 
 type DiscoverItem = DiscoverForm & { id: string; imageUrl: string | null; instagramUrl: string | null; telegramGuideUrl: string | null; titleEn: string | null; descriptionEn: string | null; contentEn: string | null; publishedAt: string | null; createdAt: string; updatedAt: string }
+type DiscoverValidationDetail = string | { path?: unknown; message?: unknown }
 
 const emptyForm: DiscoverForm = { slug: '', title: '', description: '', content: '', titleEn: '', descriptionEn: '', contentEn: '', externalUrl: '', category: '', tags: '', imageUrl: '', instagramUrl: '', telegramGuideUrl: '', featured: false, published: false, publishedEn: false, order: 0 }
+
+function isDiscoverFormField(value: unknown): value is keyof DiscoverForm {
+  return typeof value === 'string' && Object.hasOwn(emptyForm, value)
+}
 
 function toForm(item: DiscoverItem): DiscoverForm {
   return { ...item, titleEn: item.titleEn || '', descriptionEn: item.descriptionEn || '', contentEn: item.contentEn || '', imageUrl: item.imageUrl || '', instagramUrl: item.instagramUrl || '', telegramGuideUrl: item.telegramGuideUrl || '' }
@@ -41,11 +47,11 @@ export function DiscoverManager() {
     setLoading(true); setError('')
     try {
       const response = await fetch('/api/admin/discover?published=all', { cache: 'no-store' })
-      if (response.status === 401) throw new Error('Authentication required')
-      if (!response.ok) throw new Error('Failed to load Discover items')
+      if (response.status === 401) throw new Error(DISCOVER_ADMIN_COPY.manager.authRequired)
+      if (!response.ok) throw new Error(DISCOVER_ADMIN_COPY.manager.loadFailed)
       const data = await response.json() as { items?: DiscoverItem[] }
       setItems(data.items || [])
-    } catch (loadError) { setError(loadError instanceof Error ? loadError.message : 'Failed to load Discover items') } finally { setLoading(false) }
+    } catch (loadError) { setError(loadError instanceof Error ? loadError.message : DISCOVER_ADMIN_COPY.manager.loadFailed) } finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -78,40 +84,40 @@ export function DiscoverManager() {
     event.preventDefault(); setSaveStatus('saving'); setFormErrors([]); setFieldErrors({})
     try {
       const response = await fetch('/api/admin/discover', { method: form.id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload(form)) })
-      const data = await response.json() as { item?: DiscoverItem; error?: string; details?: string[] }
+      const data = await response.json() as { item?: DiscoverItem; error?: string; details?: DiscoverValidationDetail[] }
       if (!response.ok || !data.item) {
-        const details = data.details || [data.error || 'ذخیره آیتم ناموفق بود.']
+        const details = data.details || [data.error || DISCOVER_ADMIN_COPY.manager.saveFailed]
         const nextFieldErrors: Partial<Record<keyof DiscoverForm, string>> = {}
+        const messages = details.map((detail) => typeof detail === 'string' ? detail : typeof detail.message === 'string' ? detail.message : DISCOVER_ADMIN_COPY.manager.saveFailed)
         if (response.status === 409) nextFieldErrors.slug = data.error || 'این نامک قبلاً استفاده شده است.'
         for (const detail of details) {
-          if (/slug/i.test(detail)) nextFieldErrors.slug = detail
-          if (/titleEn|English content/i.test(detail)) nextFieldErrors.titleEn = detail
+          if (typeof detail !== 'string' && Array.isArray(detail.path) && detail.path.length === 1 && isDiscoverFormField(detail.path[0]) && typeof detail.message === 'string') nextFieldErrors[detail.path[0]] = detail.message
         }
-        setFieldErrors(nextFieldErrors); setFormErrors(details); throw new Error(details.join(' · '))
+        setFieldErrors(nextFieldErrors); setFormErrors(messages); throw new Error(messages.join(' · '))
       }
       const saved = data.item
       setItems((current) => form.id ? current.map((item) => item.id === saved.id ? saved : item) : [saved, ...current])
-      discardDraft(form.id); setServerSnapshotAt(Date.parse(saved.updatedAt) || Date.now()); setSaveStatus('saved'); setForm(toForm(saved)); toast({ title: 'ذخیره شد', description: `${saved.title} در Discover ذخیره شد.` })
-    } catch (saveError) { setSaveStatus('idle'); toast({ title: 'ذخیره ناموفق بود', description: saveError instanceof Error ? saveError.message : 'ذخیره آیتم ناموفق بود.', variant: 'destructive' }) }
+      discardDraft(form.id); setServerSnapshotAt(Date.parse(saved.updatedAt) || Date.now()); setSaveStatus('saved'); setForm(toForm(saved)); toast({ title: DISCOVER_ADMIN_COPY.editor.saved, description: DISCOVER_ADMIN_COPY.manager.saveToast(saved.title) })
+    } catch (saveError) { setSaveStatus('idle'); toast({ title: DISCOVER_ADMIN_COPY.manager.saveFailedTitle, description: saveError instanceof Error ? saveError.message : DISCOVER_ADMIN_COPY.manager.saveFailed, variant: 'destructive' }) }
   }
 
   async function deleteItem(item: DiscoverItem) {
-    if (!window.confirm(`Delete “${item.title}” permanently?`)) return
+    if (!window.confirm(DISCOVER_ADMIN_COPY.manager.deleteConfirm(item.title))) return
     try {
       const response = await fetch(`/api/admin/discover?id=${encodeURIComponent(item.id)}`, { method: 'DELETE' })
-      if (!response.ok) throw new Error('Failed to delete Discover item')
-      setItems((current) => current.filter((currentItem) => currentItem.id !== item.id)); if (form.id === item.id) resetForm(); toast({ title: 'Deleted', description: `${item.title} removed from Discover` })
-    } catch (deleteError) { toast({ title: 'Delete failed', description: deleteError instanceof Error ? deleteError.message : 'Failed to delete Discover item', variant: 'destructive' }) }
+      if (!response.ok) throw new Error(DISCOVER_ADMIN_COPY.manager.deleteFailed)
+      setItems((current) => current.filter((currentItem) => currentItem.id !== item.id)); if (form.id === item.id) resetForm(); toast({ title: DISCOVER_ADMIN_COPY.manager.deleted, description: DISCOVER_ADMIN_COPY.manager.deleteToast(item.title) })
+    } catch (deleteError) { toast({ title: DISCOVER_ADMIN_COPY.manager.deleteFailedTitle, description: deleteError instanceof Error ? deleteError.message : DISCOVER_ADMIN_COPY.manager.deleteFailed, variant: 'destructive' }) }
   }
 
   return <div dir="rtl" className="space-y-6">
-    {recovery ? <div role="status" className="rounded-xl border border-primary/40 bg-card p-4"><p>یک پیش‌نویس محلی پیدا شد. تا انتخاب شما، دادهٔ سرور تغییری نمی‌کند.</p><div className="mt-3 flex gap-2"><Button type="button" onClick={() => { setForm(recovery); setRecovery(null) }}>بازیابی پیش‌نویس</Button><Button type="button" variant="outline" onClick={() => { discardDraft(form.id); setRecovery(null) }}>حذف پیش‌نویس</Button></div></div> : null}
+    {recovery ? <div role="status" className="rounded-xl border border-primary/40 bg-card p-4"><p>{DISCOVER_ADMIN_COPY.manager.recovery}</p><div className="mt-3 flex gap-2"><Button type="button" onClick={() => { setForm(recovery); setRecovery(null) }}>{DISCOVER_ADMIN_COPY.manager.restoreDraft}</Button><Button type="button" variant="outline" onClick={() => { discardDraft(form.id); setRecovery(null) }}>{DISCOVER_ADMIN_COPY.manager.discardDraft}</Button></div></div> : null}
     <DiscoverEditor value={form} status={saveStatus} errors={formErrors} fieldErrors={fieldErrors} onChange={updateForm} onSubmit={saveItem} onCancel={resetForm} />
     <div className="grid gap-6 xl:grid-cols-2"><DiscoverImportExport value={payload(form)} onImport={(value) => { const imported = value as unknown as DiscoverForm; setForm({ ...emptyForm, ...imported, id: form.id, tags: Array.isArray(imported.tags) ? imported.tags.join(', ') : imported.tags }); setSaveStatus('idle'); setFormErrors([]) }} /><DiscoverPreview value={form} /></div>
-    <Card><CardHeader><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><CardTitle>کتابخانهٔ Discover</CardTitle><CardDescription>{loading ? 'در حال بارگذاری…' : `${items.length} آیتم`}</CardDescription></div><label className="relative block"><span className="sr-only">Search Discover items</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input dir="rtl" className="w-full ps-9 md:w-72" placeholder="جست‌وجوی عنوان، نامک یا دسته‌بندی" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div></CardHeader><CardContent>
+    <Card><CardHeader><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><CardTitle>{DISCOVER_ADMIN_COPY.manager.listTitle}</CardTitle><CardDescription>{loading ? DISCOVER_ADMIN_COPY.manager.loading : DISCOVER_ADMIN_COPY.manager.itemCount(items.length)}</CardDescription></div><label className="relative block"><span className="sr-only">{DISCOVER_ADMIN_COPY.manager.searchLabel}</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label={DISCOVER_ADMIN_COPY.manager.searchLabel} dir="rtl" className="w-full ps-9 md:w-72" placeholder={DISCOVER_ADMIN_COPY.manager.searchPlaceholder} value={query} onChange={(event) => setQuery(event.target.value)} /></label></div></CardHeader><CardContent>
       {error ? <div role="alert" className="rounded-md border border-destructive/40 p-4 text-destructive">{error}</div> : null}
-      {!loading && !error && filteredItems.length === 0 ? <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground">آیتمی پیدا نشد.</div> : null}
-      <div className="space-y-3">{filteredItems.map((item) => <div key={item.id} className="flex flex-col gap-4 rounded-xl border p-4 lg:flex-row lg:items-center lg:justify-between"><div className="min-w-0 space-y-2"><div className="flex flex-wrap items-center gap-2"><strong>{item.title}</strong><Badge variant="outline">{item.category}</Badge><Badge variant={item.published ? 'default' : 'secondary'}>{item.published ? 'منتشرشده' : 'پیش‌نویس'}</Badge></div><p dir="ltr" className="text-xs text-muted-foreground">/{item.slug} · order {item.order}</p><p className="line-clamp-2 text-sm text-muted-foreground">{item.description}</p></div><div className="flex shrink-0 flex-wrap gap-2">{item.published ? <Button asChild type="button" variant="outline" size="sm"><a href={`/discover/${item.slug}`} target="_blank" rel="noopener noreferrer"><ExternalLink />پیش‌نمایش فارسی</a></Button> : null}{item.publishedEn ? <Button asChild type="button" variant="outline" size="sm"><a href={`/en/discover/${item.slug}`} target="_blank" rel="noopener noreferrer"><ExternalLink />English preview</a></Button> : null}<Button type="button" variant="outline" size="sm" onClick={() => startEdit(item)}><Pencil />ویرایش</Button><Button type="button" variant="ghost" size="sm" onClick={() => void deleteItem(item)} aria-label={`Delete ${item.title}`}><Trash2 className="text-destructive" /></Button></div></div>)}</div>
+      {!loading && !error && filteredItems.length === 0 ? <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground">{DISCOVER_ADMIN_COPY.manager.empty}</div> : null}
+      <div className="space-y-3">{filteredItems.map((item) => <div key={item.id} className="flex flex-col gap-4 rounded-xl border p-4 lg:flex-row lg:items-center lg:justify-between"><div className="min-w-0 space-y-2"><div className="flex flex-wrap items-center gap-2"><strong>{item.title}</strong><Badge variant="outline">{item.category}</Badge><Badge variant={item.published ? 'default' : 'secondary'}>{item.published ? 'منتشرشده' : 'پیش‌نویس'}</Badge></div><p dir="ltr" className="text-xs text-muted-foreground">{DISCOVER_ADMIN_COPY.manager.order(item.slug, item.order)}</p><p className="line-clamp-2 text-sm text-muted-foreground">{item.description}</p></div><div className="flex shrink-0 flex-wrap gap-2">{item.published ? <Button asChild type="button" variant="outline" size="sm"><a href={`/discover/${item.slug}`} target="_blank" rel="noopener noreferrer"><ExternalLink />{DISCOVER_ADMIN_COPY.manager.faPreview}</a></Button> : null}{item.publishedEn ? <Button asChild type="button" variant="outline" size="sm"><a href={`/en/discover/${item.slug}`} target="_blank" rel="noopener noreferrer"><ExternalLink />{DISCOVER_ADMIN_COPY.manager.enPreview}</a></Button> : null}<Button type="button" variant="outline" size="sm" onClick={() => startEdit(item)}><Pencil />{DISCOVER_ADMIN_COPY.manager.edit}</Button><Button type="button" variant="ghost" size="sm" onClick={() => void deleteItem(item)} aria-label={DISCOVER_ADMIN_COPY.manager.delete(item.title)}><Trash2 className="text-destructive" /></Button></div></div>)}</div>
     </CardContent></Card>
   </div>
 }

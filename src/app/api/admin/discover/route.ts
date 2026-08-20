@@ -22,7 +22,9 @@ function isUniqueConstraintError(error: unknown): boolean {
     : Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002')
 }
 
-function validationResponse(requestId: string, headers: Record<string, string>, issues: string[]) {
+type ValidationDetail = string | { path: (string | number)[]; message: string }
+
+function validationResponse(requestId: string, headers: Record<string, string>, issues: ValidationDetail[]) {
   return withCommonApiHeaders(
     NextResponse.json({ error: 'Validation failed', details: issues }, { status: 400 }),
     requestId,
@@ -127,7 +129,7 @@ export async function POST(request: NextRequest) {
 
     const parsed = discoverCreateSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => issue.message))
+      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => ({ path: issue.path.map(String), message: issue.message })))
     }
 
     const input = parsed.data
@@ -182,7 +184,7 @@ export async function PATCH(request: NextRequest) {
 
     const parsed = discoverUpdateSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => issue.message))
+      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => ({ path: issue.path.map(String), message: issue.message })))
     }
 
     const { id, ...input } = parsed.data

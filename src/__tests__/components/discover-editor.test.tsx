@@ -51,7 +51,7 @@ describe('Discover editor', () => {
     const value = { id: 'discover-item-0001', slug: 'tool', title: 'ابزار', description: 'توضیح', content: 'راهنما', titleEn: 'Tool', descriptionEn: 'Description', contentEn: 'Guide', externalUrl: 'https://example.com', category: 'ai', tags: '', imageUrl: '', instagramUrl: '', telegramGuideUrl: '', featured: false, published: true, publishedEn: false, order: 0 }
     render(<DiscoverPreview value={value} />)
     expect(screen.getByRole('link', { name: 'نمایش عمومی' })).toHaveAttribute('href', '/discover/tool')
-    fireEvent.click(screen.getByRole('button', { name: 'English' }))
+    fireEvent.click(screen.getByRole('button', { name: 'انگلیسی' }))
     expect(screen.queryByRole('link', { name: 'نمایش عمومی' })).not.toBeInTheDocument()
   })
 })

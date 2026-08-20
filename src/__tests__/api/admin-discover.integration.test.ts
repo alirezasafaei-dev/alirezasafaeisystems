@@ -131,6 +131,10 @@ describe('Discover admin API', () => {
     }))
 
     expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({ error: 'Validation failed', details: [
+      { path: ['descriptionEn'], message: 'English content is required when publishedEn is true' },
+      { path: ['contentEn'], message: 'English content is required when publishedEn is true' },
+    ] })
     expect(discoverItemMock.create).not.toHaveBeenCalled()
   })
 
