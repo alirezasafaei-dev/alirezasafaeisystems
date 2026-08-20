@@ -33,6 +33,10 @@ const config = {
         timeout: 240_000,
         env: {
           DATABASE_URL: playwrightDatabaseUrl,
+          ADMIN_USERNAME: 'playwright-admin',
+          ADMIN_PASSWORD: 'playwright-admin-password',
+          ADMIN_SESSION_SECRET: 'playwright-admin-session-secret-0000000000000000',
+          API_RATE_LIMIT_MAX_REQUESTS: '1000',
         },
       },
 }
