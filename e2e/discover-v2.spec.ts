@@ -84,8 +84,12 @@ test('Persian-only resource is public in Persian and excluded from English', asy
   await expect(page.getByText('Playwright Discover Resource', { exact: true })).toBeVisible()
   await expect(page.getByText('منبع فقط فارسی', { exact: true })).toHaveCount(0)
 
-  const response = await page.goto(englishPersianOnlyPath)
-  expect(response?.status()).toBe(404)
+  await page.goto(englishPersianOnlyPath)
+  // Next.js streamed notFound responses may retain HTTP 200. The indexability contract
+  // is the rendered not-found UI plus noindex, while sitemap tests cover URL exclusion.
+  await expect(page.locator('h1')).toHaveText('۴۰۴')
+  await expect(page.getByText('منبع فقط فارسی', { exact: true })).toHaveCount(0)
+  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute('content', /noindex/)
 })
 
 test('authenticated Discover Admin preserves RTL/LTR semantics and passes serious/critical axe checks', async ({ page }) => {
