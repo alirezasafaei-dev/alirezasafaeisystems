@@ -43,3 +43,7 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
         run: pnpm exec playwright test e2e/a11y.spec.ts
+      - name: Run Discover v2 acceptance tests
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/ms-playwright
+        run: pnpm exec playwright test e2e/discover-v2.spec.ts
