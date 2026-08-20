@@ -136,6 +136,20 @@ function validateEnglishPublication(
   }
 }
 
+export function isDiscoverEnglishPublic(item: {
+  publishedEn: boolean
+  titleEn: string | null
+  descriptionEn: string | null
+  contentEn: string | null
+}): item is {
+  publishedEn: true
+  titleEn: string
+  descriptionEn: string
+  contentEn: string
+} {
+  return Boolean(item.publishedEn && item.titleEn?.trim() && item.descriptionEn?.trim() && item.contentEn?.trim())
+}
+
 function normalizeAttributionValue(value: unknown): string | undefined {
   const raw = Array.isArray(value) ? value[0] : value
   if (typeof raw !== 'string') return undefined

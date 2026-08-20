@@ -27,7 +27,7 @@ describe('Discover public data contract', () => {
     const detail = source('src/app/discover/[slug]/page.tsx')
     const lookupIndex = detail.indexOf('const item = await db.discoverItem.findUnique({ where: { slug } })')
     const publishedGuardIndex = detail.indexOf('if (!item || !effectiveContent) notFound()', lookupIndex)
-    const relatedIndex = detail.indexOf('const related = await db.discoverItem.findMany', publishedGuardIndex)
+    const relatedIndex = detail.indexOf('const related = (await db.discoverItem.findMany', publishedGuardIndex)
     const relatedPublishedIndex = detail.indexOf("...(isEn ? { publishedEn: true } : { published: true })", relatedIndex)
 
     expect(lookupIndex).toBeGreaterThan(-1)

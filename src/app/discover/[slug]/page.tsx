@@ -7,6 +7,7 @@ import {
   appendDiscoverAttribution,
   discoverAnalyticsMetadata,
   extractDiscoverAttribution,
+  isDiscoverEnglishPublic,
 } from '@/lib/discover'
 import { env } from '@/lib/env'
 import { getRequestLanguage } from '@/lib/i18n/server'
@@ -39,7 +40,7 @@ function getEffectiveDetailContent(item: {
     return item.published ? { title: item.title, description: item.description, content: item.content } : null
   }
 
-  if (!item.publishedEn || !item.titleEn || !item.descriptionEn || !item.contentEn) return null
+  if (!isDiscoverEnglishPublic(item)) return null
   return { title: item.titleEn, description: item.descriptionEn, content: item.contentEn }
 }
 
@@ -62,9 +63,10 @@ export async function generateMetadata({ params }: Pick<DiscoverDetailProps, 'pa
 
   const canonicalPath = isEn ? `/en/discover/${slug}` : `/discover/${slug}`
   const { title, description } = content
+  const englishPublic = isDiscoverEnglishPublic(item)
   const languages: Record<string, string> = {}
   if (item.published) languages['fa-IR'] = `${siteUrl}/discover/${slug}`
-  if (item.publishedEn) languages['en-US'] = `${siteUrl}/en/discover/${slug}`
+  if (englishPublic) languages['en-US'] = `${siteUrl}/en/discover/${slug}`
   if (item.published) languages['x-default'] = `${siteUrl}/discover/${slug}`
   return {
     title: `${title} | Discover`,
@@ -93,16 +95,16 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
 
   const { title, description, content } = effectiveContent
 
-  const related = await db.discoverItem.findMany({
+  const related = (await db.discoverItem.findMany({
     where: {
       ...(isEn ? { publishedEn: true } : { published: true }),
       category: item.category,
       id: { not: item.id },
     },
-    select: { slug: true, title: true, description: true, titleEn: true, descriptionEn: true },
+    select: { slug: true, title: true, description: true, titleEn: true, descriptionEn: true, contentEn: true, publishedEn: true },
     orderBy: [{ featured: 'desc' }, { order: 'asc' }, { publishedAt: 'desc' }],
-    take: 3,
-  })
+    take: isEn ? 12 : 3,
+  })).filter((relatedItem) => !isEn || isDiscoverEnglishPublic(relatedItem)).slice(0, 3)
 
   const canonicalPath = isEn ? `/en/discover/${slug}` : `/discover/${slug}`
   const tags = item.tags.split(',').map((tag) => tag.trim()).filter(Boolean)

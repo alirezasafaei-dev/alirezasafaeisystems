@@ -37,6 +37,22 @@ describe('Discover detail locale publication and SEO', () => {
     }))
   })
 
+  it('treats published English with blank required content as unavailable and excludes invalid related links', async () => {
+    languageMock.getRequestLanguage.mockResolvedValue('en')
+    discoverItemMock.findUnique.mockResolvedValue({ ...bilingualItem, titleEn: ' ', descriptionEn: 'English description', contentEn: 'English guide' })
+    const { default: DiscoverDetailPage, generateMetadata } = await import('@/app/discover/[slug]/page')
+
+    await expect(DiscoverDetailPage({ params: Promise.resolve({ slug: 'deepseek-gidbot' }), searchParams: Promise.resolve({}) })).rejects.toThrow('NOT_FOUND')
+    await expect(generateMetadata({ params: Promise.resolve({ slug: 'deepseek-gidbot' }) })).resolves.toEqual(expect.objectContaining({
+      robots: { index: false, follow: false },
+    }))
+
+    discoverItemMock.findUnique.mockResolvedValue(bilingualItem)
+    discoverItemMock.findMany.mockResolvedValue([{ ...bilingualItem, id: 'related-1', slug: 'incomplete-related', titleEn: ' ', descriptionEn: 'English description', contentEn: 'English guide' }])
+    render(await DiscoverDetailPage({ params: Promise.resolve({ slug: 'deepseek-gidbot' }), searchParams: Promise.resolve({}) }))
+    expect(screen.queryByText('English description')).not.toBeInTheDocument()
+  })
+
   it('uses effective English content with reciprocal canonical language alternates', async () => {
     languageMock.getRequestLanguage.mockResolvedValue('en')
     discoverItemMock.findUnique.mockResolvedValue(bilingualItem)

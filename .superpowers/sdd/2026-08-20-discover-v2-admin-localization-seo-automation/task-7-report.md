@@ -25,3 +25,20 @@ Focused GREEN command result: PASS — 2 files, 8 tests.
 - `pnpm test`: PASS — 57 files, 367 tests.
 - `pnpm lint`: PASS with 2 pre-existing warnings in `scripts/telegram-bot/bot.js`; no Task 7 warnings/errors.
 - `git diff --check`: PASS.
+
+## Review fix round 1 — effective English availability and Persian canonical URL
+
+### RED evidence
+
+`pnpm vitest run src/__tests__/seo/discover-detail-seo.test.ts src/__tests__/seo/sitemap.test.ts` failed 4 of 10 tests. The failures showed blank English editorial fields could still produce a public detail page and sitemap entry, while dynamic sitemap URLs used `/fa/discover/...` even though `withLocale(path, 'fa')` establishes unprefixed Persian URLs.
+
+### GREEN evidence
+
+- `isDiscoverEnglishPublic` is the single trimmed-field predicate for English publication. Detail rendering/metadata, hreflang, sitemap entries and alternates, and English related cards use it.
+- Persian Discover detail URLs are consistently `/discover/<slug>` in metadata, hreflang, and sitemap; English remains `/en/discover/<slug>`.
+
+- Focused SEO: PASS — 2 files, 10 tests.
+- `pnpm type-check`: PASS.
+- `pnpm test`: PASS — 57 files, 369 tests.
+- `pnpm lint`: PASS with the same 2 pre-existing warnings in `scripts/telegram-bot/bot.js`; no Task 7 warnings/errors.
+- `git diff --check`: PASS.

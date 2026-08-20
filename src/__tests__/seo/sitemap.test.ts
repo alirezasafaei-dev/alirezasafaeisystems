@@ -39,41 +39,52 @@ describe('sitemap contract', () => {
     const { default: sitemap } = await import('@/app/sitemap')
     const entries = await sitemap()
 
-    const detail = entries.find((entry) => entry.url.endsWith('/fa/discover/notebooklm'))
+    const detail = entries.find((entry) => entry.url.endsWith('/discover/notebooklm'))
     expect(detail).toBeDefined()
     expect(detail?.alternates?.languages).toEqual({
-      'fa-IR': 'https://alirezasafaeisystems.ir/fa/discover/notebooklm',
-      'x-default': 'https://alirezasafaeisystems.ir/fa/discover/notebooklm',
+      'fa-IR': 'https://alirezasafaeisystems.ir/discover/notebooklm',
+      'x-default': 'https://alirezasafaeisystems.ir/discover/notebooklm',
     })
     expect(discoverItemMock.findMany).toHaveBeenCalledWith({
       where: { OR: [{ published: true }, { publishedEn: true }] },
-      select: { slug: true, published: true, publishedEn: true, updatedAt: true },
+      select: { slug: true, published: true, publishedEn: true, titleEn: true, descriptionEn: true, contentEn: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' },
     })
   })
 
   it('emits reciprocal alternates only when both detail locales are published', async () => {
     discoverItemMock.findMany.mockResolvedValueOnce([
-      { slug: 'notebooklm', published: true, publishedEn: true, updatedAt: new Date('2026-08-15T20:00:00Z') },
-      { slug: 'english-only', published: false, publishedEn: true, updatedAt: new Date('2026-08-16T20:00:00Z') },
+      { slug: 'notebooklm', published: true, publishedEn: true, titleEn: 'NotebookLM', descriptionEn: 'English guide', contentEn: 'English content', updatedAt: new Date('2026-08-15T20:00:00Z') },
+      { slug: 'english-only', published: false, publishedEn: true, titleEn: 'English only', descriptionEn: 'English guide', contentEn: 'English content', updatedAt: new Date('2026-08-16T20:00:00Z') },
     ])
     const { default: sitemap } = await import('@/app/sitemap')
     const entries = await sitemap()
 
-    const persian = entries.find((entry) => entry.url.endsWith('/fa/discover/notebooklm'))
+    const persian = entries.find((entry) => entry.url.endsWith('/discover/notebooklm'))
     const english = entries.find((entry) => entry.url.endsWith('/en/discover/notebooklm'))
     const englishOnly = entries.find((entry) => entry.url.endsWith('/en/discover/english-only'))
     expect(persian?.alternates?.languages).toEqual(expect.objectContaining({
-      'fa-IR': 'https://alirezasafaeisystems.ir/fa/discover/notebooklm',
+      'fa-IR': 'https://alirezasafaeisystems.ir/discover/notebooklm',
       'en-US': 'https://alirezasafaeisystems.ir/en/discover/notebooklm',
     }))
     expect(english?.alternates?.languages).toEqual(expect.objectContaining({
-      'fa-IR': 'https://alirezasafaeisystems.ir/fa/discover/notebooklm',
+      'fa-IR': 'https://alirezasafaeisystems.ir/discover/notebooklm',
       'en-US': 'https://alirezasafaeisystems.ir/en/discover/notebooklm',
     }))
     expect(englishOnly?.alternates?.languages).toEqual({
       'en-US': 'https://alirezasafaeisystems.ir/en/discover/english-only',
     })
+  })
+
+  it('excludes publishedEn records whose English editorial fields are incomplete', async () => {
+    discoverItemMock.findMany.mockResolvedValueOnce([
+      { slug: 'incomplete', published: false, publishedEn: true, titleEn: 'English title', descriptionEn: ' ', contentEn: 'English guide', updatedAt: new Date('2026-08-16T20:00:00Z') },
+    ])
+    const { default: sitemap } = await import('@/app/sitemap')
+
+    const entries = await sitemap()
+
+    expect(entries.find((entry) => entry.url.endsWith('/en/discover/incomplete'))).toBeUndefined()
   })
 
   it('renders at request time so post-deploy Discover publications reach the sitemap', async () => {
