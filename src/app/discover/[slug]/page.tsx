@@ -12,7 +12,7 @@ import { env } from '@/lib/env'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { translations } from '@/lib/i18n/translations'
 import { getSafeDiscoverCategoryLabel } from '@/lib/discover-categories'
-import { generateBreadcrumbSchema } from '@/lib/seo'
+import { generateBreadcrumbSchema, generateDiscoverEditorialSchema } from '@/lib/seo'
 import { getSiteUrl } from '@/lib/site-config'
 import { DiscoverLink } from '@/components/discover/discover-link'
 import { DiscoverTelemetry } from '@/components/discover/discover-telemetry'
@@ -25,16 +25,35 @@ type DiscoverDetailProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
+function getEffectiveDetailContent(item: {
+  title: string
+  description: string
+  content: string
+  published: boolean
+  titleEn: string | null
+  descriptionEn: string | null
+  contentEn: string | null
+  publishedEn: boolean
+}, isEn: boolean) {
+  if (!isEn) {
+    return item.published ? { title: item.title, description: item.description, content: item.content } : null
+  }
+
+  if (!item.publishedEn || !item.titleEn || !item.descriptionEn || !item.contentEn) return null
+  return { title: item.titleEn, description: item.descriptionEn, content: item.contentEn }
+}
+
 export async function generateMetadata({ params }: Pick<DiscoverDetailProps, 'params'>): Promise<Metadata> {
   const { slug } = await params
   const lang = await getRequestLanguage()
   const isEn = lang === 'en'
   const item = await db.discoverItem.findUnique({
     where: { slug },
-    select: { title: true, description: true, published: true },
+    select: { title: true, description: true, content: true, published: true, titleEn: true, descriptionEn: true, contentEn: true, publishedEn: true },
   })
 
-  if (!item?.published) {
+  const content = item && getEffectiveDetailContent(item, isEn)
+  if (!content) {
     return {
       title: 'Discover',
       robots: { index: false, follow: false },
@@ -42,20 +61,21 @@ export async function generateMetadata({ params }: Pick<DiscoverDetailProps, 'pa
   }
 
   const canonicalPath = isEn ? `/en/discover/${slug}` : `/discover/${slug}`
+  const { title, description } = content
+  const languages: Record<string, string> = {}
+  if (item.published) languages['fa-IR'] = `${siteUrl}/discover/${slug}`
+  if (item.publishedEn) languages['en-US'] = `${siteUrl}/en/discover/${slug}`
+  if (item.published) languages['x-default'] = `${siteUrl}/discover/${slug}`
   return {
-    title: `${item.title} | Discover`,
-    description: item.description,
+    title: `${title} | Discover`,
+    description,
     alternates: {
       canonical: canonicalPath,
-      languages: {
-        'fa-IR': `${siteUrl}/discover/${slug}`,
-        'en-US': `${siteUrl}/en/discover/${slug}`,
-        'x-default': `${siteUrl}/discover/${slug}`,
-      },
+      languages,
     },
     openGraph: {
-      title: item.title,
-      description: item.description,
+      title,
+      description,
       url: `${siteUrl}${canonicalPath}`,
       type: 'article',
     },
@@ -68,22 +88,25 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
   const attribution = extractDiscoverAttribution(query)
   const item = await db.discoverItem.findUnique({ where: { slug } })
 
-  if (!item?.published) notFound()
+  const effectiveContent = item && getEffectiveDetailContent(item, isEn)
+  if (!item || !effectiveContent) notFound()
+
+  const { title, description, content } = effectiveContent
 
   const related = await db.discoverItem.findMany({
     where: {
-      published: true,
+      ...(isEn ? { publishedEn: true } : { published: true }),
       category: item.category,
       id: { not: item.id },
     },
-    select: { slug: true, title: true, description: true },
+    select: { slug: true, title: true, description: true, titleEn: true, descriptionEn: true },
     orderBy: [{ featured: 'desc' }, { order: 'asc' }, { publishedAt: 'desc' }],
     take: 3,
   })
 
   const canonicalPath = isEn ? `/en/discover/${slug}` : `/discover/${slug}`
   const tags = item.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
-  const paragraphs = item.content
+  const paragraphs = content
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
@@ -97,6 +120,14 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
   const locale = isEn ? 'en' : 'fa'
 
   const copy = translations[lang].discover.detail
+  const editorialSchema = generateDiscoverEditorialSchema({
+    title,
+    description,
+    url: `${siteUrl}${canonicalPath}`,
+    publishDate: (item.publishedAt || item.createdAt).toISOString(),
+    modifiedDate: item.updatedAt.toISOString(),
+    language: isEn ? 'en-US' : 'fa-IR',
+  })
 
   const BackIcon = isEn ? ArrowLeft : ArrowRight
   const telemetryMetadata = discoverAnalyticsMetadata(attribution, {
@@ -109,8 +140,9 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
       <JsonLd data={generateBreadcrumbSchema([
         { name: isEn ? 'Home' : 'خانه', url: siteUrl },
         { name: copy.breadcrumb, url: `${siteUrl}${isEn ? '/en/discover' : '/discover'}` },
-        { name: item.title, url: `${siteUrl}${canonicalPath}` },
+        { name: title, url: `${siteUrl}${canonicalPath}` },
       ])} />
+      <JsonLd data={editorialSchema} />
       <DiscoverTelemetry name="discover_item_view" locale={locale} metadata={telemetryMetadata} />
 
       <article className="mx-auto max-w-4xl space-y-8">
@@ -133,8 +165,8 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
                 </span>
               ) : null}
             </div>
-            <h1 className="headline-tight text-3xl font-bold md:text-5xl">{item.title}</h1>
-            <p className="text-base leading-8 text-muted-foreground md:text-lg">{item.description}</p>
+            <h1 className="headline-tight text-3xl font-bold md:text-5xl">{title}</h1>
+            <p className="text-base leading-8 text-muted-foreground md:text-lg">{description}</p>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <span key={tag} className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">#{tag}</span>
@@ -145,9 +177,9 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
 
         <section className="section-surface space-y-5 p-6 md:p-8">
           <h2 className="text-2xl font-bold">{copy.guide}</h2>
-          <div className="space-y-4 text-[15px] leading-8 text-muted-foreground">
+          <div className="space-y-4 text-[15px] leading-8 text-muted-foreground" dir={isEn ? 'ltr' : 'rtl'}>
             {paragraphs.map((paragraph, index) => (
-              <p key={`${item.slug}-paragraph-${index}`}>{paragraph}</p>
+              <p key={`${item.slug}-paragraph-${index}`} role={/official DeepSeek|رسمی DeepSeek نیست/.test(paragraph) ? 'note' : undefined} className={/official DeepSeek|رسمی DeepSeek نیست/.test(paragraph) ? 'font-medium text-foreground' : undefined}>{paragraph}</p>
             ))}
           </div>
 
@@ -157,10 +189,10 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
               external
               locale={locale}
               eventName="discover_external_click"
-              metadata={{ ...telemetryMetadata, target: 'official' }}
+              metadata={{ ...telemetryMetadata, target: 'external_resource' }}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
             >
-              {copy.official}
+              {copy.openResource}
               <ExternalLink className="h-4 w-4" />
             </DiscoverLink>
 
@@ -234,8 +266,8 @@ export default async function DiscoverDetailPage({ params, searchParams }: Disco
                 )
                 return (
                   <Link key={relatedItem.slug} href={href} className="rounded-xl border bg-card p-4 transition hover:bg-muted/50">
-                    <h3 className="font-semibold">{relatedItem.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-xs leading-6 text-muted-foreground">{relatedItem.description}</p>
+                    <h3 className="font-semibold">{isEn ? relatedItem.titleEn || '' : relatedItem.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-xs leading-6 text-muted-foreground">{isEn ? relatedItem.descriptionEn || '' : relatedItem.description}</p>
                   </Link>
                 )
               })}

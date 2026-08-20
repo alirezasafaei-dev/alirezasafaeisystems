@@ -159,6 +159,43 @@ export function generateBreadcrumbSchema(items: Array<{ name: string; url: strin
   }
 }
 
+export function generateDiscoverEditorialSchema({
+  title,
+  description,
+  url,
+  publishDate,
+  modifiedDate,
+  language,
+}: {
+  title: string
+  description: string
+  url: string
+  publishDate: string
+  modifiedDate: string
+  language: 'fa-IR' | 'en-US'
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    url,
+    mainEntityOfPage: url,
+    datePublished: publishDate,
+    dateModified: modifiedDate,
+    inLanguage: language,
+    author: {
+      '@type': 'Person',
+      name: brand.ownerName,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: brand.brandName,
+      url: getSiteUrl(),
+    },
+  }
+}
+
 // Project Schema (CreativeWork)
 export function generateProjectSchema({
   name,

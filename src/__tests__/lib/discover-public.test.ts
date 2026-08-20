@@ -23,12 +23,12 @@ describe('Discover public data contract', () => {
     expect(landing).not.toContain('content: true')
   })
 
-  it('404s unpublished detail items and keeps related-item queries published-only', () => {
+  it('404s unpublished locale detail items and keeps related-item queries locale-published', () => {
     const detail = source('src/app/discover/[slug]/page.tsx')
     const lookupIndex = detail.indexOf('const item = await db.discoverItem.findUnique({ where: { slug } })')
-    const publishedGuardIndex = detail.indexOf('if (!item?.published) notFound()', lookupIndex)
+    const publishedGuardIndex = detail.indexOf('if (!item || !effectiveContent) notFound()', lookupIndex)
     const relatedIndex = detail.indexOf('const related = await db.discoverItem.findMany', publishedGuardIndex)
-    const relatedPublishedIndex = detail.indexOf('published: true', relatedIndex)
+    const relatedPublishedIndex = detail.indexOf("...(isEn ? { publishedEn: true } : { published: true })", relatedIndex)
 
     expect(lookupIndex).toBeGreaterThan(-1)
     expect(publishedGuardIndex).toBeGreaterThan(lookupIndex)
