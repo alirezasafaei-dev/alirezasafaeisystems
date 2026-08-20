@@ -24,6 +24,7 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
+    "discover:validate": "node scripts/discover/validate-manifests.mjs",
     "test:integration": "vitest run src/__tests__/api",
     "test:watch": "vitest watch",
     "test:ui": "vitest --ui",

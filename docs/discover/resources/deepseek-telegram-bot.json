@@ -1,0 +1,21 @@
+{
+  "payload": {
+    "slug": "deepseek-telegram-bot",
+    "title": "ربات تلگرام DeepSeek (غیررسمی)",
+    "description": "دسترسی به ربات تلگرام DeepSeek؛ این ربات غیررسمی است.",
+    "content": "برای دسترسی، مقصد را باز کنید. این مورد به عنوان یک ربات غیررسمی ثبت شده است.",
+    "externalUrl": "https://t.me/deepseek_gidbot",
+    "category": "ai",
+    "tags": ["DeepSeek", "Telegram"],
+    "instagramUrl": "https://www.instagram.com/p/Db9O3I-M6Dy/",
+    "featured": false,
+    "published": false,
+    "publishedEn": false,
+    "order": 0
+  },
+  "evidence": {
+    "sourceReel": "https://www.instagram.com/p/Db9O3I-M6Dy/",
+    "destination": "https://t.me/deepseek_gidbot",
+    "notes": "Verified source references for editorial review only; not part of the Admin import payload."
+  }
+}

@@ -93,6 +93,22 @@ pnpm exec playwright test e2e/a11y.spec.ts
 - `http://localhost:3000/en/discover`
 - `http://localhost:3000/admin`
 
+## Resource manifest import
+
+برای آماده‌سازی یک منبع Discover از این جریان استفاده کنید:
+
+`manifest → validate → Admin Import JSON → review → save draft/publish → live verify`
+
+Manifest فقط artifact محلی برای آماده‌سازی import است و production storage نیست. بخش `evidence` آن برای یادداشت‌های منبع است و نباید در Admin Import JSON وارد شود؛ فقط `payload` که با schema create سازگار است را import کنید. این جریان هیچ authentication Admin را bypass نمی‌کند؛ ورود و مجوزهای معمول Admin همچنان لازم‌اند.
+
+قبل از Import، تنها validation محلی و بدون network را اجرا کنید:
+
+```powershell
+pnpm discover:validate
+```
+
+پس از PASS، `payload` را به Admin Import JSON منتقل کنید، محتوا و مقصدها را review کنید، ابتدا draft را ذخیره کنید یا در صورت تأیید publish کنید، و سپس detail public را live verify کنید.
+
 ## Content operating workflow
 
 برای هر Reel/Post که یک ابزار یا منبع را معرفی می‌کند:
