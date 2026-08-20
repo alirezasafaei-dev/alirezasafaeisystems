@@ -14,12 +14,12 @@ export type DiscoverForm = {
   imageUrl: string; instagramUrl: string; telegramGuideUrl: string; featured: boolean; published: boolean; publishedEn: boolean; order: number
 }
 
-type Props = { value: DiscoverForm; status: DiscoverSaveStatus; errors: string[]; onChange: <K extends keyof DiscoverForm>(key: K, value: DiscoverForm[K]) => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; onCancel: () => void }
+type Props = { value: DiscoverForm; status: DiscoverSaveStatus; errors: string[]; fieldErrors: Partial<Record<keyof DiscoverForm, string>>; onChange: <K extends keyof DiscoverForm>(key: K, value: DiscoverForm[K]) => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; onCancel: () => void }
 
 const fieldClass = 'mt-1'
 const englishReadyMessage = 'برای انتشار انگلیسی، عنوان، توضیح و راهنمای انگلیسی را کامل کنید.'
 
-export function DiscoverEditor({ value, status, errors, onChange, onSubmit, onCancel }: Props) {
+export function DiscoverEditor({ value, status, errors, fieldErrors, onChange, onSubmit, onCancel }: Props) {
   const englishReady = Boolean(value.titleEn.trim() && value.descriptionEn.trim() && value.contentEn.trim())
   const issueId = 'discover-editor-errors'
   return <form data-testid="discover-editor" dir="rtl" onSubmit={onSubmit} className="space-y-5">
@@ -33,7 +33,7 @@ export function DiscoverEditor({ value, status, errors, onChange, onSubmit, onCa
     </div></section>
     <section className="rounded-xl border bg-card p-5" aria-labelledby="fa-heading"><h2 id="fa-heading" className="font-semibold">محتوای فارسی</h2><div className="mt-4 grid gap-4 md:grid-cols-2">
       <label className="text-sm font-medium">عنوان فارسی<Input dir="rtl" className={fieldClass} required maxLength={140} value={value.title} onChange={(event) => onChange('title', event.target.value)} /></label>
-      <label className="text-sm font-medium">نامک<Input dir="ltr" className={fieldClass} required minLength={2} maxLength={100} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value={value.slug} onChange={(event) => onChange('slug', event.target.value.toLowerCase())} /></label>
+      <label className="text-sm font-medium">نامک<Input dir="ltr" aria-invalid={Boolean(fieldErrors.slug)} aria-describedby={fieldErrors.slug ? 'discover-slug-error' : undefined} className={fieldClass} required minLength={2} maxLength={100} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" value={value.slug} onChange={(event) => onChange('slug', event.target.value.toLowerCase())} />{fieldErrors.slug ? <p id="discover-slug-error" className="mt-1 text-xs text-destructive">{fieldErrors.slug}</p> : null}</label>
       <label className="text-sm font-medium md:col-span-2">توضیح فارسی<Textarea dir="rtl" className={fieldClass} required maxLength={400} value={value.description} onChange={(event) => onChange('description', event.target.value)} /></label>
       <label className="text-sm font-medium md:col-span-2">راهنمای فارسی<Textarea dir="rtl" className={fieldClass} required maxLength={8000} rows={8} value={value.content} onChange={(event) => onChange('content', event.target.value)} /></label>
     </div></section>

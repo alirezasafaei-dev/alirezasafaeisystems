@@ -33,7 +33,9 @@ export function DiscoverManager() {
   const [saveStatus, setSaveStatus] = useState<DiscoverSaveStatus>('idle')
   const [error, setError] = useState('')
   const [formErrors, setFormErrors] = useState<string[]>([])
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof DiscoverForm, string>>>({})
   const [recovery, setRecovery] = useState<DiscoverForm | null>(null)
+  const [serverSnapshotAt, setServerSnapshotAt] = useState(0)
 
   const loadItems = useCallback(async () => {
     setLoading(true); setError('')
@@ -53,10 +55,10 @@ export function DiscoverManager() {
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       const draft = readDraft<DiscoverForm>(form.id)
-      if (draft && draft.savedAt > 0) setRecovery(draft.form)
+      if (draft && draft.savedAt > serverSnapshotAt) setRecovery(draft.form)
     }, 0)
     return () => window.clearTimeout(timeout)
-  }, [form.id])
+  }, [form.id, serverSnapshotAt])
 
   const filteredItems = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase()
@@ -65,24 +67,31 @@ export function DiscoverManager() {
 
   function updateForm<K extends keyof DiscoverForm>(key: K, value: DiscoverForm[K]) {
     setForm((current) => { const next = { ...current, [key]: value }; writeDraft(next); return next })
+    setFieldErrors((current) => ({ ...current, [key]: undefined }))
     setSaveStatus('idle')
   }
 
-  function startEdit(item: DiscoverItem) { setRecovery(null); setForm(toForm(item)); setFormErrors([]); window.scrollTo({ top: 0, behavior: 'smooth' }) }
-  function resetForm() { discardDraft(form.id); setRecovery(null); setForm(emptyForm); setFormErrors([]); setSaveStatus('idle') }
+  function startEdit(item: DiscoverItem) { setRecovery(null); setServerSnapshotAt(Date.parse(item.updatedAt) || 0); setForm(toForm(item)); setFormErrors([]); setFieldErrors({}); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  function resetForm() { setRecovery(null); setServerSnapshotAt(0); setForm(emptyForm); setFormErrors([]); setFieldErrors({}); setSaveStatus('idle') }
 
   async function saveItem(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setSaveStatus('saving'); setFormErrors([])
+    event.preventDefault(); setSaveStatus('saving'); setFormErrors([]); setFieldErrors({})
     try {
       const response = await fetch('/api/admin/discover', { method: form.id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload(form)) })
       const data = await response.json() as { item?: DiscoverItem; error?: string; details?: string[] }
       if (!response.ok || !data.item) {
         const details = data.details || [data.error || 'ذخیره آیتم ناموفق بود.']
-        setFormErrors(details); throw new Error(details.join(' · '))
+        const nextFieldErrors: Partial<Record<keyof DiscoverForm, string>> = {}
+        if (response.status === 409) nextFieldErrors.slug = data.error || 'این نامک قبلاً استفاده شده است.'
+        for (const detail of details) {
+          if (/slug/i.test(detail)) nextFieldErrors.slug = detail
+          if (/titleEn|English content/i.test(detail)) nextFieldErrors.titleEn = detail
+        }
+        setFieldErrors(nextFieldErrors); setFormErrors(details); throw new Error(details.join(' · '))
       }
       const saved = data.item
       setItems((current) => form.id ? current.map((item) => item.id === saved.id ? saved : item) : [saved, ...current])
-      discardDraft(form.id); setSaveStatus('saved'); setForm(toForm(saved)); toast({ title: 'ذخیره شد', description: `${saved.title} در Discover ذخیره شد.` })
+      discardDraft(form.id); setServerSnapshotAt(Date.parse(saved.updatedAt) || Date.now()); setSaveStatus('saved'); setForm(toForm(saved)); toast({ title: 'ذخیره شد', description: `${saved.title} در Discover ذخیره شد.` })
     } catch (saveError) { setSaveStatus('idle'); toast({ title: 'ذخیره ناموفق بود', description: saveError instanceof Error ? saveError.message : 'ذخیره آیتم ناموفق بود.', variant: 'destructive' }) }
   }
 
@@ -97,7 +106,7 @@ export function DiscoverManager() {
 
   return <div dir="rtl" className="space-y-6">
     {recovery ? <div role="status" className="rounded-xl border border-primary/40 bg-card p-4"><p>یک پیش‌نویس محلی پیدا شد. تا انتخاب شما، دادهٔ سرور تغییری نمی‌کند.</p><div className="mt-3 flex gap-2"><Button type="button" onClick={() => { setForm(recovery); setRecovery(null) }}>بازیابی پیش‌نویس</Button><Button type="button" variant="outline" onClick={() => { discardDraft(form.id); setRecovery(null) }}>حذف پیش‌نویس</Button></div></div> : null}
-    <DiscoverEditor value={form} status={saveStatus} errors={formErrors} onChange={updateForm} onSubmit={saveItem} onCancel={resetForm} />
+    <DiscoverEditor value={form} status={saveStatus} errors={formErrors} fieldErrors={fieldErrors} onChange={updateForm} onSubmit={saveItem} onCancel={resetForm} />
     <div className="grid gap-6 xl:grid-cols-2"><DiscoverImportExport value={payload(form)} onImport={(value) => { const imported = value as unknown as DiscoverForm; setForm({ ...emptyForm, ...imported, id: form.id, tags: Array.isArray(imported.tags) ? imported.tags.join(', ') : imported.tags }); setSaveStatus('idle'); setFormErrors([]) }} /><DiscoverPreview value={form} /></div>
     <Card><CardHeader><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><CardTitle>کتابخانهٔ Discover</CardTitle><CardDescription>{loading ? 'در حال بارگذاری…' : `${items.length} آیتم`}</CardDescription></div><label className="relative block"><span className="sr-only">Search Discover items</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input dir="rtl" className="w-full ps-9 md:w-72" placeholder="جست‌وجوی عنوان، نامک یا دسته‌بندی" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div></CardHeader><CardContent>
       {error ? <div role="alert" className="rounded-md border border-destructive/40 p-4 text-destructive">{error}</div> : null}
