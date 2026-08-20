@@ -19,7 +19,7 @@ describe('production database migration safety', () => {
 
     expect(planner).toContain('20260617000000_baseline_legacy_portfolio')
     expect(planner).toContain('20260618141730_add_analytics_funnel_tracking')
-    expect(deploy).toContain('Following migrations have not yet been applied')
+    expect(deploy).toContain("grep -Eq 'Following migrations? have not yet been applied'")
     expect(deploy).toContain('legacy-needs-baseline')
     expect(deploy).toContain('ASDEV_BUILD_SKIP_DYNAMIC_DB=1 pnpm run build')
     expect(deploy).toContain('DATABASE_URL must use an absolute SQLite file URL')
