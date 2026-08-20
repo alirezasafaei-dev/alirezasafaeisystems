@@ -220,6 +220,8 @@ Browser evidence هنوز PASS نیست: smoke و a11y پیش از اجرای pa
 
 PR merge به `main` workflowهای `Deploy VPS` و `Release` را trigger می‌کند. migration Production فقط با `APPROVE_CRITICAL_SITE_MIGRATION` و app deploy فقط با `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY` مجاز است.
 
+Draft PR `#190` روی exact head `113cbeba22851c5eb20d99eee9b0efc55c09f5ea` برای review باز شد. همه checkهای گزارش‌شده روی همان head PASS شدند: CI run `32397663850`، CI Router `32397663842`، CodeQL `32397663854`، E2E Smoke `32397663851`، Lighthouse Budget `32397663859` و Security Audit `32397663815`. PR در این checkpoint review/comment نداشت و merge یا deploy نشد.
+
 ## Failure handling
 
 - خطای Prisma: `pnpm run db:generate`، `pnpm exec prisma validate` و `DATABASE_URL` را بررسی کنید.
