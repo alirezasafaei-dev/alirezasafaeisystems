@@ -71,6 +71,83 @@ describe('Discover admin API', () => {
     })
   })
 
+  it('persists a Persian-only draft with nullable unpublished English fields', async () => {
+    discoverItemMock.create.mockResolvedValueOnce({ id: 'discover_12345', ...validItem })
+    const { POST } = await import('@/app/api/admin/discover/route')
+    const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...validItem,
+        titleEn: null,
+        descriptionEn: null,
+        contentEn: null,
+        publishedEn: false,
+      }),
+    }))
+
+    expect(response.status).toBe(201)
+    expect(discoverItemMock.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        titleEn: null,
+        descriptionEn: null,
+        contentEn: null,
+        publishedEn: false,
+      }),
+    })
+  })
+
+  it('persists a bilingual published item with English publication enabled', async () => {
+    discoverItemMock.create.mockResolvedValueOnce({ id: 'discover_12345', ...validItem })
+    const { POST } = await import('@/app/api/admin/discover/route')
+    const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...validItem,
+        published: true,
+        titleEn: 'NotebookLM',
+        descriptionEn: 'Research assistant',
+        contentEn: 'Upload your sources.',
+        publishedEn: true,
+      }),
+    }))
+
+    expect(response.status).toBe(201)
+    expect(discoverItemMock.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        titleEn: 'NotebookLM',
+        descriptionEn: 'Research assistant',
+        contentEn: 'Upload your sources.',
+        publishedEn: true,
+        publishedAt: expect.any(Date),
+      }),
+    })
+  })
+
+  it('rejects English publication without complete English content before touching the database', async () => {
+    const { POST } = await import('@/app/api/admin/discover/route')
+    const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'POST',
+      body: JSON.stringify({ ...validItem, publishedEn: true, titleEn: 'NotebookLM' }),
+    }))
+
+    expect(response.status).toBe(400)
+    expect(discoverItemMock.create).not.toHaveBeenCalled()
+  })
+
+  it('normalizes a legacy category alias before persistence', async () => {
+    discoverItemMock.create.mockResolvedValueOnce({ id: 'discover_12345', ...validItem, category: 'ai' })
+    const { POST } = await import('@/app/api/admin/discover/route')
+    const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'POST',
+      body: JSON.stringify(validItem),
+    }))
+
+    expect(response.status).toBe(201)
+    expect(discoverItemMock.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ category: 'ai' }),
+    })
+  })
+
   it('rejects a non-Instagram source URL before touching the database', async () => {
     const { POST } = await import('@/app/api/admin/discover/route')
     const response = await POST(adminRequest('http://localhost:3000/api/admin/discover', {
@@ -127,6 +204,32 @@ describe('Discover admin API', () => {
     })
   })
 
+  it('clears optional English fields only when English publication is disabled', async () => {
+    discoverItemMock.update.mockResolvedValueOnce({ id: 'discover_12345', titleEn: null })
+    const { PATCH } = await import('@/app/api/admin/discover/route')
+    const response = await PATCH(adminRequest('http://localhost:3000/api/admin/discover', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        id: 'discover_12345',
+        titleEn: null,
+        descriptionEn: null,
+        contentEn: null,
+        publishedEn: false,
+      }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(discoverItemMock.update).toHaveBeenCalledWith({
+      where: { id: 'discover_12345' },
+      data: expect.objectContaining({
+        titleEn: null,
+        descriptionEn: null,
+        contentEn: null,
+        publishedEn: false,
+      }),
+    })
+  })
+
   it('builds safe list filters for publication, category, and search', async () => {
     discoverItemMock.findMany.mockResolvedValueOnce([])
     const { GET } = await import('@/app/api/admin/discover/route')
@@ -137,6 +240,31 @@ describe('Discover admin API', () => {
       where: expect.objectContaining({ published: true, category: 'AI' }),
       orderBy: [{ featured: 'desc' }, { order: 'asc' }, { updatedAt: 'desc' }],
     }))
+  })
+
+  it('returns English fields and canonical category keys from the admin list', async () => {
+    discoverItemMock.findMany.mockResolvedValueOnce([{
+      id: 'discover_12345',
+      ...validItem,
+      category: 'ai',
+      titleEn: 'NotebookLM',
+      descriptionEn: 'Research assistant',
+      contentEn: 'Upload your sources.',
+      publishedEn: true,
+    }])
+    const { GET } = await import('@/app/api/admin/discover/route')
+    const response = await GET(adminRequest('http://localhost:3000/api/admin/discover'))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      items: [expect.objectContaining({
+        category: 'ai',
+        titleEn: 'NotebookLM',
+        descriptionEn: 'Research assistant',
+        contentEn: 'Upload your sources.',
+        publishedEn: true,
+      })],
+    })
   })
 
   it('deletes an authenticated Discover item by id', async () => {

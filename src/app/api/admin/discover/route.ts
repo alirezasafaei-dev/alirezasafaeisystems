@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, createRequestId, enforceAdminAccess, withCommonApiHeaders } from '@/lib/api-security'
 import { db } from '@/lib/db'
 import { discoverCreateSchema, discoverUpdateSchema } from '@/lib/discover'
+import { normalizeDiscoverCreateInput, normalizeDiscoverUpdateInput } from '@/lib/discover-service'
 import { logger } from '@/lib/logger'
 import { sanitizeInput } from '@/lib/validators'
 
@@ -113,22 +114,7 @@ export async function POST(request: NextRequest) {
 
     const input = parsed.data
     const item = await db.discoverItem.create({
-      data: {
-        slug: input.slug,
-        title: sanitizeInput(input.title, 140),
-        description: sanitizeInput(input.description, 400),
-        content: sanitizeInput(input.content, 8000),
-        externalUrl: input.externalUrl,
-        category: sanitizeInput(input.category, 60),
-        tags: input.tags.join(','),
-        imageUrl: input.imageUrl,
-        instagramUrl: input.instagramUrl,
-        telegramGuideUrl: input.telegramGuideUrl,
-        featured: input.featured,
-        published: input.published,
-        order: input.order,
-        publishedAt: input.published ? new Date() : null,
-      },
+      data: normalizeDiscoverCreateInput(input),
     })
 
     return withCommonApiHeaders(NextResponse.json({ item }, { status: 201 }), requestId, limit.headers)
@@ -186,22 +172,7 @@ export async function PATCH(request: NextRequest) {
       ? await db.discoverItem.findUnique({ where: { id }, select: { publishedAt: true } })
       : null
 
-    const data: Prisma.DiscoverItemUpdateInput = {
-      ...(input.slug !== undefined ? { slug: input.slug } : {}),
-      ...(input.title !== undefined ? { title: sanitizeInput(input.title, 140) } : {}),
-      ...(input.description !== undefined ? { description: sanitizeInput(input.description, 400) } : {}),
-      ...(input.content !== undefined ? { content: sanitizeInput(input.content, 8000) } : {}),
-      ...(input.externalUrl !== undefined ? { externalUrl: input.externalUrl } : {}),
-      ...(input.category !== undefined ? { category: sanitizeInput(input.category, 60) } : {}),
-      ...(input.tags !== undefined ? { tags: input.tags.join(',') } : {}),
-      ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl ?? null } : {}),
-      ...(input.instagramUrl !== undefined ? { instagramUrl: input.instagramUrl ?? null } : {}),
-      ...(input.telegramGuideUrl !== undefined ? { telegramGuideUrl: input.telegramGuideUrl ?? null } : {}),
-      ...(input.featured !== undefined ? { featured: input.featured } : {}),
-      ...(input.published !== undefined ? { published: input.published } : {}),
-      ...(input.order !== undefined ? { order: input.order } : {}),
-      ...(input.published === true && !publication?.publishedAt ? { publishedAt: new Date() } : {}),
-    }
+    const data = normalizeDiscoverUpdateInput(input, { publishedAt: publication?.publishedAt ?? null })
 
     const item = await db.discoverItem.update({ where: { id }, data })
     return withCommonApiHeaders(NextResponse.json({ item }), requestId, limit.headers)
