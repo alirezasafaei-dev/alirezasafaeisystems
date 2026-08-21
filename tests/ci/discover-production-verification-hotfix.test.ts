@@ -11,6 +11,13 @@ describe('Discover production verification hotfix contracts', () => {
     expect(verifier).not.toContain('if (detailCount < 1) throw new Error(`${discoverPath} has no published Discover detail link`)')
   })
 
+  it('verifies the Admin auth boundary using a locale-independent structural marker', () => {
+    const verifier = readFileSync(resolve(process.cwd(), 'scripts/deploy/live-verify.mjs'), 'utf8')
+
+    expect(verifier).toContain("page.getByTestId('admin-login-form')")
+    expect(verifier).not.toContain("page.getByText('Admin Login'")
+  })
+
   it('passes the request CSP nonce on the ThemeProvider opening tag so its inline bootstrap script is permitted', () => {
     const layout = readFileSync(resolve(process.cwd(), 'src/app/layout.tsx'), 'utf8')
 

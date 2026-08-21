@@ -157,7 +157,7 @@ try {
     if (!page.url().includes('/admin/login')) {
       throw new Error(`/admin did not redirect to /admin/login; got ${page.url()}`)
     }
-    await page.getByText('Admin Login', { exact: false }).first().waitFor({ state: 'visible', timeout: 10_000 })
+    await page.getByTestId('admin-login-form').waitFor({ state: 'visible', timeout: 10_000 })
   })
 } catch (error) {
   recordFailure('runner', error instanceof Error ? error.message : String(error))

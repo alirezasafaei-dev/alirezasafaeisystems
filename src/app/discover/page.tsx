@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { db } from '@/lib/db'
-import { discoverAnalyticsMetadata, extractDiscoverAttribution } from '@/lib/discover'
+import { discoverAnalyticsMetadata, extractDiscoverAttribution, isDiscoverEnglishPublic } from '@/lib/discover'
 import { getSafeDiscoverCategoryLabel, normalizeDiscoverCategory, type DiscoverCategoryKey } from '@/lib/discover-categories'
 import { getRequestLanguage } from '@/lib/i18n/server'
 import { translations } from '@/lib/i18n/translations'
@@ -49,8 +49,10 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
       slug: true,
       title: true,
       description: true,
+      publishedEn: true,
       titleEn: true,
       descriptionEn: true,
+      contentEn: true,
       category: true,
       tags: true,
       featured: true,
@@ -64,7 +66,8 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     ],
   })
 
-  const items: DiscoverGridItem[] = records.map((item) => {
+  const publicRecords = isEn ? records.filter(isDiscoverEnglishPublic) : records
+  const items: DiscoverGridItem[] = publicRecords.map((item) => {
     let categoryKey: DiscoverCategoryKey = 'general'
     try {
       categoryKey = normalizeDiscoverCategory(item.category)
