@@ -74,7 +74,7 @@ describe('DiscoverManager stale-editor protection', () => {
     })
     expect(screen.getByLabelText('عنوان فارسی')).toHaveValue('ویرایش محلی من')
     expect(await screen.findByText(/نسخه جدیدتری از این آیتم روی سرور ذخیره شده/)).toBeInTheDocument()
-    expect(document.querySelector('[aria-describedby="discover-slug-error"]')).not.toHaveAttribute('aria-invalid', 'true')
+    expect(document.querySelector('[aria-describedby="discover-slug-error"]')).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: 'بارگذاری نسخه جدید سرور' }))
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3))
