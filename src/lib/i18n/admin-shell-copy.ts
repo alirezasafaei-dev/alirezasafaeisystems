@@ -1,3 +1,6 @@
+const EN_PASSWORD_LABEL = 'Password'
+const FA_PASSWORD_LABEL = 'رمز عبور'
+
 export const ADMIN_SHELL_COPY = {
   en: {
     login: {
@@ -7,7 +10,7 @@ export const ADMIN_SHELL_COPY = {
       loading: 'Loading…',
       authNotConfigured: 'Admin authentication is not configured on this environment.',
       username: 'Username',
-      password: 'Password',
+      password: EN_PASSWORD_LABEL,
       signIn: 'Sign in',
       signingIn: 'Signing in…',
       failed: 'Login failed',
@@ -151,7 +154,7 @@ export const ADMIN_SHELL_COPY = {
       loading: 'در حال بارگذاری…',
       authNotConfigured: 'احراز هویت مدیریت در این محیط پیکربندی نشده است.',
       username: 'نام کاربری',
-      password: 'رمز عبور',
+      password: FA_PASSWORD_LABEL,
       signIn: 'ورود',
       signingIn: 'در حال ورود…',
       failed: 'ورود ناموفق بود',
