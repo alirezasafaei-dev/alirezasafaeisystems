@@ -6,10 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n-context'
 
 export function AdminLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { language, t } = useI18n()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,6 +19,7 @@ export function AdminLoginForm() {
 
   const redirectPath = searchParams.get('redirect') || '/admin'
   const authConfigError = searchParams.get('error') === 'auth_not_configured'
+  const dir = language === 'fa' ? 'rtl' : 'ltr'
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -31,38 +34,37 @@ export function AdminLoginForm() {
       })
 
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string }
-        setError(data.error || 'Login failed')
+        setError(t('admin.login.failed'))
         return
       }
 
       router.push(redirectPath)
       router.refresh()
     } catch {
-      setError('Network error while signing in')
+      setError(t('admin.login.networkError'))
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md" dir={dir} data-testid="admin-login-form">
       <CardHeader>
-        <CardTitle>Admin Login</CardTitle>
-        <CardDescription>Sign in to access dashboard controls.</CardDescription>
+        <CardTitle>{t('admin.login.title')}</CardTitle>
+        <CardDescription>{t('admin.login.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {authConfigError && (
-          <p className="text-sm text-destructive mb-4">
-            Admin authentication is not configured on this environment.
+          <p className="mb-4 text-sm text-destructive">
+            {t('admin.login.authNotConfigured')}
           </p>
         )}
         {error && (
-          <p className="text-sm text-destructive mb-4">{error}</p>
+          <p className="mb-4 text-sm text-destructive">{error}</p>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">{t('admin.login.username')}</Label>
             <Input
               id="username"
               autoComplete="username"
@@ -72,7 +74,7 @@ export function AdminLoginForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('admin.login.password')}</Label>
             <Input
               id="password"
               type="password"
@@ -83,7 +85,7 @@ export function AdminLoginForm() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? t('admin.login.signingIn') : t('admin.login.signIn')}
           </Button>
         </form>
       </CardContent>

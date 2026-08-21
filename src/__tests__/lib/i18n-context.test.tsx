@@ -54,6 +54,19 @@ describe('I18nProvider', () => {
     expect(result.current.t('nav.services')).toBe('Services')
   })
 
+  it('routes Admin shell copy through the same t() contract', () => {
+    const faWrapper = createWrapper('fa')
+    const { result: faResult } = renderHook(() => useI18n(), { wrapper: faWrapper })
+    expect(faResult.current.t('admin.login.title')).toBe('ورود مدیریت')
+    expect(faResult.current.t('admin.dashboard.status.qualified')).toBe('واجد شرایط')
+
+    document.cookie = 'lang=en; Path=/'
+    const enWrapper = createWrapper('en')
+    const { result: enResult } = renderHook(() => useI18n(), { wrapper: enWrapper })
+    expect(enResult.current.t('admin.login.title')).toBe('Admin Login')
+    expect(enResult.current.t('admin.projects.save')).toBe('Save project')
+  })
+
   it('returns key for non-existent translation', () => {
     const wrapper = createWrapper()
     const { result } = renderHook(() => useI18n(), { wrapper })

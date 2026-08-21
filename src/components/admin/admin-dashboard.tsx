@@ -12,6 +12,7 @@ import { MessageSquare, Briefcase, BarChart3, Users, Trash2, LogOut, ClipboardLi
 import { toast } from '@/hooks/use-toast'
 import { DiscoverManager } from '@/components/admin/discover-manager'
 import { ProjectManager } from '@/components/admin/project-manager'
+import { useI18n } from '@/lib/i18n-context'
 
 interface LeadData {
   id: string
@@ -46,17 +47,22 @@ interface Message {
   createdAt: string
 }
 
+type LeadStatusFilter = 'all' | LeadData['status']
+
 export function AdminDashboard() {
   const router = useRouter()
+  const { language, t } = useI18n()
   const [activeTab, setActiveTab] = useState<'leads' | 'messages' | 'projects' | 'discover' | 'stats'>('leads')
   const [leads, setLeads] = useState<LeadData[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [leadsLoading, setLeadsLoading] = useState(false)
   const [messagesLoading, setMessagesLoading] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<LeadStatusFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLead, setSelectedLead] = useState<LeadData | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const dir = language === 'fa' ? 'rtl' : 'ltr'
+  const dateLocale = language === 'fa' ? 'fa-IR' : 'en-US'
 
   const loadData = useCallback(async () => {
     setLeadsLoading(true)
@@ -76,21 +82,21 @@ export function AdminDashboard() {
       setMessages(messagesData.messages || [])
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to load data',
+        title: t('admin.dashboard.toast.error'),
+        description: t('admin.dashboard.toast.loadFailed'),
         variant: 'destructive',
       })
     } finally {
       setLeadsLoading(false)
       setMessagesLoading(false)
     }
-  }, [router])
+  }, [router, t])
 
   const initialised = useRef(false)
   useEffect(() => {
     if (initialised.current) return
     initialised.current = true
-    loadData()
+    void loadData()
   }, [loadData])
 
   const logout = async () => {
@@ -110,11 +116,11 @@ export function AdminDashboard() {
       const data = await response.json()
       setLeads((prev) => prev.map((lead) => (lead.id === id ? data.lead : lead)))
       if (selectedLead?.id === id) setSelectedLead(data.lead)
-      toast({ title: 'Updated', description: 'Lead status updated' })
+      toast({ title: t('admin.dashboard.toast.updated'), description: t('admin.dashboard.toast.leadStatusUpdated') })
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to update lead status',
+        title: t('admin.dashboard.toast.error'),
+        description: t('admin.dashboard.toast.updateLeadStatusFailed'),
         variant: 'destructive',
       })
     }
@@ -122,16 +128,17 @@ export function AdminDashboard() {
 
   const deleteMessage = async (id: string) => {
     try {
-      await fetch(`/api/admin/messages?id=${id}`, { method: 'DELETE' })
-      setMessages(messages.filter(m => m.id !== id))
+      const response = await fetch(`/api/admin/messages?id=${id}`, { method: 'DELETE' })
+      if (!response.ok) throw new Error('delete failed')
+      setMessages((current) => current.filter((message) => message.id !== id))
       toast({
-        title: 'Success',
-        description: 'Message deleted successfully',
+        title: t('admin.dashboard.toast.success'),
+        description: t('admin.dashboard.toast.messageDeleted'),
       })
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to delete message',
+        title: t('admin.dashboard.toast.error'),
+        description: t('admin.dashboard.toast.deleteMessageFailed'),
         variant: 'destructive',
       })
     }
@@ -166,27 +173,29 @@ export function AdminDashboard() {
     disqualified: 'destructive',
     archived: 'outline',
   }
+  const statusOptions: LeadStatusFilter[] = ['all', 'new', 'qualified', 'disqualified', 'archived']
+  const statusLabel = (status: LeadStatusFilter) => t(`admin.dashboard.status.${status}`)
 
   return (
-    <section className="py-20">
+    <section className="py-20" dir={dir} data-testid="admin-dashboard">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage leads, messages, portfolio, and Discover content</p>
+              <h1 className="mb-2 text-3xl font-bold">{t('admin.dashboard.title')}</h1>
+              <p className="text-muted-foreground">{t('admin.dashboard.description')}</p>
             </div>
             <Button variant="outline" onClick={logout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
+              <LogOut className="me-2 h-4 w-4" />
+              {t('admin.dashboard.logout')}
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('admin.dashboard.totalMessages')}</CardTitle>
               <MessageSquare className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -195,7 +204,7 @@ export function AdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('admin.dashboard.totalLeads')}</CardTitle>
               <ClipboardList className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -204,19 +213,19 @@ export function AdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">New Leads</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('admin.dashboard.newLeads')}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{statusCounts.new}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {statusCounts.qualified} qualified &middot; {statusCounts.archived} archived
+              <p className="mt-1 text-xs text-muted-foreground">
+                {statusCounts.qualified} {t('admin.dashboard.qualifiedSummary')} &middot; {statusCounts.archived} {t('admin.dashboard.archivedSummary')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('admin.dashboard.conversionRate')}</CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -225,88 +234,84 @@ export function AdminDashboard() {
                   ? `${Math.round((statusCounts.qualified / leads.length) * 100)}%`
                   : '—'}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {statusCounts.qualified} / {leads.length} leads qualified
+              <p className="mt-1 text-xs text-muted-foreground">
+                {statusCounts.qualified} / {leads.length} {t('admin.dashboard.leadsQualified')}
               </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex gap-2 mb-6 flex-wrap">
+        <div className="mb-6 flex flex-wrap gap-2">
           <Button
             variant={activeTab === 'leads' ? 'default' : 'outline'}
             onClick={() => setActiveTab('leads')}
           >
-            <ClipboardList className="h-4 w-4 mr-2" />
-            Leads
+            <ClipboardList className="me-2 h-4 w-4" />
+            {t('admin.dashboard.tabs.leads')}
             {statusCounts.new > 0 && (
-              <Badge variant="secondary" className="ml-2 text-xs">{statusCounts.new}</Badge>
+              <Badge variant="secondary" className="ms-2 text-xs">{statusCounts.new}</Badge>
             )}
           </Button>
           <Button
             variant={activeTab === 'messages' ? 'default' : 'outline'}
             onClick={() => setActiveTab('messages')}
           >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Messages
+            <MessageSquare className="me-2 h-4 w-4" />
+            {t('admin.dashboard.tabs.messages')}
           </Button>
           <Button
             variant={activeTab === 'projects' ? 'default' : 'outline'}
             onClick={() => setActiveTab('projects')}
           >
-            <Briefcase className="h-4 w-4 mr-2" />
-            Projects
+            <Briefcase className="me-2 h-4 w-4" />
+            {t('admin.dashboard.tabs.projects')}
           </Button>
           <Button
             variant={activeTab === 'discover' ? 'default' : 'outline'}
             onClick={() => setActiveTab('discover')}
           >
-            <Compass className="h-4 w-4 mr-2" />
-            Discover
+            <Compass className="me-2 h-4 w-4" />
+            {t('admin.dashboard.tabs.discover')}
           </Button>
           <Button
             variant={activeTab === 'stats' ? 'default' : 'outline'}
             onClick={() => setActiveTab('stats')}
           >
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Analytics
+            <BarChart3 className="me-2 h-4 w-4" />
+            {t('admin.dashboard.tabs.analytics')}
           </Button>
         </div>
 
         {activeTab === 'leads' && (
           <Card>
             <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <CardTitle>Leads</CardTitle>
-                  <CardDescription>
-                    Qualification submissions captured from high-intent funnels
-                  </CardDescription>
+                  <CardTitle>{t('admin.dashboard.leads.title')}</CardTitle>
+                  <CardDescription>{t('admin.dashboard.leads.description')}</CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
                   <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search leads..."
+                      placeholder={t('admin.dashboard.leads.searchPlaceholder')}
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 h-9 w-48"
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      className="h-9 w-full ps-8 sm:w-48"
                     />
                   </div>
-                  <div className="flex gap-1">
-                    {['all', 'new', 'qualified', 'disqualified', 'archived'].map((s) => (
+                  <div className="flex max-w-full gap-1 overflow-x-auto pb-1">
+                    {statusOptions.map((status) => (
                       <Button
-                        key={s}
-                        variant={statusFilter === s ? 'default' : 'outline'}
+                        key={status}
+                        variant={statusFilter === status ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setStatusFilter(s)}
-                        className="h-9 text-xs"
+                        onClick={() => setStatusFilter(status)}
+                        className="h-9 shrink-0 text-xs"
                       >
-                        {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
-                        {statusCounts[s as keyof typeof statusCounts] > 0 && (
-                          <span className="ml-1 text-xs opacity-70">
-                            {statusCounts[s as keyof typeof statusCounts]}
-                          </span>
+                        {statusLabel(status)}
+                        {statusCounts[status] > 0 && (
+                          <span className="ms-1 text-xs opacity-70">{statusCounts[status]}</span>
                         )}
                       </Button>
                     ))}
@@ -316,184 +321,138 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               {leadsLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading leads...</div>
+                <div className="py-8 text-center text-muted-foreground">{t('admin.dashboard.leads.loading')}</div>
               ) : filteredLeads.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {leads.length === 0 ? 'No leads yet' : 'No leads match the current filter'}
+                <div className="py-8 text-center text-muted-foreground">
+                  {leads.length === 0 ? t('admin.dashboard.leads.empty') : t('admin.dashboard.leads.noMatch')}
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Organization</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Budget</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLeads.map((lead) => (
-                      <TableRow
-                        key={lead.id}
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setSelectedLead(lead)
-                          setDetailOpen(true)
-                        }}
-                      >
-                        <TableCell className="font-medium">{lead.organizationName}</TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div>{lead.contactName}</div>
-                            <div className="text-xs text-muted-foreground">{lead.email}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">{lead.organizationType}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">{lead.budgetRange}</span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusBadgeVariant[lead.status] || 'secondary'}>
-                            {lead.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {new Date(lead.createdAt).toLocaleDateString('fa-IR')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateLeadStatus(lead.id, 'qualified')}
-                            >
-                              Qualify
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateLeadStatus(lead.id, 'archived')}
-                            >
-                              Archive
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t('admin.dashboard.leads.organization')}</TableHead>
+                        <TableHead>{t('admin.dashboard.leads.contact')}</TableHead>
+                        <TableHead>{t('admin.dashboard.leads.type')}</TableHead>
+                        <TableHead>{t('admin.dashboard.leads.budget')}</TableHead>
+                        <TableHead>{t('admin.dashboard.leads.status')}</TableHead>
+                        <TableHead>{t('admin.dashboard.leads.date')}</TableHead>
+                        <TableHead className="text-end">{t('admin.dashboard.leads.actions')}</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredLeads.map((lead) => (
+                        <TableRow
+                          key={lead.id}
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setSelectedLead(lead)
+                            setDetailOpen(true)
+                          }}
+                        >
+                          <TableCell className="font-medium">{lead.organizationName}</TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div>{lead.contactName}</div>
+                              <div dir="ltr" className="text-xs text-muted-foreground">{lead.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell><span className="text-sm">{lead.organizationType}</span></TableCell>
+                          <TableCell><span className="text-sm">{lead.budgetRange}</span></TableCell>
+                          <TableCell>
+                            <Badge variant={statusBadgeVariant[lead.status] || 'secondary'}>{statusLabel(lead.status)}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {new Date(lead.createdAt).toLocaleDateString(dateLocale)}
+                          </TableCell>
+                          <TableCell className="text-end">
+                            <div className="flex justify-end gap-2" onClick={(event) => event.stopPropagation()}>
+                              <Button variant="outline" size="sm" onClick={() => void updateLeadStatus(lead.id, 'qualified')}>
+                                {t('admin.dashboard.leads.qualify')}
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => void updateLeadStatus(lead.id, 'archived')}>
+                                {t('admin.dashboard.leads.archive')}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
         )}
 
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto" dir={dir}>
             <DialogHeader>
-              <DialogTitle>{selectedLead?.organizationName || 'Lead Details'}</DialogTitle>
+              <DialogTitle>{selectedLead?.organizationName || t('admin.dashboard.leads.leadDetails')}</DialogTitle>
               <DialogDescription>
-                {selectedLead?.contactName} &middot; {selectedLead?.email}
+                {selectedLead?.contactName} &middot; <span dir="ltr">{selectedLead?.email}</span>
               </DialogDescription>
             </DialogHeader>
             {selectedLead && (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Badge variant={statusBadgeVariant[selectedLead.status] || 'secondary'}>
-                    {selectedLead.status}
-                  </Badge>
+                  <Badge variant={statusBadgeVariant[selectedLead.status] || 'secondary'}>{statusLabel(selectedLead.status)}</Badge>
                   <span className="text-xs text-muted-foreground">
-                    Submitted {new Date(selectedLead.createdAt).toLocaleDateString('fa-IR')}
+                    {t('admin.dashboard.leads.submitted')} {new Date(selectedLead.createdAt).toLocaleDateString(dateLocale)}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailField label="Organization Type" value={selectedLead.organizationType} />
-                  <DetailField label="Team Size" value={selectedLead.teamSize} />
-                  <DetailField label="Timeline" value={selectedLead.timeline} />
-                  <DetailField label="Budget Range" value={selectedLead.budgetRange} />
-                  <DetailField label="Preferred Contact" value={selectedLead.preferredContact} />
-                  <DetailField label="Phone" value={selectedLead.phone || '—'} />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DetailField label={t('admin.dashboard.leads.organizationType')} value={selectedLead.organizationType} />
+                  <DetailField label={t('admin.dashboard.leads.teamSize')} value={selectedLead.teamSize} />
+                  <DetailField label={t('admin.dashboard.leads.timeline')} value={selectedLead.timeline} />
+                  <DetailField label={t('admin.dashboard.leads.budgetRange')} value={selectedLead.budgetRange} />
+                  <DetailField label={t('admin.dashboard.leads.preferredContact')} value={selectedLead.preferredContact} />
+                  <DetailField label={t('admin.dashboard.leads.phone')} value={selectedLead.phone || '—'} />
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold mb-1">Current Stack</h4>
-                  <p className="text-sm text-muted-foreground bg-muted/50 rounded-md p-3">
-                    {selectedLead.currentStack || '—'}
-                  </p>
+                  <h4 className="mb-1 text-sm font-semibold">{t('admin.dashboard.leads.currentStack')}</h4>
+                  <p className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">{selectedLead.currentStack || '—'}</p>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold mb-1">Critical Risk / Issue</h4>
-                  <p className="text-sm text-muted-foreground bg-muted/50 rounded-md p-3">
-                    {selectedLead.criticalRisk || '—'}
-                  </p>
+                  <h4 className="mb-1 text-sm font-semibold">{t('admin.dashboard.leads.criticalRisk')}</h4>
+                  <p className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">{selectedLead.criticalRisk || '—'}</p>
                 </div>
 
                 {selectedLead.notes && (
                   <div>
-                    <h4 className="text-sm font-semibold mb-1">Notes</h4>
-                    <p className="text-sm text-muted-foreground bg-muted/50 rounded-md p-3">
-                      {selectedLead.notes}
-                    </p>
+                    <h4 className="mb-1 text-sm font-semibold">{t('admin.dashboard.leads.notes')}</h4>
+                    <p className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">{selectedLead.notes}</p>
                   </div>
                 )}
 
                 {(selectedLead.utmSource || selectedLead.utmMedium || selectedLead.utmCampaign) && (
                   <div>
-                    <h4 className="text-sm font-semibold mb-1">UTM Parameters</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedLead.utmSource && (
-                        <Badge variant="outline">source: {selectedLead.utmSource}</Badge>
-                      )}
-                      {selectedLead.utmMedium && (
-                        <Badge variant="outline">medium: {selectedLead.utmMedium}</Badge>
-                      )}
-                      {selectedLead.utmCampaign && (
-                        <Badge variant="outline">campaign: {selectedLead.utmCampaign}</Badge>
-                      )}
+                    <h4 className="mb-1 text-sm font-semibold">{t('admin.dashboard.leads.utmParameters')}</h4>
+                    <div className="flex flex-wrap gap-2" dir="ltr">
+                      {selectedLead.utmSource && <Badge variant="outline">{t('admin.dashboard.leads.source')}: {selectedLead.utmSource}</Badge>}
+                      {selectedLead.utmMedium && <Badge variant="outline">{t('admin.dashboard.leads.medium')}: {selectedLead.utmMedium}</Badge>}
+                      {selectedLead.utmCampaign && <Badge variant="outline">{t('admin.dashboard.leads.campaign')}: {selectedLead.utmCampaign}</Badge>}
                     </div>
                   </div>
                 )}
 
-                <div className="flex gap-2 pt-2 border-t">
+                <div className="flex flex-wrap gap-2 border-t pt-2">
                   {selectedLead.status !== 'qualified' && (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        updateLeadStatus(selectedLead.id, 'qualified')
-                        setDetailOpen(false)
-                      }}
-                    >
-                      Mark as Qualified
+                    <Button size="sm" onClick={() => { void updateLeadStatus(selectedLead.id, 'qualified'); setDetailOpen(false) }}>
+                      {t('admin.dashboard.leads.markQualified')}
                     </Button>
                   )}
                   {selectedLead.status !== 'archived' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        updateLeadStatus(selectedLead.id, 'archived')
-                        setDetailOpen(false)
-                      }}
-                    >
-                      Archive
+                    <Button variant="outline" size="sm" onClick={() => { void updateLeadStatus(selectedLead.id, 'archived'); setDetailOpen(false) }}>
+                      {t('admin.dashboard.leads.archive')}
                     </Button>
                   )}
                   {selectedLead.status !== 'disqualified' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        updateLeadStatus(selectedLead.id, 'disqualified')
-                        setDetailOpen(false)
-                      }}
-                    >
-                      Disqualify
+                    <Button variant="ghost" size="sm" onClick={() => { void updateLeadStatus(selectedLead.id, 'disqualified'); setDetailOpen(false) }}>
+                      {t('admin.dashboard.leads.disqualify')}
                     </Button>
                   )}
                 </div>
@@ -505,104 +464,72 @@ export function AdminDashboard() {
         {activeTab === 'messages' && (
           <Card>
             <CardHeader>
-              <CardTitle>Contact Messages</CardTitle>
-              <CardDescription>
-                Messages received through the contact form
-              </CardDescription>
+              <CardTitle>{t('admin.dashboard.messages.title')}</CardTitle>
+              <CardDescription>{t('admin.dashboard.messages.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               {messagesLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading messages...</div>
+                <div className="py-8 text-center text-muted-foreground">{t('admin.dashboard.messages.loading')}</div>
               ) : messages.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">No messages yet</div>
+                <div className="py-8 text-center text-muted-foreground">{t('admin.dashboard.messages.empty')}</div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {messages.map((message) => (
-                      <TableRow key={message.id}>
-                        <TableCell className="font-medium">{message.name}</TableCell>
-                        <TableCell>{message.email}</TableCell>
-                        <TableCell>
-                          {message.subject || <span className="text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(message.createdAt).toLocaleDateString('fa-IR')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteMessage(message.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t('admin.dashboard.messages.name')}</TableHead>
+                        <TableHead>{t('admin.dashboard.messages.email')}</TableHead>
+                        <TableHead>{t('admin.dashboard.messages.subject')}</TableHead>
+                        <TableHead>{t('admin.dashboard.messages.date')}</TableHead>
+                        <TableHead className="text-end">{t('admin.dashboard.messages.actions')}</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {messages.map((message) => (
+                        <TableRow key={message.id}>
+                          <TableCell className="font-medium">{message.name}</TableCell>
+                          <TableCell dir="ltr">{message.email}</TableCell>
+                          <TableCell>{message.subject || <span className="text-muted-foreground">—</span>}</TableCell>
+                          <TableCell>{new Date(message.createdAt).toLocaleDateString(dateLocale)}</TableCell>
+                          <TableCell className="text-end">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => void deleteMessage(message.id)}
+                              aria-label={`${t('admin.dashboard.messages.delete')} ${message.name}`}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
         )}
 
-        {activeTab === 'projects' && (
-          <ProjectManager />
-        )}
-
-        {activeTab === 'discover' && (
-          <DiscoverManager />
-        )}
+        {activeTab === 'projects' && <ProjectManager />}
+        {activeTab === 'discover' && <DiscoverManager />}
 
         {activeTab === 'stats' && (
           <Card>
             <CardHeader>
-              <CardTitle>Analytics Overview</CardTitle>
-              <CardDescription>
-                Lead acquisition and engagement metrics
-              </CardDescription>
+              <CardTitle>{t('admin.dashboard.analytics.title')}</CardTitle>
+              <CardDescription>{t('admin.dashboard.analytics.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <div className="font-semibold">Total Leads</div>
-                    <div className="text-sm text-muted-foreground">All time</div>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">{leads.length}</Badge>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <div className="font-semibold">Qualified Leads</div>
-                    <div className="text-sm text-muted-foreground">Ready for follow-up</div>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">{statusCounts.qualified}</Badge>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <div className="font-semibold">Qualification Rate</div>
-                    <div className="text-sm text-muted-foreground">Qualified / Total</div>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">
-                    {leads.length > 0 ? `${Math.round((statusCounts.qualified / leads.length) * 100)}%` : '—'}
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <div className="font-semibold">Contact Form Submissions</div>
-                    <div className="text-sm text-muted-foreground">All time</div>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">{messages.length}</Badge>
-                </div>
+                <AnalyticsRow label={t('admin.dashboard.analytics.totalLeads')} description={t('admin.dashboard.analytics.allTime')} value={leads.length} />
+                <AnalyticsRow label={t('admin.dashboard.analytics.qualifiedLeads')} description={t('admin.dashboard.analytics.readyForFollowUp')} value={statusCounts.qualified} />
+                <AnalyticsRow
+                  label={t('admin.dashboard.analytics.qualificationRate')}
+                  description={t('admin.dashboard.analytics.qualifiedOverTotal')}
+                  value={leads.length > 0 ? `${Math.round((statusCounts.qualified / leads.length) * 100)}%` : '—'}
+                />
+                <AnalyticsRow label={t('admin.dashboard.analytics.contactFormSubmissions')} description={t('admin.dashboard.analytics.allTime')} value={messages.length} />
               </div>
             </CardContent>
           </Card>
@@ -615,10 +542,20 @@ export function AdminDashboard() {
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-        {label}
-      </h4>
+      <h4 className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</h4>
       <p className="text-sm">{value || '—'}</p>
+    </div>
+  )
+}
+
+function AnalyticsRow({ label, description, value }: { label: string; description: string; value: string | number }) {
+  return (
+    <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
+      <div>
+        <div className="font-semibold">{label}</div>
+        <div className="text-sm text-muted-foreground">{description}</div>
+      </div>
+      <Badge variant="secondary" className="text-lg">{value}</Badge>
     </div>
   )
 }

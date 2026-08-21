@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, ReactNode } from 'react'
+import { ADMIN_SHELL_COPY } from './i18n/admin-shell-copy'
 import { Language, translations } from './i18n/translations'
 
 interface I18nContextType {
@@ -75,8 +76,15 @@ export function I18nProvider({ children, initialLanguage = 'fa' }: { children: R
       return key
     }
 
+    const translationRoot: Record<string, unknown> = {
+      ...translations[language],
+      admin: {
+        ...ADMIN_SHELL_COPY[language],
+        ...translations[language].admin,
+      },
+    }
     const keys = key.split('.')
-    let value: unknown = translations[language]
+    let value: unknown = translationRoot
 
     // Navigate through nested keys
     for (const k of keys) {
