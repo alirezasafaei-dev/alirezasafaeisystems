@@ -1,0 +1,30 @@
+{
+  "payload": {
+    "slug": "ai-chat-chatbot-assistant",
+    "title": "AI Chat؛ دستیار هوش مصنوعی همه‌کاره برای اندروید",
+    "description": "AI Chat از Starnest JSC یک دستیار هوش مصنوعی برای چت، نوشتن، کار با PDF، تصویر و ابزارهای روزمره است. نسخه رسمی آن در Google Play منتشر شده و شامل خریدهای درون‌برنامه‌ای است.",
+    "content": "AI Chat : Chatbot & Assistant یک اپلیکیشن اندرویدی از Starnest JSC است که چند ابزار هوش مصنوعی را در یک محیط جمع می‌کند. طبق صفحه رسمی Google Play، قابلیت‌هایی مانند گفت‌وگوی هوشمند، تولید و تحلیل تصویر، کار با PDF و متن، نوشتن ایمیل، بررسی گرامر و ابزارهای نوشتاری در آن ارائه می‌شود.\n\nبرای نصب امن، از دکمه مقصد رسمی همین صفحه استفاده کن تا صفحه برنامه در Google Play باز شود. نام بسته رسمی برنامه starnest.aichat.aichatbot.assistant است و توسعه‌دهنده آن Starnest JSC معرفی شده است.\n\nنسخه رسمی برنامه قابل نصب از Google Play است، اما صفحه فروشگاه صراحتاً تبلیغات و خریدهای درون‌برنامه‌ای را نشان می‌دهد؛ بنابراین نباید همه قابلیت‌ها را رایگان یا بدون محدودیت فرض کرد. امکانات و محدودیت‌ها ممکن است با نسخه، منطقه یا سیاست سرویس تغییر کنند.\n\nبرای امنیت و پایداری دسترسی، این صفحه به نسخه رسمی فروشگاه ارجاع می‌دهد و لینک مستقیم بیلدهای Premium یا دستکاری‌شدهٔ شخص ثالث را به‌عنوان مقصد دانلود منتشر نمی‌کند.",
+    "externalUrl": "https://play.google.com/store/apps/details?id=starnest.aichat.aichatbot.assistant",
+    "category": "ai",
+    "tags": [
+      "AI Chat",
+      "Starnest JSC",
+      "Android",
+      "AI Assistant",
+      "هوش مصنوعی"
+    ],
+    "instagramUrl": "https://www.instagram.com/reel/Db35Do4MY0G/",
+    "featured": false,
+    "published": false,
+    "order": 21
+  },
+  "evidence": {
+    "sourceReel": "https://www.instagram.com/reel/Db35Do4MY0G/",
+    "officialGooglePlay": "https://play.google.com/store/apps/details?id=starnest.aichat.aichatbot.assistant",
+    "developer": "Starnest JSC",
+    "packageName": "starnest.aichat.aichatbot.assistant",
+    "userSuppliedReferencePage": "https://www.farsroid.com/ai-chat-chatbot-assistant/",
+    "notes": "The current official Google Play listing identifies AI Chat : Chatbot & Assistant as a Starnest JSC app, shows 1M+ downloads, and marks the app as containing ads and in-app purchases. The user-supplied third-party page describes a Premium build; its direct APK is intentionally omitted from the Discover payload and operational CTA path. Runtime publication remains false until the authenticated Admin/API write is performed and the live Discover page is verified.",
+    "englishPublication": "Omitted from payload; the Discover create contract defaults publishedEn to false."
+  }
+}
