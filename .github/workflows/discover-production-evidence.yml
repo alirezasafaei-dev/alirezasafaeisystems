@@ -145,21 +145,21 @@ jobs:
         if: ${{ steps.request.outputs.mode == 'admin-crud' && steps.crud_prepare.outcome == 'success' }}
         run: |
           set -euo pipefail
-          SESSION_TOKEN="$(ssh -F ~/.ssh/config deploy-target "\
+          SESSION_CREDENTIAL="$(ssh -F ~/.ssh/config deploy-target "\
             set -euo pipefail; \
             set -a; source /var/www/my-portfolio/shared/env/production.env; set +a; \
             EVIDENCE_INTERNAL_BASE_URL='$INTERNAL_BASE_URL' \
             node '$REMOTE_DIR/admin-session-token.mjs'")"
-          test -n "$SESSION_TOKEN"
-          echo "::add-mask::$SESSION_TOKEN"
-          printf 'EVIDENCE_SESSION_TOKEN=%s\n' "$SESSION_TOKEN" >> "$GITHUB_ENV"
+          test -n "$SESSION_CREDENTIAL"
+          echo "::add-mask::$SESSION_CREDENTIAL"
+          printf 'EVIDENCE_SESSION_CREDENTIAL=%s\n' "$SESSION_CREDENTIAL" >> "$GITHUB_ENV"
 
       - name: Run DGR-04 authenticated browser evidence
         if: ${{ steps.request.outputs.mode == 'admin-crud' && steps.crud_prepare.outcome == 'success' }}
         run: |
           set -euo pipefail
           EVIDENCE_PUBLIC_BASE_URL="$PUBLIC_BASE_URL" \
-          EVIDENCE_SESSION_TOKEN="$EVIDENCE_SESSION_TOKEN" \
+          EVIDENCE_SESSION_CREDENTIAL="$EVIDENCE_SESSION_CREDENTIAL" \
           EVIDENCE_STATE_PATH="$RUNNER_TEMP/discover-crud-state.json" \
           EVIDENCE_OUTPUT_DIR="$GITHUB_WORKSPACE/evidence-output/browser" \
           node scripts/evidence/discover-admin-browser-evidence.mjs
