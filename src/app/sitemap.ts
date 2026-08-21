@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
+import { isDiscoverEnglishPublic } from '@/lib/discover'
 import { getSiteUrl } from '@/lib/site-config'
 import manifest from '@/generated/sitemap-manifest.json'
 
@@ -36,27 +37,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const discoverItems = await db.discoverItem.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
+      where: { OR: [{ published: true }, { publishedEn: true }] },
+      select: { slug: true, published: true, publishedEn: true, titleEn: true, descriptionEn: true, contentEn: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' },
     })
 
-    const discoverEntries: MetadataRoute.Sitemap = discoverItems.map((item) => {
-      const faPath = `/fa/discover/${item.slug}`
+    const discoverEntries: MetadataRoute.Sitemap = discoverItems.flatMap((item) => {
+      const faPath = `/discover/${item.slug}`
       const enPath = `/en/discover/${item.slug}`
-      return {
-        url: `${baseUrl}${faPath}`,
-        lastModified: item.updatedAt,
-        changeFrequency: 'weekly',
-        priority: 0.78,
-        alternates: {
-          languages: {
-            'fa-IR': `${baseUrl}${faPath}`,
-            'en-US': `${baseUrl}${enPath}`,
-            'x-default': `${baseUrl}${faPath}`,
-          },
-        },
-      }
+      const englishPublic = isDiscoverEnglishPublic(item)
+      const languages: Record<string, string> = {}
+      if (item.published) languages['fa-IR'] = `${baseUrl}${faPath}`
+      if (englishPublic) languages['en-US'] = `${baseUrl}${enPath}`
+      if (item.published) languages['x-default'] = `${baseUrl}${faPath}`
+      return [
+        ...(item.published ? [{
+          url: `${baseUrl}${faPath}`,
+          lastModified: item.updatedAt,
+          changeFrequency: 'weekly' as const,
+          priority: 0.78,
+          alternates: { languages },
+        }] : []),
+        ...(englishPublic ? [{
+          url: `${baseUrl}${enPath}`,
+          lastModified: item.updatedAt,
+          changeFrequency: 'weekly' as const,
+          priority: 0.78,
+          alternates: { languages },
+        }] : []),
+      ]
     })
 
     return [...staticEntries, ...discoverEntries]

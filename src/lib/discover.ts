@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { normalizeDiscoverCategory } from '@/lib/discover-categories'
 import { optionalTelegramUrlSchema } from '@/lib/telegram'
 
 export const DISCOVER_ATTRIBUTION_KEYS = [
@@ -21,7 +22,21 @@ export const discoverSlugSchema = z
 const discoverTitleSchema = z.string().trim().min(1).max(140)
 const discoverDescriptionSchema = z.string().trim().min(1).max(400)
 const discoverContentSchema = z.string().trim().min(1).max(8000)
-const discoverCategorySchema = z.string().trim().min(1).max(60)
+const discoverTitleEnSchema = z.string().trim().min(1).max(140).nullable().optional()
+const discoverDescriptionEnSchema = z.string().trim().min(1).max(400).nullable().optional()
+const discoverContentEnSchema = z.string().trim().min(1).max(8000).nullable().optional()
+const discoverCategorySchema = z
+  .string()
+  .trim()
+  .refine((value) => {
+    try {
+      normalizeDiscoverCategory(value)
+      return true
+    } catch {
+      return false
+    }
+  }, 'Unknown Discover category')
+  .transform(normalizeDiscoverCategory)
 const discoverOrderSchema = z.number().int().nonnegative()
 const discoverTagSchema = z.string().trim().min(1).max(40)
 
@@ -70,6 +85,9 @@ export const discoverFieldsSchema = z.object({
   title: discoverTitleSchema,
   description: discoverDescriptionSchema,
   content: discoverContentSchema,
+  titleEn: discoverTitleEnSchema,
+  descriptionEn: discoverDescriptionEnSchema,
+  contentEn: discoverContentEnSchema,
   externalUrl: discoverUrlSchema,
   category: discoverCategorySchema,
   tags: discoverTagsSchema,
@@ -78,10 +96,11 @@ export const discoverFieldsSchema = z.object({
   telegramGuideUrl: optionalTelegramUrlSchema,
   featured: z.boolean().optional().default(false),
   published: z.boolean().optional().default(false),
+  publishedEn: z.boolean().optional().default(false),
   order: discoverOrderSchema.optional().default(0),
 })
 
-export const discoverCreateSchema = discoverFieldsSchema
+export const discoverCreateSchema = discoverFieldsSchema.superRefine(validateEnglishPublication)
 
 export const discoverUpdateSchema = z.object({
   id: z.string().trim().min(10).max(200),
@@ -89,6 +108,9 @@ export const discoverUpdateSchema = z.object({
   title: discoverTitleSchema.optional(),
   description: discoverDescriptionSchema.optional(),
   content: discoverContentSchema.optional(),
+  titleEn: discoverTitleEnSchema,
+  descriptionEn: discoverDescriptionEnSchema,
+  contentEn: discoverContentEnSchema,
   externalUrl: discoverUrlSchema.optional(),
   category: discoverCategorySchema.optional(),
   tags: discoverTagsSchema.optional(),
@@ -97,8 +119,36 @@ export const discoverUpdateSchema = z.object({
   telegramGuideUrl: optionalTelegramUrlSchema,
   featured: z.boolean().optional(),
   published: z.boolean().optional(),
+  publishedEn: z.boolean().optional(),
   order: discoverOrderSchema.optional(),
-})
+}).superRefine(validateEnglishPublication)
+
+function validateEnglishPublication(
+  value: { publishedEn?: boolean; titleEn?: string | null; descriptionEn?: string | null; contentEn?: string | null },
+  context: z.RefinementCtx
+): void {
+  if (!value.publishedEn) return
+
+  for (const field of ['titleEn', 'descriptionEn', 'contentEn'] as const) {
+    if (!value[field]?.trim()) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: 'English content is required when publishedEn is true', path: [field] })
+    }
+  }
+}
+
+export function isDiscoverEnglishPublic(item: {
+  publishedEn: boolean
+  titleEn: string | null
+  descriptionEn: string | null
+  contentEn: string | null
+}): item is {
+  publishedEn: true
+  titleEn: string
+  descriptionEn: string
+  contentEn: string
+} {
+  return Boolean(item.publishedEn && item.titleEn?.trim() && item.descriptionEn?.trim() && item.contentEn?.trim())
+}
 
 function normalizeAttributionValue(value: unknown): string | undefined {
   const raw = Array.isArray(value) ? value[0] : value

@@ -179,6 +179,7 @@ jobs:
             --exclude 'coverage' \
             --exclude 'playwright-report' \
             --exclude 'test-results' \
+            --exclude 'reports' \
             ./ "deploy-target:$REMOTE_TMP/"
 
       - name: Relocate legacy production SQLite to persistent storage

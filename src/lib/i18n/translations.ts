@@ -1,7 +1,32 @@
 import { PROFILE_SUMMARY_FA } from '@/lib/profile-copy'
+import { DISCOVER_ADMIN_COPY } from './discover-admin-copy'
+
+const DISCOVER_ADMIN_COPY_EN = {
+  ...DISCOVER_ADMIN_COPY,
+  editor: { ...DISCOVER_ADMIN_COPY.editor, editing: 'Edit Discover item', creating: 'New Discover item', save: 'Save item', cancel: 'Cancel', saved: 'Saved', saving: 'Saving…', unsaved: 'Unsaved', publishHeading: 'Publication status', published: 'Publish Persian', publishedEn: 'Publish English', featured: 'Featured', englishPublishHelp: 'Complete the English title, description, and guide before publishing.', persianHeading: 'Persian content', title: 'Persian title', slug: 'Slug', description: 'Persian description', content: 'Persian guide', englishHeading: 'English content', titleEn: 'English title', descriptionEn: 'English description', contentEn: 'English guide', categoryHeading: 'Category and tags', category: 'Category', selectCategory: 'Select a category', tags: 'Tags', order: 'Display order', linksHeading: 'Links and source', externalUrl: 'Official HTTPS URL', instagramUrl: 'Instagram URL', telegramGuideUrl: 'Telegram URL', imageUrl: 'Image URL' },
+  manager: { ...DISCOVER_ADMIN_COPY.manager, searchLabel: 'Search Discover items', searchPlaceholder: 'Search title, slug, or category', loading: 'Loading…', itemCount: (count: number) => `${count} items`, listTitle: 'Discover library', empty: 'No items found.', order: (slug: string, order: number) => `/${slug} · order ${order}`, faPreview: 'Persian preview', enPreview: 'English preview', edit: 'Edit', published: 'Published', draft: 'Draft', delete: (title: string) => `Delete ${title}`, deleteConfirm: (title: string) => `Permanently delete “${title}”?`, saveToast: (title: string) => `${title} was saved in Discover.`, deleteToast: (title: string) => `${title} was deleted from Discover.`, saveFailed: 'Could not save item.', saveFailedTitle: 'Save failed', deleteFailed: 'Could not delete item.', deleteFailedTitle: 'Delete failed', deleted: 'Deleted', authRequired: 'Administrator access is required.', loadFailed: 'Could not load Discover items.', recovery: 'A local draft was found. Server data will not change until you choose.', restoreDraft: 'Restore draft', discardDraft: 'Discard draft', slugConflict: 'This slug is already in use.' },
+  preview: { ...DISCOVER_ADMIN_COPY.preview, heading: 'Preview and SEO', persian: 'Persian', english: 'English', public: 'View public page', persianTitle: 'Persian title', persianDescription: 'Persian description', englishTitle: 'English title', englishDescription: 'English description' },
+  status: { saving: 'Saving…', saved: 'Saved', unsaved: 'Unsaved' },
+  transfer: { ...DISCOVER_ADMIN_COPY.transfer, heading: 'Import and export', label: 'JSON to import', import: 'Import JSON', export: 'Export JSON', invalid: 'Invalid input', invalidJson: 'Invalid JSON', exportInvalid: 'Fix form errors before exporting.' },
+} as const
 
 export const translations = {
   en: {
+    admin: { discover: DISCOVER_ADMIN_COPY_EN },
+    discover: {
+      landing: {
+        eyebrow: 'ASDEV Resource Hub',
+        title: 'Find the tools and resources I mention on Instagram',
+        description: 'Search a name, open its real official destination, read the quick guide, and use the full Telegram resource when one is available.',
+        note: 'Use this page as the single link in my Instagram bio; no DM automation is required.',
+        home: 'Back to home',
+        breadcrumb: 'Discover',
+      },
+      grid: {
+        search: 'Search tools and services', categories: 'Discover categories', all: 'All', featured: 'Featured', open: 'View guide and official link', empty: 'No Discover items match this filter.', reset: 'Clear filters', results: 'items',
+      },
+      detail: { back: 'Back to Discover', guide: 'Quick practical guide', openResource: 'Open resource', telegramGuide: 'Full tutorial / file on Telegram', telegramChannel: 'Browse the Telegram channel', telegramGroup: 'Ask a question in the Telegram group', instagram: 'View the Instagram post', related: 'Related Discover items', featured: 'Featured', asdev: 'Continue inside ASDEV', asdevDescription: 'If this resource was useful, you can also explore the systems I build, case studies, and the technical audit path for real websites.', audit: 'Website Audit readiness', cases: 'View case studies', qualify: 'Start a project inquiry', disclosure: 'External products belong to their respective owners. This page provides editorial context and an external destination link.', breadcrumb: 'Discover' },
+    },
     nav: {
       home: 'Home',
       english: 'English',
@@ -125,6 +150,21 @@ export const translations = {
     },
   },
   fa: {
+    admin: { discover: DISCOVER_ADMIN_COPY },
+    discover: {
+      landing: {
+        eyebrow: 'مرکز منابع ASDEV',
+        title: 'ابزارها و منابعی که در اینستاگرام معرفی می‌کنم، اینجا پیدا کن',
+        description: 'اسم ابزار را جستجو کن، به مقصد رسمی برو، راهنمای کوتاه را بخوان و اگر منبع کامل تلگرام موجود بود مستقیم همان را باز کن.',
+        note: 'این صفحه مقصد ثابت لینک بیوی اینستاگرام است و برای دریافت منابع نیازی به اتوماسیون دایرکت نیست.',
+        home: 'بازگشت به خانه',
+        breadcrumb: 'ابزارها و منابع',
+      },
+      grid: {
+        search: 'جستجو بین ابزارها و سرویس‌ها', categories: 'دسته‌بندی‌های ابزارها و منابع', all: 'همه', featured: 'منتخب', open: 'توضیح کوتاه و لینک رسمی', empty: 'موردی با این فیلتر پیدا نشد.', reset: 'پاک کردن فیلترها', results: 'مورد',
+      },
+      detail: { back: 'بازگشت به ابزارها و منابع', guide: 'راهنمای کوتاه و کاربردی', openResource: 'باز کردن منبع', telegramGuide: 'آموزش کامل / فایل در تلگرام', telegramChannel: 'مشاهده کانال تلگرام', telegramGroup: 'پرسش در گروه تلگرام', instagram: 'دیدن پست اینستاگرام', related: 'موارد مشابه', featured: 'منتخب', asdev: 'ادامه در ASDEV', asdevDescription: 'اگر این منبع برایت مفید بود، می‌توانی سیستم‌هایی که می‌سازم، مطالعه‌های موردی و مسیر بررسی فنی سایت را هم ببینی.', audit: 'بررسی آمادگی سایت برای Audit', cases: 'دیدن مطالعه‌های موردی', qualify: 'شروع درخواست همکاری', disclosure: 'مالکیت سرویس خارجی متعلق به ارائه‌دهندهٔ آن است. این صفحه فقط توضیح تحریری و لینک مقصد خارجی را ارائه می‌کند.', breadcrumb: 'ابزارها و منابع' },
+    },
     nav: {
       home: 'خانه',
       english: 'انگلیسی',
@@ -132,7 +172,7 @@ export const translations = {
       about: 'درباره من',
       services: 'خدمات',
       caseStudies: 'مطالعات موردی',
-      discover: 'Discover',
+      discover: 'ابزارها و منابع',
       portfolio: 'نمونه کارها',
       skills: 'مهارت‌ها',
       experience: 'تجربه کاری',
@@ -239,7 +279,7 @@ export const translations = {
       quickHome: 'خانه',
       quickServices: 'خدمات',
       quickCaseStudies: 'مطالعات موردی',
-      quickDiscover: 'Discover',
+      quickDiscover: 'ابزارها و منابع',
       quickBrand: 'درباره من',
       quickContact: 'تماس',
       quickAudit: 'آمادگی برای Audit',

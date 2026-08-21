@@ -350,7 +350,7 @@ fi
 MIGRATE_STATUS_OUTPUT=""
 if MIGRATE_STATUS_OUTPUT="$(pnpm exec prisma migrate status 2>&1)"; then
   :
-elif printf '%s\n' "$MIGRATE_STATUS_OUTPUT" | grep -q 'Following migrations have not yet been applied'; then
+elif printf '%s\n' "$MIGRATE_STATUS_OUTPUT" | grep -Eq 'Following migrations? have not yet been applied'; then
   printf '%s\n' "$MIGRATE_STATUS_OUTPUT"
 else
   printf '%s\n' "$MIGRATE_STATUS_OUTPUT" >&2

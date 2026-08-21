@@ -82,6 +82,9 @@ model DiscoverItem {
   title        String
   description  String
   content      String
+  titleEn      String?
+  descriptionEn String?
+  contentEn    String?
   externalUrl  String
   category     String
   tags         String
@@ -90,6 +93,7 @@ model DiscoverItem {
   telegramGuideUrl String?
   featured     Boolean   @default(false)
   published    Boolean   @default(false)
+  publishedEn  Boolean   @default(false)
   order        Int       @default(0)
   publishedAt  DateTime?
   createdAt    DateTime  @default(now())

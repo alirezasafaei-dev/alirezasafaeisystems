@@ -3,6 +3,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, createRequestId, enforceAdminAccess, withCommonApiHeaders } from '@/lib/api-security'
 import { db } from '@/lib/db'
 import { discoverCreateSchema, discoverUpdateSchema } from '@/lib/discover'
+import { normalizeDiscoverCategory } from '@/lib/discover-categories'
+import {
+  DiscoverEnglishPublicationError,
+  normalizeDiscoverCreateInput,
+  normalizeDiscoverUpdateInput,
+} from '@/lib/discover-service'
 import { logger } from '@/lib/logger'
 import { sanitizeInput } from '@/lib/validators'
 
@@ -16,12 +22,22 @@ function isUniqueConstraintError(error: unknown): boolean {
     : Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002')
 }
 
-function validationResponse(requestId: string, headers: Record<string, string>, issues: string[]) {
+type ValidationDetail = string | { path: (string | number)[]; message: string }
+
+function validationResponse(requestId: string, headers: Record<string, string>, issues: ValidationDetail[]) {
   return withCommonApiHeaders(
     NextResponse.json({ error: 'Validation failed', details: issues }, { status: 400 }),
     requestId,
     headers,
   )
+}
+
+function normalizeResponseCategory(category: string): string {
+  try {
+    return normalizeDiscoverCategory(category)
+  } catch {
+    return category
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -69,7 +85,12 @@ export async function GET(request: NextRequest) {
       orderBy: [{ featured: 'desc' }, { order: 'asc' }, { updatedAt: 'desc' }],
     })
 
-    return withCommonApiHeaders(NextResponse.json({ items }), requestId, limit.headers)
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      category: normalizeResponseCategory(item.category),
+    }))
+
+    return withCommonApiHeaders(NextResponse.json({ items: normalizedItems }), requestId, limit.headers)
   } catch (error) {
     logger.error('Error fetching Discover items', {
       requestId,
@@ -108,27 +129,12 @@ export async function POST(request: NextRequest) {
 
     const parsed = discoverCreateSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => issue.message))
+      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => ({ path: issue.path.map(String), message: issue.message })))
     }
 
     const input = parsed.data
     const item = await db.discoverItem.create({
-      data: {
-        slug: input.slug,
-        title: sanitizeInput(input.title, 140),
-        description: sanitizeInput(input.description, 400),
-        content: sanitizeInput(input.content, 8000),
-        externalUrl: input.externalUrl,
-        category: sanitizeInput(input.category, 60),
-        tags: input.tags.join(','),
-        imageUrl: input.imageUrl,
-        instagramUrl: input.instagramUrl,
-        telegramGuideUrl: input.telegramGuideUrl,
-        featured: input.featured,
-        published: input.published,
-        order: input.order,
-        publishedAt: input.published ? new Date() : null,
-      },
+      data: normalizeDiscoverCreateInput(input),
     })
 
     return withCommonApiHeaders(NextResponse.json({ item }, { status: 201 }), requestId, limit.headers)
@@ -178,34 +184,37 @@ export async function PATCH(request: NextRequest) {
 
     const parsed = discoverUpdateSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => issue.message))
+      return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => ({ path: issue.path.map(String), message: issue.message })))
     }
 
     const { id, ...input } = parsed.data
-    const publication = input.published === true
-      ? await db.discoverItem.findUnique({ where: { id }, select: { publishedAt: true } })
+    const requiresCurrentItem = input.published === true
+      || input.publishedEn !== undefined
+      || input.titleEn !== undefined
+      || input.descriptionEn !== undefined
+      || input.contentEn !== undefined
+    const currentItem = requiresCurrentItem
+      ? await db.discoverItem.findUnique({
+          where: { id },
+          select: { publishedAt: true, publishedEn: true, titleEn: true, descriptionEn: true, contentEn: true },
+        })
       : null
 
-    const data: Prisma.DiscoverItemUpdateInput = {
-      ...(input.slug !== undefined ? { slug: input.slug } : {}),
-      ...(input.title !== undefined ? { title: sanitizeInput(input.title, 140) } : {}),
-      ...(input.description !== undefined ? { description: sanitizeInput(input.description, 400) } : {}),
-      ...(input.content !== undefined ? { content: sanitizeInput(input.content, 8000) } : {}),
-      ...(input.externalUrl !== undefined ? { externalUrl: input.externalUrl } : {}),
-      ...(input.category !== undefined ? { category: sanitizeInput(input.category, 60) } : {}),
-      ...(input.tags !== undefined ? { tags: input.tags.join(',') } : {}),
-      ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl ?? null } : {}),
-      ...(input.instagramUrl !== undefined ? { instagramUrl: input.instagramUrl ?? null } : {}),
-      ...(input.telegramGuideUrl !== undefined ? { telegramGuideUrl: input.telegramGuideUrl ?? null } : {}),
-      ...(input.featured !== undefined ? { featured: input.featured } : {}),
-      ...(input.published !== undefined ? { published: input.published } : {}),
-      ...(input.order !== undefined ? { order: input.order } : {}),
-      ...(input.published === true && !publication?.publishedAt ? { publishedAt: new Date() } : {}),
-    }
+    const data = normalizeDiscoverUpdateInput(input, currentItem ?? {
+      publishedAt: null,
+      publishedEn: false,
+      titleEn: null,
+      descriptionEn: null,
+      contentEn: null,
+    })
 
     const item = await db.discoverItem.update({ where: { id }, data })
     return withCommonApiHeaders(NextResponse.json({ item }), requestId, limit.headers)
   } catch (error) {
+    if (error instanceof DiscoverEnglishPublicationError) {
+      return validationResponse(requestId, limit.headers, [error.message])
+    }
+
     if (isUniqueConstraintError(error)) {
       return withCommonApiHeaders(
         NextResponse.json({ error: 'Slug already exists' }, { status: 409 }),

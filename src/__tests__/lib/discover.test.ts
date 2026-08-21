@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   appendDiscoverAttribution,
+  discoverCreateSchema,
   discoverInstagramUrlSchema,
   discoverSlugSchema,
   discoverTagsSchema,
@@ -67,6 +68,71 @@ describe('Discover content contracts', () => {
       id: 'discover_12345',
       published: true,
     })
+    expect(discoverUpdateSchema.safeParse({
+      id: 'discover_12345',
+      publishedEn: true,
+    }).success).toBe(false)
+  })
+
+  it('accepts explicit null English fields while English publication is disabled', () => {
+    expect(discoverCreateSchema.parse({
+      slug: 'null-english-discover-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'ai',
+      tags: ['AI'],
+      titleEn: null,
+      descriptionEn: null,
+      contentEn: null,
+      publishedEn: false,
+    })).toMatchObject({
+      titleEn: null,
+      descriptionEn: null,
+      contentEn: null,
+      publishedEn: false,
+    })
+  })
+
+  it('rejects missing null and blank English fields for English publication', () => {
+    const variants = [
+      { name: 'missing title', fields: { descriptionEn: 'English description', contentEn: 'English content' } },
+      { name: 'missing description', fields: { titleEn: 'English title', contentEn: 'English content' } },
+      { name: 'missing content', fields: { titleEn: 'English title', descriptionEn: 'English description' } },
+      { name: 'null title', fields: { titleEn: null, descriptionEn: 'English description', contentEn: 'English content' } },
+      { name: 'null description', fields: { titleEn: 'English title', descriptionEn: null, contentEn: 'English content' } },
+      { name: 'null content', fields: { titleEn: 'English title', descriptionEn: 'English description', contentEn: null } },
+      { name: 'blank title', fields: { titleEn: ' ', descriptionEn: 'English description', contentEn: 'English content' } },
+      { name: 'blank description', fields: { titleEn: 'English title', descriptionEn: ' ', contentEn: 'English content' } },
+      { name: 'blank content', fields: { titleEn: 'English title', descriptionEn: 'English description', contentEn: ' ' } },
+    ]
+    const schemas = [
+      {
+        name: 'create',
+        schema: discoverCreateSchema,
+        fields: {
+          slug: 'english-publication-create',
+          title: 'عنوان فارسی',
+          description: 'توضیح فارسی',
+          content: 'محتوای فارسی',
+          externalUrl: 'https://example.com/tool',
+          category: 'ai',
+          tags: ['AI'],
+        },
+      },
+      {
+        name: 'update',
+        schema: discoverUpdateSchema,
+        fields: { id: 'discover_12345' },
+      },
+    ]
+
+    for (const variant of variants) {
+      for (const schema of schemas) {
+        expect(schema.schema.safeParse({ ...schema.fields, ...variant.fields, publishedEn: true }).success, schema.name + ': ' + variant.name).toBe(false)
+      }
+    }
   })
 
   it('extracts only bounded approved UTM values', () => {
@@ -101,4 +167,73 @@ describe('Discover content contracts', () => {
     expect(parsed.searchParams.get('utm_medium')).toBe('social')
     expect(parsed.searchParams.get('utm_campaign')).toBe('ai-tools')
   })
+
+  it('normalizes only registered categories in create payloads', () => {
+    const input = {
+      slug: 'canonical-category-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'AI',
+      tags: ['AI'],
+    }
+
+    expect(discoverCreateSchema.parse(input).category).toBe('ai')
+    expect(discoverCreateSchema.safeParse({ ...input, category: 'made-up' }).success).toBe(false)
+  })
+
+  it('requires complete trimmed English content before English publication on create', () => {
+    const input = {
+      slug: 'english-discover-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'ai',
+      tags: ['AI'],
+      titleEn: ' English title ',
+      descriptionEn: ' English description ',
+      contentEn: ' English content ',
+      publishedEn: true,
+    }
+
+    expect(discoverCreateSchema.parse(input)).toMatchObject({
+      titleEn: 'English title',
+      descriptionEn: 'English description',
+      contentEn: 'English content',
+      publishedEn: true,
+    })
+
+    expect(discoverCreateSchema.safeParse({ ...input, titleEn: ' ' }).success).toBe(false)
+    expect(discoverCreateSchema.safeParse({ ...input, descriptionEn: ' ' }).success).toBe(false)
+    expect(discoverCreateSchema.safeParse({ ...input, contentEn: ' ' }).success).toBe(false)
+  })
+
+  it('allows absent English content while English publication is disabled', () => {
+    expect(discoverCreateSchema.parse({
+      slug: 'persian-discover-item',
+      title: 'عنوان فارسی',
+      description: 'توضیح فارسی',
+      content: 'محتوای فارسی',
+      externalUrl: 'https://example.com/tool',
+      category: 'ai',
+      tags: ['AI'],
+      publishedEn: false,
+    })).toMatchObject({ publishedEn: false })
+  })
+
+  it('requires complete English content before English publication on update', () => {
+    const input = {
+      id: 'discover_12345',
+      titleEn: 'English title',
+      descriptionEn: 'English description',
+      contentEn: 'English content',
+      publishedEn: true,
+    }
+
+    expect(discoverUpdateSchema.parse(input)).toMatchObject(input)
+    expect(discoverUpdateSchema.safeParse({ ...input, contentEn: ' ' }).success).toBe(false)
+  })
+
 })

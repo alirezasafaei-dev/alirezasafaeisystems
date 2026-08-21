@@ -15,8 +15,12 @@ describe('Playwright Discover fixture isolation', () => {
     expect(seed).toContain("const expectedPath = resolve(process.cwd(), 'test-results/playwright.db')")
     expect(seed).toContain('if (actualPath !== expectedPath)')
     expect(seed).toContain('Refusing to seed non-disposable database')
-    expect(seed).toContain("where: { slug: 'playwright-discover-resource' }")
+    expect(seed).toContain("slug: 'playwright-discover-resource'")
+    expect(seed).toContain("slug: 'playwright-persian-only-resource'")
+    expect(seed).toContain('publishedEn: true')
+    expect(seed).toContain('publishedEn: false')
     expect(seed).toContain("telegramGuideUrl: 'https://t.me/asdev_test/123'")
+    expect(seed).toContain('await db.discoverItem.upsert')
   })
 
   it('keeps Playwright artifacts in a child directory so runner cleanup cannot delete the disposable SQLite fixture', () => {
@@ -26,11 +30,12 @@ describe('Playwright Discover fixture isolation', () => {
     expect(config).toContain("const playwrightDatabaseUrl = `file:${resolve(process.cwd(), 'test-results/playwright.db')}`")
   })
 
-  it('runs both smoke and accessibility browser contracts in the E2E workflow', () => {
+  it('runs smoke, accessibility, and Discover v2 browser contracts in the E2E workflow', () => {
     const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/e2e-smoke.yml'), 'utf8')
 
     expect(workflow).toContain('pnpm run test:e2e:smoke')
     expect(workflow).toContain('pnpm exec playwright test e2e/a11y.spec.ts')
+    expect(workflow).toContain('pnpm exec playwright test e2e/discover-v2.spec.ts')
   })
 
   it('creates and seeds the disposable database before the final CI build and keeps that build after enterprise verification', () => {

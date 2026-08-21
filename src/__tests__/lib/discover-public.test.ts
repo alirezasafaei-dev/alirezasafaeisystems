@@ -6,13 +6,15 @@ function source(path: string): string {
 }
 
 describe('Discover public data contract', () => {
-  it('queries only published items for the landing and exposes a bounded public card shape', () => {
+  it('queries locale-published items for the landing and exposes a bounded public card shape', () => {
     const landing = source('src/app/discover/page.tsx')
 
-    expect(landing).toContain('where: { published: true }')
+    expect(landing).toContain("where: isEn ? { publishedEn: true } : { published: true }")
     expect(landing).toContain('slug: true')
     expect(landing).toContain('title: true')
     expect(landing).toContain('description: true')
+    expect(landing).toContain('titleEn: true')
+    expect(landing).toContain('descriptionEn: true')
     expect(landing).toContain('category: true')
     expect(landing).toContain('tags: true')
     expect(landing).toContain('featured: true')
@@ -21,12 +23,12 @@ describe('Discover public data contract', () => {
     expect(landing).not.toContain('content: true')
   })
 
-  it('404s unpublished detail items and keeps related-item queries published-only', () => {
+  it('404s unpublished locale detail items and keeps related-item queries locale-published', () => {
     const detail = source('src/app/discover/[slug]/page.tsx')
     const lookupIndex = detail.indexOf('const item = await db.discoverItem.findUnique({ where: { slug } })')
-    const publishedGuardIndex = detail.indexOf('if (!item?.published) notFound()', lookupIndex)
-    const relatedIndex = detail.indexOf('const related = await db.discoverItem.findMany', publishedGuardIndex)
-    const relatedPublishedIndex = detail.indexOf('published: true', relatedIndex)
+    const publishedGuardIndex = detail.indexOf('if (!item || !effectiveContent) notFound()', lookupIndex)
+    const relatedIndex = detail.indexOf('const related = (await db.discoverItem.findMany', publishedGuardIndex)
+    const relatedPublishedIndex = detail.indexOf("...(isEn ? { publishedEn: true } : { published: true })", relatedIndex)
 
     expect(lookupIndex).toBeGreaterThan(-1)
     expect(publishedGuardIndex).toBeGreaterThan(lookupIndex)
@@ -71,9 +73,16 @@ describe('Discover public data contract', () => {
   it('localizes the featured badge on the detail page', () => {
     const detail = source('src/app/discover/[slug]/page.tsx')
 
-    expect(detail).toContain("featured: 'Featured'")
-    expect(detail).toContain("featured: 'منتخب'")
+    expect(source('src/lib/i18n/translations.ts')).toContain("featured: 'Featured'")
+    expect(source('src/lib/i18n/translations.ts')).toContain("featured: 'منتخب'")
     expect(detail).toContain('{copy.featured}')
     expect(detail).not.toContain('> Featured\n')
+  })
+
+  it('uses the shared safe category label for public detail badges', () => {
+    const detail = source('src/app/discover/[slug]/page.tsx')
+
+    expect(detail).toContain("getSafeDiscoverCategoryLabel(item.category, locale)")
+    expect(detail).not.toContain('>{item.category}</span>')
   })
 })

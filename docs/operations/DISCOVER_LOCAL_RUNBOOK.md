@@ -93,6 +93,24 @@ pnpm exec playwright test e2e/a11y.spec.ts
 - `http://localhost:3000/en/discover`
 - `http://localhost:3000/admin`
 
+## Resource manifest import
+
+برای آماده‌سازی یک منبع Discover از این جریان استفاده کنید:
+
+`manifest → validate → Admin Import JSON → review → save draft/publish → live verify`
+
+Manifest فقط artifact محلی برای آماده‌سازی import است و production storage نیست. بخش `evidence` آن برای یادداشت‌های منبع است و نباید در Admin Import JSON وارد شود؛ فقط `payload` که با schema create سازگار است را import کنید. این جریان هیچ authentication Admin را bypass نمی‌کند؛ ورود و مجوزهای معمول Admin همچنان لازم‌اند.
+
+قبل از Import، تنها validation محلی و بدون network را اجرا کنید:
+
+```powershell
+pnpm discover:validate
+```
+
+پس از PASS، `payload` را به Admin Import JSON منتقل کنید، محتوا و مقصدها را review کنید، ابتدا draft را ذخیره کنید یا در صورت تأیید publish کنید، و سپس detail public را live verify کنید.
+
+برای manifestی که English editorial copy ندارد، `publishedEn` را در payload وارد نکنید. قرارداد create مقدار persisted پیش‌فرض `publishedEn=false` را اعمال می‌کند؛ بنابراین نتیجهٔ مؤثر انگلیسی منتشرنشده است، بدون افزودن field ناشناخته یا bypass کردن contract.
+
 ## Content operating workflow
 
 برای هر Reel/Post که یک ابزار یا منبع را معرفی می‌کند:
@@ -191,6 +209,18 @@ Merged source یا CI سبز به‌تنهایی به معنی Production-comple
 7. live verification workflow و required smokeها PASS باشند.
 
 نبود Telegram URL روی Production item نباید deployment را fail کند؛ Telegram CTA اختیاری است.
+
+## Task 10 local acceptance evidence — 2026-08-20
+
+روی `LOCAL_PC` و branch `feat/discover-v2-189` در head `a23c2649959d99b9301ffe8992bb1b4f0c9f538f`، lint با 0 error و 2 warning موجود، type-check، build، 371 تست unit/integration، `pnpm discover:validate`، audit high/critical و secret scan PASS شدند. Manifest `deepseek-telegram-bot.json` معتبر گزارش شد.
+
+SQLite disposable با URL دقیق `file:/tmp/asdev-task10-discover-v2-189.sqlite` از صفر ساخته شد؛ `prisma migrate deploy` هر 9 migration را اعمال کرد، `prisma migrate status` schema را up to date گزارش کرد و `prisma migrate diff --exit-code` با `No difference detected.` و exit 0 پایان یافت. هیچ Production DB یا host تغییر نکرد.
+
+Browser evidence هنوز PASS نیست: smoke و a11y پیش از اجرای page به‌دلیل نبود `libnspr4.so` در WSL متوقف شدند و Lighthouse بعد از build/start نتوانست به Windows Chrome DevTools متصل شود (`0x2740` سپس `ECONNREFUSED`). fixture موجود نیز Admin authenticated و bilingual detail واقعی را پوشش نمی‌دهد. بنابراین verdict فعلی `DEPLOY_BLOCKED_NOT_VERIFIED` است و هیچ Browser، Lighthouse، Admin، Production، publish/import یا telemetry PASS ادعا نمی‌شود.
+
+PR merge به `main` workflowهای `Deploy VPS` و `Release` را trigger می‌کند. migration Production فقط با `APPROVE_CRITICAL_SITE_MIGRATION` و app deploy فقط با `APPROVE_CRITICAL_SITE_PRODUCTION_DEPLOY` مجاز است.
+
+Draft PR `#190` روی exact head `113cbeba22851c5eb20d99eee9b0efc55c09f5ea` برای review باز شد. همه checkهای گزارش‌شده روی همان head PASS شدند: CI run `32397663850`، CI Router `32397663842`، CodeQL `32397663854`، E2E Smoke `32397663851`، Lighthouse Budget `32397663859` و Security Audit `32397663815`. PR در این checkpoint review/comment نداشت و merge یا deploy نشد.
 
 ## Failure handling
 

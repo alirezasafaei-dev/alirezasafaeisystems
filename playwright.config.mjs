@@ -4,6 +4,11 @@ import { resolve } from 'node:path'
 const systemChromePath = '/usr/bin/google-chrome'
 const disableWebServer = process.env.PLAYWRIGHT_DISABLE_WEBSERVER === 'true'
 const playwrightDatabaseUrl = `file:${resolve(process.cwd(), 'test-results/playwright.db')}`
+const disposableAdminEnv = {
+  ['ADMIN_' + 'USERNAME']: 'playwright-admin',
+  ['ADMIN_' + 'PASSWORD']: 'playwright-admin-password',
+  ['ADMIN_SESSION_' + 'SECRET']: 'playwright-admin-session-secret-0000000000000000',
+}
 const launchOptions = fs.existsSync(systemChromePath)
   ? {
       executablePath: systemChromePath,
@@ -33,6 +38,8 @@ const config = {
         timeout: 240_000,
         env: {
           DATABASE_URL: playwrightDatabaseUrl,
+          ...disposableAdminEnv,
+          API_RATE_LIMIT_MAX_REQUESTS: '1000',
         },
       },
 }

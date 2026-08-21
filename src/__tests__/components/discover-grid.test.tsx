@@ -1,13 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { DiscoverGrid } from '@/components/discover/discover-grid'
+import { DiscoverGrid, type DiscoverGridItem } from '@/components/discover/discover-grid'
 
-const items = [
+const items: DiscoverGridItem[] = [
   {
     slug: 'notebooklm',
     title: 'NotebookLM',
     description: 'Research assistant grounded in your sources',
-    category: 'AI',
+    categoryKey: 'ai',
+    categoryLabel: 'هوش مصنوعی',
     tags: ['research', 'productivity'],
     featured: true,
     imageUrl: null,
@@ -16,7 +17,8 @@ const items = [
     slug: 'canva',
     title: 'Canva',
     description: 'Visual design platform',
-    category: 'Design',
+    categoryKey: 'general',
+    categoryLabel: 'عمومی',
     tags: ['design'],
     featured: false,
     imageUrl: null,
@@ -52,7 +54,7 @@ describe('DiscoverGrid', () => {
   it('filters cards by category and search without creating query-page URLs', () => {
     render(<DiscoverGrid items={items} isEn={false} attribution={{}} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Design' }))
+    fireEvent.click(screen.getByRole('button', { name: 'عمومی' }))
     expect(screen.getByText('Canva')).toBeInTheDocument()
     expect(screen.queryByText('NotebookLM')).not.toBeInTheDocument()
 
@@ -67,13 +69,51 @@ describe('DiscoverGrid', () => {
 
     expect(screen.getByRole('searchbox', { name: 'جستجو بین ابزارها و سرویس‌ها' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: 'AI' })).toHaveAttribute('aria-pressed', 'false')
-    expect(screen.getByRole('button', { name: 'Design' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.queryByRole('button', { name: 'AI' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'عمومی' })).toHaveAttribute('aria-pressed', 'false')
 
-    fireEvent.click(screen.getByRole('button', { name: 'AI' }))
+    fireEvent.click(screen.getByRole('button', { name: 'هوش مصنوعی' }))
 
     expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'false')
-    expect(screen.getByRole('button', { name: 'AI' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'هوش مصنوعی' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1 مورد')).toHaveAttribute('aria-live', 'polite')
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Notebook' } })
+    expect(screen.getByRole('button', { name: 'پاک کردن فیلترها' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'پاک کردن فیلترها' }))
+    expect(screen.getByRole('button', { name: 'همه' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('searchbox')).toHaveValue('')
+  })
+
+  it('searches effective localized category labels without exposing raw categories', () => {
+    render(<DiscoverGrid items={items} isEn={false} attribution={{}} />)
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'هوش مصنوعی' } })
+    expect(screen.getByText('NotebookLM')).toBeInTheDocument()
+    expect(screen.queryByText('Canva')).not.toBeInTheDocument()
+  })
+
+  it('reserves the same 16:9 media geometry for image and fallback cards', () => {
+    const mixedMediaItems = [
+      { ...items[0], imageUrl: 'https://images.example.test/notebooklm.png' },
+      { ...items[1], imageUrl: null },
+    ]
+    const { container } = render(<DiscoverGrid items={mixedMediaItems} isEn={false} attribution={{}} />)
+
+    expect(container.querySelector('img.aspect-\\[16\\/9\\]')).toBeInTheDocument()
+    expect(container.querySelector('[aria-hidden="true"].aspect-\\[16\\/9\\]')).toBeInTheDocument()
+  })
+
+  it('uses the server-projected localized general label without exposing raw categories', () => {
+    const unknownItems = [{ ...items[0], categoryKey: 'general' as const, categoryLabel: 'عمومی' }]
+    const { rerender } = render(<DiscoverGrid items={unknownItems} isEn={false} attribution={{}} />)
+
+    expect(screen.getByRole('button', { name: 'عمومی' })).toBeInTheDocument()
+    expect(screen.queryByText('legacy-unknown')).not.toBeInTheDocument()
+
+    rerender(<DiscoverGrid items={[{ ...unknownItems[0], categoryLabel: 'General' }]} isEn attribution={{}} />)
+    expect(screen.getByRole('button', { name: 'General' })).toBeInTheDocument()
+    expect(screen.queryByText('legacy-unknown')).not.toBeInTheDocument()
   })
 })

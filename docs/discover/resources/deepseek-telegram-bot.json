@@ -1,0 +1,28 @@
+{
+  "payload": {
+    "slug": "deepseek-telegram-bot",
+    "title": "بات رایگان DeepSeek در تلگرام (غیررسمی)",
+    "description": "یک بات شخص ثالث از G.Media برای استفاده از تجربه DeepSeek داخل تلگرام؛ بدون نیاز به نصب اپ جدا. در تست ASDEV فارسی را خوب پاسخ داد. رایگان بودن فعلی توسط کاتالوگ رسمی G.Media تأیید شده است.",
+    "content": "اگر می‌خواهی بدون نصب اپ جدا از یک دستیار مبتنی بر تجربه DeepSeek داخل تلگرام استفاده کنی، این بات یکی از گزینه‌های ساده است.\n\nروش استفاده: لینک رسمی بات را باز کن، Start را بزن و پیام خودت را بفرست. برای شروع نیاز به ثبت‌نام جداگانه یا تنظیمات پیچیده‌ای در تست ASDEV مشاهده نشد.\n\nدر تست واقعی ASDEV، بات فارسی را خوب متوجه شد و پاسخ فارسی داد. همچنین امکان تغییر سبک و شخصیت پاسخ‌دادن در تجربه آزمایش‌شده وجود داشت. در مدت تست محدودیت محسوسی مشاهده نشد، اما این موضوع تضمین دائمی نیست و شرایط سرویس ممکن است تغییر کند.\n\nنکته مهم: این بات رسمی DeepSeek نیست. هندل @deepseek_gidbot در کاتالوگ G.Media به‌عنوان یکی از AI botهای این مجموعه ثبت شده است. بنابراین آن را به‌عنوان یک سرویس شخص ثالث استفاده کن و اطلاعات حساس یا محرمانه را در هیچ بات شخص ثالثی ارسال نکن.\n\nبرای ورود، از دکمه مقصد رسمی همین صفحه استفاده کن و قبل از Start مطمئن شو username دقیقاً @deepseek_gidbot است.",
+    "externalUrl": "https://t.me/deepseek_gidbot",
+    "category": "ai",
+    "tags": [
+      "DeepSeek",
+      "Telegram",
+      "AI",
+      "هوش مصنوعی",
+      "چت بات"
+    ],
+    "instagramUrl": "https://www.instagram.com/p/Db9O3I-M6Dy/",
+    "featured": true,
+    "published": false,
+    "order": 10
+  },
+  "evidence": {
+    "sourceReel": "https://www.instagram.com/p/Db9O3I-M6Dy/",
+    "destination": "https://t.me/deepseek_gidbot",
+    "operator": "G.Media",
+    "notes": "G.Media lists @deepseek_gidbot as DeepSeek in Telegram. Free. The Persian/setup/style/limit observations come from the owner-supplied ASDEV Reel and are explicitly framed as test observations, not permanent guarantees. This bot is third-party and not the official DeepSeek bot.",
+    "englishPublication": "Omitted from payload; the Discover create contract defaults publishedEn to false."
+  }
+}
