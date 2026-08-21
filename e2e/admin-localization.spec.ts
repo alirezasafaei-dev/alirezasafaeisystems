@@ -82,3 +82,24 @@ test('English Admin shell stays LTR and usable at mobile width', async ({ page, 
   await expect(page.getByText('New portfolio project', { exact: true })).toBeVisible()
   await expectNoDocumentOverflow(page)
 })
+
+test('Discover funnel report is reachable from localized Admin navigation and remains mobile-safe', async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await authenticateAdmin(context, 'fa')
+  await page.goto('/admin')
+
+  await page.getByRole('link', { name: 'گزارش قیف Discover' }).click()
+  await expect(page).toHaveURL(/\/admin\/discover\/funnel$/)
+  await expect(page.getByTestId('discover-funnel-report')).toHaveAttribute('dir', 'rtl')
+  await expect(page.getByRole('heading', { name: 'گزارش قیف Discover' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'بازگشت به مدیریت' })).toHaveAttribute('href', '/admin')
+  await expectNoDocumentOverflow(page)
+
+  await authenticateAdmin(context, 'en')
+  await page.goto('/admin')
+  await page.getByRole('link', { name: 'Discover funnel report' }).click()
+  await expect(page.getByTestId('discover-funnel-report')).toHaveAttribute('dir', 'ltr')
+  await expect(page.getByRole('heading', { name: 'Discover funnel report' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Back to Admin' })).toHaveAttribute('href', '/admin')
+  await expectNoDocumentOverflow(page)
+})

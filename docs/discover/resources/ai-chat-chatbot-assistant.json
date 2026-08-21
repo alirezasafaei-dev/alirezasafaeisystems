@@ -19,12 +19,16 @@
     "order": 21
   },
   "evidence": {
+    "checkedAt": "2026-08-21",
+    "sources": [
+      "https://play.google.com/store/apps/details?id=starnest.aichat.aichatbot.assistant"
+    ],
     "sourceReel": "https://www.instagram.com/reel/Db35Do4MY0G/",
     "officialGooglePlay": "https://play.google.com/store/apps/details?id=starnest.aichat.aichatbot.assistant",
     "developer": "Starnest JSC",
     "packageName": "starnest.aichat.aichatbot.assistant",
     "userSuppliedReferencePage": "https://www.farsroid.com/ai-chat-chatbot-assistant/",
-    "notes": "The current official Google Play listing identifies AI Chat : Chatbot & Assistant as a Starnest JSC app, shows 1M+ downloads, and marks the app as containing ads and in-app purchases. The user-supplied third-party page describes a Premium build; its direct APK is intentionally omitted from the Discover payload and operational CTA path. Runtime publication remains false until the authenticated Admin/API write is performed and the live Discover page is verified.",
+    "notes": "Revalidated on 2026-08-21 against the official Google Play listing: AI Chat : Chatbot & Assistant is listed under Starnest JSC, shows 1M+ downloads, and is marked as containing ads and in-app purchases. The user-supplied third-party page describes a Premium build; its direct APK remains intentionally omitted from the Discover payload and operational CTA path. Runtime publication remains false until the authenticated Admin/API write is performed and the live Discover page is verified.",
     "englishPublication": "Omitted from payload; the Discover create contract defaults publishedEn to false."
   }
 }
