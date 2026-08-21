@@ -97,7 +97,7 @@ test('Persian-only resource is public in Persian and returns a true 404 in Engli
 test('authenticated Discover Admin preserves RTL/LTR semantics and passes serious/critical axe checks', async ({ page }) => {
   await authenticateAdmin(page)
   await page.goto('/admin')
-  await page.getByRole('button', { name: 'Discover' }).click()
+  await page.getByRole('button', { name: /^(Discover|ابزارها و منابع)$/ }).click()
 
   const editor = page.getByTestId('discover-editor')
   await expect(editor).toBeVisible()
