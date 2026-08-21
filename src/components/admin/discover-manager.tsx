@@ -117,11 +117,16 @@ export function DiscoverManager() {
       const data = await response.json() as { item?: DiscoverItem; error?: string; code?: string; details?: DiscoverValidationDetail[] }
       if (!response.ok || !data.item) {
         const isStaleWrite = response.status === 409 && data.code === 'STALE_WRITE'
-        if (isStaleWrite) setStaleConflict(true)
-        const details = isStaleWrite ? [concurrencyCopy.conflict] : data.details || [data.error || DISCOVER_ADMIN_COPY.manager.saveFailed]
+        if (isStaleWrite) {
+          setStaleConflict(true)
+          setFieldErrors({})
+          setFormErrors([])
+          throw new Error(concurrencyCopy.conflict)
+        }
+        const details = data.details || [data.error || DISCOVER_ADMIN_COPY.manager.saveFailed]
         const nextFieldErrors: Partial<Record<keyof DiscoverForm, string>> = {}
         const messages = details.map((detail) => typeof detail === 'string' ? detail : typeof detail.message === 'string' ? detail.message : DISCOVER_ADMIN_COPY.manager.saveFailed)
-        if (response.status === 409 && !isStaleWrite) nextFieldErrors.slug = data.error || DISCOVER_ADMIN_COPY.manager.slugConflict
+        if (response.status === 409) nextFieldErrors.slug = data.error || DISCOVER_ADMIN_COPY.manager.slugConflict
         for (const detail of details) {
           if (typeof detail !== 'string' && Array.isArray(detail.path) && detail.path.length === 1 && isDiscoverFormField(detail.path[0]) && typeof detail.message === 'string') nextFieldErrors[detail.path[0]] = detail.message
         }
