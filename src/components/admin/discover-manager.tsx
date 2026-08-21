@@ -10,6 +10,7 @@ import { getSafeDiscoverCategoryLabel } from '@/lib/discover-categories'
 import { toast } from '@/hooks/use-toast'
 import { DiscoverEditor, type DiscoverForm } from './discover/discover-editor'
 import { type DiscoverSaveStatus } from './discover/discover-editor-status'
+import { DISCOVER_CONCURRENCY_COPY } from './discover/discover-concurrency-copy'
 import { discardDraft, readDraft, writeDraft } from './discover/discover-draft-recovery'
 import { DiscoverImportExport } from './discover/discover-import-export'
 import { DiscoverPreview } from './discover/discover-preview'
@@ -36,6 +37,7 @@ function payload(form: DiscoverForm): Record<string, unknown> {
 export function DiscoverManager() {
   const DISCOVER_ADMIN_COPY = useDiscoverAdminCopy()
   const language = useDiscoverAdminLanguage()
+  const concurrencyCopy = DISCOVER_CONCURRENCY_COPY[language]
   const [items, setItems] = useState<DiscoverItem[]>([])
   const [form, setForm] = useState<DiscoverForm>(emptyForm)
   const [query, setQuery] = useState('')
@@ -46,6 +48,7 @@ export function DiscoverManager() {
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof DiscoverForm, string>>>({})
   const [recovery, setRecovery] = useState<DiscoverForm | null>(null)
   const [serverSnapshotAt, setServerSnapshotAt] = useState(0)
+  const [staleConflict, setStaleConflict] = useState(false)
 
   const loadItems = useCallback(async () => {
     setLoading(true); setError('')
@@ -81,15 +84,45 @@ export function DiscoverManager() {
     setSaveStatus('idle')
   }
 
-  function startEdit(item: DiscoverItem) { setRecovery(null); setServerSnapshotAt(Date.parse(item.updatedAt) || 0); setForm(toForm(item)); setFormErrors([]); setFieldErrors({}); window.scrollTo({ top: 0, behavior: 'smooth' }) }
-  function resetForm() { setRecovery(null); setServerSnapshotAt(0); setForm(emptyForm); setFormErrors([]); setFieldErrors({}); setSaveStatus('idle') }
+  function startEdit(item: DiscoverItem) { setRecovery(null); setStaleConflict(false); setServerSnapshotAt(Date.parse(item.updatedAt) || 0); setForm(toForm(item)); setFormErrors([]); setFieldErrors({}); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  function resetForm() { setRecovery(null); setStaleConflict(false); setServerSnapshotAt(0); setForm(emptyForm); setFormErrors([]); setFieldErrors({}); setSaveStatus('idle') }
+
+  async function reloadCurrentItem() {
+    if (!form.id) return
+    try {
+      const response = await fetch('/api/admin/discover?published=all', { cache: 'no-store' })
+      if (!response.ok) throw new Error(concurrencyCopy.reloadFailed)
+      const data = await response.json() as { items?: DiscoverItem[] }
+      const latestItems = data.items || []
+      const latest = latestItems.find((item) => item.id === form.id)
+      if (!latest) throw new Error(concurrencyCopy.reloadFailed)
+      setItems(latestItems)
+      setServerSnapshotAt(Date.parse(latest.updatedAt) || Date.now())
+      setForm(toForm(latest))
+      setFormErrors([])
+      setFieldErrors({})
+      setSaveStatus('idle')
+      setStaleConflict(false)
+    } catch (reloadError) {
+      toast({ title: DISCOVER_ADMIN_COPY.manager.loadFailed, description: reloadError instanceof Error ? reloadError.message : concurrencyCopy.reloadFailed, variant: 'destructive' })
+    }
+  }
 
   async function saveItem(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSaveStatus('saving'); setFormErrors([]); setFieldErrors({})
     try {
-      const response = await fetch('/api/admin/discover', { method: form.id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload(form)) })
-      const data = await response.json() as { item?: DiscoverItem; error?: string; details?: DiscoverValidationDetail[] }
+      const requestPayload = payload(form)
+      if (form.id && serverSnapshotAt > 0) requestPayload.expectedUpdatedAt = new Date(serverSnapshotAt).toISOString()
+      const response = await fetch('/api/admin/discover', { method: form.id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestPayload) })
+      const data = await response.json() as { item?: DiscoverItem; error?: string; code?: string; details?: DiscoverValidationDetail[] }
       if (!response.ok || !data.item) {
+        const isStaleWrite = response.status === 409 && data.code === 'STALE_WRITE'
+        if (isStaleWrite) {
+          setStaleConflict(true)
+          setFieldErrors({})
+          setFormErrors([])
+          throw new Error(concurrencyCopy.conflict)
+        }
         const details = data.details || [data.error || DISCOVER_ADMIN_COPY.manager.saveFailed]
         const nextFieldErrors: Partial<Record<keyof DiscoverForm, string>> = {}
         const messages = details.map((detail) => typeof detail === 'string' ? detail : typeof detail.message === 'string' ? detail.message : DISCOVER_ADMIN_COPY.manager.saveFailed)
@@ -101,7 +134,7 @@ export function DiscoverManager() {
       }
       const saved = data.item
       setItems((current) => form.id ? current.map((item) => item.id === saved.id ? saved : item) : [saved, ...current])
-      discardDraft(form.id); setServerSnapshotAt(Date.parse(saved.updatedAt) || Date.now()); setSaveStatus('saved'); setForm(toForm(saved)); toast({ title: DISCOVER_ADMIN_COPY.editor.saved, description: DISCOVER_ADMIN_COPY.manager.saveToast(saved.title) })
+      discardDraft(form.id); setStaleConflict(false); setServerSnapshotAt(Date.parse(saved.updatedAt) || Date.now()); setSaveStatus('saved'); setForm(toForm(saved)); toast({ title: DISCOVER_ADMIN_COPY.editor.saved, description: DISCOVER_ADMIN_COPY.manager.saveToast(saved.title) })
     } catch (saveError) { setSaveStatus('idle'); toast({ title: DISCOVER_ADMIN_COPY.manager.saveFailedTitle, description: saveError instanceof Error ? saveError.message : DISCOVER_ADMIN_COPY.manager.saveFailed, variant: 'destructive' }) }
   }
 
@@ -115,6 +148,7 @@ export function DiscoverManager() {
   }
 
   return <div dir="rtl" className="space-y-6">
+    {staleConflict ? <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-4"><p>{concurrencyCopy.conflict}</p><div className="mt-3"><Button type="button" variant="outline" onClick={() => { void reloadCurrentItem() }}>{concurrencyCopy.reloadLatest}</Button></div></div> : null}
     {recovery ? <div role="status" className="rounded-xl border border-primary/40 bg-card p-4"><p>{DISCOVER_ADMIN_COPY.manager.recovery}</p><div className="mt-3 flex gap-2"><Button type="button" onClick={() => { setForm(recovery); setRecovery(null) }}>{DISCOVER_ADMIN_COPY.manager.restoreDraft}</Button><Button type="button" variant="outline" onClick={() => { discardDraft(form.id); setRecovery(null) }}>{DISCOVER_ADMIN_COPY.manager.discardDraft}</Button></div></div> : null}
     <DiscoverEditor value={form} status={saveStatus} errors={formErrors} fieldErrors={fieldErrors} onChange={updateForm} onSubmit={saveItem} onCancel={resetForm} />
     <div className="grid gap-6 xl:grid-cols-2"><DiscoverImportExport value={payload(form)} onImport={(value) => { const imported = value as unknown as DiscoverForm; setForm({ ...emptyForm, ...imported, id: form.id, tags: Array.isArray(imported.tags) ? imported.tags.join(', ') : imported.tags }); setSaveStatus('idle'); setFormErrors([]) }} /><DiscoverPreview value={form} /></div>

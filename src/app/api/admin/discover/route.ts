@@ -16,10 +16,18 @@ function requiresJson(request: NextRequest): boolean {
   return (request.headers.get('content-type') || '').split(';', 1)[0].trim().toLowerCase() === 'application/json'
 }
 
-function isUniqueConstraintError(error: unknown): boolean {
+function hasPrismaErrorCode(error: unknown, code: string): boolean {
   return error instanceof Prisma.PrismaClientKnownRequestError
-    ? error.code === 'P2002'
-    : Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'P2002')
+    ? error.code === code
+    : Boolean(error && typeof error === 'object' && 'code' in error && error.code === code)
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return hasPrismaErrorCode(error, 'P2002')
+}
+
+function isMissingUpdateTargetError(error: unknown): boolean {
+  return hasPrismaErrorCode(error, 'P2025')
 }
 
 type ValidationDetail = string | { path: (string | number)[]; message: string }
@@ -38,6 +46,12 @@ function normalizeResponseCategory(category: string): string {
   } catch {
     return category
   }
+}
+
+function parseExpectedUpdatedAt(value: unknown): Date | null {
+  if (typeof value !== 'string') return null
+  const timestamp = Date.parse(value)
+  return Number.isFinite(timestamp) ? new Date(timestamp) : null
 }
 
 export async function GET(request: NextRequest) {
@@ -182,7 +196,13 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const parsed = discoverUpdateSchema.safeParse(await request.json())
+    const body = await request.json() as Record<string, unknown>
+    const expectedUpdatedAt = parseExpectedUpdatedAt(body.expectedUpdatedAt)
+    if (body.expectedUpdatedAt !== undefined && !expectedUpdatedAt) {
+      return validationResponse(requestId, limit.headers, [{ path: ['expectedUpdatedAt'], message: 'A valid editor snapshot timestamp is required' }])
+    }
+
+    const parsed = discoverUpdateSchema.safeParse(body)
     if (!parsed.success) {
       return validationResponse(requestId, limit.headers, parsed.error.issues.map((issue) => ({ path: issue.path.map(String), message: issue.message })))
     }
@@ -208,7 +228,10 @@ export async function PATCH(request: NextRequest) {
       contentEn: null,
     })
 
-    const item = await db.discoverItem.update({ where: { id }, data })
+    const item = await db.discoverItem.update({
+      where: expectedUpdatedAt ? { id, updatedAt: expectedUpdatedAt } : { id },
+      data,
+    })
     return withCommonApiHeaders(NextResponse.json({ item }), requestId, limit.headers)
   } catch (error) {
     if (error instanceof DiscoverEnglishPublicationError) {
@@ -218,6 +241,17 @@ export async function PATCH(request: NextRequest) {
     if (isUniqueConstraintError(error)) {
       return withCommonApiHeaders(
         NextResponse.json({ error: 'Slug already exists' }, { status: 409 }),
+        requestId,
+        limit.headers,
+      )
+    }
+
+    if (isMissingUpdateTargetError(error)) {
+      return withCommonApiHeaders(
+        NextResponse.json({
+          code: 'STALE_WRITE',
+          error: 'This Discover item changed after the editor loaded it. Reload the latest server version before saving again.',
+        }, { status: 409 }),
         requestId,
         limit.headers,
       )
