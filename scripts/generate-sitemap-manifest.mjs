@@ -20,7 +20,7 @@ const routeMap = [
   { route: '/fa/profile', file: 'src/app/profile/page.tsx', priority: 0.88, changeFrequency: 'monthly' },
   { route: '/fa/standards', file: 'src/app/standards/page.tsx', priority: 0.84, changeFrequency: 'monthly' },
   { route: '/fa/case-studies', file: 'src/app/case-studies/page.tsx', priority: 0.85, changeFrequency: 'monthly' },
-  { route: '/fa/discover', file: 'src/app/discover/page.tsx', priority: 0.86, changeFrequency: 'weekly' },
+  { route: '/discover', file: 'src/app/discover/page.tsx', priority: 0.86, changeFrequency: 'weekly' },
   {
     route: '/fa/case-studies/alirezasafaeidev-portfolio',
     file: 'src/app/case-studies/alirezasafaeidev-portfolio/page.tsx',

@@ -4,11 +4,14 @@ import {
   isAdminAuthConfigured,
   verifyAdminSessionToken,
 } from '@/lib/admin-auth'
+import { db } from '@/lib/db'
+import { isDiscoverEnglishPublic } from '@/lib/discover'
 import { env } from '@/lib/env'
 
 const ADMIN_LOGIN_PATH = '/admin/login'
 const PUBLIC_FILE = /\.(.*)$/
 const SUPPORTED_LOCALES = new Set(['fa', 'en'])
+const ENGLISH_DISCOVER_DETAIL_PATH = /^\/discover\/([a-z0-9]+(?:-[a-z0-9]+)*)$/
 const EXCLUDED_PREFIXES = [
   '/_next',
   '/api',
@@ -153,6 +156,49 @@ function withRequestContextHeaders(
   return response
 }
 
+async function isEnglishDiscoverUnavailable(pathname: string): Promise<boolean | null> {
+  const match = ENGLISH_DISCOVER_DETAIL_PATH.exec(pathname)
+  if (!match) return false
+
+  try {
+    const item = await db.discoverItem.findUnique({
+      where: { slug: match[1] },
+      select: { publishedEn: true, titleEn: true, descriptionEn: true, contentEn: true },
+    })
+    return !item || !isDiscoverEnglishPublic(item)
+  } catch {
+    // Fail open on infrastructure errors. The page-level guard remains authoritative,
+    // and a database outage must not be misreported or cached as a content 404.
+    return null
+  }
+}
+
+function englishDiscoverNotFoundResponse({
+  pathname,
+  correlationId,
+  nonce,
+}: {
+  pathname: string
+  correlationId: string
+  nonce: string
+}): NextResponse {
+  const response = new NextResponse(
+    '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resource not found | Discover</title></head><body><main><h1>Resource not found</h1><p>This Discover resource is not available in English.</p><p><a href="/en/discover">Back to Discover</a></p></main></body></html>',
+    {
+      status: 404,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Language': 'en',
+        'X-Robots-Tag': 'noindex, nofollow',
+      },
+    },
+  )
+  withRequestContextHeaders(response, { correlationId, nonce, locale: 'en', pathname })
+  withSecurityHeaders(response, pathname, nonce)
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+  return response
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const hasLocaleRedirectContext = request.headers.get('x-asdev-locale-context') === '1'
@@ -184,6 +230,17 @@ export async function proxy(request: NextRequest) {
 
   const isLocaleInternalCandidate = isLocalizedCandidate && hasLocalePrefix && !isExcludedInternalPath
   const isLegacyAsdevAlias = normalizedLocalePath === '/asdev'
+
+  if (
+    (request.method === 'GET' || request.method === 'HEAD') &&
+    maybeLocale === 'en' &&
+    isLocaleInternalCandidate
+  ) {
+    const unavailable = await isEnglishDiscoverUnavailable(normalizedLocalePath)
+    if (unavailable === true) {
+      return englishDiscoverNotFoundResponse({ pathname: normalizedLocalePath, correlationId, nonce })
+    }
+  }
 
   if (isLegacyAsdevAlias) {
     const redirectUrl = request.nextUrl.clone()
