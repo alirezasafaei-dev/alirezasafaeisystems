@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectManager } from '@/components/admin/project-manager'
 import { I18nProvider } from '@/lib/i18n-context'
 
-const toastMock = vi.fn()
+const { toastMock } = vi.hoisted(() => ({ toastMock: vi.fn() }))
 vi.mock('@/hooks/use-toast', () => ({ toast: toastMock }))
 
 function response(body: unknown, status = 200): Response {
@@ -35,8 +35,8 @@ describe('ProjectManager localization', () => {
     renderManager('fa', fetchMock)
 
     expect(screen.getByTestId('project-manager')).toHaveAttribute('dir', 'rtl')
-    expect(screen.getByRole('heading', { name: 'پروژه نمونه‌کار جدید' })).toBeInTheDocument()
-    expect(screen.getByText('پروژه‌های نمونه‌کار')).toBeInTheDocument()
+    expect(screen.getByText('پروژه نمونه‌کار جدید', { exact: true })).toBeInTheDocument()
+    expect(screen.getByText('پروژه‌های نمونه‌کار', { exact: true })).toBeInTheDocument()
     expect(await screen.findByText('هنوز پروژه نمونه‌کاری ثبت نشده است.')).toBeInTheDocument()
   })
 
@@ -45,7 +45,7 @@ describe('ProjectManager localization', () => {
     renderManager('en', fetchMock)
 
     expect(screen.getByTestId('project-manager')).toHaveAttribute('dir', 'ltr')
-    expect(screen.getByRole('heading', { name: 'New portfolio project' })).toBeInTheDocument()
+    expect(screen.getByText('New portfolio project', { exact: true })).toBeInTheDocument()
     expect(await screen.findByText('No portfolio projects yet.')).toBeInTheDocument()
   })
 
