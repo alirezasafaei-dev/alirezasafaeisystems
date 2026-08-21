@@ -1,0 +1,32 @@
+{
+  "payload": {
+    "slug": "vibe-by-mistral",
+    "title": "Vibe by Mistral؛ دستیار هوش مصنوعی برای وب و موبایل",
+    "description": "Vibe دستیار یکپارچه Mistral برای کارهای روزمره، تحقیق، کار با فایل‌ها و کدنویسی است. نسخه اندروید رسمی آن در Google Play در دسترس است و پلن رایگان برای پاسخ‌های سریع و کارهای ساده دارد.",
+    "content": "Vibe محصول یکپارچه Mistral برای کار و کدنویسی است و تجربه‌ای را که قبلاً با نام Le Chat شناخته می‌شد ادامه می‌دهد. می‌توانی از آن روی وب و موبایل استفاده کنی و برای سؤال‌وجواب، جست‌وجو و تحقیق، کار با فایل‌ها و منابع متصل و کمک در تولید محتوا از آن استفاده کنی.\n\nبرای اندروید، دکمه مقصد رسمی همین صفحه را بزن تا صفحه Vibe by Mistral در Google Play باز شود. نام بسته رسمی برنامه ai.mistral.chat است و ناشر آن Mistral AI است.\n\nپلن رایگان Vibe برای پاسخ‌های سریع و کارهای ساده روزمره ارائه می‌شود. قابلیت‌های پیشرفته‌تر و کارهای طولانی‌تر ممکن است به پلن‌های پولی یا محدودیت‌های سرویس وابسته باشند؛ بنابراین جزئیات پلن و دسترسی می‌تواند در طول زمان تغییر کند.\n\nنسخه وب همچنان از chat.mistral.ai در دسترس است. برای امنیت، دانلود موبایل را از مقصد رسمی Google Play انجام بده و قبل از نصب نام ناشر را Mistral AI بررسی کن.",
+    "externalUrl": "https://play.google.com/store/apps/details?id=ai.mistral.chat",
+    "category": "ai",
+    "tags": [
+      "Vibe",
+      "Mistral AI",
+      "AI",
+      "Android",
+      "هوش مصنوعی"
+    ],
+    "instagramUrl": "https://www.instagram.com/reel/Db_sO5lMvey/",
+    "featured": false,
+    "published": false,
+    "order": 20
+  },
+  "evidence": {
+    "sourceReel": "https://www.instagram.com/reel/Db_sO5lMvey/",
+    "destination": "https://play.google.com/store/apps/details?id=ai.mistral.chat",
+    "webDestination": "https://chat.mistral.ai/",
+    "officialDocumentation": "https://docs.mistral.ai/vibe",
+    "officialProductPage": "https://mistral.ai/products/vibe/",
+    "telegramChannel": "https://t.me/asdev_ai",
+    "telegramCommunity": "https://t.me/asdev_ai_community",
+    "notes": "Google Play currently lists the app as Vibe by Mistral (ex-Le Chat), published by Mistral AI, with a free entry tier described as suitable for quick answers and simple everyday tasks. Mistral documentation describes Vibe as its unified agent across web, mobile, editor, and terminal. Runtime publication remains intentionally false until the authenticated Admin/API write is performed and verified live.",
+    "englishPublication": "Omitted from payload; the Discover create contract defaults publishedEn to false."
+  }
+}
