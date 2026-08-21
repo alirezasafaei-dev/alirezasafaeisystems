@@ -35,25 +35,20 @@ async function authenticateAdmin(context: BrowserContext, language: 'fa' | 'en')
 }
 
 async function expectNoDocumentOverflow(page: Page) {
-  const offenders = await page.evaluate(() => {
-    const viewportWidth = document.documentElement.clientWidth
-    return Array.from(document.querySelectorAll<HTMLElement>('body *'))
-      .map((element) => {
-        const rect = element.getBoundingClientRect()
-        return {
-          tag: element.tagName.toLowerCase(),
-          className: element.className,
-          text: (element.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 120),
-          left: Math.round(rect.left),
-          right: Math.round(rect.right),
-          width: Math.round(rect.width),
-        }
-      })
-      .filter((item) => item.width > 0 && (item.left < -1 || item.right > viewportWidth + 1))
-      .slice(0, 12)
-  })
+  const dimensions = await page.evaluate(() => ({
+    viewportWidth: document.documentElement.clientWidth,
+    documentWidth: document.documentElement.scrollWidth,
+    bodyWidth: document.body.scrollWidth,
+  }))
 
-  expect(offenders, `Elements overflowing the mobile viewport:\n${JSON.stringify(offenders, null, 2)}`).toEqual([])
+  expect(
+    dimensions.documentWidth,
+    `Document overflow: ${JSON.stringify(dimensions)}`,
+  ).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+  expect(
+    dimensions.bodyWidth,
+    `Body overflow: ${JSON.stringify(dimensions)}`,
+  ).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
 }
 
 test('Persian Admin shell stays RTL and usable at mobile width', async ({ page, context }) => {
