@@ -19,6 +19,12 @@
     "order": 20
   },
   "evidence": {
+    "checkedAt": "2026-08-21",
+    "sources": [
+      "https://docs.mistral.ai/vibe",
+      "https://mistral.ai/products/vibe/",
+      "https://play.google.com/store/apps/details?id=ai.mistral.chat"
+    ],
     "sourceReel": "https://www.instagram.com/reel/Db_sO5lMvey/",
     "destination": "https://play.google.com/store/apps/details?id=ai.mistral.chat",
     "webDestination": "https://chat.mistral.ai/",
@@ -26,7 +32,7 @@
     "officialProductPage": "https://mistral.ai/products/vibe/",
     "telegramChannel": "https://t.me/asdev_ai",
     "telegramCommunity": "https://t.me/asdev_ai_community",
-    "notes": "Google Play currently lists the app as Vibe by Mistral (ex-Le Chat), published by Mistral AI, with a free entry tier described as suitable for quick answers and simple everyday tasks. Mistral documentation describes Vibe as its unified agent across web, mobile, editor, and terminal. Runtime publication remains intentionally false until the authenticated Admin/API write is performed and verified live.",
+    "notes": "Revalidated on 2026-08-21 against Mistral documentation, the official Vibe product page, and Google Play. Mistral describes Vibe as its unified agent across web/mobile and coding surfaces; the product page and Google Play describe a Free entry tier for quick answers/simple everyday tasks; Google Play lists Vibe by Mistral (ex-Le Chat) under Mistral AI. Runtime publication remains intentionally false until an authenticated Admin/API write is separately authorized and verified live.",
     "englishPublication": "Omitted from payload; the Discover create contract defaults publishedEn to false."
   }
 }
