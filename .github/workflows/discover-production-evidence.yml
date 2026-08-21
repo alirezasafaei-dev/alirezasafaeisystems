@@ -1,0 +1,232 @@
+name: Discover Production Evidence
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/evidence-requests/discover-production-evidence.json"
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    name: Production evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      PUBLIC_BASE_URL: https://alirezasafaeisystems.ir
+      INTERNAL_BASE_URL: http://127.0.0.1:3002
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}
+      VPS_JUMP_HOST: ${{ secrets.VPS_JUMP_HOST }}
+      VPS_JUMP_USER: ${{ secrets.VPS_JUMP_USER }}
+      VPS_JUMP_PORT: ${{ secrets.VPS_JUMP_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate evidence request
+        id: request
+        run: |
+          set -euo pipefail
+          REQUEST="docs/evidence-requests/discover-production-evidence.json"
+          MODE="$(jq -er '.mode' "$REQUEST")"
+          REQUEST_ID="$(jq -er '.requestId' "$REQUEST")"
+          EXPECTED_SHA="$(jq -er '.expectedProductionSha // "unspecified"' "$REQUEST")"
+          case "$MODE" in
+            inventory|admin-crud) ;;
+            *) echo "Unsupported evidence mode: $MODE" >&2; exit 1 ;;
+          esac
+          test -n "$REQUEST_ID"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "request_id=$REQUEST_ID" >> "$GITHUB_OUTPUT"
+          echo "expected_sha=$EXPECTED_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node and pnpm for browser evidence
+        if: ${{ steps.request.outputs.mode == 'admin-crud' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node
+        if: ${{ steps.request.outputs.mode == 'admin-crud' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install browser evidence dependencies
+        if: ${{ steps.request.outputs.mode == 'admin-crud' }}
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install --with-deps chromium
+
+      - name: Install SSH transport
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.VPS_JUMP_SSH_KEY }}" > ~/.ssh/id_jump_ed25519
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/id_jump_ed25519
+          ssh-keyscan -p "${VPS_JUMP_PORT:-22}" -H "$VPS_JUMP_HOST" >> ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host deploy-jump
+            HostName $VPS_JUMP_HOST
+            User $VPS_JUMP_USER
+            Port ${VPS_JUMP_PORT:-22}
+            IdentityFile ~/.ssh/id_jump_ed25519
+            IdentitiesOnly yes
+          Host deploy-target
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port ${VPS_PORT:-22}
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            ProxyJump deploy-jump
+          EOF
+          chmod 600 ~/.ssh/config
+          ssh -F ~/.ssh/config -o StrictHostKeyChecking=accept-new deploy-target true
+
+      - name: Prepare evidence workspace
+        run: |
+          set -euo pipefail
+          mkdir -p evidence-output
+          REMOTE_DIR="/tmp/asdev-discover-evidence-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "REMOTE_DIR=$REMOTE_DIR" >> "$GITHUB_ENV"
+          ssh -F ~/.ssh/config deploy-target "mkdir -m 700 -p '$REMOTE_DIR'"
+          scp -F ~/.ssh/config \
+            scripts/evidence/discover-production-api-evidence.mjs \
+            scripts/evidence/admin-session-token.mjs \
+            "deploy-target:$REMOTE_DIR/"
+          CURRENT_RELEASE="$(ssh -F ~/.ssh/config deploy-target "readlink -f /var/www/my-portfolio/current/production || true")"
+          printf '%s\n' "$CURRENT_RELEASE" > evidence-output/current-release-path.txt
+
+      - name: Run DGR-01 inventory evidence
+        if: ${{ steps.request.outputs.mode == 'inventory' }}
+        run: |
+          set -euo pipefail
+          ssh -F ~/.ssh/config deploy-target "\
+            set -euo pipefail; \
+            set -a; source /var/www/my-portfolio/shared/env/production.env; set +a; \
+            EVIDENCE_MODE=inventory \
+            EVIDENCE_INTERNAL_BASE_URL='$INTERNAL_BASE_URL' \
+            EVIDENCE_PUBLIC_BASE_URL='$PUBLIC_BASE_URL' \
+            EVIDENCE_REPORT_PATH='$REMOTE_DIR/inventory.json' \
+            node '$REMOTE_DIR/discover-production-api-evidence.mjs'"
+          scp -F ~/.ssh/config "deploy-target:$REMOTE_DIR/inventory.json" evidence-output/inventory.json
+          test "$(jq -r '.verdict' evidence-output/inventory.json)" = "PASS"
+          test "$(jq '.mismatches | length' evidence-output/inventory.json)" -eq 0
+
+      - name: Run DGR-04 API prepare evidence
+        if: ${{ steps.request.outputs.mode == 'admin-crud' }}
+        id: crud_prepare
+        run: |
+          set -euo pipefail
+          ssh -F ~/.ssh/config deploy-target "\
+            set -euo pipefail; \
+            set -a; source /var/www/my-portfolio/shared/env/production.env; set +a; \
+            EVIDENCE_MODE=crud-prepare \
+            EVIDENCE_INTERNAL_BASE_URL='$INTERNAL_BASE_URL' \
+            EVIDENCE_PUBLIC_BASE_URL='$PUBLIC_BASE_URL' \
+            EVIDENCE_REPORT_PATH='$REMOTE_DIR/crud-prepare.json' \
+            EVIDENCE_STATE_PATH='$REMOTE_DIR/crud-state.json' \
+            node '$REMOTE_DIR/discover-production-api-evidence.mjs'"
+          scp -F ~/.ssh/config "deploy-target:$REMOTE_DIR/crud-prepare.json" evidence-output/crud-prepare.json
+          scp -F ~/.ssh/config "deploy-target:$REMOTE_DIR/crud-state.json" "$RUNNER_TEMP/discover-crud-state.json"
+          test "$(jq -r '.verdict' evidence-output/crud-prepare.json)" = "PASS"
+
+      - name: Obtain masked ephemeral Admin session
+        if: ${{ steps.request.outputs.mode == 'admin-crud' && steps.crud_prepare.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          SESSION_TOKEN="$(ssh -F ~/.ssh/config deploy-target "\
+            set -euo pipefail; \
+            set -a; source /var/www/my-portfolio/shared/env/production.env; set +a; \
+            EVIDENCE_INTERNAL_BASE_URL='$INTERNAL_BASE_URL' \
+            node '$REMOTE_DIR/admin-session-token.mjs'")"
+          test -n "$SESSION_TOKEN"
+          echo "::add-mask::$SESSION_TOKEN"
+          printf 'EVIDENCE_SESSION_TOKEN=%s\n' "$SESSION_TOKEN" >> "$GITHUB_ENV"
+
+      - name: Run DGR-04 authenticated browser evidence
+        if: ${{ steps.request.outputs.mode == 'admin-crud' && steps.crud_prepare.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          EVIDENCE_PUBLIC_BASE_URL="$PUBLIC_BASE_URL" \
+          EVIDENCE_SESSION_TOKEN="$EVIDENCE_SESSION_TOKEN" \
+          EVIDENCE_STATE_PATH="$RUNNER_TEMP/discover-crud-state.json" \
+          EVIDENCE_OUTPUT_DIR="$GITHUB_WORKSPACE/evidence-output/browser" \
+          node scripts/evidence/discover-admin-browser-evidence.mjs
+          test "$(jq -r '.verdict' evidence-output/browser/browser-evidence.json)" = "PASS"
+
+      - name: Cleanup DGR-04 disposable production record
+        if: ${{ always() && steps.request.outputs.mode == 'admin-crud' }}
+        id: crud_cleanup
+        run: |
+          set -euo pipefail
+          if ssh -F ~/.ssh/config deploy-target "test -f '$REMOTE_DIR/crud-state.json'"; then
+            ssh -F ~/.ssh/config deploy-target "\
+              set -euo pipefail; \
+              set -a; source /var/www/my-portfolio/shared/env/production.env; set +a; \
+              EVIDENCE_MODE=crud-cleanup \
+              EVIDENCE_INTERNAL_BASE_URL='$INTERNAL_BASE_URL' \
+              EVIDENCE_PUBLIC_BASE_URL='$PUBLIC_BASE_URL' \
+              EVIDENCE_REPORT_PATH='$REMOTE_DIR/crud-cleanup.json' \
+              EVIDENCE_STATE_PATH='$REMOTE_DIR/crud-state.json' \
+              node '$REMOTE_DIR/discover-production-api-evidence.mjs'"
+            scp -F ~/.ssh/config "deploy-target:$REMOTE_DIR/crud-cleanup.json" evidence-output/crud-cleanup.json
+            test "$(jq -r '.verdict' evidence-output/crud-cleanup.json)" = "PASS"
+            test "$(jq -r '.baselineRestored' evidence-output/crud-cleanup.json)" = "true"
+          else
+            echo '{"verdict":"PASS","cleanup":"not-needed-no-state-created"}' > evidence-output/crud-cleanup.json
+          fi
+
+      - name: Write sanitized evidence summary
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "# Discover production evidence"
+            echo
+            echo "- Request: \`${{ steps.request.outputs.request_id }}\`"
+            echo "- Mode: \`${{ steps.request.outputs.mode }}\`"
+            echo "- Expected production SHA supplied by request: \`${{ steps.request.outputs.expected_sha }}\`"
+            echo "- Current production release path: \`$(cat evidence-output/current-release-path.txt 2>/dev/null || echo unavailable)\`"
+            echo "- Public target: \`$PUBLIC_BASE_URL\`"
+            if [ -f evidence-output/inventory.json ]; then
+              echo "- DGR-01 mismatches: \`$(jq '.mismatches | length' evidence-output/inventory.json)\`"
+              echo "- DGR-01 item count: \`$(jq '.itemCount' evidence-output/inventory.json)\`"
+            fi
+            if [ -f evidence-output/crud-prepare.json ]; then
+              echo "- DGR-04 API prepare: \`$(jq -r '.verdict' evidence-output/crud-prepare.json)\`"
+            fi
+            if [ -f evidence-output/browser/browser-evidence.json ]; then
+              echo "- DGR-04 browser: \`$(jq -r '.verdict' evidence-output/browser/browser-evidence.json)\`"
+            fi
+            if [ -f evidence-output/crud-cleanup.json ]; then
+              echo "- DGR-04 cleanup: \`$(jq -r '.verdict' evidence-output/crud-cleanup.json)\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload sanitized evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discover-production-evidence-${{ github.run_id }}
+          path: evidence-output/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove remote evidence workspace
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -n "${REMOTE_DIR:-}" ]; then
+            ssh -F ~/.ssh/config deploy-target "rm -rf '$REMOTE_DIR'" || true
+          fi
