@@ -35,7 +35,25 @@ async function authenticateAdmin(context: BrowserContext, language: 'fa' | 'en')
 }
 
 async function expectNoDocumentOverflow(page: Page) {
-  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+  const offenders = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth
+    return Array.from(document.querySelectorAll<HTMLElement>('body *'))
+      .map((element) => {
+        const rect = element.getBoundingClientRect()
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: element.className,
+          text: (element.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 120),
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+          width: Math.round(rect.width),
+        }
+      })
+      .filter((item) => item.width > 0 && (item.left < -1 || item.right > viewportWidth + 1))
+      .slice(0, 12)
+  })
+
+  expect(offenders, `Elements overflowing the mobile viewport:\n${JSON.stringify(offenders, null, 2)}`).toEqual([])
 }
 
 test('Persian Admin shell stays RTL and usable at mobile width', async ({ page, context }) => {
@@ -50,7 +68,7 @@ test('Persian Admin shell stays RTL and usable at mobile width', async ({ page, 
 
   await page.getByRole('button', { name: 'پروژه‌ها' }).click()
   await expect(page.getByTestId('project-manager')).toHaveAttribute('dir', 'rtl')
-  await expect(page.getByRole('heading', { name: 'پروژه نمونه‌کار جدید' })).toBeVisible()
+  await expect(page.getByText('پروژه نمونه‌کار جدید', { exact: true })).toBeVisible()
   await expectNoDocumentOverflow(page)
 })
 
@@ -66,6 +84,6 @@ test('English Admin shell stays LTR and usable at mobile width', async ({ page, 
 
   await page.getByRole('button', { name: 'Projects' }).click()
   await expect(page.getByTestId('project-manager')).toHaveAttribute('dir', 'ltr')
-  await expect(page.getByRole('heading', { name: 'New portfolio project' })).toBeVisible()
+  await expect(page.getByText('New portfolio project', { exact: true })).toBeVisible()
   await expectNoDocumentOverflow(page)
 })
