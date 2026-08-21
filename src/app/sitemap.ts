@@ -15,7 +15,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly' | 'monthly'
   }>).map((entry) => {
     const faPath = entry.route
-    const enPath = entry.route.replace(/^\/fa(?=\/|$)/, '/en')
+    const enPath = entry.route === '/discover'
+      ? '/en/discover'
+      : entry.route.replace(/^\/fa(?=\/|$)/, '/en')
     return {
       url: `${baseUrl}${faPath}`,
       lastModified: entry.lastModified,
