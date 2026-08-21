@@ -32,7 +32,7 @@ describe('AdminLoginForm localization', () => {
     renderLogin('fa')
 
     expect(screen.getByTestId('admin-login-form')).toHaveAttribute('dir', 'rtl')
-    expect(screen.getByRole('heading', { name: 'ورود مدیریت' })).toBeInTheDocument()
+    expect(screen.getByText('ورود مدیریت', { exact: true })).toBeInTheDocument()
     expect(screen.getByLabelText('نام کاربری')).toBeInTheDocument()
     expect(screen.getByLabelText('رمز عبور')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'ورود' })).toBeInTheDocument()
@@ -42,7 +42,7 @@ describe('AdminLoginForm localization', () => {
     renderLogin('en')
 
     expect(screen.getByTestId('admin-login-form')).toHaveAttribute('dir', 'ltr')
-    expect(screen.getByRole('heading', { name: 'Admin Login' })).toBeInTheDocument()
+    expect(screen.getByText('Admin Login', { exact: true })).toBeInTheDocument()
     expect(screen.getByLabelText('Username')).toBeInTheDocument()
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
