@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AdminDashboard } from '@/components/admin/admin-dashboard'
 import { I18nProvider } from '@/lib/i18n-context'
 
-const router = { replace: vi.fn(), refresh: vi.fn() }
-const toastMock = vi.fn()
+const { router, toastMock } = vi.hoisted(() => ({
+  router: { replace: vi.fn(), refresh: vi.fn() },
+  toastMock: vi.fn(),
+}))
 
 vi.mock('next/navigation', () => ({ useRouter: () => router }))
 vi.mock('@/hooks/use-toast', () => ({ toast: toastMock }))
