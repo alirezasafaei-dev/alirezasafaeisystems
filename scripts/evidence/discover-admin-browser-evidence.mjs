@@ -3,11 +3,11 @@ import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 
 const baseUrl = (process.env.EVIDENCE_PUBLIC_BASE_URL || 'https://alirezasafaeisystems.ir').replace(/\/$/, '')
-const sessionToken = process.env.EVIDENCE_SESSION_TOKEN
+const sessionCredential = process.env.EVIDENCE_SESSION_CREDENTIAL
 const statePath = process.env.EVIDENCE_STATE_PATH
 const outputDir = process.env.EVIDENCE_OUTPUT_DIR
 
-if (!sessionToken) throw new Error('EVIDENCE_SESSION_TOKEN is required')
+if (!sessionCredential) throw new Error('EVIDENCE_SESSION_CREDENTIAL is required')
 if (!statePath) throw new Error('EVIDENCE_STATE_PATH is required')
 if (!outputDir) throw new Error('EVIDENCE_OUTPUT_DIR is required')
 
@@ -42,7 +42,7 @@ function assert(condition, message) {
 async function addAuth(context, language) {
   await context.addCookies([
     {
-      name: 'asdev_admin_session', value: sessionToken, url: baseUrl,
+      name: 'asdev_admin_session', value: sessionCredential, url: baseUrl,
       httpOnly: true, secure: true, sameSite: 'Strict',
     },
     {
