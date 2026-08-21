@@ -44,7 +44,7 @@
     {
       "id": "ASDEV-20260708-004",
       "title": "CRITICAL_SITE database migrations",
-      "status": "pending",
+      "status": "done",
       "owner": "deploy-agent",
       "priority": 4,
       "depends_on": [],
@@ -54,11 +54,12 @@
         "prod-gated"
       ],
       "created_at": "2026-07-08T22:32:00Z",
-      "updated_at": "2026-07-08T22:32:00Z",
+      "updated_at": "2026-08-21T08:14:43Z",
       "logs": [
-        "2026-07-08T22:32:00Z created gated"
+        "2026-07-08T22:32:00Z created gated",
+        "2026-08-21T08:14:43Z completed: production migration gate verified in workflow 32459698232; 9 migrations found, no pending migrations, schema up to date, Prisma diff clean"
       ],
-      "result": null
+      "result": "verified by production workflow 32459698232 on 2026-08-21; no pending migrations"
     },
     {
       "id": "ASDEV-20260708-006",
@@ -83,7 +84,7 @@
     {
       "id": "ASDEV-20260708-007",
       "title": "Optional second production release for rollback history",
-      "status": "pending",
+      "status": "done",
       "owner": "deploy-agent",
       "priority": 4,
       "depends_on": [],
@@ -93,11 +94,12 @@
         "rollback"
       ],
       "created_at": "2026-07-08T22:40:00Z",
-      "updated_at": "2026-07-08T22:40:00Z",
+      "updated_at": "2026-08-21T08:14:43Z",
       "logs": [
-        "2026-07-08T22:40:00Z created gated"
+        "2026-07-08T22:40:00Z created gated",
+        "2026-08-21T08:14:43Z completed: production release 20260821T074319Z deployed with two live browser passes"
       ],
-      "result": null
+      "result": "production release 20260821T074319Z; rollback history now has prior release 20260820T072441Z"
     },
     {
       "id": "ASDEV-20260708-008",
