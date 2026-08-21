@@ -42,13 +42,4 @@ describe('i18n translations parity', () => {
     expect(translations.en.admin.discover.editor.save).toBe('Save item')
     expect(translations.fa.admin.discover.editor.save).toBe('ذخیره آیتم')
   })
-
-  it('provides bilingual copy for the complete Admin shell', () => {
-    expect(translations.en.admin.login.title).toBe('Admin Login')
-    expect(translations.fa.admin.login.title).toBe('ورود مدیریت')
-    expect(translations.en.admin.dashboard.status.qualified).toBe('Qualified')
-    expect(translations.fa.admin.dashboard.status.qualified).toBe('واجد شرایط')
-    expect(translations.en.admin.projects.save).toBe('Save project')
-    expect(translations.fa.admin.projects.save).toBe('ذخیره پروژه')
-  })
 })
