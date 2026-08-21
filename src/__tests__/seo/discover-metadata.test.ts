@@ -20,8 +20,8 @@ describe('Discover landing locale projection and structured data', () => {
     discoverItemMock.findMany.mockResolvedValueOnce([
       {
         slug: 'notebooklm', title: 'نوت‌بوک‌ال‌ام', description: 'راهنمای فارسی',
-        titleEn: 'NotebookLM', descriptionEn: 'English research guide', category: 'ai', tags: 'research, productivity',
-        featured: true, imageUrl: null,
+        publishedEn: true, titleEn: 'NotebookLM', descriptionEn: 'English research guide', contentEn: 'Complete English resource body',
+        category: 'ai', tags: 'research, productivity', featured: true, imageUrl: null,
       },
     ])
     const { default: DiscoverPage } = await import('@/app/discover/page')
@@ -30,7 +30,7 @@ describe('Discover landing locale projection and structured data', () => {
 
     expect(discoverItemMock.findMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { publishedEn: true },
-      select: expect.objectContaining({ titleEn: true, descriptionEn: true }),
+      select: expect.objectContaining({ publishedEn: true, titleEn: true, descriptionEn: true, contentEn: true }),
     }))
     expect(screen.getByRole('heading', { name: 'NotebookLM' })).toBeInTheDocument()
     expect(screen.queryByText('نوت‌بوک‌ال‌ام')).not.toBeInTheDocument()
@@ -41,8 +41,8 @@ describe('Discover landing locale projection and structured data', () => {
     discoverItemMock.findMany.mockResolvedValueOnce([
       {
         slug: 'notebooklm', title: 'نوت‌بوک‌ال‌ام', description: 'راهنمای فارسی',
-        titleEn: 'NotebookLM', descriptionEn: 'English research guide', category: 'ai', tags: 'research',
-        featured: false, imageUrl: null,
+        publishedEn: false, titleEn: 'NotebookLM', descriptionEn: 'English research guide', contentEn: null,
+        category: 'ai', tags: 'research', featured: false, imageUrl: null,
       },
     ])
     const { default: DiscoverPage } = await import('@/app/discover/page')
@@ -59,8 +59,8 @@ describe('Discover landing locale projection and structured data', () => {
     discoverItemMock.findMany.mockResolvedValueOnce([
       {
         slug: 'notebooklm', title: 'نوت‌بوک‌ال‌ام', description: 'راهنمای فارسی',
-        titleEn: 'NotebookLM', descriptionEn: 'English research guide', category: 'ai', tags: 'research',
-        featured: false, imageUrl: null,
+        publishedEn: true, titleEn: 'NotebookLM', descriptionEn: 'English research guide', contentEn: 'Complete English resource body',
+        category: 'ai', tags: 'research', featured: false, imageUrl: null,
       },
     ])
     const { default: DiscoverPage } = await import('@/app/discover/page')
