@@ -19,10 +19,15 @@
     "order": 10
   },
   "evidence": {
+    "checkedAt": "2026-08-21",
+    "sources": [
+      "https://g.media/en/products",
+      "https://t.me/deepseek_gidbot"
+    ],
     "sourceReel": "https://www.instagram.com/p/Db9O3I-M6Dy/",
     "destination": "https://t.me/deepseek_gidbot",
     "operator": "G.Media",
-    "notes": "G.Media lists @deepseek_gidbot as DeepSeek in Telegram. Free. The Persian/setup/style/limit observations come from the owner-supplied ASDEV Reel and are explicitly framed as test observations, not permanent guarantees. This bot is third-party and not the official DeepSeek bot.",
+    "notes": "Revalidated on 2026-08-21: G.Media's public product catalog lists @deepseek_gidbot as DeepSeek in Telegram and labels it Free. The bot remains third-party and is not represented as an official DeepSeek service. The Persian/setup/style/limit observations remain owner-supplied ASDEV test observations, not permanent guarantees.",
     "englishPublication": "Omitted from payload; the Discover create contract defaults publishedEn to false."
   }
 }
