@@ -76,7 +76,7 @@ test('bilingual resource exposes locale-correct content, canonical and reciproca
   await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveAttribute('href', /\/en\/discover\/playwright-discover-resource$/)
 })
 
-test('Persian-only resource is public in Persian and excluded from English', async ({ page }) => {
+test('Persian-only resource is public in Persian and returns a true 404 in English', async ({ page }) => {
   await page.goto(persianOnlyPath)
   await expect(page.locator('h1')).toContainText('منبع فقط فارسی')
 
@@ -84,12 +84,14 @@ test('Persian-only resource is public in Persian and excluded from English', asy
   await expect(page.getByText('Playwright Discover Resource', { exact: true })).toBeVisible()
   await expect(page.getByText('منبع فقط فارسی', { exact: true })).toHaveCount(0)
 
-  await page.goto(englishPersianOnlyPath)
-  // Next.js streamed notFound responses may retain HTTP 200. The indexability contract
-  // is the rendered not-found UI plus noindex, while sitemap tests cover URL exclusion.
-  await expect(page.locator('h1')).toHaveText('۴۰۴')
+  const englishResponse = await page.goto(englishPersianOnlyPath)
+  expect(englishResponse?.status()).toBe(404)
+  expect(englishResponse?.headers()['x-robots-tag']).toBe('noindex, nofollow')
+  expect(englishResponse?.headers()['cache-control']).toContain('no-store')
+  await expect(page.locator('h1')).toHaveText('Resource not found')
   await expect(page.getByText('منبع فقط فارسی', { exact: true })).toHaveCount(0)
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute('content', /noindex/)
+  await expect(page.getByRole('link', { name: 'Back to Discover' })).toHaveAttribute('href', '/en/discover')
 })
 
 test('authenticated Discover Admin preserves RTL/LTR semantics and passes serious/critical axe checks', async ({ page }) => {
