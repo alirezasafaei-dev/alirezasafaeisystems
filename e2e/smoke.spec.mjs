@@ -84,7 +84,7 @@ test.describe('smoke', () => {
   test('admin route redirects unauthenticated users to login', async ({ page }) => {
     await page.goto('/admin')
     await expect(page).toHaveURL(/\/admin\/login/)
-    await expect(page.locator('text=Admin Login')).toBeVisible()
+    await expect(page.getByTestId('admin-login-form')).toBeVisible()
   })
 
   test('qualification form submits and redirects to thank-you', async ({ page }) => {
