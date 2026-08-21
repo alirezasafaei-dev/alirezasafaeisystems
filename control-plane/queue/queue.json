@@ -5,7 +5,7 @@
     {
       "id": "ASDEV-20260708-002",
       "title": "CRITICAL_SITE public edge nginx SSL DNS",
-      "status": "pending",
+      "status": "done",
       "owner": "deploy-agent",
       "priority": 2,
       "depends_on": [],
@@ -16,16 +16,17 @@
         "edge"
       ],
       "created_at": "2026-07-08T22:32:00Z",
-      "updated_at": "2026-07-08T22:32:00Z",
+      "updated_at": "2026-08-21T08:52:00Z",
       "logs": [
-        "2026-07-08T22:32:00Z created gated"
+        "2026-07-08T22:32:00Z created gated",
+        "2026-08-21T08:52:00Z completed: existing CRITICAL_SITE edge verified under approval; nginx -t passed, DNS/TLS/redirects verified, backup /srv/asdev/backups/nginx/20260821T084942Z"
       ],
-      "result": null
+      "result": "public edge already active and verified; no disruptive port rebind performed"
     },
     {
       "id": "ASDEV-20260708-003",
       "title": "Install live monitoring timers on hosts",
-      "status": "pending",
+      "status": "done",
       "owner": "sre-observer",
       "priority": 3,
       "depends_on": [],
@@ -35,11 +36,12 @@
         "prod-gated"
       ],
       "created_at": "2026-07-08T22:32:00Z",
-      "updated_at": "2026-07-08T22:32:00Z",
+      "updated_at": "2026-08-21T08:52:00Z",
       "logs": [
-        "2026-07-08T22:32:00Z created gated"
+        "2026-07-08T22:32:00Z created gated",
+        "2026-08-21T08:52:00Z completed: four monitoring timers enabled on AUTOMATION_SERVER; services exit 0 and probes green"
       ],
-      "result": null
+      "result": "asdev-monitor-automation-host, disk, public-http, public-vps-app active and enabled"
     },
     {
       "id": "ASDEV-20260708-004",
@@ -165,7 +167,7 @@
     {
       "id": "ASDEV-20260709-002",
       "title": "CWV measurement after public edge",
-      "status": "pending",
+      "status": "done",
       "owner": "automation-host-agent",
       "priority": 3,
       "depends_on": [],
@@ -174,11 +176,12 @@
         "gated"
       ],
       "created_at": "2026-07-09T00:15:13Z",
-      "updated_at": "2026-07-09T00:15:13Z",
+      "updated_at": "2026-08-21T08:52:00Z",
       "logs": [
-        "2026-07-09T00:15:13Z created"
+        "2026-07-09T00:15:13Z created",
+        "2026-08-21T08:52:00Z completed: three-run public CWV measurement; performance 72/79/77, median 77; accessibility 95, best practices 93, SEO 100, CLS 0"
       ],
-      "result": null
+      "result": "CWV measured with non-blocking LCP/TTI warning"
     },
     {
       "id": "ASDEV-20260709-003",
@@ -245,7 +248,7 @@
     {
       "id": "ASDEV-20260709-006",
       "title": "CWV after public edge",
-      "status": "pending",
+      "status": "done",
       "owner": "sre-observer",
       "priority": 3,
       "depends_on": [],
@@ -255,11 +258,12 @@
         "monitoring"
       ],
       "created_at": "2026-07-09T00:15:35Z",
-      "updated_at": "2026-07-09T00:15:35Z",
+      "updated_at": "2026-08-21T08:52:00Z",
       "logs": [
-        "2026-07-09T00:15:35Z created"
+        "2026-07-09T00:15:35Z created",
+        "2026-08-21T08:52:00Z completed: post-edge public probe timer active and green"
       ],
-      "result": null
+      "result": "public HTTP probe timer active; root/ready/health 200"
     },
     {
       "id": "ASDEV-20260709-007",
