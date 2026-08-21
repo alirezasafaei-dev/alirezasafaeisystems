@@ -18,8 +18,8 @@ describe('Discover production evidence workflow safety contract', () => {
   })
 
   it('masks the ephemeral Admin session and never uploads runner state', () => {
-    expect(workflow).toContain('echo "::add-mask::$SESSION_TOKEN"')
-    expect(workflow).toContain('EVIDENCE_SESSION_TOKEN=%s')
+    expect(workflow).toContain('echo "::add-mask::$SESSION_CREDENTIAL"')
+    expect(workflow).toContain('EVIDENCE_SESSION_CREDENTIAL=%s')
     expect(workflow).toContain('path: evidence-output/')
     expect(workflow).not.toContain('path: $RUNNER_TEMP/discover-crud-state.json')
     expect(sessionHelper).not.toContain('ADMIN_PASSWORD)')
@@ -47,6 +47,7 @@ describe('Discover production evidence workflow safety contract', () => {
     expect(browserEvidence).toContain("imageUrl: ''")
     expect(browserEvidence).toContain("instagramUrl: ''")
     expect(browserEvidence).toContain("telegramGuideUrl: ''")
+    expect(browserEvidence).toContain('EVIDENCE_SESSION_CREDENTIAL')
     expect(browserEvidence).toContain("page.locator('#discover-json-import')")
     expect(browserEvidence).toContain("page.waitForEvent('download')")
     expect(browserEvidence).toContain("for (const language of ['fa', 'en'])")
