@@ -32,6 +32,22 @@ describe('sitemap contract', () => {
     })
   })
 
+  it('emits the canonical Discover landing with explicit FA, EN, and x-default alternates', async () => {
+    discoverItemMock.findMany.mockResolvedValueOnce([])
+    const { default: sitemap } = await import('@/app/sitemap')
+    const entries = await sitemap()
+
+    const canonical = entries.find((entry) => entry.url === 'https://alirezasafaeisystems.ir/discover')
+
+    expect(canonical).toBeDefined()
+    expect(entries.some((entry) => entry.url === 'https://alirezasafaeisystems.ir/fa/discover')).toBe(false)
+    expect(canonical?.alternates?.languages).toEqual({
+      'fa-IR': 'https://alirezasafaeisystems.ir/discover',
+      'en-US': 'https://alirezasafaeisystems.ir/en/discover',
+      'x-default': 'https://alirezasafaeisystems.ir/discover',
+    })
+  })
+
   it('adds only published locale detail routes and does not advertise an unavailable English alternate', async () => {
     discoverItemMock.findMany.mockResolvedValueOnce([
       { slug: 'notebooklm', published: true, publishedEn: false, updatedAt: new Date('2026-08-15T20:00:00Z') },
