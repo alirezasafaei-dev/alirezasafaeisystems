@@ -39,7 +39,7 @@ jobs:
     outputs:
       resolved_sha: ${{ steps.resolve_ref.outputs.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ inputs.ref }}
 
@@ -74,10 +74,10 @@ jobs:
             "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$TARGET_REF" \
             -d "$PAYLOAD" >/dev/null
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
         with:
           version: 9.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
@@ -113,14 +113,14 @@ jobs:
       VPS_JUMP_PORT: ${{ secrets.VPS_JUMP_PORT }}
       VPS_SSH_KEY_PASSPHRASE: ${{ secrets.VPS_SSH_KEY_PASSPHRASE }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ needs.quality-gate.outputs.resolved_sha }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
         with:
           version: 9.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
@@ -276,7 +276,7 @@ jobs:
 
       - name: Upload live verification evidence
         if: ${{ always() && steps.live_verify.outcome != 'skipped' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: live-verification-${{ github.run_id }}
           if-no-files-found: error
