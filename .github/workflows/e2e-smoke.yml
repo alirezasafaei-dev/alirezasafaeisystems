@@ -28,15 +28,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
         with:
           dest: ${{ runner.temp }}/setup-pnpm
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 20
           cache: 'pnpm'
@@ -98,7 +98,7 @@ jobs:
         run: node scripts/ci/validate-public-experience-evidence-trusted.mjs --manifest "$EVIDENCE_MANIFEST" --root "$GITHUB_WORKSPACE"
       - name: Upload V3.2 public experience evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: v32-public-experience-${{ github.event.pull_request.head.sha || github.sha }}
           path: test-results/public-experience
@@ -111,7 +111,7 @@ jobs:
         run: pnpm exec playwright test e2e/public-v31-visual.spec.ts
       - name: Upload V3.1 visual evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: v31-visual-evidence-${{ github.sha }}
           path: test-results/v31-evidence
