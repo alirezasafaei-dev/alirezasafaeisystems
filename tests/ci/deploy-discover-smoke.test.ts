@@ -40,7 +40,7 @@ describe('Discover production rollout contract', () => {
     expect(workflow).toContain('LIVE_VERIFY_BASE_URL="$BASE_URL"')
     expect(workflow).toContain('LIVE_VERIFY_RELEASE_SHA="$TARGET_REF"')
     expect(workflow).toContain('LIVE_VERIFY_REPORT_PATH="$GITHUB_WORKSPACE/live-verification-report-pass-${PASS}.md"')
-    expect(workflow).toContain('actions/upload-artifact@v4')
+    expect(workflow).toMatch(/actions\/upload-artifact@(?:v[0-9]+|[0-9a-f]{40})/)
     expect(workflow).toContain('live-verification-report-pass-*.md')
     expect(workflow).toContain('/statuses/$TARGET_REF')
     expect(workflow).toContain('production/live-verification')
