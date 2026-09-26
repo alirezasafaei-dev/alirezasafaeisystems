@@ -57,7 +57,7 @@ describe('V3.1 visual evidence contract', () => {
   it('uploads screenshot evidence for every SHA even when visual verification fails', () => {
     const workflow = read('.github/workflows/e2e-smoke.yml')
 
-    expect(workflow).toContain('actions/upload-artifact@v4')
+    expect(workflow).toMatch(/actions\/upload-artifact@[0-9a-f]{40}/)
     expect(workflow).toContain('test-results/v31-evidence')
     expect(workflow).toContain('v31-visual-evidence-${{ github.sha }}')
     expect(workflow).toContain('if-no-files-found: error')
