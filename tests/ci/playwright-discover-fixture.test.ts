@@ -28,8 +28,8 @@ describe('Playwright Discover fixture isolation', () => {
 
   it('runs both smoke and accessibility browser contracts in the E2E workflow without persisting checkout credentials', () => {
     const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/e2e-smoke.yml'), 'utf8')
-    const checkoutIndex = workflow.search(/- uses: actions\/checkout@[0-9a-f]{40}/)
-    const setupIndex = workflow.search(/- uses: pnpm\/action-setup@[0-9a-f]{40}/)
+    const checkoutIndex = workflow.search(/- uses: actions\/checkout@(?:v[0-9]+|[0-9a-f]{40})/)
+    const setupIndex = workflow.search(/- uses: pnpm\/action-setup@(?:v[0-9]+|[0-9a-f]{40})/)
     const checkoutBlock = workflow.slice(checkoutIndex, setupIndex)
 
     expect(workflow).toContain('pnpm run test:e2e:smoke')
