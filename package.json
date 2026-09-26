@@ -139,7 +139,9 @@
       "undici": "7.29.0",
       "ip-address": "10.3.1",
       "nanoid": "3.3.18",
-      "postcss": "8.5.18",
+      "postcss": "8.5.23",
+      "fflate": "0.8.3",
+      "baseline-browser-mapping": "2.11.26",
       "deepmerge-ts": "8.0.0",
       "browserslist": "4.28.7"
     }
